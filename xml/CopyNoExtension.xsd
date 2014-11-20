@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE  xs:schema >
+<xs:schema attributeFormDefault="unqualified"
+	   elementFormDefault="unqualified"
+	   version="1.0"
+	   xmlns:gdml_simple_extension="http://www.example.org/"
+	   xmlns:gdml="http://cern.ch/2001/Schemas/GDML"
+	   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:redefine schemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+    <xs:annotation>
+      <xs:documentation>
+	Extend the volume element using the redefine tag.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name="SinglePlacementType">
+      <xs:annotation>
+	<xs:documentation>
+	  Extend the SinglePlacementType defined by GDML.
+	</xs:documentation>
+      </xs:annotation>      
+      <xs:complexContent>
+	<xs:extension base="VolumeType">
+	  <xs:sequence>
+	    <xs:element minOccurs="0" maxOccurs="1" name="copyno"	type="xs:int"/>
+	  </xs:sequence>
+	</xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+  
+  <xs:element name="extension" type="extensionType"/>
+
+  <xs:element name="gdml_simple_extension">
+    <xs:annotation>
+      <xs:documentation>
+	Top-level element including the gdml element
+	plus a container extension element for e.g.
+	fields, SDs, regions and components.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="extension" minOccurs="0" maxOccurs="1"/>
+	<xs:element ref="gdml" minOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>
