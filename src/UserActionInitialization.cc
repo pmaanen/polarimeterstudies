@@ -1,0 +1,25 @@
+/*
+ * UserActionInitialization.cc
+ *
+ *  Created on: 21.11.2014
+ *      Author: pmaanen
+ */
+
+#include <UserActionInitialization.hh>
+#include "SFEventGenerator.hh"
+#include "RunAction.hh"
+#include "EventAction.hh"
+UserActionInitialization::UserActionInitialization() {
+	// TODO Auto-generated constructor stub
+
+}
+
+void UserActionInitialization::Build() const {
+	SetUserAction(new SFEventGenerator);
+	SetUserAction(new RunAction);
+	SetUserAction(new EventAction);
+}
+
+void UserActionInitialization::BuildForMaster() const {
+	SetUserAction(new RunAction);
+}
