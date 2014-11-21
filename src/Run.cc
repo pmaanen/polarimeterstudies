@@ -13,7 +13,7 @@ Run::Run() {
 }
 
 void Run::RecordEvent(const G4Event* evt) {
-	Analysis::GetInstance()->EndOfEvent(evt);
+	// TODO get hit collections here
 }
 
 void Run::Merge(const G4Run*) {

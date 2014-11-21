@@ -54,7 +54,6 @@ SensitiveDetector::SensitiveDetector(const G4String& name,
 {
 	collectionName.insert(name);
 	sensMessenger=new SensitiveDetectorMessenger(this);
-	Analysis::GetInstance()->BookObject<TNtuple>(this->GetName(),this->GetName(),"event:edep:x:y:z");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -128,10 +127,6 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 	newHit->SetPos(smearedGlobalPosition);
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
 	fHitsCollection->insert( newHit );
-	return true;
-	if(smearedGlobalPosition.mag()<0.01)
-		newHit->Print();
-
 	return true;
 }
 
