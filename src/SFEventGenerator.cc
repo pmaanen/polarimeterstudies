@@ -11,8 +11,6 @@
 
 #include "global.hh"
 using namespace CLHEP;
-SFEventGenerator* SFEventGenerator::_singleton = 0;
-
 SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
@@ -22,7 +20,6 @@ SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in)
 
 SFEventGenerator::~SFEventGenerator() {
 	delete _pGun ;
-	this->_singleton=0;
 }
 
 void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)

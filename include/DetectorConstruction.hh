@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
+#include "G4GDMLParser.hh""
 class SensitiveDetector;
 class G4MultiFunctionalDetector;
 class G4VPrimitiveScorer;
@@ -32,18 +33,19 @@ class DetectorMessenger;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction();
-  ~DetectorConstruction();
+	DetectorConstruction();
+	~DetectorConstruction();
 
-  G4VPhysicalVolume* Construct();
+	G4VPhysicalVolume* Construct();
+	void ConstructSDandField();
 
-
-  void WriteWorldToFile(G4String filename);
-  void UpdateGeometry();
+	void WriteWorldToFile(G4String filename);
+	void UpdateGeometry();
 private:
-  G4VPhysicalVolume* physiWorld;
-  DetectorMessenger* dcMessenger;
-  G4String geomfile;
+	G4GDMLParser parser;
+	G4VPhysicalVolume* physiWorld;
+	DetectorMessenger* dcMessenger;
+	G4String geomfile;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

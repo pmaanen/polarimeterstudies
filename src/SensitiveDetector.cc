@@ -139,6 +139,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep,
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
+	/*
 	G4int nofHits = fHitsCollection->entries();
 	if ( verboseLevel>1 ) {
 		G4cout << "\n-------->Hits Collection: in this event they are " << nofHits
@@ -157,6 +158,7 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 
 	}
 	return;
+	*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

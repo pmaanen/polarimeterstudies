@@ -93,14 +93,14 @@ class DetectorHit : public G4VHit
 
 typedef G4THitsCollection<DetectorHit> DetectorHitsCollection;
 
-extern G4Allocator<DetectorHit> DetectorHitAllocator;
+extern G4ThreadLocal G4Allocator<DetectorHit>* DetectorHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 inline void* DetectorHit::operator new(size_t)
 {
   void *hit;
-  hit = (void *) DetectorHitAllocator.MallocSingle();
+  hit = (void *) DetectorHitAllocator->MallocSingle();
   return hit;
 }
 
@@ -108,7 +108,7 @@ inline void* DetectorHit::operator new(size_t)
 
 inline void DetectorHit::operator delete(void *hit)
 {
-  DetectorHitAllocator.FreeSingle((DetectorHit*) hit);
+  DetectorHitAllocator->FreeSingle((DetectorHit*) hit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

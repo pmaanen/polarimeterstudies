@@ -27,7 +27,6 @@
 #include "Math/Vector3D.h"
 #include <algorithm>
 #include "hit.hh"
-#include "SteppingAction.hh"
 //
 Analysis* Analysis::_singleton = 0;
 Analysis::Analysis():_enable(false),_path(""),_filename(""),_oldname(""),_outFile(0)

@@ -32,15 +32,10 @@ class SFEventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
-	//! Singleton
-	static SFEventGenerator* GetInstance() {
-		if ( SFEventGenerator::_singleton == NULL ) SFEventGenerator::_singleton = new SFEventGenerator();
-		return SFEventGenerator::_singleton;
-	}
 	enum GeneratorMode {GUN,INPUTFILE,GENERATE};
 
 	~SFEventGenerator();
-
+	SFEventGenerator() ;
 	void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGun(G4Event* E);
@@ -50,8 +45,6 @@ public:
 	void setInfile(TString);
 	G4ParticleGun* getPGun() const{return _pGun;};
 private:
-	SFEventGenerator() ;
-	static SFEventGenerator* _singleton;
 	G4ParticleGun			*_pGun ;
 	GeneratorMode			_mode;
 	SFMessenger*			_messenger;

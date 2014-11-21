@@ -37,7 +37,7 @@
 
 #include <iomanip>
 
-G4Allocator<DetectorHit> DetectorHitAllocator;
+G4ThreadLocal G4Allocator<DetectorHit>* DetectorHitAllocator=0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

@@ -1,8 +1,12 @@
+#ifdef G4MULTITHREADED
+#include "G4MTRunManager.hh"
+#else
 #include "G4RunManager.hh"
+#endif
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
-
+#include "UserActionInitialization.hh"
 #ifdef G4VIS_USE
 #include "VisManager.hh"
 #include "G4VisExecutive.hh"
@@ -12,8 +16,6 @@
 #include "G4UIExecutive.hh"
 #endif
 
-
-#include "SteppingAction.hh"
 #include "DetectorConstruction.hh"
 #include "EventAction.hh"
 #include <QGSP_BIC.hh>
@@ -32,14 +34,14 @@ int main(int argc,char** argv) {
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
-								("help,h", "Display this help message")
-								("General.config_file,c", po::value<std::string>(), "config file")
-								("General.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
-								("General.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
-								("Detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-								("Generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
-								("Generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-								("Generator.energy,e", po::value<double>()->default_value(1),"energy of beam in GeV");
+										("help,h", "Display this help message")
+										("General.config_file,c", po::value<std::string>(), "config file")
+										("General.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
+										("General.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
+										("Detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
+										("Generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
+										("Generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
+										("Generator.energy,e", po::value<double>()->default_value(1),"energy of beam in GeV");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
@@ -55,8 +57,12 @@ int main(int argc,char** argv) {
 		theEngine->setSeed(strtol(argv[2], NULL, 10));
 	}
 	HepRandom::setTheEngine(theEngine);
-	// Construct the default run manager
-	G4RunManager * runManager = new G4RunManager;
+#ifdef G4MULTITHREADED
+	G4MTRunManager* runManager = new G4MTRunManager;
+	runManager->SetNumberOfThreads(2);
+#else
+	G4RunManager* runManager = new G4RunManager;
+#endif
 
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;  
@@ -65,14 +71,10 @@ int main(int argc,char** argv) {
 	// set physics list
 	G4VModularPhysicsList* the_physics = new QGSP_BIC;
 	runManager->SetUserInitialization(the_physics);
-	SFEventGenerator *primarygeneration = SFEventGenerator::GetInstance();
-	runManager->SetUserAction(primarygeneration);
-	RunAction* runaction=new RunAction();
-	runManager->SetUserAction(runaction);
-	EventAction* eventaction=EventAction::GetInstance();
-	runManager->SetUserAction(eventaction);
 
-	runManager->SetUserAction(SteppingAction::GetInstance());
+
+	//User action initialization
+	runManager->SetUserInitialization(new UserActionInitialization);
 	Analysis::GetInstance();
 
 #ifdef G4VIS_USE

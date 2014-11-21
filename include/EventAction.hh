@@ -23,19 +23,12 @@ class EventAction : public G4UserEventAction
 {
 	public:
 		virtual ~EventAction();
-		//! Singleton
-			static EventAction* GetInstance() {
-				if ( EventAction::_singleton == NULL ) EventAction::_singleton = new EventAction();
-				return EventAction::_singleton;
-			}
-
+		EventAction();
 		virtual void   BeginOfEventAction(const G4Event*);
 		virtual void   EndOfEventAction(const G4Event*);
 
 		G4int GetEventno();
 	private:
-		static EventAction* _singleton;
-		EventAction();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

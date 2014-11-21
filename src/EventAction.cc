@@ -22,8 +22,6 @@
 #include "G4SDManager.hh"
 #include "Analysis.hh"
 
-EventAction* EventAction::_singleton = 0;
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 EventAction::EventAction()
@@ -50,7 +48,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 //*********************************************************************************
 void EventAction::EndOfEventAction(const G4Event* evt)
 {
-	Analysis::GetInstance()->EndOfEvent(evt);
+	//Analysis::GetInstance()->EndOfEvent(evt);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -66,7 +66,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
-:physiWorld(0),geomfile("")
+:physiWorld(0),geomfile(""),parser(G4GDMLParser())
 {
 	dcMessenger=new DetectorMessenger(this);
 	if(vm.count("Detector.geometry"))
@@ -103,7 +103,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4SolidStore::GetInstance()->Clean();
 	// World
 	//CopyNoReader reader;
-	G4GDMLParser parser;
 	parser.Read(geomfile);
 	if(geomfile==""){
 		/*
@@ -118,7 +117,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 		physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 
-/*
+		/*
 		G4LogicalVolume* logicCrystal=parser.GetVolume("CrystalLV");
 		G4cout<<logicCrystal->GetName()<<G4endl;
 		new G4PVPlacement(0,G4ThreeVector(0,0,0),logicCrystal,"Crystal",logicWorld,0,0,0);
@@ -127,25 +126,37 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			pos.rotateZ(60*deg);
 			new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicWorld,0,ii,0);
 		}
-*/
+		 */
 	}
 	else{
 		physiWorld=parser.GetWorldVolume();
 	}
+
+	return physiWorld;
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::WriteWorldToFile(G4String filename) {
+	G4GDMLParser parser;
+	if(!physiWorld){
+		std::stringstream o;
+		o<<"physiWorld pointer is NULL.";
+		G4Exception("DetectorConstruction::WriteWorldToFile()","PointerError",JustWarning,o.str().c_str());
+		return;
+	}
+	parser.Write(filename,physiWorld);
+}
+
+void DetectorConstruction::ConstructSDandField() {
 	//------------------------------------------------
 	// Sensitive detectors
 	//------------------------------------------------
-
-	G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
 	const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
 
 	for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
 			iter!=auxmap->end(); iter++)
 	{
-		G4cout << "Volume " << ((*iter).first)->GetName()
-		            														<< " has the following list of auxiliary information: "
-		            														<< G4endl << G4endl;
 		G4String SDtype="";
 		G4String SDname="";
 		for (G4GDMLAuxListType::const_iterator vit=(*iter).second.begin();
@@ -163,41 +174,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 		}
 		if(SDtype=="Tracker"){
-			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
-			if(!mydet){
-				mydet = new SensitiveDetector(SDname,SDname+"Collection");
-				SDman->AddNewDetector( mydet );
-			}
+			G4VSensitiveDetector* mydet = new SensitiveDetector(SDname,SDname+"Collection");
 			G4LogicalVolume* myvol = (*iter).first;
 			G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
-			myvol->SetSensitiveDetector(mydet);
+			SetSensitiveDetector(myvol,mydet);
 		}
 		else if(SDtype=="Calo"){
-			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
 			G4LogicalVolume* myvol = (*iter).first;
-			if(!mydet){
-				G4cout<<"Creating Sensitive Detector "<<SDname<<G4endl;
-				CaloSensitiveDetector* mymfd = new CaloSensitiveDetector(SDname);
-				SetSensitiveDetector(myvol->GetName(),mymfd);
-			}
-			else{
-				G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
-				SetSensitiveDetector(myvol->GetName(),mydet);
-			}
-
+			CaloSensitiveDetector* mymfd = new CaloSensitiveDetector(SDname);
+			G4cout<<"Creating Sensitive Detector "<<SDname<<G4endl;
+			SetSensitiveDetector(myvol,mymfd);
 		}
 	}
-	return physiWorld;
-}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void DetectorConstruction::WriteWorldToFile(G4String filename) {
-	G4GDMLParser parser;
-	if(!physiWorld){
-		std::stringstream o;
-		o<<"physiWorld pointer is NULL.";
-		G4Exception("DetectorConstruction::WriteWorldToFile()","PointerError",JustWarning,o.str().c_str());
-		return;
-	}
-	parser.Write(filename,physiWorld);
 }
