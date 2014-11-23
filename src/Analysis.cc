@@ -22,7 +22,6 @@
 #include <iomanip>
 #include <vector>
 #include <string>
-#include "TrackerId.hh"
 #include "DetId.hh"
 #include "Math/Vector3D.h"
 #include <algorithm>

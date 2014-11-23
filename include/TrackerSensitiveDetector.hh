@@ -23,48 +23,47 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file persistency/gdml/G03/include/G03ColorReader.hh
-/// \brief Definition of the G03ColorReader class
+// $Id$
 //
-//
-// $Id: G03ColorReader.hh 69987 2013-05-21 12:33:52Z gcosmo $
-//
-//
-// class G03ColorReader
-//
-// Custom reader for handling "color" tags extensions in GDML.
-// -------------------------------------------------------------------------
+/// \file SensiviveDetector.hh
+/// \brief Definition of the SensitiveDetector class
 
-#ifndef G03ColorReader_H
-#define G03ColorReader_H 1
+#ifndef SensitiveDetector_h
+#define SensitiveDetector_h 1
 
-#include <map>
-#include "G4GDMLReadStructure.hh"
+#include "G4VSensitiveDetector.hh"
 
-class G4VisAttributes;
+#include "DetectorHit.hh"
 
-/// GDML reader for the copyNo
+#include <vector>
 
-class CopyNoReader : public G4GDMLReadStructure
+class G4Step;
+class G4HCofThisEvent;
+class SensitiveDetectorMessenger;
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+/// sensitive detector class
+///
+/// In Initialize(), it creates one hit for each tracker volume
+///
+/// The values are accounted in hits in ProcessHits() function which is called
+/// by Geant4 kernel at each step.
+
+class TrackerSensitiveDetector : public G4VSensitiveDetector
 {
-
- public:
-
-   CopyNoReader();
-  ~CopyNoReader();
-
-   void ExtensionRead(const xercesc::DOMElement* const element);
-   void CopyNoRead(const xercesc::DOMElement* const element);
-
-   G4VisAttributes* GetVisAttribute(const G4String& ref);
-
- protected:
-
-   virtual void VolumeRead(const xercesc::DOMElement* const);
-
- private:
-
-   std::map<G4String, G4VisAttributes*> fAttribs;
+  public:
+    TrackerSensitiveDetector(const G4String& name, 
+                const G4String& hitsCollectionName);
+    virtual ~TrackerSensitiveDetector();
+  
+    // methods from base class
+    virtual void   Initialize(G4HCofThisEvent* hitCollection);
+    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+    virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
+  private:
+    DetectorHitsCollection* fHitsCollection;
 };
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

@@ -54,9 +54,8 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 
-#include "SensitiveDetector.hh"
+#include "TrackerSensitiveDetector.hh"
 #include "DetectorMessenger.hh"
-#include "CopyNoReader.hh"
 #include "G4GDMLParser.hh"
 #include "TNtuple.h"
 #include "Analysis.hh"
@@ -165,7 +164,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		if(SDtype=="Tracker"){
 			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
 			if(!mydet){
-				mydet = new SensitiveDetector(SDname,SDname+"Collection");
+				mydet = new TrackerSensitiveDetector(SDname,SDname+"Collection");
 				SDman->AddNewDetector( mydet );
 			}
 			G4LogicalVolume* myvol = (*iter).first;

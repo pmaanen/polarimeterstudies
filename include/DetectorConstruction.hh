@@ -18,7 +18,7 @@
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
-class SensitiveDetector;
+class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;
 class G4VPrimitiveScorer;
 class G4Box;
