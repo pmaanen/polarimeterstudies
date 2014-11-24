@@ -13,7 +13,6 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
-#include "TString.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -21,16 +20,21 @@ class G4Run;
 
 class RunAction: public G4UserRunAction
 {
-	private:
 	public:
+
 		RunAction();
 		~RunAction();
 		G4int fNEvents;
 
-	public:
 		void BeginOfRunAction(const G4Run*);
 		void EndOfRunAction(const G4Run*);
 		inline G4int GetNEvents() { return fNEvents; };
+
+	private:
+
+		  G4int saveRndm;
+		  G4int luxury;
+		  G4int seed;
 
 
 };

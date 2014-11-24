@@ -66,16 +66,7 @@ void Analysis::PrepareNewRun(const G4Run* aRun=0)
 				JustWarning,message.str().c_str());
 	}
 	_oldname=fname.str();
-	_outFile=new TFile(fname.str().c_str(),"recreate");
-
-	//Check of outputfile is writeable. Abort run when not. Do it here and in EndOfRun() to save time when runs are long.
-	if(!_outFile->IsOpen()|| _outFile->IsZombie()){
-
-			std::stringstream message;
-			message<<"Output file "<<_oldname<<" not writeable or not open. Aborting....";
-			G4Exception("Analysis::EndOfRun()","FileNotOpen",
-					 RunMustBeAborted,message.str().c_str());
-		}
+	this->OpenFile(fname.str().c_str());
 }
 
 void Analysis::EndOfEvent(const G4Event* anEvent)
@@ -97,7 +88,7 @@ void Analysis::EndOfRun(const G4Run* aRun)
 		std::stringstream message;
 		message<<"Output file "<<_path<<_oldname<<" not writeable or not open. Aborting....";
 		G4Exception("Analysis::EndOfRun()","FileNotOpen",
-				 RunMustBeAborted,message.str().c_str());
+				RunMustBeAborted,message.str().c_str());
 		return;
 	}
 
@@ -124,9 +115,6 @@ void Analysis::EndOfRun(const G4Run* aRun)
 			object->Write();
 		}
 	}
-
-	_outFile->Write();
-	_outFile->Close();
-	delete _outFile;
-	_outFile=0;
+	this->Write();
+	this->CloseFile();
 }

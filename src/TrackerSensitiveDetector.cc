@@ -52,7 +52,6 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 	collectionName.insert(name);
 	Analysis::GetInstance()->BookObject<TNtuple>(this->GetName(),this->GetName(),"event:edep:x:y:z");
 }
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackerSensitiveDetector::~TrackerSensitiveDetector() 
@@ -102,8 +101,14 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
+void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
+	static G4int HCID = -1;
+	if(HCID<0)
+	{
+		HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+	}
+	HCE->AddHitsCollection(HCID,fHitsCollection);
 	return;
 }
 
