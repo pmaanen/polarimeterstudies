@@ -20,6 +20,7 @@
 #include "G4ThreeVector.hh"
 #include "G4GDMLParser.hh""
 class SensitiveDetector;
+class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;
 class G4VPrimitiveScorer;
 class G4Box;

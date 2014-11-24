@@ -54,9 +54,8 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 
-#include "SensitiveDetector.hh"
+#include "TrackerSensitiveDetector.hh"
 #include "DetectorMessenger.hh"
-#include "CopyNoReader.hh"
 #include "G4GDMLParser.hh"
 #include "TNtuple.h"
 #include "Analysis.hh"
@@ -102,7 +101,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4LogicalVolumeStore::GetInstance()->Clean();
 	G4SolidStore::GetInstance()->Clean();
 	// World
-	//CopyNoReader reader;
 	parser.Read(geomfile);
 	if(geomfile==""){
 		/*
@@ -153,7 +151,7 @@ void DetectorConstruction::ConstructSDandField() {
 	//------------------------------------------------
 
 	const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
-
+	G4SDManager* SDman=G4SDManager::GetSDMpointer();
 	for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
 			iter!=auxmap->end(); iter++)
 	{
@@ -174,7 +172,11 @@ void DetectorConstruction::ConstructSDandField() {
 
 		}
 		if(SDtype=="Tracker"){
-			G4VSensitiveDetector* mydet = new SensitiveDetector(SDname,SDname+"Collection");
+			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
+			if(!mydet){
+				mydet = new TrackerSensitiveDetector(SDname,SDname+"Collection");
+				SDman->AddNewDetector( mydet );
+			}
 			G4LogicalVolume* myvol = (*iter).first;
 			G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
 			SetSensitiveDetector(myvol,mydet);

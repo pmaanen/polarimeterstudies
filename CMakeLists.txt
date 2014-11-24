@@ -57,7 +57,7 @@ ${DISABLED_WARNINGS}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
-set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh ${PROJECT_SOURCE_DIR}/include/TrackerId.hh)
+set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh ${PROJECT_SOURCE_DIR}/include/DetId.hh)
 set(Analysis_LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh )
 set(Analysis_DICT ${CMAKE_BINARY_DIR}/AnalysisDict)
 
@@ -72,7 +72,7 @@ SET(Analysis_SRCS ${Analysis_DICT})
 add_executable(polarimeterstudies main.cc ${sources} ${headers})
 target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 
-add_library(Analysis SHARED ${Analysis_DICT} ${PROJECT_SOURCE_DIR}/src/TrackerId.cc)
+add_library(Analysis SHARED ${Analysis_DICT} ${PROJECT_SOURCE_DIR}/src/DetId.cc)
 target_link_libraries(Analysis ${ROOT_LIBRARIES})
 
 add_dependencies(polarimeterstudies Analysis)

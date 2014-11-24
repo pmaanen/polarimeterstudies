@@ -8,7 +8,6 @@
 #include "G4UItcsh.hh"
 #include "UserActionInitialization.hh"
 #ifdef G4VIS_USE
-#include "VisManager.hh"
 #include "G4VisExecutive.hh"
 #endif
 

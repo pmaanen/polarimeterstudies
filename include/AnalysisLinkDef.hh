@@ -14,7 +14,6 @@
 #pragma link C++ struct calorhit_t+;
 #pragma link C++ struct vertex_t+;
 #pragma link C++ class DetId+;
-#pragma link C++ class TrackerId+;
 #pragma link C++ struct gen_t+;
 #pragma link C++ class std::vector <trackerhit_t>+;
 #pragma link C++ class std::vector <calorhit_t>+;

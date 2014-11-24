@@ -1,16 +1,4 @@
-/polarimeterStudies/Analysis/Enable 1
-/polarimeterStudies/Analysis/SetOutputDir /user/maanen/test_SciFi2.root
-/polarimeterStudies/Generator/SetMode 0
-/gun/energy 235.9 MeV
-/gun/position 0 15 5 cm
-/gun/direction 0 -1 0
-/run/beamOn 10000
-#/gun/position 0 20 0 cm
-#/gun/direction 0 0 1 
-#/run/beamOn 100000
-#/gun/position 20 0 0 cm
-#/run/beamOn 100000
-#/gun/position -20 0 0 cm
-#/run/beamOn 100000
-#/gun/position 0 -20 0 cm
-#/run/beamOn 100000
+/polarimeterStudies/Analysis/Enable
+/gun/position 0 0 -1 m
+/gun/direction 0 0 1
+/control/loop macros/run.mac Ekin 200. 300. 10

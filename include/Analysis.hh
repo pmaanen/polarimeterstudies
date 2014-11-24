@@ -16,6 +16,7 @@
 #include "TFile.h"
 #include <sstream>
 #include "G4Exception.hh"
+#include "G4RootAnalysisManager.hh"
 class DetectorConstruction;
 class AnalysisMessenger;
 /*!
@@ -26,7 +27,7 @@ class AnalysisMessenger;
  * To access it you need to use:
  * Analysis* analysis = Analysis::GetInstance()
  */
-class Analysis {
+class Analysis: public G4RootAnalysisManager {
 public:
 	//! Singleton
 	static Analysis* GetInstance() {
