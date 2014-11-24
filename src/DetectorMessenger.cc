@@ -11,7 +11,7 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
-
+#include "G4UIcmdWithADoubleAndUnit.hh"
 DetectorMessenger::DetectorMessenger(DetectorConstruction* detc):dc(detc) {
 	dcDir=new G4UIdirectory("/polarimeterStudies/DetectorConstruction/");
 	dcDir->SetGuidance("Detector Construction Control");
@@ -22,11 +22,9 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* detc):dc(detc) {
 	updateCmd->SetGuidance("if you changed geometrical value(s).");
 	updateCmd->AvailableForStates(G4State_Idle);
 
-	writeCmd = new G4UIcmdWithAString("/polarimeterStudies/DetectorConstruction/write",this);
-	writeCmd->SetGuidance("Write geometry to gdml file.");
-	writeCmd->SetParameterName("filename",false);
-	writeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-
+	pelletSizeCmd=new G4UIcmdWithADoubleAndUnit("/polarimeterStudies/DetectorConstruction/PelletSize",this);
+	pelletSizeCmd->SetGuidance("Set target size.");
+	pelletSizeCmd->AvailableForStates(G4State_Idle);
 
 
 }
@@ -35,14 +33,13 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue){
 	if (command == updateCmd){
 		dc->UpdateGeometry();
 	}
-	else if (command == writeCmd){
-		dc->WriteWorldToFile(newValue);
+	if(command ==pelletSizeCmd){
+		dc->setTargetSize(pelletSizeCmd->GetNewDoubleValue(newValue));
 	}
 }
 
 DetectorMessenger::~DetectorMessenger() {
 	delete dcDir;
 	delete tgtMtCmd;
-	delete tgtMtCmd;
-	delete writeCmd;
+	delete pelletSizeCmd;
 }

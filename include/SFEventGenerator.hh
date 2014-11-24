@@ -48,7 +48,22 @@ public:
 	G4int getMode() const;
 	void setMode(G4int mode);
 	void setInfile(TString);
-	G4ParticleGun* getPGun() const{return _pGun;};
+	G4ParticleGun* getPGun() const {
+		return _pGun;
+	}
+	void setBeamId(G4int xbeamId) {
+		this->beamId = xbeamId;
+	}
+
+	void setTgtId(G4int xtgtId) {
+		this->tgtId = xtgtId;
+	}
+
+	void setTbeam(G4int tbeam) {
+		Tbeam = tbeam;
+	}
+
+	;
 private:
 	SFEventGenerator() ;
 	static SFEventGenerator* _singleton;
@@ -57,6 +72,8 @@ private:
 	SFMessenger*			_messenger;
 	TString 				_infile;
 	std::ifstream        _instream;
+	G4int				tgtId,beamId;
+	G4int				Tbeam;
 
 protected:
 

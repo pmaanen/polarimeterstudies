@@ -22,8 +22,8 @@ include(${Geant4_USE_FILE})
 
 #----------------------------------------------------------------------------
 # Setup Boost include directories and compile definitions
-#
-find_package(Boost 1.36 COMPONENTS program_options REQUIRED)
+#Disabled for branch "nolibs"
+#find_package(Boost 1.36 COMPONENTS program_options REQUIRED)
 #----------------------------------------------------------------------------
 # Setup Root include directories and compile definitions
 #
@@ -88,6 +88,7 @@ set(polarimeter_SCRIPTS
 	test_dp.mac
 	test_gun.mac
 	matscan.py
+	pellets.mac
 ) 
 
 foreach(_script ${polarimeter_SCRIPTS})

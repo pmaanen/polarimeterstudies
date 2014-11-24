@@ -50,7 +50,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
   fHitsCollection(NULL)
 {
 	collectionName.insert(name);
-	Analysis::GetInstance()->BookObject<TNtuple>(this->GetName(),this->GetName(),"event:edep:x:y:z");
+	Analysis::GetInstance()->BookObject<TNtuple>(this->GetName(),this->GetName(),"event:pid:tid:ekin:px:py:pz");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -81,7 +81,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	// energy deposit
 	G4double edep = aStep->GetTotalEnergyDeposit();
 
-	if (edep==0.) return false;
+	//if (edep==0.) return false;
 
 	DetectorHit* newHit = new DetectorHit();
 
@@ -90,10 +90,11 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	newHit->SetTruePos (aStep->GetPreStepPoint()->GetPosition());
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-
+	newHit->setMom(preStepPoint->GetMomentum());
+	newHit->SetTrackID(aStep->GetTrack()->GetTrackID());
 	newHit->SetTof(preStepPoint->GetGlobalTime());
 	G4ThreeVector worldPosition = preStepPoint->GetPosition();
-
+	newHit->setEkin(aStep->GetTrack()->GetKineticEnergy());
 	newHit->SetPos(worldPosition);
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
 	fHitsCollection->insert( newHit );
@@ -102,8 +103,36 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
+void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* hcof)
 {
+	static G4int HCID = -1;
+	if(HCID<0)
+	{
+		HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+	}
+	hcof->AddHitsCollection(HCID,fHitsCollection);
+	DetectorHitsCollection* HitsColl = 0;
+
+	// Fill histograms
+	HitsColl =(DetectorHitsCollection*)(hcof->GetHC(HCID));
+
+	G4int nHits = 0 ;
+
+	if(HitsColl){
+		nHits = HitsColl->entries();
+
+		for(G4int iHit=0; iHit<nHits; iHit++){
+			Analysis::GetInstance()->GetObject<TNtuple>(this->GetName())->Fill(
+					EventAction::GetInstance()->GetEventno(),
+					(*fHitsCollection)[iHit]->GetParticleId(),
+					(*fHitsCollection)[iHit]->GetTrackID(),
+					(*fHitsCollection)[iHit]->getEkin(),
+					(*fHitsCollection)[iHit]->getMom().x(),
+					(*fHitsCollection)[iHit]->getMom().y(),
+					(*fHitsCollection)[iHit]->getMom().z()
+			);
+		}
+	}
 	return;
 }
 

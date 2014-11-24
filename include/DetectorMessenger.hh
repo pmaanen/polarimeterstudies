@@ -16,7 +16,7 @@ class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWith3VectorAndUnit;
 class G4UIcmdWithoutParameter;
-
+class G4UIcmdWithADoubleAndUnit;
 class DetectorMessenger:public G4UImessenger {
 public:
 	DetectorMessenger(DetectorConstruction*);
@@ -29,7 +29,7 @@ private:
 	G4UIdirectory* dcDir;
 	G4UIcmdWithAString* tgtMtCmd;
 	G4UIcmdWithoutParameter* updateCmd;
-	G4UIcmdWithAString* writeCmd;
+	G4UIcmdWithADoubleAndUnit* pelletSizeCmd;
 };
 
 #endif /* DETECTORMESSENGER_HH_ */

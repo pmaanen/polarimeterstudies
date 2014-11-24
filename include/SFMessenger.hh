@@ -25,6 +25,8 @@ private:
 	G4UIdirectory* gunDir;
 	G4UIcmdWithAnInteger* modeCmd;
 	G4UIcmdWithAString* fileCmd;
+	G4UIcmdWithAString* targetParticleCmd;
+	G4UIcmdWithAString* beamParticleCmd;
 };
 
 #endif /* SFMESSENGER_HH_ */

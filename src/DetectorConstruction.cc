@@ -65,11 +65,9 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
-:physiWorld(0),geomfile("")
+:physiWorld(0),targetSize(0.001*mm),detSD(0)
 {
 	dcMessenger=new DetectorMessenger(this);
-	if(vm.count("Detector.geometry"))
-		this->geomfile=vm["Detector.geometry"].as<std::string>().c_str();
 }
 
 
@@ -101,102 +99,29 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4LogicalVolumeStore::GetInstance()->Clean();
 	G4SolidStore::GetInstance()->Clean();
 	// World
-	//CopyNoReader reader;
-	G4GDMLParser parser;
-	parser.Read(geomfile);
-	if(geomfile==""){
-		/*
-		G4double z[]={0,150*mm};
-		G4double rInner={0*mm,0*mm};
-		G4double rOuter[]={60*mm,60*mm};
-		G4Polyhedra* solidCrystal= new G4Polyhedra("Crystal",0*deg,360*deg,6,z,rInner,rOuter);
-		 */
-
 		G4Box* solidWorld=new G4Box("World",1*m,1*m,1*m);
 		G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 		logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 		physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+		G4Box* solidTarget=new G4Box("Target",targetSize/2,targetSize/2,targetSize/2);
+		G4LogicalVolume* logicTarget = new G4LogicalVolume(solidTarget,G4NistManager::Instance()->FindOrBuildMaterial("G4_C"),"logicTarget");
+		new G4PVPlacement(0,G4ThreeVector(0,0,targetSize/2),logicTarget,"Target",logicWorld,0,0,0);
 
-/*
-		G4LogicalVolume* logicCrystal=parser.GetVolume("CrystalLV");
-		G4cout<<logicCrystal->GetName()<<G4endl;
-		new G4PVPlacement(0,G4ThreeVector(0,0,0),logicCrystal,"Crystal",logicWorld,0,0,0);
-		G4ThreeVector pos(0,2*mm,0);
-		for(G4int ii=1;ii<7;ii++){
-			pos.rotateZ(60*deg);
-			new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicWorld,0,ii,0);
-		}
-*/
-	}
-	else{
-		physiWorld=parser.GetWorldVolume();
-	}
+		G4Sphere* solidDet=new G4Sphere("solidDet",2*targetSize,2.01*targetSize,0*deg,360*deg,0*deg,179*deg);
+		G4LogicalVolume* logicDet = new G4LogicalVolume(solidDet,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"logicDet");
+		new G4PVPlacement(0,G4ThreeVector(0,0,targetSize/2),logicDet,"Det",logicWorld,0,0,0);
+
+
 	//------------------------------------------------
 	// Sensitive detectors
 	//------------------------------------------------
 
-	G4SDManager* SDman = G4SDManager::GetSDMpointer();
-
-	const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
-
-	for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
-			iter!=auxmap->end(); iter++)
-	{
-		G4cout << "Volume " << ((*iter).first)->GetName()
-		            														<< " has the following list of auxiliary information: "
-		            														<< G4endl << G4endl;
-		G4String SDtype="";
-		G4String SDname="";
-		for (G4GDMLAuxListType::const_iterator vit=(*iter).second.begin();
-				vit!=(*iter).second.end();vit++)
-		{
-			G4cout<<(*vit).type<<" "<<(*vit).value<<G4endl;
-			if ((*vit).type=="SensDetType")
-			{
-				SDtype=(*vit).value;
-			}
-			if ((*vit).type=="SensDetName")
-			{
-				SDname=(*vit).value;
-			}
-
-		}
-		if(SDtype=="Tracker"){
-			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
-			if(!mydet){
-				mydet = new TrackerSensitiveDetector(SDname,SDname+"Collection");
-				SDman->AddNewDetector( mydet );
-			}
-			G4LogicalVolume* myvol = (*iter).first;
-			G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
-			myvol->SetSensitiveDetector(mydet);
-		}
-		else if(SDtype=="Calo"){
-			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
-			G4LogicalVolume* myvol = (*iter).first;
-			if(!mydet){
-				G4cout<<"Creating Sensitive Detector "<<SDname<<G4endl;
-				CaloSensitiveDetector* mymfd = new CaloSensitiveDetector(SDname);
-				SetSensitiveDetector(myvol->GetName(),mymfd);
-			}
-			else{
-				G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
-				SetSensitiveDetector(myvol->GetName(),mydet);
-			}
-
-		}
-	}
+	G4SDManager* man=G4SDManager::GetSDMpointer();
+	if(detSD!=0)
+		delete detSD;
+	detSD=new TrackerSensitiveDetector("tracker","trackercollection");
+	logicDet->SetSensitiveDetector(detSD);
+	man->AddNewDetector(detSD);
 	return physiWorld;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void DetectorConstruction::WriteWorldToFile(G4String filename) {
-	G4GDMLParser parser;
-	if(!physiWorld){
-		std::stringstream o;
-		o<<"physiWorld pointer is NULL.";
-		G4Exception("DetectorConstruction::WriteWorldToFile()","PointerError",JustWarning,o.str().c_str());
-		return;
-	}
-	parser.Write(filename,physiWorld);
-}

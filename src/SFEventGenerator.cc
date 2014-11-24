@@ -13,7 +13,7 @@
 using namespace CLHEP;
 SFEventGenerator* SFEventGenerator::_singleton = 0;
 
-SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in) {
+SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in),beamId(1),tgtId(1),Tbeam(100*keV) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle) ;
@@ -31,21 +31,9 @@ void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
 	TLorentzVector target;
 	//TODO: Determine by config file
 	// Declare the supported options.
-		G4int PDGbeam,PDGtarget;
-	Double_t T_beam;
-	try{
-		PDGbeam=vm["Generator.beam_particle"].as<int>();
-		PDGtarget=vm["Generator.target_particle"].as<int>();
-		T_beam = vm["Generator.beam_energy"].as<double>();
-	}
-	catch(...){
-		std::stringstream o;
-		o<<"Parsing of config file failed"<<G4endl;
-		G4Exception("SFEventGenerator::generateEventFromPhaseSpace", "ConfigurationError", FatalException,
-				o.str().c_str());
-	}
-	G4ParticleDefinition * beam_particle=G4ParticleTable::GetParticleTable()->FindParticle(PDGbeam);
-	G4ParticleDefinition * target_particle=G4ParticleTable::GetParticleTable()->FindParticle(PDGtarget);
+	Double_t T_beam=_pGun->GetParticleEnergy()/GeV;
+	G4ParticleDefinition * beam_particle=G4ParticleTable::GetParticleTable()->FindParticle(this->beamId);
+	G4ParticleDefinition * target_particle=G4ParticleTable::GetParticleTable()->FindParticle(this->tgtId);
 	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);

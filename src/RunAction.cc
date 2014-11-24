@@ -13,12 +13,12 @@
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
 #include "Analysis.hh"
-
-
+#include "G4RunManager.hh"
+#include "SFEventGenerator.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction()
+RunAction::RunAction():fNEvents(0)
 {
 	Analysis::GetInstance();
 }

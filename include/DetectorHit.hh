@@ -76,7 +76,26 @@ class DetectorHit : public G4VHit
     G4ThreeVector GetPos() const { return fPos; };
     G4ThreeVector GetTruePos() const { return fTruePos; };
     G4int GetParticleId() const      { return fParticleId; };
-    G4double GetTof() const {return fTof;};
+	G4double GetTof() const {
+		return fTof;
+	}
+	G4double getEkin() const {
+		return fEkin;
+	}
+
+	void setEkin(G4double ekin) {
+		fEkin = ekin;
+	}
+
+	const G4ThreeVector& getMom() const {
+		return fMom;
+	}
+
+	void setMom(const G4ThreeVector& mom) {
+		fMom = mom;
+	}
+
+	;
   private:
 
       G4int         fTrackID;
@@ -86,6 +105,8 @@ class DetectorHit : public G4VHit
       G4ThreeVector fPos;
       G4ThreeVector fTruePos;
       G4double      fTof;
+      G4ThreeVector fMom;
+      G4double 		fEkin;
 
 };
 

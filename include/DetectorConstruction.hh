@@ -38,12 +38,17 @@ public:
   G4VPhysicalVolume* Construct();
 
 
-  void WriteWorldToFile(G4String filename);
   void UpdateGeometry();
+
+	void setTargetSize(G4double xtargetSize) {
+		this->targetSize = xtargetSize;
+	}
+
 private:
   G4VPhysicalVolume* physiWorld;
   DetectorMessenger* dcMessenger;
-  G4String geomfile;
+  G4double targetSize;
+  TrackerSensitiveDetector* detSD;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -46,7 +46,9 @@ DetectorHit::DetectorHit()
    fTrackID(-1),
    fId(-1),
    fEdep(0.),
-   fPos(G4ThreeVector())
+   fPos(G4ThreeVector()),
+   fParticleId(0),
+   fTof(0)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -62,6 +64,8 @@ DetectorHit::DetectorHit(const DetectorHit& right)
   fId        = right.fId;
   fEdep      = right.fEdep;
   fPos       = right.fPos;
+  fTof		 = right.fTof;
+  fParticleId= right.fParticleId;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

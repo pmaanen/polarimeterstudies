@@ -9,6 +9,7 @@
 #include "SFEventGenerator.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4ParticleTable.hh"
 SFMessenger::SFMessenger(SFEventGenerator* gen):myGenerator(gen) {
 	gunDir = new G4UIdirectory("/polarimeterStudies/Generator/");
 	gunDir->SetGuidance("Generator Control");
@@ -21,6 +22,15 @@ SFMessenger::SFMessenger(SFEventGenerator* gen):myGenerator(gen) {
 	fileCmd=new G4UIcmdWithAString("/polarimeterStudies/Generator/SetInputFile",this);
 	fileCmd->SetGuidance("Set input file name");
 	fileCmd->SetParameterName("file",false);
+
+	targetParticleCmd=new G4UIcmdWithAString("/polarimeterStudies/Generator/TargetParticle",this);
+	targetParticleCmd->SetGuidance("Name of target particle");
+	targetParticleCmd->SetParameterName("target",false);
+
+	beamParticleCmd=new G4UIcmdWithAString("/polarimeterStudies/Generator/BeamParticle",this);
+	beamParticleCmd->SetGuidance("Name of beam particle");
+	beamParticleCmd->SetParameterName("beam",false);
+
 }
 
 SFMessenger::~SFMessenger() {
@@ -34,6 +44,12 @@ void SFMessenger::SetNewValue(G4UIcommand *cmd, G4String g4String)
 	}
 	if(cmd==fileCmd){
 		myGenerator->setInfile(g4String);
+	}
+	if(cmd==targetParticleCmd){
+		myGenerator->setTgtId(G4ParticleTable::GetParticleTable()->FindParticle(g4String)->GetPDGEncoding());
+	}
+	if(cmd==beamParticleCmd){
+		myGenerator->setBeamId(G4ParticleTable::GetParticleTable()->FindParticle(g4String)->GetPDGEncoding());
 	}
 }
 

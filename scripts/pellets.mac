@@ -1,0 +1,17 @@
+/polarimeterStudies/Analysis/Enable
+/gun/position 0 0 -1 m
+/gun/direction 0 0 1
+/gun/particle deuteron
+/gun/momentumAmp 970 MeV
+/polarimeterStudies/Analysis/SetFilename 1mu.root
+/polarimeterStudies/DetectorConstruction/PelletSize 0.001 mm
+/polarimeterStudies/DetectorConstruction/update
+/run/beamOn 100000
+/polarimeterStudies/Analysis/SetFilename 10mu.root
+/polarimeterStudies/DetectorConstruction/PelletSize 0.01 mm
+/polarimeterStudies/DetectorConstruction/update
+/run/beamOn 100000
+/polarimeterStudies/Analysis/SetFilename 100mu.root
+/polarimeterStudies/DetectorConstruction/PelletSize 0.1 mm
+/polarimeterStudies/DetectorConstruction/update
+/run/beamOn 100000
