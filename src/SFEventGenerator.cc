@@ -148,13 +148,13 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 
 	_instream >> iev >> part1 >> part2 >> pmom1 >> pmom2 >> theta1  >> theta2 >> phi1 >> phi2>>vx>>vy>>vz>>xp>>yp;
 	try{
-		Analysis::GetInstance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
+		Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
 	}
 	catch(myG4Exception& exc){
 		//If object is not found, book it and try again.
 		if(exc.getExceptionCode()=="ObjectNotFound"){
-			Analysis::GetInstance()->BookObject<TNtuple>("GeneratorInfo","GeneratorInfo","pmom1:pmom2:phi1:phi2:theta1:theta2:vx:vy:vz:xp:yp");
-			Analysis::GetInstance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
+			Analysis::Instance()->BookObject<TNtuple>("GeneratorInfo","GeneratorInfo","pmom1:pmom2:phi1:phi2:theta1:theta2:vx:vy:vz:xp:yp");
+			Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
 		}
 		//If it is something else, rethrow (which, in geant4 is not an exception, but a function *yik*)
 		else

@@ -9,10 +9,7 @@
 #include "SFEventGenerator.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
-UserActionInitialization::UserActionInitialization() {
-	// TODO Auto-generated constructor stub
-
-}
+UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
 
 void UserActionInitialization::Build() const {
 	SetUserAction(new SFEventGenerator);

@@ -27,56 +27,90 @@
 #include <algorithm>
 #include "hit.hh"
 //
-Analysis* Analysis::_singleton = 0;
-Analysis::Analysis():_enable(false),_path(""),_filename(""),_oldname(""),_outFile(0)
+
+
+Analysis* Analysis::fgMasterInstance = 0;
+G4ThreadLocal Analysis* Analysis::fgInstance = 0;
+
+Analysis::Analysis(G4bool isMaster):_enable(false),_path(""),_basename(""),_filename(""),_oldname(""),_outFile(0),G4RootAnalysisManager(isMaster)
 {
+
+	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
+		G4ExceptionDescription description;
+		description
+		<< "      "
+		<< "Analysis already exists."
+		<< "Cannot create another instance.";
+		G4Exception("Analysis::Analysis()",
+				"Analysis_F001", FatalException, description);
+	}
+	if ( isMaster ) fgMasterInstance = this;
+	fgInstance = this;
 	_analysisMessenger=new AnalysisMessenger(this);
 }
 
 void Analysis::PrepareNewEvent(const G4Event* /*anEvent*/)
 {
+	if(!_enable) return;
+	G4cout<<"Analysis::PrepareNewEvent"<<G4endl;
+	return;
 }
 void Analysis::AddAuxiliary(G4String name, G4String value)
 {
+	if(!_enable) return;
 	this->BookObject<TNamed>(TString(name),TString(value));
+	return;
 }
 
 void Analysis::PrepareNewRun(const G4Run* aRun=0)
 {
 	if(!_enable) return;
+	G4cout<<"Analysis::PrepareNewRun"<<G4endl;
 	std::stringstream fname;
+
+	//If path does not end with "/", add one
 	if(_path.length()>0 and _path.compare(_path.length()-1,1,"/")!=0){
 		_path+="/";
 	}
-	fname<<_path;
 
-	if(_filename.compare("")==0)
-		fname<<"run_"<<aRun->GetRunID()<<".root";
-	else{
-		fname<<_filename;
-		if(_filename.compare(_filename.length()-5,5,".root")!=0){
-			fname<<".root";
-		}
+
+	//Check if basename is set by user, if not add standard name
+	if(_basename.compare("")==0){
+		fname<<"run_"<<aRun->GetRunID();
 	}
-	if(_oldname.compare(fname.str())==0 and aRun->GetRunID()>0){
+	else{
+		fname<<_basename;
+	}
+	//Add suffix if not present (note: if no basename set, we will always need to add it)
+	if(_basename.length()>4 and _basename.compare(_basename.length()-5,5,".root")!=0){
+				fname<<".root";
+			}
+
+
+
+	if(_oldname.compare(fname.str())==0){
 		std::stringstream message;
 		message<<"Filename has not changed from old run. Overwriting old file.";
 		G4Exception("Analysis::PrepareNewRun()","Filename not changed",
 				JustWarning,message.str().c_str());
 	}
 	_oldname=fname.str();
-	this->OpenFile(fname.str().c_str());
+	this->_filename=fname.str();
 }
 
 void Analysis::EndOfEvent(const G4Event* anEvent)
 {
 	if(!_enable) return;
+	G4cout<<"Analysis::EndOfEvent"<<G4endl;
 	return;
 }
 
 void Analysis::EndOfRun(const G4Run* aRun)
 {
 	if(!_enable) return;
+	G4cout<<"Analysis::EndOfRun"<<G4endl;
+	return;
+	/*
 	G4int numEvents = aRun->GetNumberOfEvent();
 
 	G4cout<<"================="<<G4endl;
@@ -90,7 +124,8 @@ void Analysis::EndOfRun(const G4Run* aRun)
 				RunMustBeAborted,message.str().c_str());
 		return;
 	}
-
+	 */
+	/*
 	//Write hists and trees.
 	//This loops over all objects in the object store and if they inherit from TH1 or TTree they are written to file and reset.
 	//If inherits from TObject, we can not ensure it has a Reset(). So we only call Write().
@@ -116,4 +151,5 @@ void Analysis::EndOfRun(const G4Run* aRun)
 	}
 	this->Write();
 	this->CloseFile();
+	 */
 }

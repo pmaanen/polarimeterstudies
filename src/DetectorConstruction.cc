@@ -101,7 +101,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4LogicalVolumeStore::GetInstance()->Clean();
 	G4SolidStore::GetInstance()->Clean();
 	// World
-	parser.Read(geomfile);
 	if(geomfile==""){
 		/*
 		G4double z[]={0,150*mm};
@@ -127,6 +126,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		 */
 	}
 	else{
+		parser.Read(geomfile);
 		physiWorld=parser.GetWorldVolume();
 	}
 

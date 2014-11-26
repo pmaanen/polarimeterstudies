@@ -53,7 +53,7 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}
-${DISABLED_WARNINGS}")
+#${DISABLED_WARNINGS}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary

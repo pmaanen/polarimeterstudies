@@ -15,13 +15,13 @@
 #include "Analysis.hh"
 #include "Randomize.hh"
 #include <ctime>
-
+#include "Run.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction()
 {
-	Analysis::GetInstance();
+	Analysis::Instance();
 
 
 	seed = -1;      // RANLUX seed
@@ -32,7 +32,9 @@ RunAction::RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{}
+{
+	delete Analysis::Instance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -42,14 +44,16 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
-	G4cout << "Run Number:" << aRun->GetRunID()<< " started \n";
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-	Analysis::GetInstance()->PrepareNewRun( aRun);
-
-
-
+	Analysis::Instance()->PrepareNewRun(aRun);
+	G4cout<<"----------------"<<G4endl;
+	G4cout<<Analysis::Instance()->getFilename()<<G4endl;
+	G4cout<<"----------------"<<G4endl;
+	Analysis::Instance()->OpenFile(Analysis::Instance()->getFilename());
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
+		//Analysis::Instance()->PrepareNewRun(aRun);
+
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
 		return;
 	}
@@ -58,6 +62,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (seed<0) //not initialized by anybody else
 	{
+
 		seed=time(0);
 		G4Random::setTheSeed(seed,luxury);
 		G4Random::showEngineStatus();
@@ -79,24 +84,24 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //*********************************************************************************
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
-	Analysis::GetInstance()->EndOfRun( aRun);
 	G4cout <<"Run Number:" <<aRun->GetRunID()<<" ended\n";
-	delete Analysis::GetInstance();
 
-
-
-	// Complete clean-up
-	delete Analysis::GetInstance();
+	Analysis::Instance()->Write();
+	Analysis::Instance()->CloseFile();
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
 		return;
 	}
-
+	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	// save Rndm status
 	if (saveRndm == 1)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
+}
+
+G4Run* RunAction::GenerateRun() {
+	return (new Run());
 }

@@ -74,7 +74,7 @@ int main(int argc,char** argv) {
 
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
-	Analysis::GetInstance();
+	Analysis::Instance();
 
 #ifdef G4VIS_USE
 	// Visualization manager

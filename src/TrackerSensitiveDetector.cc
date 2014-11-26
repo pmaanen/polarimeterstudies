@@ -32,6 +32,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
+#include "G4EventManager.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 #include "Randomize.hh"
@@ -47,10 +48,23 @@ using namespace CLHEP;
 TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 		const G4String& hitsCollectionName)
 : G4VSensitiveDetector(name),
-  fHitsCollection(NULL)
+  fHitsCollection(NULL),
+  myTupleId(-1)
 {
 	collectionName.insert(name);
-	Analysis::GetInstance()->BookObject<TNtuple>(this->GetName(),this->GetName(),"event:edep:x:y:z");
+	Analysis* an=Analysis::Instance();
+	myTupleId.push_back(an->CreateNtuple(name,name));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"trackId"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"particleId"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"x"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"y"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"z"));
+	an->FinishNtuple(myTupleId[0]);
+
+
+
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -103,12 +117,23 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
+	Analysis* an=Analysis::Instance();
 	static G4int HCID = -1;
 	if(HCID<0)
 	{
 		HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	}
 	HCE->AddHitsCollection(HCID,fHitsCollection);
+	G4int nHits=fHitsCollection->entries();
+	for(G4int ii=0;ii<nHits;ii++){
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],(*fHitsCollection)[ii]->GetTrackID());
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[3],(*fHitsCollection)[ii]->GetParticleId());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],(*fHitsCollection)[ii]->GetEdep());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],(*fHitsCollection)[ii]->GetPos().x());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],(*fHitsCollection)[ii]->GetPos().y());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z());
+	}
 	return;
 }
 

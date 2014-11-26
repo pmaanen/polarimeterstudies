@@ -24,7 +24,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction()
+EventAction::EventAction():G4UserEventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -39,7 +39,7 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event* evt)
 {
-	Analysis::GetInstance()->PrepareNewEvent(evt);
+	//Analysis::GetInstance()->PrepareNewEvent(evt);
 }
 
 
@@ -48,7 +48,6 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 //*********************************************************************************
 void EventAction::EndOfEventAction(const G4Event* evt)
 {
-	//Analysis::GetInstance()->EndOfEvent(evt);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
