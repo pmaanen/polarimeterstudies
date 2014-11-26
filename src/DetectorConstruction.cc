@@ -68,8 +68,8 @@ DetectorConstruction::DetectorConstruction()
 :physiWorld(0),geomfile(""),parser(G4GDMLParser())
 {
 	dcMessenger=new DetectorMessenger(this);
-	if(vm.count("Detector.geometry"))
-		this->geomfile=vm["Detector.geometry"].as<std::string>().c_str();
+	if(vm.count("detector.geometry"))
+		this->geomfile=vm["detector.geometry"].as<std::string>().c_str();
 }
 
 

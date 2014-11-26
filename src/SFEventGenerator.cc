@@ -31,9 +31,9 @@ void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
 		G4int PDGbeam,PDGtarget;
 	Double_t T_beam;
 	try{
-		PDGbeam=vm["Generator.beam_particle"].as<int>();
-		PDGtarget=vm["Generator.target_particle"].as<int>();
-		T_beam = vm["Generator.beam_energy"].as<double>();
+		PDGbeam=vm["generator.beam_particle"].as<int>();
+		PDGtarget=vm["generator.target_particle"].as<int>();
+		T_beam = vm["generator.beam_energy"].as<double>();
 	}
 	catch(...){
 		std::stringstream o;
