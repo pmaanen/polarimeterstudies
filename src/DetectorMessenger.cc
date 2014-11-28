@@ -42,7 +42,5 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue){
 
 DetectorMessenger::~DetectorMessenger() {
 	delete dcDir;
-	delete tgtMtCmd;
-	delete tgtMtCmd;
 	delete writeCmd;
 }

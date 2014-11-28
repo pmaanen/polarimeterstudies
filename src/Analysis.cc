@@ -9,7 +9,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TSystem.h"
-
+#include "G4RootFileManager.hh"
 #include "G4RunManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
@@ -24,6 +24,7 @@
 #include <string>
 #include "DetId.hh"
 #include "Math/Vector3D.h"
+#include "tools/wroot/file"
 #include <algorithm>
 #include "hit.hh"
 //
@@ -32,7 +33,7 @@
 Analysis* Analysis::fgMasterInstance = 0;
 G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
-Analysis::Analysis(G4bool isMaster):_enable(false),_path(""),_basename(""),_filename(""),_oldname(""),_outFile(0),G4RootAnalysisManager(isMaster)
+Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enable(false),_path(""),_basename(""),_filename(""),_oldname("")
 {
 
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
@@ -57,6 +58,7 @@ void Analysis::PrepareNewEvent(const G4Event* /*anEvent*/)
 }
 void Analysis::AddAuxiliary(G4String name, G4String value)
 {
+
 	if(!_enable) return;
 	this->BookObject<TNamed>(TString(name),TString(value));
 	return;
@@ -98,14 +100,14 @@ void Analysis::PrepareNewRun(const G4Run* aRun=0)
 	this->_filename=fname.str();
 }
 
-void Analysis::EndOfEvent(const G4Event* anEvent)
+void Analysis::EndOfEvent(const G4Event* /*anEvent*/)
 {
 	if(!_enable) return;
 	G4cout<<"Analysis::EndOfEvent"<<G4endl;
 	return;
 }
 
-void Analysis::EndOfRun(const G4Run* aRun)
+void Analysis::EndOfRun(const G4Run* /*aRun*/)
 {
 	if(!_enable) return;
 	G4cout<<"Analysis::EndOfRun"<<G4endl;
@@ -152,4 +154,25 @@ void Analysis::EndOfRun(const G4Run* aRun)
 	this->Write();
 	this->CloseFile();
 	 */
+}
+
+G4bool Analysis::OpenFile(const G4String& fileName) {
+	if(!_enable)
+		return false;
+	else
+		return G4RootAnalysisManager::OpenFile(fileName);
+}
+
+G4bool Analysis::Write() {
+	if(!_enable)
+			return false;
+		else
+			return G4RootAnalysisManager::Write();
+}
+
+G4bool Analysis::CloseFile() {
+	if(!_enable)
+			return false;
+		else
+			return G4RootAnalysisManager::CloseFile();
 }

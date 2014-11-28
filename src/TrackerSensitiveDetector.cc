@@ -46,7 +46,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
-		const G4String& hitsCollectionName)
+		const G4String& /*hitsCollectionName*/)
 : G4VSensitiveDetector(name),
   fHitsCollection(NULL),
   myTupleId(-1)

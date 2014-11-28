@@ -27,7 +27,6 @@ private:
 
 	DetectorConstruction* dc;
 	G4UIdirectory* dcDir;
-	G4UIcmdWithAString* tgtMtCmd;
 	G4UIcmdWithoutParameter* updateCmd;
 	G4UIcmdWithAString* writeCmd;
 };

@@ -37,7 +37,7 @@ EventAction::~EventAction()
 //******************  Begin Of Event Action                 ***********************
 //*********************************************************************************
 
-void EventAction::BeginOfEventAction(const G4Event* evt)
+void EventAction::BeginOfEventAction(const G4Event* /*evt*/)
 {
 	//Analysis::GetInstance()->PrepareNewEvent(evt);
 }
@@ -46,7 +46,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 //*********************************************************************************
 //******************  End Of Event Action                 ***********************
 //*********************************************************************************
-void EventAction::EndOfEventAction(const G4Event* evt)
+void EventAction::EndOfEventAction(const G4Event* /*evt*/)
 {
 }
 

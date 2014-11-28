@@ -32,7 +32,7 @@ class SFEventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
-	enum GeneratorMode {GUN,INPUTFILE,GENERATE};
+	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3};
 
 	~SFEventGenerator();
 	SFEventGenerator() ;

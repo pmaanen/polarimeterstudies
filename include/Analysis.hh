@@ -55,7 +55,9 @@ public:
 
 	void setFilename(G4String xfilename){this->_basename= xfilename;}
 	void setPath(G4String xpath){this->_path = xpath;}
-
+	virtual G4bool OpenFile(const G4String &fileName);
+	virtual G4bool Write();
+	virtual G4bool CloseFile();
 	void AddAuxiliary(G4String name, G4String value);
 
 	const std::string& getFilename() const {
@@ -73,7 +75,6 @@ public:
 		T* t=new T(args ...);
 		TObject* retval=dynamic_cast<TObject*>(t);
 		if(!retval){
-			std::stringstream o;
 			o<<"Object "<<" not typed correctly "<<G4endl;
 			G4Exception("Analysis::BookObject()", "TypeError", FatalException,
 					o.str().c_str());
@@ -93,14 +94,12 @@ public:
 				o.str().c_str());
 
 		if(!_objects[name]){
-			std::stringstream o;
 			o<<"Object "<<name<<" not found "<<G4endl;
 			throw myG4Exception("Analysis::GetObject()", "ObjectNotFound", FatalException,
 					o.str().c_str());
 		}
 		T* retval=dynamic_cast< T* >(_objects[name]);
 		if(!retval){
-			std::stringstream o;
 			o<<"Object "<<name<<" not typed correctly "<<G4endl;
 			G4Exception("Analysis::GetObject()", "TypeError", FatalException,
 					o.str().c_str());
@@ -117,7 +116,6 @@ private:
 	bool _enable;
 	std::string _path,_basename,_filename,_oldname;
 	AnalysisMessenger* _analysisMessenger;
-	TFile* _outFile;
 	std::map<G4String,TObject*> _objects;
 };
 
