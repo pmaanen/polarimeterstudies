@@ -35,7 +35,7 @@ int main(int argc,char** argv) {
 	description.add_options()
 										("help,h", "Display this help message")
 										("general.config_file,c", po::value<std::string>(), "config file")
-										("general.threads,t", po::value<int>()->default_value(2), "number of threads.")
+										("general.workers,w", po::value<int>()->default_value(2), "number of workers.")
 										("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
 										("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
 										("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
@@ -59,7 +59,7 @@ int main(int argc,char** argv) {
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
-	runManager->SetNumberOfThreads(2);
+	runManager->SetNumberOfThreads(vm.["general.workers"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
