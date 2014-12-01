@@ -9,13 +9,13 @@
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
-
+#include "G4AnalysisMessenger.hh"
 class Analysis;
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWithABool;
 class G4UIcommand;
-class AnalysisMessenger: public G4UImessenger{
+class AnalysisMessenger: public G4AnalysisMessenger{
 public:
 	AnalysisMessenger(Analysis*);
 	virtual ~AnalysisMessenger();
@@ -24,12 +24,10 @@ public:
 private:
 
 	Analysis* ana;
-	G4UIdirectory* anaDir;
 	G4UIcmdWithAString* dirCmd;
 	G4UIcmdWithAString* fileCmd;
 	G4UIcommand* enableCmd;
 	G4UIcommand* disableCmd;
-	G4UIcmdWithAString* auxCmd;
 
 };
 

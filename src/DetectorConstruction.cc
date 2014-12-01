@@ -65,7 +65,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
-:physiWorld(0),geomfile(""),parser(G4GDMLParser())
+:physiWorld(0),parser(G4GDMLParser()),geomfile("")
 {
 	dcMessenger=new DetectorMessenger(this);
 	if(vm.count("detector.geometry"))
@@ -135,7 +135,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorConstruction::WriteWorldToFile(G4String filename) {
-	G4GDMLParser parser;
 	if(!physiWorld){
 		std::stringstream o;
 		o<<"physiWorld pointer is NULL.";

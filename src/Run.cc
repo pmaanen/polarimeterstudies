@@ -20,7 +20,7 @@ Run::Run():G4Run() {
 
 }
 
-void Run::RecordEvent(const G4Event* evt) {
+void Run::RecordEvent(const G4Event* /*evt*/) {
 	return;
 	if(!G4Threading::IsWorkerThread()){
 		G4cout<<"Run::RecordEvent() has been called for master."<<G4endl;

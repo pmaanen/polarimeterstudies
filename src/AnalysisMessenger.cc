@@ -13,37 +13,38 @@
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
-AnalysisMessenger::AnalysisMessenger(Analysis *Ana):ana(Ana)
+#include "G4FileMessenger.hh"
+AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),ana(Ana)
 {
-	anaDir=new G4UIdirectory("/polarimeterStudies/Analysis/");
-	anaDir->SetGuidance("analysis and output module control");
-
-	dirCmd=new G4UIcmdWithAString("/polarimeterStudies/Analysis/SetPath",this);
+	dirCmd=new G4UIcmdWithAString("/analysis/SetPath",this);
 	dirCmd->SetGuidance("Set output directory");
 	dirCmd->SetParameterName("dir",false);
 
-	enableCmd=new G4UIcommand("/polarimeterStudies/Analysis/Enable",this);
+	enableCmd=new G4UIcommand("/analysis/Enable",this);
 	enableCmd->SetGuidance("Enable Output");
 
-	disableCmd=new G4UIcommand("/polarimeterStudies/Analysis/Disable",this);
+	disableCmd=new G4UIcommand("/analysis/Disable",this);
 	disableCmd->SetGuidance("Disable Output");
 
-	fileCmd=new G4UIcmdWithAString("/polarimeterStudies/Analysis/SetFilename",this);
+	delete this->fFileMessenger->fSetFileNameCmd;
+	fileCmd=new G4UIcmdWithAString("/analysis/SetFileName",this);
 	fileCmd->SetGuidance("Set output file name");
 	fileCmd->SetParameterName("file",false);
 
-	auxCmd=new G4UIcmdWithAString("/polarimeterStudies/Analysis/AddAuxiliary",this);
-	auxCmd->SetGuidance("Add auxiliary information.");
-	auxCmd->SetParameterName("Info",false);
+
+
 }
 
 AnalysisMessenger::~AnalysisMessenger() {
-	delete anaDir;
 	delete dirCmd;
+	delete enableCmd;
+	delete disableCmd;
+	delete fileCmd;
 }
 
 void AnalysisMessenger::SetNewValue(G4UIcommand *cmd, G4String value)
 {
+	G4AnalysisMessenger::SetNewValue(cmd,value);
 	if( cmd== dirCmd){
 		ana->setPath(value);
 	}
@@ -56,17 +57,6 @@ void AnalysisMessenger::SetNewValue(G4UIcommand *cmd, G4String value)
 	if( cmd== disableCmd){
 		ana->Enable(false);
 	}
-	if(cmd == auxCmd){
-		std::string data(value.data());
-		std::vector<std::string> parts;
-		boost::split(parts, data, boost::is_any_of("/"));
-		if(parts.size()!=2){
-			std::stringstream o;
-			o<<"AddAuxiliary expects two string separated by a '/'."<<G4endl;
-			G4Exception("AnalysisMessenger::SetNewValue", "ArgumentError", FatalException,
-					o.str().c_str());
-		}
-		ana->AddAuxiliary(G4String(parts[0]),G4String(parts[1]));
-	}
 }
+
 

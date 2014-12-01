@@ -29,19 +29,18 @@ using namespace CLHEP;
 
 int main(int argc,char** argv) {
 
-
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
 										("help,h", "Display this help message")
 										("general.config_file,c", po::value<std::string>(), "config file")
-										("general.workers,w", po::value<int>()->default_value(2), "number of workers.")
+										("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
 										("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
 										("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
 										("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
 										("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
 										("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-										("generator.energy,e", po::value<double>()->default_value(1),"energy of beam in GeV");
+										("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
@@ -59,7 +58,7 @@ int main(int argc,char** argv) {
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
-	runManager->SetNumberOfThreads(vm.["general.workers"].as<int>());
+	runManager->SetNumberOfThreads(vm["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
@@ -76,7 +75,6 @@ int main(int argc,char** argv) {
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
 	Analysis::Instance();
-
 #ifdef G4VIS_USE
 	// Visualization manager
 	//
