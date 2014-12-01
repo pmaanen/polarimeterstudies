@@ -1,10 +1,4 @@
-/polarimeterStudies/Analysis/Enable
-/polarimeterStudies/Analysis/SetOutputDir /user/hempelmann/
-/polarimeterStudies/DetectorConstruction/SetTargetMaterial lH2
-/polarimeterStudies/DetectorConstruction/SetTargetSize 10 10 6 mm
-/polarimeterStudies/DetectorConstruction/update
-/polarimeterStudies/Analysis/SetFilename Point9.root
+/analysis/Enable
 /polarimeterStudies/Generator/SetMode 1
 /polarimeterStudies/Generator/SetInputFile Point9EventList.out
-/vis/disable
 /run/beamOn 1000000

@@ -1,4 +1,4 @@
-/polarimeterStudies/Analysis/SetFilename /user/maanen/sim/lyso_pgun/{pname}/{Ekin}.root
+/analysis/SetFilename {pname}_{Ekin}.root
 /gun/energy {Ekin} MeV
 /gun/particle {pname} 
 /run/beamOn 20000
