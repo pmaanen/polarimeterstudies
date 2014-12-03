@@ -174,7 +174,6 @@ void DetectorConstruction::ConstructSDandField() {
 			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
 			if(!mydet){
 				mydet = new TrackerSensitiveDetector(SDname,SDname+"Collection");
-				SDman->AddNewDetector( mydet );
 			}
 			G4LogicalVolume* myvol = (*iter).first;
 			G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
