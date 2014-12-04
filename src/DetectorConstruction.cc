@@ -55,10 +55,10 @@
 #include "G4PSEnergyDeposit.hh"
 
 #include "TrackerSensitiveDetector.hh"
-#include "DetectorMessenger.hh"
 #include "G4GDMLParser.hh"
 #include "TNtuple.h"
 #include "Analysis.hh"
+#include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "global.hh"
 using namespace CLHEP;
@@ -67,7 +67,7 @@ using namespace CLHEP;
 DetectorConstruction::DetectorConstruction()
 :physiWorld(0),parser(G4GDMLParser()),geomfile("")
 {
-	dcMessenger=new DetectorMessenger(this);
+	DefineCommands();
 	if(vm.count("detector.geometry"))
 		this->geomfile=vm["detector.geometry"].as<std::string>().c_str();
 }
@@ -186,4 +186,27 @@ void DetectorConstruction::ConstructSDandField() {
 			SetSensitiveDetector(myvol,mymfd);
 		}
 	}
+}
+
+void DetectorConstruction::DefineCommands(){
+
+	// Define /PolarimeterStudies/detector command directory using generic messenger class
+	fMessenger = new G4GenericMessenger(this,
+			"/PolarimeterStudies/detector/",
+			"Detector control");
+
+	G4GenericMessenger::Command& updateCmd
+	= fMessenger->DeclareMethod("update",
+			&DetectorConstruction::UpdateGeometry,
+			"Update geometry");
+	updateCmd;
+
+	G4GenericMessenger::Command& writeCmd=
+			fMessenger->DeclareMethod("write",
+					&DetectorConstruction::WriteWorldToFile,
+					"Write geometry to file.");
+	writeCmd.SetGuidance("Write geometry to gdml file.");
+	writeCmd.SetParameterName("filename",false);
+	writeCmd.SetStates(G4State_PreInit,G4State_Idle);
+	return;
 }

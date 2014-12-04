@@ -29,7 +29,6 @@ class RunAction: public G4UserRunAction
 		void BeginOfRunAction(const G4Run*);
 		void EndOfRunAction(const G4Run*);
 		inline G4int GetNEvents() { return fNEvents; };
-		virtual G4Run* GenerateRun();
 
 	private:
 

@@ -10,12 +10,13 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "global.hh"
+#include "G4GenericMessenger.hh"
 using namespace CLHEP;
 SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle) ;
-	_messenger=new SFMessenger(this);
+	DefineCommands();
 }
 
 SFEventGenerator::~SFEventGenerator() {
@@ -141,7 +142,7 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 	//check if input file is open
 	if(!_instream){
 		//if not, try to open
-		_instream.open(_infile.Data());
+		_instream.open(_infile.c_str());
 		//if not opened, file is not found, throw
 		if(!_instream){
 			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
@@ -227,6 +228,21 @@ void SFEventGenerator::setMode(G4int mode)
 }
 
 
+void SFEventGenerator::setInfile(G4String string)
+{
+	_infile=string;
+	//check if input file is open
+	if(!_instream){
+		//if not, try to open
+		_instream.open(_infile.c_str());
+		//if not opened, file is not found, throw
+		if(!_instream){
+			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
+			G4Exception("[SFEventGenerator]", "setInfile", FatalException,
+					" ERROR: Input file not found.");
+		}
+	}
+}
 
 void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 
@@ -248,23 +264,27 @@ void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 	}
 }
 
-void SFEventGenerator::setInfile(TString string)
+
+
+
+void SFEventGenerator::DefineCommands()
 {
-	_infile=string;
-	//check if input file is open
-	if(!_instream){
-		//if not, try to open
-		_instream.open(_infile.Data());
-		//if not opened, file is not found, throw
-		if(!_instream){
-			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
-			G4Exception("[SFEventGenerator]", "setInfile", FatalException,
-					" ERROR: Input file not found.");
-		}
-	}
+	fMessenger = new G4GenericMessenger(this,
+				"/PolarimeterStudies/generator/",
+				"Generator control");
+
+	G4GenericMessenger::Command& modeCmd
+	= fMessenger->DeclareMethod("Mode",
+			&SFEventGenerator::setMode,
+			"Set mode of generator.");
+	modeCmd.SetParameterName("mode", true);
+//	modeCmd.SetRange("mode>=1. && mode<=2.");
+	modeCmd.SetDefaultValue("1");
+
+	G4GenericMessenger::Command& inputCmd
+	= fMessenger->DeclareProperty("setFilename",_infile,"Set input file name");
+
 }
-
-
 
 // eof
 

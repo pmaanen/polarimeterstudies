@@ -28,7 +28,7 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4Material;
 class G4MaterialPropertiesTable;
-class DetectorMessenger;
+class G4GenericMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class DetectorConstruction : public G4VUserDetectorConstruction
@@ -43,9 +43,10 @@ public:
 	void WriteWorldToFile(G4String filename);
 	void UpdateGeometry();
 private:
+	void DefineCommands();
 	G4GDMLParser parser;
 	G4VPhysicalVolume* physiWorld;
-	DetectorMessenger* dcMessenger;
+	G4GenericMessenger* fMessenger;
 	G4String geomfile;
 };
 

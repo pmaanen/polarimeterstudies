@@ -23,6 +23,10 @@
 /vis/viewer/set/hiddenMarker 1
 /vis/scene/add/trajectories
 /vis/scene/add/hits
+#############Dont draw photons
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/invert true
 ############## for test 
 #/gun/position 0 1 .3 m
 #/gun/direction 0 -1 0

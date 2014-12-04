@@ -1,11 +1,3 @@
-// ********************************************************************
-// *                                                                  *
-// *                          EDM Polarimetry                         *
-// *                                                                  *
-// * Detector physics                                                 *
-// * RWTH Aachen 24.10.2012                                           *
-// * Fabian Hinder                                                    *
-// ********************************************************************
 
 #include "RunAction.hh"
 #include "G4Run.hh"
@@ -15,7 +7,6 @@
 #include "Analysis.hh"
 #include "Randomize.hh"
 #include <ctime>
-#include "Run.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -100,8 +91,4 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
-}
-
-G4Run* RunAction::GenerateRun() {
-	return (new Run());
 }

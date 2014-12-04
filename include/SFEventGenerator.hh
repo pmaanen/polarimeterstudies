@@ -27,7 +27,8 @@
 
 #include <TH1.h>
 #include <TH2.h>
-#include "SFMessenger.hh"
+
+class G4GenericMessenger;
 class SFEventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
@@ -42,13 +43,14 @@ public:
 	void generateEventFromPhaseSpace(G4Event* E);
 	G4int getMode() const;
 	void setMode(G4int mode);
-	void setInfile(TString);
+	void setInfile(G4String);
 	G4ParticleGun* getPGun() const{return _pGun;};
 private:
+	void DefineCommands();
 	G4ParticleGun			*_pGun ;
 	GeneratorMode			_mode;
-	SFMessenger*			_messenger;
-	TString 				_infile;
+	G4GenericMessenger*		fMessenger;
+	G4String 				_infile;
 	std::ifstream        _instream;
 
 protected:
