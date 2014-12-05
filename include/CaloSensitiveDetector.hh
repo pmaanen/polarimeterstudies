@@ -15,6 +15,8 @@ public:
 	CaloSensitiveDetector(G4String name);
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 	virtual void Initialize(G4HCofThisEvent* HC);
+private:
+	std::vector<G4int> myTupleId;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */

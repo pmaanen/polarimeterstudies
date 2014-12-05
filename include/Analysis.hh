@@ -11,11 +11,12 @@
 #include "TString.h"
 #include <map>
 #include <fstream>
-#define NUMSiPM 32
 #include "hit.hh"
 #include "TFile.h"
 #include <sstream>
 #include "G4Exception.hh"
+#include "G4RootAnalysisManager.hh"
+#include "G4Threading.hh"
 class DetectorConstruction;
 class AnalysisMessenger;
 /*!
@@ -26,12 +27,18 @@ class AnalysisMessenger;
  * To access it you need to use:
  * Analysis* analysis = Analysis::GetInstance()
  */
-class Analysis {
+class Analysis: public G4RootAnalysisManager {
 public:
 	//! Singleton
-	static Analysis* GetInstance() {
-		if ( Analysis::_singleton == NULL ) Analysis::_singleton = new Analysis();
-		return Analysis::_singleton;
+	static Analysis* Instance() {
+		{
+			if ( fgInstance == 0 ) {
+				G4bool isMaster = ! G4Threading::IsWorkerThread();
+				fgInstance = new Analysis(isMaster);
+			}
+
+			return fgInstance;
+		}
 	}
 	virtual ~Analysis() {};
 	//! Should be called at the beginning of an event, hooks into UserEventAction
@@ -46,20 +53,28 @@ public:
 	//!Enables or disables analysis module. If disabled, all functions return after calling. Used by messenger.
 	void Enable(bool xenable){_enable=xenable;};
 
-	void setFilename(G4String xfilename){this->_filename = xfilename;}
+	void setFilename(G4String xfilename){this->_basename= xfilename;}
 	void setPath(G4String xpath){this->_path = xpath;}
-
+	virtual G4bool OpenFile(const G4String &fileName);
+	virtual G4bool Write();
+	virtual G4bool CloseFile();
 	void AddAuxiliary(G4String name, G4String value);
 
+	const std::string& getFilename() const {
+		return _filename;
+	}
 
 	//Create a root object and return its adress.
 	//Stored objects must inherit from TObject to ensure it has a GetName() and Write() method, throws otherwise
 	template<typename T, typename ... Args>
 	T* BookObject(const Args& ... args){
+		std::stringstream o;
+		o<<"Should not be used "<<G4endl;
+		G4Exception("Analysis::BookObject()", "TypeError", FatalException,
+				o.str().c_str());
 		T* t=new T(args ...);
 		TObject* retval=dynamic_cast<TObject*>(t);
 		if(!retval){
-			std::stringstream o;
 			o<<"Object "<<" not typed correctly "<<G4endl;
 			G4Exception("Analysis::BookObject()", "TypeError", FatalException,
 					o.str().c_str());
@@ -73,15 +88,18 @@ public:
 	//Throws if object is not typed correctly or does not exist.
 	template<typename T>
 	T* GetObject(G4String name){
+		std::stringstream o;
+		o<<"Should not be used "<<G4endl;
+		G4Exception("Analysis::GetObject()", "TypeError", FatalException,
+				o.str().c_str());
+
 		if(!_objects[name]){
-			std::stringstream o;
 			o<<"Object "<<name<<" not found "<<G4endl;
 			throw myG4Exception("Analysis::GetObject()", "ObjectNotFound", FatalException,
 					o.str().c_str());
 		}
 		T* retval=dynamic_cast< T* >(_objects[name]);
 		if(!retval){
-			std::stringstream o;
 			o<<"Object "<<name<<" not typed correctly "<<G4endl;
 			G4Exception("Analysis::GetObject()", "TypeError", FatalException,
 					o.str().c_str());
@@ -91,13 +109,13 @@ public:
 
 private:
 	//! Private constructor: part of singleton pattern
-	Analysis();
+	Analysis(G4bool isMaster=true);
 	//! Singleton static instance
-	static Analysis* _singleton;
+	static Analysis* fgMasterInstance;
+	static G4ThreadLocal Analysis* fgInstance;
 	bool _enable;
-	std::string _path,_filename,_oldname;
+	std::string _path,_basename,_filename,_oldname;
 	AnalysisMessenger* _analysisMessenger;
-	TFile* _outFile;
 	std::map<G4String,TObject*> _objects;
 };
 

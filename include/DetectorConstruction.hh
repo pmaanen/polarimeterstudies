@@ -18,6 +18,8 @@
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
+#include "G4GDMLParser.hh"
+class SensitiveDetector;
 class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;
 class G4VPrimitiveScorer;
@@ -26,29 +28,26 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4Material;
 class G4MaterialPropertiesTable;
-class DetectorMessenger;
+class G4GenericMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction();
-  ~DetectorConstruction();
+	DetectorConstruction();
+	~DetectorConstruction();
 
-  G4VPhysicalVolume* Construct();
-
-
-  void UpdateGeometry();
-
-	void setTargetSize(G4double xtargetSize) {
-		this->targetSize = xtargetSize;
-	}
+	G4VPhysicalVolume* Construct();
+	void ConstructSDandField();
 
 private:
-  G4VPhysicalVolume* physiWorld;
-  DetectorMessenger* dcMessenger;
   G4double targetSize;
   TrackerSensitiveDetector* detSD;
+  G4LogicalVolume*     logicDet;
+  void UpdateGeometry();
+	void DefineCommands();
+	G4VPhysicalVolume* physiWorld;
+	G4GenericMessenger* fMessenger;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

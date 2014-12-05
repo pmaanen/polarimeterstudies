@@ -10,19 +10,18 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "global.hh"
+#include "G4GenericMessenger.hh"
 using namespace CLHEP;
-SFEventGenerator* SFEventGenerator::_singleton = 0;
 
 SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in),beamId(1),tgtId(1),Tbeam(100*keV) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle) ;
-	_messenger=new SFMessenger(this);
+	DefineCommands();
 }
 
 SFEventGenerator::~SFEventGenerator() {
 	delete _pGun ;
-	this->_singleton=0;
 }
 
 void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
@@ -34,6 +33,7 @@ void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
 	Double_t T_beam=_pGun->GetParticleEnergy()/GeV;
 	G4ParticleDefinition * beam_particle=G4ParticleTable::GetParticleTable()->FindParticle(this->beamId);
 	G4ParticleDefinition * target_particle=G4ParticleTable::GetParticleTable()->FindParticle(this->tgtId);
+
 	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
@@ -63,32 +63,33 @@ void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
 		G4ThreeVector pscattered_3(pscattered_4.Vect().X()*GeV,pscattered_4.Vect().Y()*GeV,pscattered_4.Vect().Z()*GeV);
 
 		//Magnitude of spatial vectors
-		G4double momentum_recoil  = precoil_3.mag();
-		G4double momentum_scattered  = pscattered_3.mag();
+		//G4double momentum_recoil  = precoil_3.mag();
+		//G4double momentum_scattered  = pscattered_3.mag();
 
 
 		//Polar angle for deuteron in lab-frame (degrees)
 		G4double th_scattered  = pscattered_3.getTheta();
 		//Polar angle for proton in lab-frame (degrees)
-		G4double th_recoil  = precoil_3.getTheta();
+		//G4double th_recoil  = precoil_3.getTheta();
 
-		G4double phi_scattered = pscattered_3.getPhi();
-		G4double phi_recoil = precoil_3.getPhi();
+		//G4double phi_scattered = pscattered_3.getPhi();
+		//G4double phi_recoil = precoil_3.getPhi();
 
 		//Set angular cut in lab-frame
-		if(th_scattered > 3*deg && th_scattered < 180*deg){ // continue;
+		if(true){ // continue;
 
 			//Boost momentum of deuteron from lab-sytem to cm-system.
 			TVector3 CMv = W.BoostVector();     // in case beam simulation
 			pscattered_4.Boost(-CMv);          // in case beam simulation
 			//retrieve polar scattering angle for deuteron in cm-frame
-			Double_t CM_theta_scattered = pscattered_4.Theta();
+			//Double_t CM_theta_scattered = pscattered_4.Theta();
 
 
 			//TODO: Implement Hit or Miss
 			//
 			if(false) continue;
 			else {
+
 				this->_pGun->SetParticleDefinition(beam_particle);
 				this->_pGun->SetParticleMomentum(pscattered_3);
 				this->_pGun->GeneratePrimaryVertex(E);
@@ -120,7 +121,7 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 	//check if input file is open
 	if(!_instream){
 		//if not, try to open
-		_instream.open(_infile.Data());
+		_instream.open(_infile.c_str());
 		//if not opened, file is not found, throw
 		if(!_instream){
 			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
@@ -139,13 +140,13 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 
 	_instream >> iev >> part1 >> part2 >> pmom1 >> pmom2 >> theta1  >> theta2 >> phi1 >> phi2>>vx>>vy>>vz>>xp>>yp;
 	try{
-		Analysis::GetInstance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
+		Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
 	}
 	catch(myG4Exception& exc){
 		//If object is not found, book it and try again.
 		if(exc.getExceptionCode()=="ObjectNotFound"){
-			Analysis::GetInstance()->BookObject<TNtuple>("GeneratorInfo","GeneratorInfo","pmom1:pmom2:phi1:phi2:theta1:theta2:vx:vy:vz:xp:yp");
-			Analysis::GetInstance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
+			Analysis::Instance()->BookObject<TNtuple>("GeneratorInfo","GeneratorInfo","pmom1:pmom2:phi1:phi2:theta1:theta2:vx:vy:vz:xp:yp");
+			Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
 		}
 		//If it is something else, rethrow (which, in geant4 is not an exception, but a function *yik*)
 		else
@@ -206,7 +207,6 @@ void SFEventGenerator::setMode(G4int mode)
 }
 
 
-
 void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 
 	switch(_mode){
@@ -227,23 +227,26 @@ void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 	}
 }
 
-void SFEventGenerator::setInfile(TString string)
+
+
+
+void SFEventGenerator::DefineCommands()
 {
-	_infile=string;
-	//check if input file is open
-	if(!_instream){
-		//if not, try to open
-		_instream.open(_infile.Data());
-		//if not opened, file is not found, throw
-		if(!_instream){
-			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
-			G4Exception("[SFEventGenerator]", "setInfile", FatalException,
-					" ERROR: Input file not found.");
-		}
-	}
+	fMessenger = new G4GenericMessenger(this,
+				"/PolarimeterStudies/generator/",
+				"Generator control");
+
+	G4GenericMessenger::Command& modeCmd
+	= fMessenger->DeclareMethod("Mode",
+			&SFEventGenerator::setMode,
+			"Set mode of generator.");
+	modeCmd.SetParameterName("mode", true);
+	modeCmd.SetDefaultValue("1");
+
+	G4GenericMessenger::Command& inputCmd
+	= fMessenger->DeclareProperty("setFilename",_infile,"Set input file name");
+
 }
-
-
 
 // eof
 

@@ -55,10 +55,10 @@
 #include "G4PSEnergyDeposit.hh"
 
 #include "TrackerSensitiveDetector.hh"
-#include "DetectorMessenger.hh"
 #include "G4GDMLParser.hh"
 #include "TNtuple.h"
 #include "Analysis.hh"
+#include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "global.hh"
 using namespace CLHEP;
@@ -66,9 +66,7 @@ using namespace CLHEP;
 
 DetectorConstruction::DetectorConstruction()
 :physiWorld(0),targetSize(0.001*mm),detSD(0)
-{
-	dcMessenger=new DetectorMessenger(this);
-}
+{DefineCommands();}
 
 
 
@@ -108,20 +106,39 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		new G4PVPlacement(0,G4ThreeVector(0,0,targetSize/2),logicTarget,"Target",logicWorld,0,0,0);
 
 		G4Sphere* solidDet=new G4Sphere("solidDet",2*targetSize,2.01*targetSize,0*deg,360*deg,0*deg,179*deg);
-		G4LogicalVolume* logicDet = new G4LogicalVolume(solidDet,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"logicDet");
+		logicDet = new G4LogicalVolume(solidDet,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"logicDet");
 		new G4PVPlacement(0,G4ThreeVector(0,0,targetSize/2),logicDet,"Det",logicWorld,0,0,0);
 
 
-	//------------------------------------------------
-	// Sensitive detectors
-	//------------------------------------------------
-
-	G4SDManager* man=G4SDManager::GetSDMpointer();
-	if(detSD!=0)
-		delete detSD;
-	detSD=new TrackerSensitiveDetector("tracker","trackercollection");
-	logicDet->SetSensitiveDetector(detSD);
-	man->AddNewDetector(detSD);
 	return physiWorld;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::ConstructSDandField() {
+	//------------------------------------------------
+	// Sensitive detectors
+	//------------------------------------------------
+	G4SDManager* man=G4SDManager::GetSDMpointer();
+	detSD=new TrackerSensitiveDetector("tracker","trackercollection");
+	SetSensitiveDetector(logicDet,detSD);
+	man->AddNewDetector(detSD);
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::DefineCommands(){
+
+	// Define /PolarimeterStudies/detector command directory using generic messenger class
+	fMessenger = new G4GenericMessenger(this,
+			"/PolarimeterStudies/detector/",
+			"Detector control");
+
+	G4GenericMessenger::Command& updateCmd
+	= fMessenger->DeclareMethod("update",
+			&DetectorConstruction::UpdateGeometry,
+			"Update geometry");
+	updateCmd;
+
+	G4GenericMessenger::Command& pelletCmd=
+	  fMessenger->DeclareProperty("pelletsize",targetSize,"size of carbon pellet");
+	return;
+}

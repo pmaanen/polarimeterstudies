@@ -1,8 +1,12 @@
+#ifdef G4MULTITHREADED
+#include "G4MTRunManager.hh"
+#else
 #include "G4RunManager.hh"
+#endif
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
-
+#include "UserActionInitialization.hh"
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
 #endif
@@ -11,8 +15,6 @@
 #include "G4UIExecutive.hh"
 #endif
 
-
-#include "SteppingAction.hh"
 #include "DetectorConstruction.hh"
 #include "EventAction.hh"
 #include <QGSP_BIC.hh>
@@ -27,15 +29,18 @@ using namespace CLHEP;
 
 int main(int argc,char** argv) {
 
-
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
 	if(argc>2){
 		theEngine->setSeed(strtol(argv[2], NULL, 10));
 	}
 	HepRandom::setTheEngine(theEngine);
-	// Construct the default run manager
-	G4RunManager * runManager = new G4RunManager;
+#ifdef G4MULTITHREADED
+	G4MTRunManager* runManager = new G4MTRunManager;
+	runManager->SetNumberOfThreads(2);
+#else
+	G4RunManager* runManager = new G4RunManager;
+#endif
 
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;  
@@ -44,16 +49,11 @@ int main(int argc,char** argv) {
 	// set physics list
 	G4VModularPhysicsList* the_physics = new QGSP_BIC;
 	runManager->SetUserInitialization(the_physics);
-	SFEventGenerator *primarygeneration = SFEventGenerator::GetInstance();
-	runManager->SetUserAction(primarygeneration);
-	RunAction* runaction=new RunAction();
-	runManager->SetUserAction(runaction);
-	EventAction* eventaction=EventAction::GetInstance();
-	runManager->SetUserAction(eventaction);
 
-	runManager->SetUserAction(SteppingAction::GetInstance());
-	Analysis::GetInstance();
 
+	//User action initialization
+	runManager->SetUserInitialization(new UserActionInitialization);
+	Analysis::Instance();
 #ifdef G4VIS_USE
 	// Visualization manager
 	//

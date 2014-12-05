@@ -53,7 +53,7 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  ${DISABLED_WARNINGS}")
 set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}
-${DISABLED_WARNINGS}")
+#${DISABLED_WARNINGS}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
@@ -70,12 +70,7 @@ SET(Analysis_SRCS ${Analysis_DICT})
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(polarimeterstudies main.cc ${sources} ${headers})
-target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
-
-add_library(Analysis SHARED ${Analysis_DICT} ${PROJECT_SOURCE_DIR}/src/DetId.cc)
-target_link_libraries(Analysis ${ROOT_LIBRARIES})
-
-add_dependencies(polarimeterstudies Analysis)
+target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build gammagamma. This is so that we can run the executable directly because it

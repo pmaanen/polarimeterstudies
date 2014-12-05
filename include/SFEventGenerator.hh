@@ -27,50 +27,29 @@
 
 #include <TH1.h>
 #include <TH2.h>
-#include "SFMessenger.hh"
+
+class G4GenericMessenger;
 class SFEventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
-	//! Singleton
-	static SFEventGenerator* GetInstance() {
-		if ( SFEventGenerator::_singleton == NULL ) SFEventGenerator::_singleton = new SFEventGenerator();
-		return SFEventGenerator::_singleton;
-	}
-	enum GeneratorMode {GUN,INPUTFILE,GENERATE};
+	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3};
 
 	~SFEventGenerator();
-
+	SFEventGenerator() ;
 	void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGun(G4Event* E);
 	void generateEventFromPhaseSpace(G4Event* E);
 	G4int getMode() const;
 	void setMode(G4int mode);
-	void setInfile(TString);
-	G4ParticleGun* getPGun() const {
-		return _pGun;
-	}
-	void setBeamId(G4int xbeamId) {
-		this->beamId = xbeamId;
-	}
-
-	void setTgtId(G4int xtgtId) {
-		this->tgtId = xtgtId;
-	}
-
-	void setTbeam(G4int tbeam) {
-		Tbeam = tbeam;
-	}
-
-	;
+	G4ParticleGun* getPGun() const{return _pGun;};
 private:
-	SFEventGenerator() ;
-	static SFEventGenerator* _singleton;
+	void DefineCommands();
 	G4ParticleGun			*_pGun ;
 	GeneratorMode			_mode;
-	SFMessenger*			_messenger;
-	TString 				_infile;
+	G4GenericMessenger*		fMessenger;
+	G4String 				_infile;
 	std::ifstream        _instream;
 	G4int				tgtId,beamId;
 	G4int				Tbeam;

@@ -37,18 +37,18 @@
 
 #include <iomanip>
 
-G4Allocator<DetectorHit> DetectorHitAllocator;
+G4ThreadLocal G4Allocator<DetectorHit>* DetectorHitAllocator=0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorHit::DetectorHit()
- : G4VHit(),
-   fTrackID(-1),
-   fId(-1),
-   fEdep(0.),
-   fPos(G4ThreeVector()),
-   fParticleId(0),
-   fTof(0)
+: G4VHit(),
+  fTrackID(-1),
+  fParticleId(0),
+  fId(-1),
+  fEdep(0.),
+  fPos(G4ThreeVector()),
+  fTof(0)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -58,63 +58,66 @@ DetectorHit::~DetectorHit() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorHit::DetectorHit(const DetectorHit& right)
-  : G4VHit()
+: G4VHit()
 {
-  fTrackID   = right.fTrackID;
-  fId        = right.fId;
-  fEdep      = right.fEdep;
-  fPos       = right.fPos;
-  fTof		 = right.fTof;
-  fParticleId= right.fParticleId;
+	fTrackID   = right.fTrackID;
+	fId        = right.fId;
+	fEdep      = right.fEdep;
+	fPos       = right.fPos;
+	fTof	   = right.fTof;
+	fParticleId= right.fParticleId;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 const DetectorHit& DetectorHit::operator=(const DetectorHit& right)
 {
-  fTrackID   = right.fTrackID;
-  fId        = right.fId;
-  fEdep      = right.fEdep;
-  fPos       = right.fPos;
+	fTrackID   = right.fTrackID;
+	fId        = right.fId;
+	fEdep      = right.fEdep;
+	fPos       = right.fPos;
+	fTof	   = right.fTof;
+	fParticleId= right.fParticleId;
 
-  return *this;
+	return *this;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4int DetectorHit::operator==(const DetectorHit& right) const
-{
-  return ( this == &right ) ? 1 : 0;
-}
+				{
+	return ( this == &right ) ? 1 : 0;
+				}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorHit::Draw()
 {
-  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
-  if(pVVisManager)
-  {
-    G4Circle circle(fTruePos);
-    circle.SetScreenSize(10.);
-    circle.SetFillStyle(G4Circle::filled);
-    G4Colour colour(1.,0.,0.);
-    G4VisAttributes attribs(colour);
-    circle.SetVisAttributes(attribs);
-    pVVisManager->Draw(circle);
-  }
+	G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+	if(pVVisManager)
+	{
+		G4Circle circle(fTruePos);
+		circle.SetScreenSize(10.);
+		circle.SetFillStyle(G4Circle::filled);
+		G4Colour colour(1.,0.,0.);
+		G4VisAttributes attribs(colour);
+		circle.SetVisAttributes(attribs);
+		pVVisManager->Draw(circle);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorHit::Print()
 {
-  G4cout
-     << "  trackID: " << fTrackID << " DetId: " << fId
-     << "Edep: "
-     << std::setw(7) << G4BestUnit(fEdep,"Energy")
-     << " Position: "
-     << std::setw(7) << G4BestUnit( fPos,"Length")
-     << G4endl;
+	G4cout
+	<< "  trackID: " << fTrackID << " DetId: " << fId
+	<< "Edep: "
+	<< std::setw(7) << G4BestUnit(fEdep,"Energy")
+	<< " Position: "
+	<< std::setw(7) << G4BestUnit( fPos,"Length")
+	<< G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

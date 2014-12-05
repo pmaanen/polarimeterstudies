@@ -1,4 +1,4 @@
-/polarimeterStudies/Analysis/Enable
+/analysis/Enable
 /gun/position 0 0 -1 m
 /gun/direction 0 0 1
 /control/loop macros/run.mac Ekin 200. 300. 10
