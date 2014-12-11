@@ -29,14 +29,14 @@
 #include <TH2.h>
 
 class G4GenericMessenger;
-class SFEventGenerator : public G4VUserPrimaryGeneratorAction {
+class EventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
 	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3};
 
-	~SFEventGenerator();
-	SFEventGenerator() ;
+	~EventGenerator();
+	EventGenerator() ;
 	void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGun(G4Event* E);

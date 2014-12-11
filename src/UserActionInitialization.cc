@@ -6,13 +6,13 @@
  */
 
 #include <UserActionInitialization.hh>
-#include "SFEventGenerator.hh"
+#include "EventGenerator.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
 
 void UserActionInitialization::Build() const {
-	SetUserAction(new SFEventGenerator);
+	SetUserAction(new EventGenerator);
 	SetUserAction(new RunAction);
 	SetUserAction(new EventAction);
 }

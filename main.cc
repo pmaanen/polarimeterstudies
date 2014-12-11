@@ -19,7 +19,7 @@
 #include "EventAction.hh"
 #include <QGSP_BIC.hh>
 #include "G4OpticalPhysics.hh"
-#include "SFEventGenerator.hh"
+#include "EventGenerator.hh"
 #include "Analysis.hh"
 #define MAIN
 #include "global.hh"
