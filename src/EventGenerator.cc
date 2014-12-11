@@ -1,7 +1,7 @@
-// File:	SFEventGenerator.cc
+// File:	EventGenerator.cc
 // Date:	18-Lan-2008 G.Macharashvili Dubna
 
-#include "SFEventGenerator.hh"
+#include "EventGenerator.hh"
 #include "Analysis.hh"
 #include "TNtuple.h"
 #include <TMath.h>
@@ -13,18 +13,18 @@
 #include "G4GenericMessenger.hh"
 using namespace CLHEP;
 
-SFEventGenerator::SFEventGenerator():_infile(""),_instream("",std::ifstream::in),beamId(1),tgtId(1),Tbeam(100*keV) {
+EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),beamId(1),tgtId(1),Tbeam(100*keV) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle) ;
 	DefineCommands();
 }
 
-SFEventGenerator::~SFEventGenerator() {
+EventGenerator::~EventGenerator() {
 	delete _pGun ;
 }
 
-void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
+void EventGenerator::generateEventFromPhaseSpace(G4Event *E)
 {
 
 	TLorentzVector target;
@@ -105,17 +105,17 @@ void SFEventGenerator::generateEventFromPhaseSpace(G4Event *E)
 	}
 
 }
-int SFEventGenerator::getMode() const
+int EventGenerator::getMode() const
 {
 	return _mode;
 }
 
-void SFEventGenerator::generateEventFromInput(G4Event *E)
+void EventGenerator::generateEventFromInput(G4Event *E)
 {
 	//check if input filename is set
 	if(_infile==""){
-		G4cerr<<"SFEventGenerator: Error. Input file not set "<<G4endl;
-		G4Exception("[SFEventGenerator]", "generateEventFromInput()", FatalException,
+		G4cerr<<"EventGenerator: Error. Input file not set "<<G4endl;
+		G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
 				" ERROR: Input file not set.");
 	}
 	//check if input file is open
@@ -124,8 +124,8 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 		_instream.open(_infile.c_str());
 		//if not opened, file is not found, throw
 		if(!_instream){
-			G4cerr<<"SFEventGenerator: Error. Input file not found "<<G4endl;
-			G4Exception("[SFEventGenerator]", "generateEventFromInput()", FatalException,
+			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
+			G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
 					" ERROR: Input file not found.");
 		}
 	}
@@ -190,24 +190,24 @@ void SFEventGenerator::generateEventFromInput(G4Event *E)
 
 }
 
-void SFEventGenerator::generateEventFromGun(G4Event *E)
+void EventGenerator::generateEventFromGun(G4Event *E)
 {
 	_pGun->GeneratePrimaryVertex(E) ;
 }
 
-void SFEventGenerator::setMode(G4int mode)
+void EventGenerator::setMode(G4int mode)
 {
 	this->_mode = static_cast<GeneratorMode>(mode);
 	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
-		G4Exception("SFEventGenerator::SetMode()", "ArgumentError", JustWarning,
+		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
 				o.str().c_str());
 	}
 }
 
 
-void SFEventGenerator::GeneratePrimaries(G4Event* E) {
+void EventGenerator::GeneratePrimaries(G4Event* E) {
 
 	switch(_mode){
 	case GUN:
@@ -222,7 +222,7 @@ void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 	default:
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
-		G4Exception("SFEventGenerator::SetMode()", "ModeError", FatalException,
+		G4Exception("EventGenerator::SetMode()", "ModeError", FatalException,
 				o.str().c_str());
 	}
 }
@@ -230,7 +230,7 @@ void SFEventGenerator::GeneratePrimaries(G4Event* E) {
 
 
 
-void SFEventGenerator::DefineCommands()
+void EventGenerator::DefineCommands()
 {
 	fMessenger = new G4GenericMessenger(this,
 				"/PolarimeterStudies/generator/",
@@ -238,7 +238,7 @@ void SFEventGenerator::DefineCommands()
 
 	G4GenericMessenger::Command& modeCmd
 	= fMessenger->DeclareMethod("Mode",
-			&SFEventGenerator::setMode,
+			&EventGenerator::setMode,
 			"Set mode of generator.");
 	modeCmd.SetParameterName("mode", true);
 	modeCmd.SetDefaultValue("1");
