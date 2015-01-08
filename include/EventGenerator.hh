@@ -24,7 +24,7 @@
 #include <G4Deuteron.hh>
 #include <G4ChargedGeantino.hh>
 #include <Randomize.hh>
-
+#include "DCElasticEventGenerator.hh"
 #include <TH1.h>
 #include <TH2.h>
 
@@ -33,7 +33,7 @@ class EventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
-	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3};
+	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DC=4};
 
 	~EventGenerator();
 	EventGenerator() ;
@@ -41,6 +41,7 @@ public:
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGun(G4Event* E);
 	void generateEventFromPhaseSpace(G4Event* E);
+	void generateDCElasticEvent(G4Event* E);
 	G4int getMode() const;
 	void setMode(G4int mode);
 	void setInfile(G4String);
@@ -52,6 +53,7 @@ private:
 	G4GenericMessenger*		fMessenger;
 	G4String 				_infile;
 	std::ifstream        _instream;
+	DCElasticEventGenerator* dc;
 
 protected:
 
