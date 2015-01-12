@@ -88,6 +88,7 @@ set(polarimeter_SCRIPTS
 	test_dp.mac
 	test_gun.mac
 	matscan.py
+	test_dC.mac
 ) 
 
 foreach(_script ${polarimeter_SCRIPTS})
