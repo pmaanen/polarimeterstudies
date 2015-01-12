@@ -62,9 +62,6 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"y"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"z"));
 	an->FinishNtuple(myTupleId[0]);
-
-
-
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

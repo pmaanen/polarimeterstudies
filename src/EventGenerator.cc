@@ -14,6 +14,8 @@
 #include "global.hh"
 #include "G4GenericMessenger.hh"
 #include "G4ios.hh"
+#include <vector>
+#include <utility>
 using namespace CLHEP;
 EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),dc(0) {
 	_mode=GUN;
@@ -142,7 +144,7 @@ void EventGenerator::generateEventFromInput(G4Event *E)
 		G4cerr<<"EventGenerator: Error. Input file not set "<<G4endl;
 		G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
 				" ERROR: Input file not set.");
-				*/
+		 */
 	}
 	//check if input file is open
 	if(!_instream){
@@ -154,7 +156,7 @@ void EventGenerator::generateEventFromInput(G4Event *E)
 			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
 			G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
 					" ERROR: Input file not found.");
-					*/
+			 */
 		}
 	}
 
@@ -250,7 +252,7 @@ void EventGenerator::setInfile(G4String string)
 			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
 			G4Exception("[EventGenerator]", "setInfile", FatalException,
 					" ERROR: Input file not found.");
-					*/
+			 */
 		}
 	}
 }
@@ -269,6 +271,7 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 		break;
 	case DC:
 		generateDCElasticEvent(E);
+		break;
 	default:
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
@@ -279,32 +282,26 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 
 void EventGenerator::generateDCElasticEvent(G4Event* E) {
 
-	G4ThreeVector p_scattered_3;
-	G4ThreeVector p_recoil_3;
-	G4ParticleDefinition* beam_particle=G4Deuteron::DeuteronDefinition();
-	G4ParticleDefinition* target_particle=G4IonTable::GetIonTable()->FindIon(6,12);
-				this->_pGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition());
-				this->_pGun->SetParticleMomentum(p_scattered_3);
-				this->_pGun->GeneratePrimaryVertex(E);
-
-				this->_pGun->SetParticleDefinition(target_particle);
-				this->_pGun->SetParticleMomentum(p_recoil_3);
-				this->_pGun->GeneratePrimaryVertex(E);
-
+	ParticleMomentumVector res(dc->GenerateEvent());
+	for (auto ipart : res){
+		this->_pGun->SetParticleDefinition(ipart.first);
+		this->_pGun->SetParticleMomentum(ipart.second);
+		this->_pGun->GeneratePrimaryVertex(E);
+	}
 }
 
 void EventGenerator::DefineCommands()
 {
 	fMessenger = new G4GenericMessenger(this,
-				"/PolarimeterStudies/generator/",
-				"Generator control");
+			"/PolarimeterStudies/generator/",
+			"Generator control");
 
 	G4GenericMessenger::Command& modeCmd
 	= fMessenger->DeclareMethod("Mode",
 			&EventGenerator::setMode,
 			"Set mode of generator.");
 	modeCmd.SetParameterName("mode", true);
-//	modeCmd.SetRange("mode>=1. && mode<=2.");
+	//	modeCmd.SetRange("mode>=1. && mode<=2.");
 	modeCmd.SetDefaultValue("1");
 
 	G4GenericMessenger::Command& inputCmd

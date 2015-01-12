@@ -50,15 +50,10 @@ Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enable(fals
 	_analysisMessenger=new AnalysisMessenger(this);
 }
 
-void Analysis::PrepareNewEvent(const G4Event* /*anEvent*/)
-{
-	if(!_enable) return;
-	G4cout<<"Analysis::PrepareNewEvent"<<G4endl;
-	return;
-}
+void Analysis::PrepareNewEvent(const G4Event*){}
+
 void Analysis::AddAuxiliary(G4String name, G4String value)
 {
-
 	if(!_enable) return;
 	this->BookObject<TNamed>(TString(name),TString(value));
 	return;

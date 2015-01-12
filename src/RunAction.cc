@@ -19,6 +19,16 @@ RunAction::RunAction()
 	luxury = 3;     // RANLUX luxury level (3 is default)
 	saveRndm = 1;
 	fNEvents=0;
+
+	  Analysis* analysisManager = Analysis::Instance();
+	  analysisManager->SetVerboseLevel(1);
+	  analysisManager->SetFirstHistoId(1);
+
+	  // Creating histograms
+	  analysisManager->CreateH1("1","Theta", 30, 0., 30);
+	  analysisManager->CreateH1("2","Phi", 32, 0 , 360);
+	  analysisManager->CreateH1("3","ds", 30, 0., 30);
+	  analysisManager->CreateH1("4","PhiBefore", 32, 0 , 360);
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
