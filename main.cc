@@ -16,6 +16,7 @@
 #endif
 
 #include "DetectorConstruction.hh"
+#include "JediCubicPolarimeter.hh"
 #include "EventAction.hh"
 #include <QGSP_BIC.hh>
 #include "G4OpticalPhysics.hh"
@@ -64,8 +65,9 @@ int main(int argc,char** argv) {
 #endif
 
 	// set mandatory initialization classes
-	DetectorConstruction* detector = new DetectorConstruction;  
-	runManager->SetUserInitialization(detector);
+	//DetectorConstruction* detector = new DetectorConstruction;
+	JediCubicPolarimeter* jedi= new JediCubicPolarimeter;
+	runManager->SetUserInitialization(jedi);
 
 	// set physics list
 	G4VModularPhysicsList* the_physics = new QGSP_BIC;
