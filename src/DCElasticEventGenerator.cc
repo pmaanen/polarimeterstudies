@@ -14,6 +14,7 @@
 #include "TH1.h"
 #include "Randomize.hh"
 #include "Analysis.hh"
+#include "G4GenericMessenger.hh"
 using namespace CLHEP;
 G4ThreadLocal DCElasticEventGenerator::MyFunction* DCElasticEventGenerator::func = 0;
 G4ThreadLocal TF2* DCElasticEventGenerator::SigmaFunc = 0;
@@ -64,9 +65,9 @@ void DCElasticEventGenerator::Initialize() {
 TF2* DCElasticEventGenerator::BuildFunction() {
 	//if(SigmaFunc)
 	//	delete SigmaFunc;
-	if(func)
-		delete func;
-	func=new MyFunction(momentum_cms);
+	//if(func)
+	//	delete func;
+	func=new MyFunction(momentum_cms,beam_polarization);
 	SigmaFunc=new TF2("xsec",func,&DCElasticEventGenerator::MyFunction::sigma,3.,30.,0.,360.,1,"MyFunction","sigma");
 	SigmaFunc->SetParName(0,"Energy");
 	//Root uses GeV
@@ -132,18 +133,44 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 	}
 }
 
-DCElasticEventGenerator::MyFunction::MyFunction(Double_t p):momentum_cms(p){}
+
+void DCElasticEventGenerator::DefineCommands() {
+	fMessenger = new G4GenericMessenger(this,
+			"/PolarimeterStudies/DCGenerator/",
+			"Generator control");
+
+	G4GenericMessenger::Command& energyCmd
+	= fMessenger->DeclareMethod("energy",
+			&DCElasticEventGenerator::setBeamEnergy,
+			"Set beam energy");
+	energyCmd.SetParameterName("energy", true);
+	energyCmd.SetRange("energy>=50. && mode<=270.");
+	energyCmd.SetDefaultValue("235");
+
+	G4GenericMessenger::Command& polarization
+		= fMessenger->DeclareMethod("polarization",
+				&DCElasticEventGenerator::setBeamPolarization,
+				"Set beam polarization");
+		polarization.SetParameterName("polarization", true);
+		polarization.SetRange("energy>=-1. && mode<=1.");
+		polarization.SetDefaultValue("0");
+
+
+
+}
+
+
+DCElasticEventGenerator::MyFunction::MyFunction(Double_t mom, Double_t pol):momentum_cms(mom),beam_polarization(pol){}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 Double_t DCElasticEventGenerator::MyFunction::sigma(Double_t* x, Double_t* par) {
 
-	return SigmaUnpol(par[0],x[0])*(1+Ay(par[0],x[0])*TMath::Cos(x[1]*TMath::DegToRad()));
+	return SigmaUnpol(par[0],x[0])*(1+beam_polarization*Ay(par[0],x[0])*TMath::Cos(x[1]*TMath::DegToRad()));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 Double_t DCElasticEventGenerator::MyFunction::q(Double_t theta) {
 	return 2*momentum_cms*TMath::Sin(theta/2*TMath::Pi()/180);
 }
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 double DCElasticEventGenerator::MyFunction::SigmaUnpol(Double_t E,Double_t theta_cm) {
 	double w=TMath::Log(E);
