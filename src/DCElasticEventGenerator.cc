@@ -65,7 +65,7 @@ void DCElasticEventGenerator::DefineCommands() {
 			&DCElasticEventGenerator::setBeamPolarization,
 			"Set beam polarization");
 	polCmd.SetParameterName("polarization",false,false);
-	polCmd.SetRange("polarization<=1. && polarization>=-1");
+	//polCmd.SetRange("polarization<=1. && polarization>=-1");
 
 	G4GenericMessenger::Command& enCmd
 	= fMessenger->DeclareMethodWithUnit("energy","MeV",
