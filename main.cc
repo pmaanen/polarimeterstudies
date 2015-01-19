@@ -70,7 +70,8 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics = new QGSP_BIC;
+	G4VModularPhysicsList* the_physics = new QGSP_BIC();
+	the_physics->SetVerboseLevel(0);
 	runManager->SetUserInitialization(the_physics);
 
 

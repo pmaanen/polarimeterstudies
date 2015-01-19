@@ -21,6 +21,7 @@ EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),dc(
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle);
+	dc=new DCElasticEventGenerator();
 	DefineCommands();
 
 
