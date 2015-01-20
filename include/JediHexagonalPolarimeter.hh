@@ -26,9 +26,9 @@ class G4MaterialPropertiesTable;
 class G4GenericMessenger;
 
 
-class JediCubicPolarimeter: public G4VUserDetectorConstruction {
+class JediHexagonalPolarimeter: public G4VUserDetectorConstruction {
 public:
-	JediCubicPolarimeter();
+	JediHexagonalPolarimeter();
 	void ConstructSDandField();
 	G4VPhysicalVolume* Construct();
 	void WriteWorldToFile(G4String filename);
@@ -54,7 +54,7 @@ private:
 	G4bool changedParameters;
 	G4int MinCrystal,MaxCrystal;
 
-	virtual ~JediCubicPolarimeter();
+	virtual ~JediHexagonalPolarimeter();
 };
 
 #endif /* INCLUDE_JEDICUBICPOLARIMETER_HH_ */

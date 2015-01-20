@@ -5,7 +5,7 @@
  *      Author: pmaanen
  */
 
-#include <JediCubicPolarimeter.hh>
+#include <JediHexagonalolarimeter.hh>
 
 //***** include basic geometry classes
 #include "G4Box.hh"

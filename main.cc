@@ -66,7 +66,7 @@ int main(int argc,char** argv) {
 
 	// set mandatory initialization classes
 	//DetectorConstruction* detector = new DetectorConstruction;
-	JediCubicPolarimeter* jedi= new JediCubicPolarimeter;
+	JediHexagonalPolarimeter* jedi= new JediHexagonalPolarimeter;
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
