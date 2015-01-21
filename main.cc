@@ -1,3 +1,5 @@
+#define MAIN
+#include "global.hh"
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else
@@ -17,13 +19,12 @@
 
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
+#include "JediHexagonalPolarimeter.hh"
 #include "EventAction.hh"
 #include <QGSP_BIC.hh>
 #include "G4OpticalPhysics.hh"
 #include "EventGenerator.hh"
 #include "Analysis.hh"
-#define MAIN
-#include "global.hh"
 namespace CLHEP {}
 using namespace CLHEP; 
 
@@ -66,7 +67,7 @@ int main(int argc,char** argv) {
 
 	// set mandatory initialization classes
 	//DetectorConstruction* detector = new DetectorConstruction;
-	JediHexagonalPolarimeter* jedi= new JediHexagonalPolarimeter;
+	JediCubicPolarimeter* jedi= new JediCubicPolarimeter;
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list

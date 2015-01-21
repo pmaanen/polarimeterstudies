@@ -15,6 +15,7 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
+#include "global.hh"
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"

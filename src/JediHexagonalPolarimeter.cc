@@ -1,11 +1,11 @@
 /*
- * JediCubicPolarimeter.cc
+ * JediHexagonalPolarimeter.cc
  *
  *  Created on: 15.01.2015
  *      Author: pmaanen
  */
 
-#include <JediHexagonalolarimeter.hh>
+#include "JediHexagonalPolarimeter.hh"
 
 //***** include basic geometry classes
 #include "G4Box.hh"
@@ -67,50 +67,15 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-JediCubicPolarimeter::JediCubicPolarimeter() {
+using namespace CLHEP;
+JediHexagonalPolarimeter::JediHexagonalPolarimeter() {}
 
-	thetaMin=5*CLHEP::deg;
-	thetaMax=20*CLHEP::deg;
-
-	beampipeRadius=10*CLHEP::cm;
-	beampipeThickness=2*CLHEP::mm;
-
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=8.5*CLHEP::cm;
-
-	G4double innerDetectorRadius, outerDetectorRadius;
-	G4double DetectorZ;
-	G4int MinCrystal,MaxCrystal;
-
-	G4bool changedParameters;
-
-	changedParameters=true;
-	ComputeParameters();
-}
-
-void JediCubicPolarimeter::ComputeParameters() {
-	DetectorZ = (beampipeRadius+5*CLHEP::mm) / tan( thetaMin );
-
-	innerDetectorRadius=DetectorZ*tan( thetaMin );
-	outerDetectorRadius=DetectorZ*tan( thetaMax );
-
-	MaxCrystal=ceil(outerDetectorRadius/crystalWidth);
-	MinCrystal=ceil(innerDetectorRadius/crystalWidth);
-
-	G4cout<<"----------------"<<G4endl;
-	G4cout<<"detector z: "<<G4BestUnit(DetectorZ, "Length")<<"/inner radius: "
-			<<G4BestUnit(innerDetectorRadius, "Length")<<"/outer radius: "
-			<<G4BestUnit(outerDetectorRadius, "Length")<<G4endl;
-	G4cout<<"----------------"<<G4endl;
-	changedParameters=false;
-}
-
-void JediCubicPolarimeter::ConstructSDandField() {
+void JediHexagonalPolarimeter::ConstructSDandField() {
 	CaloSensitiveDetector* caloSD=new CaloSensitiveDetector("Calorimeter");
 	SetSensitiveDetector("Detector",caloSD);
 }
 
-G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
+G4LogicalVolume* JediHexagonalPolarimeter::MakeDetector() {
 	G4double rOuter[]={0,crystalWidth/sqrt(3),crystalWidth/sqrt(3),0};
 	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,crystalLength,crystalLength};
 	G4Polyhedra* solidDetector= new G4Polyhedra("Detector", 0*CLHEP::deg, 360*CLHEP::deg, 6, 4, rOuter, z);
@@ -118,24 +83,9 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 	return logicDetector;
-	/*
-	 * 	<polyhedra name= "Crystal" startphi="0" deltaphi="360" numsides="6" aunit="deg" lunit= "mm">
-   		<zplane  rmax="25.9807" z="0"/>
-   		<zplane  rmax="25.9807" z="100" />
-	G4Box* solidDetector=new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
-
-	 */
 }
 
-G4LogicalVolume* JediCubicPolarimeter::MakeBeampipe() {
-	G4Tubs* solidBeampipe=new G4Tubs("Beampipe",beampipeRadius-beampipeThickness,beampipeRadius,3*CLHEP::m-1*CLHEP::cm,0*CLHEP::deg,360*CLHEP::deg);
-	G4LogicalVolume* logicBeampipe = new G4LogicalVolume(solidBeampipe,G4NistManager::Instance()->FindOrBuildMaterial("G4_Al"),"Beampipe");
-	G4VisAttributes* beampipeVisAttr = new G4VisAttributes(gray);
-	logicBeampipe->SetVisAttributes(beampipeVisAttr);
-	return logicBeampipe;
-}
-
-G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
+G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 
 	G4Box* solidWorld=new G4Box("World",3*CLHEP::m,3*CLHEP::m,3*CLHEP::m);
 	G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
@@ -173,10 +123,15 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	return physiWorld;
 }
 
-void JediCubicPolarimeter::DefineCommands() {
+void JediHexagonalPolarimeter::DefineCommands() {
+G4GenericMessenger::Command& updateCmd
+= fMessenger->DeclareMethod("update",
+		&JediHexagonalPolarimeter::UpdateGeometry,
+		"update geometry");
 }
 
-JediCubicPolarimeter::~JediCubicPolarimeter() {
-	// TODO Auto-generated destructor stub
+JediHexagonalPolarimeter::~JediHexagonalPolarimeter() {
 }
 
+void JediHexagonalPolarimeter::UpdateGeometry() {
+}

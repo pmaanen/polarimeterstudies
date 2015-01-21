@@ -14,6 +14,7 @@
 #include <string>
 #include "G4ThreeVector.hh"
 #include "G4GDMLParser.hh"
+#include "global.hh"
 class SensitiveDetector;
 class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;
@@ -31,10 +32,10 @@ public:
 	JediCubicPolarimeter();
 	void ConstructSDandField();
 	G4VPhysicalVolume* Construct();
-	void DefineCommands();
-	void UpdateGeometry();
 protected:
 
+	void UpdateGeometry();
+	void DefineCommands();
 	G4LogicalVolume* MakeDetector();
 	virtual ~JediCubicPolarimeter();
 };

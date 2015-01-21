@@ -138,6 +138,9 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	return physiWorld;
 }
 
+void JediCubicPolarimeter::UpdateGeometry() {
+}
+
 JediCubicPolarimeter::~JediCubicPolarimeter() {
 	// TODO Auto-generated destructor stub
 }

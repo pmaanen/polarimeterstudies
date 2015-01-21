@@ -110,16 +110,4 @@ void JediPolarimeter::DefineCommands() {
 	crystalWidthCmd.SetRange("width>=0.");
 	crystalWidthCmd.SetDefaultValue("30.");
 
-
-	/*
-	polCmd.SetParameterName("polarization",false,false);
-		//polCmd.SetRange("polarization<=1. && polarization>=-1");
-
-		G4GenericMessenger::Command& enCmd
-		= fMessenger->DeclareMethodWithUnit("energy","MeV",
-				&DCElasticEventGenerator::setBeamEnergy,
-				"Set beam energy");
-		enCmd.SetParameterName("energy",false,false);
-		//enCmd.SetRange("energy>50. && energy<300.");
-	 */
 }

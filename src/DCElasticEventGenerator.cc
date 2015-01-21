@@ -25,7 +25,7 @@ DCElasticEventGenerator::DCElasticEventGenerator(){
 
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
-	T_beam=235.*CLHEP::MeV;
+	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(1.);
 	Initialize();
 	DefineCommands();
@@ -39,7 +39,7 @@ void DCElasticEventGenerator::Initialize() {
 	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	Double_t masses[2] = {m_beam, m_target} ;
-	beam.SetPxPyPzE(0, 0, sqrt(T_beam/CLHEP::GeV*(T_beam/CLHEP::GeV+2*m_beam)), T_beam/CLHEP::GeV+m_beam);
+	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
 	cms = beam + target;
 	TLorentzVector temp=beam;
 	temp.Boost(-cms.BoostVector());
@@ -47,11 +47,11 @@ void DCElasticEventGenerator::Initialize() {
 	ps.SetDecay(cms, 2, masses);
 	if(!SigmaFunc)
 		BuildFunction();
-	SigmaFunc->SetParameter(0,T_beam/CLHEP::MeV);
+	SigmaFunc->SetParameter(0,beamEnergy/CLHEP::MeV);
 	SigmaFunc->SetParameter(1,momentum_cms);
 	SigmaFunc->SetParameter(2,beamPolarization);
 	MaxY=SigmaFunc->GetMaximum();
-	G4cout<<"Generator: "<<G4BestUnit(T_beam,"Energy");
+	G4cout<<"Generator: "<<G4BestUnit(beamEnergy,"Energy");
 	G4cout<<"Generator: "<<momentum_cms<<G4endl;
 }
 
@@ -148,31 +148,6 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 			}
 		}
 	}
-}
-
-void DCElasticEventGenerator::DefineCommands() {
-	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/DCGenerator/",
-			"Generator control");
-
-	G4GenericMessenger::Command& energyCmd
-	= fMessenger->DeclareMethod("energy",
-			&DCElasticEventGenerator::setBeamEnergy,
-			"Set beam energy");
-	energyCmd.SetParameterName("energy", true);
-	energyCmd.SetRange("energy>=50. && mode<=270.");
-	energyCmd.SetDefaultValue("235");
-
-	G4GenericMessenger::Command& polarization
-		= fMessenger->DeclareMethod("polarization",
-				&DCElasticEventGenerator::setBeamPolarization,
-				"Set beam polarization");
-		polarization.SetParameterName("polarization", true);
-		polarization.SetRange("energy>=-1. && mode<=1.");
-		polarization.SetDefaultValue("0");
-
-
-
 }
 
 
