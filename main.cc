@@ -66,11 +66,12 @@ int main(int argc,char** argv) {
 
 	// set mandatory initialization classes
 	//DetectorConstruction* detector = new DetectorConstruction;
-	JediCubicPolarimeter* jedi= new JediCubicPolarimeter;
+	JediHexagonalPolarimeter* jedi= new JediHexagonalPolarimeter;
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics = new QGSP_BIC;
+	G4VModularPhysicsList* the_physics = new QGSP_BIC();
+	the_physics->SetVerboseLevel(0);
 	runManager->SetUserInitialization(the_physics);
 
 

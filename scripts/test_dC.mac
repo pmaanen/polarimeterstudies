@@ -1,3 +1,27 @@
 /analysis/Enable
 /PolarimeterStudies/generator/Mode 4
-/run/beamOn 10000
+/gun/position -2 0 0 mm
+/PolarimeterStudies/dcElastic/polarization 1
+/run/beamOn 1000000
+/PolarimeterStudies/dcElastic/polarization -1
+/run/beamOn 1000000
+/gun/position -1 0 0 mm
+/PolarimeterStudies/dcElastic/polarization 1
+/run/beamOn 1000000
+/PolarimeterStudies/dcElastic/polarization -1
+/run/beamOn 1000000
+/gun/position 0 0 0 mm
+/PolarimeterStudies/dcElastic/polarization 1
+/run/beamOn 1000000
+/PolarimeterStudies/dcElastic/polarization -1
+/run/beamOn 1000000
+/gun/position 1 0 0 mm
+/PolarimeterStudies/dcElastic/polarization 1
+/run/beamOn 1000000
+/PolarimeterStudies/dcElastic/polarization -1
+/run/beamOn 1000000
+/gun/position 2 0 0 mm
+/PolarimeterStudies/dcElastic/polarization 1
+/run/beamOn 1000000
+/PolarimeterStudies/dcElastic/polarization -1
+/run/beamOn 1000000
