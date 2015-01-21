@@ -6,6 +6,7 @@
  */
 
 #include <JediPolarimeter.hh>
+#include "G4Material.hh"
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -18,6 +19,14 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 JediPolarimeter::JediPolarimeter() {
 
+
+/*
+	G4Material *Scint_mat = new G4Material("Scint", density=7.4*CLHEP::g/CLHEP::cm3, 4);
+	Scint_mat->AddElement(Lu, 71*perCent);
+	Scint_mat->AddElement(Si, 7*perCent);
+	Scint_mat->AddElement(O, 18*perCent);
+	Scint_mat->AddElement(Y, 4*perCent);
+*/
 	thetaMin=5*CLHEP::deg;
 	thetaMax=20*CLHEP::deg;
 
