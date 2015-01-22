@@ -23,7 +23,6 @@
 #include "G4Polycone.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4RunManager.hh"
-#include "TMath.h"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"

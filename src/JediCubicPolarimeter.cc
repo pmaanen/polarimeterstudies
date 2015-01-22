@@ -23,7 +23,6 @@
 #include "G4Polycone.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4RunManager.hh"
-#include "TMath.h"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
@@ -89,11 +88,17 @@ void JediCubicPolarimeter::ConstructSDandField() {
 }
 
 G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
-	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
+	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
+	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
+	G4Box* solidReflector= new G4Box("Wrapping",crystalWidth/2-1*CLHEP::mm,crystalWidth/2-1*CLHEP::mm,crystalLength/2-1*CLHEP::mm);
+	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
+	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2-2*CLHEP::mm,crystalWidth/2-2*CLHEP::mm,crystalLength/2-2*CLHEP::mm);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PbWO4"),"Detector");
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	return logicDetector;
+	return logicWrapping;
 	/*
 	 * 	<polyhedra name= "Crystal" startphi="0" deltaphi="360" numsides="6" aunit="deg" lunit= "mm">
    		<zplane  rmax="25.9807" z="0"/>

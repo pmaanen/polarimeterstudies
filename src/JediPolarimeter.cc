@@ -6,7 +6,6 @@
  */
 
 #include <JediPolarimeter.hh>
-#include "G4Material.hh"
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray

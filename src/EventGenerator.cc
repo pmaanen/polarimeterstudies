@@ -2,18 +2,40 @@
 // Date:	18-Lan-2008 G.Macharashvili Dubna
 
 #include "EventGenerator.hh"
+//Project headers
 #include "Analysis.hh"
-#include "TNtuple.h"
-#include <TMath.h>
-#include "TGenPhaseSpace.h"
+#include "global.hh"
+#include "DCElasticEventGenerator.hh"
+//Geant headers
 #include <G4ParticleTable.hh>
 #include <G4IonTable.hh>
 #include "CLHEP/Units/SystemOfUnits.h"
-
-#include "globals.hh"
-#include "global.hh"
 #include "G4GenericMessenger.hh"
+#include <G4Event.hh>
+#include <G4ParticleGun.hh>
+#include <G4DecayTable.hh>
+#include <G4RunManager.hh>
+#include <G4PhaseSpaceDecayChannel.hh>
+#include <G4ParticleTable.hh>
+#include <G4ParticleDefinition.hh>
+#include <G4PrimaryParticle.hh>
+#include <G4DynamicParticle.hh>
+#include <G4DecayProducts.hh>
+#include <G4LorentzVector.hh>
+#include <G4PrimaryVertex.hh>
+#include <G4ThreeVector.hh>
 #include "G4ios.hh"
+#include <G4Proton.hh>
+#include <G4Deuteron.hh>
+#include <G4ChargedGeantino.hh>
+#include <Randomize.hh>
+//Root headers
+#include "TNtuple.h"
+#include "TGenPhaseSpace.h"
+#include <TH1.h>
+#include <TH2.h>
+
+//System headers
 #include <vector>
 #include <utility>
 using namespace CLHEP;

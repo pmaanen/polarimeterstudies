@@ -15,19 +15,19 @@
 #include "Randomize.hh"
 #include "G4GenericMessenger.hh"
 #include "Analysis.hh"
+#include "TVector3.h"
 #include "G4GenericMessenger.hh"
+#include <math.h>
 using namespace CLHEP;
 G4ThreadLocal DCElasticEventGenerator::MyFunction* DCElasticEventGenerator::func = 0;
 G4ThreadLocal TF2* DCElasticEventGenerator::SigmaFunc = 0;
-DCElasticEventGenerator::DCElasticEventGenerator(){
-	beam_particle=G4Deuteron::DeuteronDefinition();
-	target_particle=G4IonTable::GetIonTable()->FindIon(6,12);
 
-	Double_t m_target = target_particle->GetPDGMass()/GeV;
-	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
+static double DegToRad=3.14159265359/180.;
+static double RadToDeg=1/DegToRad;
+DCElasticEventGenerator::DCElasticEventGenerator(){
 	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(1.);
-	Initialize();
+	Initialized=false;
 	DefineCommands();
 }
 
@@ -36,8 +36,15 @@ DCElasticEventGenerator::~DCElasticEventGenerator() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
-	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
+	beam_particle=G4Deuteron::DeuteronDefinition();
+	target_particle=G4IonTable::GetIonTable()->GetIon(6,12);
+	if(!beam_particle)
+		G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",G4ExceptionSeverity::FatalException,"beam particle not found.");
+	if(!target_particle)
+		G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",G4ExceptionSeverity::FatalException,"target particle not found.");
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
+	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
+	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
 	Double_t masses[2] = {m_beam, m_target} ;
 	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
 	cms = beam + target;
@@ -51,8 +58,7 @@ void DCElasticEventGenerator::Initialize() {
 	SigmaFunc->SetParameter(1,momentum_cms);
 	SigmaFunc->SetParameter(2,beamPolarization);
 	MaxY=SigmaFunc->GetMaximum();
-	G4cout<<"Generator: "<<G4BestUnit(beamEnergy,"Energy");
-	G4cout<<"Generator: "<<momentum_cms<<G4endl;
+	Initialized=true;
 }
 
 void DCElasticEventGenerator::DefineCommands() {
@@ -89,6 +95,8 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 
+	if(!Initialized)
+		Initialize();
 	while (1) {
 
 
@@ -143,7 +151,7 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 				Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
 				Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
 				//G4cout<<"Phi in ::Generate="<<phi_scattered/CLHEP::deg<<G4endl;
-				Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/TMath::Sin(th_scattered));
+				Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
 				return res;
 			}
 		}
@@ -154,23 +162,18 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 DCElasticEventGenerator::MyFunction::MyFunction(){}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 Double_t DCElasticEventGenerator::MyFunction::sigma(Double_t* x, Double_t* par) {
-	G4cout<<G4endl;
-	G4cout<<"Phi in MyFunction::sigma= "<<x[1]<<G4endl;
-	G4cout<<"Theta in MyFunction::sigma= "<<x[0]<<G4endl;
-	G4cout<<"Energy in MyFunction::sigma= "<<par[0]<<G4endl;
-	G4cout<<"Polarization in MyFunction::sigma= "<<par[2]<<G4endl;
-	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[0])*TMath::Cos(x[1]*TMath::DegToRad()));
+	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[0])*cos(x[1]*DegToRad));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 Double_t DCElasticEventGenerator::MyFunction::q(Double_t theta, Double_t mom) {
-	return 2*mom*TMath::Sin(theta/2*TMath::DegToRad());
+	return 2*mom*sin(theta/2*DegToRad);
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 double DCElasticEventGenerator::MyFunction::SigmaUnpol(Double_t E,Double_t theta_cm, Double_t mom) {
-	double w=TMath::Log(E);
+	double w=log(E);
 	double q1=q(theta_cm, mom);
-	return TMath::Power(10,a1(w)+a2(w)*q1+(1+a5(w)*q1)*(a3(w)*TMath::Sin(a6(w)*q1)+a4(w)*TMath::Cos(a6(w)*q1)));
+	return pow(10,a1(w)+a2(w)*q1+(1+a5(w)*q1)*(a3(w)*sin(a6(w)*q1)+a4(w)*cos(a6(w)*q1)));
 }
 
 double DCElasticEventGenerator::MyFunction::a1(Double_t x) {
@@ -199,29 +202,29 @@ double DCElasticEventGenerator::MyFunction::a6(Double_t x) {
 }
 
 double DCElasticEventGenerator::MyFunction::Ay(Double_t E, Double_t theta) {
-	return 1/(1+900/TMath::Power(theta,4))*
+	return 1/(1+900/pow(theta,4))*
 			(b4(E)-
-					b1(E)/(1+TMath::Exp((theta-b2(E))/b3(E)))+
+					b1(E)/(1+exp((theta-b2(E))/b3(E)))+
 					b5(E)*(1-theta/b6(E))*sin(b7(E)+b8(E)*theta));
 }
 
 double DCElasticEventGenerator::MyFunction::b1(Double_t E) {
-	return  1.1556+0.007182*(E-150)+1.3524e-5*TMath::Power(( E-150),2)-5.5448e-7*TMath::Power(( E-150),3);
+	return  1.1556+0.007182*(E-150)+1.3524e-5*pow(( E-150),2)-5.5448e-7*pow(( E-150),3);
 
 }
 
 double DCElasticEventGenerator::MyFunction::b2(Double_t E) {
-	return 16.029-0.24658*(E-150)+8.6972e-4*TMath::Power((E-150),2);
+	return 16.029-0.24658*(E-150)+8.6972e-4*pow((E-150),2);
 
 }
 
 double DCElasticEventGenerator::MyFunction::b3(Double_t E) {
-	return 6.8319+0.052974*( E-150)+6.4864e-4*TMath::Power(E-150,2)-4.7648e-6*TMath::Power(E-150,3);
+	return 6.8319+0.052974*( E-150)+6.4864e-4*pow(E-150,2)-4.7648e-6*pow(E-150,3);
 
 }
 
 double DCElasticEventGenerator::MyFunction::b4(Double_t E) {
-	return 0.94964+8.2885e-4*( E-150)-5.4014e-6*TMath::Power(E-150,2);
+	return 0.94964+8.2885e-4*( E-150)-5.4014e-6*pow(E-150,2);
 
 }
 
@@ -231,7 +234,7 @@ double DCElasticEventGenerator::MyFunction::b5(Double_t E) {
 }
 
 double DCElasticEventGenerator::MyFunction::b6(Double_t E) {
-	return 42.467-0.25468*( E-150)+0.0033973*TMath::Power(E-150,2);
+	return 42.467-0.25468*( E-150)+0.0033973*pow(E-150,2);
 
 }
 
@@ -241,6 +244,6 @@ double DCElasticEventGenerator::MyFunction::b7(Double_t E) {
 }
 
 double DCElasticEventGenerator::MyFunction::b8(Double_t E) {
-	return 25.698+0.091205*( E-150)-1.8594e-4*TMath::Power(E-150,2);
+	return 25.698+0.091205*( E-150)-1.8594e-4*pow(E-150,2);
 
 }

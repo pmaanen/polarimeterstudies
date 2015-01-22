@@ -3,32 +3,15 @@
 
 #ifndef SFEventGenerator_h
 #define SFEventGenerator_h 1
-
-#include <iomanip> 
-#include <G4RunManager.hh>
 #include <G4VUserPrimaryGeneratorAction.hh>
-#include <G4Event.hh>
-#include <G4ParticleGun.hh>
-#include <G4DecayTable.hh>
-#include <G4PhaseSpaceDecayChannel.hh>
-#include <G4ParticleTable.hh>
-#include <G4ParticleDefinition.hh>
-#include <G4PrimaryParticle.hh>
-#include <G4DynamicParticle.hh>
-#include <G4DecayProducts.hh>
-#include <G4LorentzVector.hh>
-#include <G4PrimaryVertex.hh>
-#include <G4ThreeVector.hh>
-
-#include <G4Proton.hh>
-#include <G4Deuteron.hh>
-#include <G4ChargedGeantino.hh>
-#include <Randomize.hh>
-#include "DCElasticEventGenerator.hh"
-#include <TH1.h>
-#include <TH2.h>
-
+#include "globals.hh"
+#include <iomanip> 
+#include <iostream>
+#include <fstream>
 class G4GenericMessenger;
+class G4Event;
+class G4ParticleGun;
+class DCElasticEventGenerator;
 class EventGenerator : public G4VUserPrimaryGeneratorAction {
 
 

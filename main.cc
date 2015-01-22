@@ -21,8 +21,9 @@
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "EventAction.hh"
-#include <QGSP_BIC.hh>
+#include <QGSP_INCLXX.hh>
 #include "G4OpticalPhysics.hh"
+#include <G4RadioactiveDecayPhysics.hh>
 #include "EventGenerator.hh"
 #include "Analysis.hh"
 namespace CLHEP {}
@@ -71,8 +72,9 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics = new QGSP_BIC();
+	G4VModularPhysicsList* the_physics = new QGSP_INCLXX();
 	the_physics->SetVerboseLevel(0);
+	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);
 
 
