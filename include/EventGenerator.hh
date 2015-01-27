@@ -1,6 +1,3 @@
-// File:	SFEventGenerator.hh
-// Date:	18-Lan-2008 G.Macharashvili Dubna
-
 #ifndef SFEventGenerator_h
 #define SFEventGenerator_h 1
 #include <G4VUserPrimaryGeneratorAction.hh>

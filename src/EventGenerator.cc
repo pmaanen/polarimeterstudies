@@ -306,9 +306,9 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 void EventGenerator::generateDCElasticEvent(G4Event* E) {
 
 	ParticleMomentumVector res(dc->GenerateEvent());
-	for (auto ipart : res){
-		this->_pGun->SetParticleDefinition(ipart.first);
-		this->_pGun->SetParticleMomentum(ipart.second);
+	for (auto ipart =res.begin(); ipart!=res.end();++ipart){
+		this->_pGun->SetParticleDefinition(ipart->first);
+		this->_pGun->SetParticleMomentum(ipart->second);
 		this->_pGun->GeneratePrimaryVertex(E);
 	}
 }
