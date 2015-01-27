@@ -11,36 +11,55 @@
 #include "Randomize.hh"
 #define MAIN
 #include "global.hh"
+
+
+class DCElasticFileWriter : public DCElasticEventGenerator{
+public:
+	DCElasticFileWriter();
+	virtual ~DCElasticFileWriter();
+	virtual void Initialize();
+
+private:
+
+
+};
+
+DCElasticFileWriter::DCElasticFileWriter(){
+
+}
+
+void DCElasticFileWriter::Initialize(){
+		Double_t m_target = 11187.9 * CLHEP::MeV;
+		Double_t m_beam = 1875 * CLHEP::MeV;
+		target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
+		Double_t masses[2] = {m_beam, m_target} ;
+		beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
+		cms = beam + target;
+		TLorentzVector temp=beam;
+		temp.Boost(-cms.BoostVector());
+		momentum_cms=temp.Vect().Mag();
+		ps.SetDecay(cms, 2, masses);
+		if(!SigmaFunc)
+			BuildFunction();
+		SigmaFunc->SetParameter(0,beamEnergy/CLHEP::MeV);
+		SigmaFunc->SetParameter(1,momentum_cms);
+		SigmaFunc->SetParameter(2,beamPolarization);
+		MaxY=SigmaFunc->GetMaximum();
+		Initialized=true;
+}
 int main(int argc, char** argv){
 
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
-	description.add_options()
-																									("help,h", "Display this help message")
-																									("energy,e", po::value<double>()->default_value(235),"energy of beam in MeV")
-																									("polarization,p", po::value<double>()->default_value(1),"beam polarization")
-																									("nevents,n", po::value<int>()->default_value(100),"number of events")
-																									("xprime,x", po::value<double>()->default_value(0),"x' in mrad")
-																									("yprime,p", po::value<double>()->default_value(0),"y' in mrad")
-																									("general.config_file,c", po::value<std::string>(), "config file")
-																									("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
-																									("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
-																									("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
-																									("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-																									("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
-																									("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-																									("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV");
-
-
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
 	notify(vm);
 
-	DCElasticEventGenerator dc(235*CLHEP::MeV);
+	DCElasticFileWriter dc();
 	int nevents=vm["nevents"].as<int>();
 	ParticleMomentumVector ievent;
 	for(int ii=0;ii<nevents;ii++){
-		ievent=dc.GenerateEvent();
+		//ievent=dc.GenerateEvent();
 		for(auto imom : ievent){
 			G4cout<<imom.first->GetParticleName()<< " "<<imom.second<<G4endl;
 		}

@@ -18,14 +18,21 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 JediPolarimeter::JediPolarimeter() {
 
+	//Lu1.8Y.2SiO5:
+	//Lu18Y2Si10O50
 
-/*
-	G4Material *Scint_mat = new G4Material("Scint", density=7.4*CLHEP::g/CLHEP::cm3, 4);
-	Scint_mat->AddElement(Lu, 71*perCent);
-	Scint_mat->AddElement(Si, 7*perCent);
-	Scint_mat->AddElement(O, 18*perCent);
-	Scint_mat->AddElement(Y, 4*perCent);
-*/
+	G4Element* Lu=G4NistManager::Instance()->FindOrBuildElement("Lu");
+	G4Element* Si=G4NistManager::Instance()->FindOrBuildElement("Si");
+	G4Element* O=G4NistManager::Instance()->FindOrBuildElement("O");
+	G4Element* Y=G4NistManager::Instance()->FindOrBuildElement("Y");
+	G4Material *Lyso = new G4Material("Scint", 7.1*CLHEP::g/CLHEP::cm3, 4);
+	Lyso->AddElement(Lu, 18);
+	Lyso->AddElement(Y,2);
+	Lyso->AddElement(Si, 10);
+	Lyso->AddElement(O, 50);
+
+	scintillatorMaterial=Lyso;
+
 	thetaMin=5*CLHEP::deg;
 	thetaMax=20*CLHEP::deg;
 
@@ -34,6 +41,8 @@ JediPolarimeter::JediPolarimeter() {
 
 	crystalLength=10*CLHEP::cm;
 	crystalWidth=8.5*CLHEP::cm;
+
+	wrappingThickness=100*CLHEP::um;
 
 	changedParameters=true;
 	DefineCommands();
@@ -46,6 +55,7 @@ JediPolarimeter::~JediPolarimeter() {
 }
 
 void JediPolarimeter::ComputeParameters() {
+	crystalWidth+=2*CLHEP::mm;
 	DetectorZ = (beampipeRadius+5*CLHEP::mm) / tan( thetaMin );
 
 	innerDetectorRadius=DetectorZ*tan( thetaMin );

@@ -99,11 +99,9 @@ protected:
 	G4GenericMessenger* fMessenger;
 
 	G4double thetaMin, thetaMax;
-	G4double beampipeRadius, beampipeThickness;
-	G4double crystalLength, crystalWidth;
-	G4double innerDetectorRadius, outerDetectorRadius;
-	G4double DetectorZ;
-
+	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
+	innerDetectorRadius, outerDetectorRadius,DetectorZ,wrappingThickness;
+	G4Material* scintillatorMaterial;
 	G4bool changedParameters;
 	G4int MinCrystal,MaxCrystal;
 	void DefineCommands();

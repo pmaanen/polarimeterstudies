@@ -71,7 +71,7 @@ JediCubicPolarimeter::JediCubicPolarimeter() {
 	thetaMin=5*CLHEP::deg;
 	thetaMax=20*CLHEP::deg;
 
-	beampipeRadius=10*CLHEP::cm;
+	beampipeRadius=5*CLHEP::cm;
 	beampipeThickness=2*CLHEP::mm;
 
 	crystalLength=10*CLHEP::cm;
@@ -90,12 +90,15 @@ void JediCubicPolarimeter::ConstructSDandField() {
 G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
-	G4Box* solidReflector= new G4Box("Wrapping",crystalWidth/2-1*CLHEP::mm,crystalWidth/2-1*CLHEP::mm,crystalLength/2-1*CLHEP::mm);
+	G4Box* solidReflector= new G4Box("Wrapping",(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2);
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
-	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2-2*CLHEP::mm,crystalWidth/2-2*CLHEP::mm,crystalLength/2-2*CLHEP::mm);
+	G4Box* solidDetector= new G4Box("Detector",(crystalWidth-2*wrappingThickness)/2,(crystalWidth-2*wrappingThickness)/2,(crystalWidth-2*wrappingThickness)/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PbWO4"),"Detector");
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
+
+	logicWrapping->SetVisAttributes(G4VisAttributes::Invisible);
+	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 	return logicWrapping;
@@ -109,21 +112,20 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 }
 
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
-
+	if(changedParameters)
+		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",3*CLHEP::m,3*CLHEP::m,3*CLHEP::m);
 	G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
-	if(changedParameters)
-		ComputeParameters();
 	int ii=0;
 	G4LogicalVolume* aCrystal=MakeDetector();
 	G4cout<<"Geometry START"<<G4endl;
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
 			G4ThreeVector placement;
-				placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,DetectorZ+0.5*crystalLength);
+			placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,DetectorZ+0.5*crystalLength);
 			if((placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))>outerDetectorRadius)
 				continue;
 			G4double phi=placement.phi();

@@ -32,11 +32,11 @@ public:
 	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);Initialized=false;}
 
 
-	void Initialize();
+	virtual void Initialize();
 	//Generates one Event.
 	ParticleMomentumVector GenerateEvent();
 
-private:
+protected:
 
 	G4double beamEnergy,MaxY;
 	G4bool Initialized;
