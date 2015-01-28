@@ -39,9 +39,9 @@ void DCElasticEventGenerator::Initialize() {
 	beam_particle=G4Deuteron::DeuteronDefinition();
 	target_particle=G4IonTable::GetIonTable()->GetIon(6,12);
 	if(!beam_particle)
-		;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
+		throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
 	if(!target_particle)
-		;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",0,"target particle not found.");
+		throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",0,"target particle not found.");
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
@@ -146,8 +146,13 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 				//G4cout<<"Lab:"<<th_scattered/CLHEP::deg<<G4endl;
 				//G4cout<<"CMS:"<<CM_theta_scattered/CLHEP::deg<<G4endl;
 				ParticleMomentumVector res;
+#ifndef FILEWRITER
 				res.push_back(std::make_pair(beam_particle,pscattered_3));
 				res.push_back(std::make_pair(target_particle,precoil_3));
+#else
+				res.push_back(std::make_pair(1000010020,pscattered_3));
+				res.push_back(std::make_pair(1000060120,precoil_3));
+#endif
 				Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
 				Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
 				//G4cout<<"Phi in ::Generate="<<phi_scattered/CLHEP::deg<<G4endl;

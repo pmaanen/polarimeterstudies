@@ -72,6 +72,10 @@ set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}
 add_executable(polarimeterstudies main.cc ${sources} ${headers})
 target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(dceventgenerator dcElasticFileWriter.cc ${sources} ${headers})
+target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+
+
 #add_library(Analysis SHARED ${Analysis_DICT} ${PROJECT_SOURCE_DIR}/src/DetId.cc)
 #target_link_libraries(Analysis ${ROOT_LIBRARIES})
 

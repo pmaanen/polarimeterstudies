@@ -45,7 +45,17 @@ EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),dc(
 	_pGun = new G4ParticleGun(Nparticle);
 	dc=new DCElasticEventGenerator();
 	DefineCommands();
-
+	Analysis* an=Analysis::Instance();
+	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
+	an->FinishNtuple(myTupleId[0]);
 
 }
 
@@ -92,7 +102,7 @@ void EventGenerator::generateEventFromPhaseSpace(G4Event *E)
 	TLorentzVector beam;
 	Double_t masses[2] = {m_beam, m_target} ;
 	TGenPhaseSpace event;
-
+	Analysis* an=Analysis::Instance();
 	while (1) {
 
 		beam.SetPxPyPzE(0, 0, sqrt(T_beam*(T_beam+2*m_beam)), T_beam+m_beam);
@@ -142,10 +152,28 @@ void EventGenerator::generateEventFromPhaseSpace(G4Event *E)
 				this->_pGun->SetParticleDefinition(beam_particle);
 				this->_pGun->SetParticleMomentum(pscattered_3);
 				this->_pGun->GeneratePrimaryVertex(E);
+				an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
+				an->FillNtupleIColumn(myTupleId[0],myTupleId[2],beam_particle->GetPDGEncoding());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],pscattered_3.getX());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[4],pscattered_3.getY());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[5],pscattered_3.getZ());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[6],this->_pGun->GetParticlePosition().getX());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[7],this->_pGun->GetParticlePosition().getY());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[8],this->_pGun->GetParticlePosition().getZ());
+				an->AddNtupleRow(myTupleId[0]);
 
 				this->_pGun->SetParticleDefinition(target_particle);
 				this->_pGun->SetParticleMomentum(precoil_3);
 				this->_pGun->GeneratePrimaryVertex(E);
+				an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
+				an->FillNtupleIColumn(myTupleId[0],myTupleId[2],target_particle->GetPDGEncoding());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],precoil_3.getX());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[4],precoil_3.getY());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[5],precoil_3.getZ());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[6],this->_pGun->GetParticlePosition().getX());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[7],this->_pGun->GetParticlePosition().getY());
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[8],this->_pGun->GetParticlePosition().getZ());
+				an->AddNtupleRow(myTupleId[0]);
 
 				break;
 
@@ -304,9 +332,18 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 }
 
 void EventGenerator::generateDCElasticEvent(G4Event* E) {
-
+	Analysis* an=Analysis::Instance();
 	ParticleMomentumVector res(dc->GenerateEvent());
 	for (auto ipart =res.begin(); ipart!=res.end();++ipart){
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],ipart->first->GetPDGEncoding());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[3],ipart->second.getX());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],ipart->second.getY());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],ipart->second.getZ());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],this->_pGun->GetParticlePosition().getX());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],this->_pGun->GetParticlePosition().getY());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],this->_pGun->GetParticlePosition().getZ());
+		an->AddNtupleRow(myTupleId[0]);
 		this->_pGun->SetParticleDefinition(ipart->first);
 		this->_pGun->SetParticleMomentum(ipart->second);
 		this->_pGun->GeneratePrimaryVertex(E);

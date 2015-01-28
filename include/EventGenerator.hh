@@ -5,6 +5,7 @@
 #include <iomanip> 
 #include <iostream>
 #include <fstream>
+#include <vector>
 class G4GenericMessenger;
 class G4Event;
 class G4ParticleGun;
@@ -34,7 +35,7 @@ private:
 	G4String 				_infile;
 	std::ifstream        _instream;
 	DCElasticEventGenerator* dc;
-
+	std::vector<G4int> myTupleId;
 protected:
 
 } ;

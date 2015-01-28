@@ -20,9 +20,11 @@
 
 class G4ParticleDefinition;
 class G4GenericMessenger;
-
+#ifndef FILEWRITER
 typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMomentumVector;
-
+#else
+typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
+#endif
 class DCElasticEventGenerator {
 public:
 	DCElasticEventGenerator();
@@ -35,7 +37,7 @@ public:
 
 	virtual void Initialize();
 	//Generates one Event.
-	ParticleMomentumVector GenerateEvent();
+	virtual ParticleMomentumVector GenerateEvent();
 
 protected:
 
