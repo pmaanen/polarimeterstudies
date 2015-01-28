@@ -66,24 +66,14 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-JediCubicPolarimeter::JediCubicPolarimeter() {
-
-	thetaMin=5*CLHEP::deg;
-	thetaMax=20*CLHEP::deg;
-
-	beampipeRadius=5*CLHEP::cm;
-	beampipeThickness=2*CLHEP::mm;
-
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=8.5*CLHEP::cm;
-
-	changedParameters=true;
-	ComputeParameters();
+JediCubicPolarimeter::JediCubicPolarimeter():JediPolarimeter() {
 	DefineCommands();
 }
 
-void JediCubicPolarimeter::ConstructSDandField() {
-	CaloSensitiveDetector* caloSD=new CaloSensitiveDetector("Calorimeter");
+void JediCubicPolarimeter::ConstructSDandField(){
+	if(!caloSD){
+		caloSD=new CaloSensitiveDetector("Calorimeter");
+	}
 	SetSensitiveDetector("Detector",caloSD);
 }
 

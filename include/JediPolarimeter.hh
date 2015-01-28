@@ -58,6 +58,7 @@
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "global.hh"
+#include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
 
@@ -102,6 +103,7 @@ protected:
 	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
 	innerDetectorRadius, outerDetectorRadius,DetectorZ,wrappingThickness;
 	G4Material* scintillatorMaterial;
+	static G4ThreadLocal CaloSensitiveDetector* caloSD;
 	G4bool changedParameters;
 	G4int MinCrystal,MaxCrystal;
 	void DefineCommands();

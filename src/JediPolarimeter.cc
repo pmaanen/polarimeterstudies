@@ -16,6 +16,7 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
+G4ThreadLocal CaloSensitiveDetector* JediPolarimeter::caloSD = 0;
 JediPolarimeter::JediPolarimeter() {
 
 	//Lu1.8Y.2SiO5:

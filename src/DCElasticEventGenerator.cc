@@ -39,9 +39,9 @@ void DCElasticEventGenerator::Initialize() {
 	beam_particle=G4Deuteron::DeuteronDefinition();
 	target_particle=G4IonTable::GetIonTable()->GetIon(6,12);
 	if(!beam_particle)
-		G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",G4ExceptionSeverity::FatalException,"beam particle not found.");
+		;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
 	if(!target_particle)
-		G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",G4ExceptionSeverity::FatalException,"target particle not found.");
+		;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",0,"target particle not found.");
 	Double_t m_target = target_particle->GetPDGMass()/GeV;
 	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
