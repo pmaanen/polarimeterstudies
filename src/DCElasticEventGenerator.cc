@@ -28,6 +28,9 @@ DCElasticEventGenerator::DCElasticEventGenerator(){
 	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(1.);
 	Initialized=false;
+
+	thetaMin=5*CLHEP::deg;
+	thetaMax=20*CLHEP::deg;
 	DefineCommands();
 }
 
@@ -130,7 +133,7 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 		//G4double phi_recoil = precoil_3.getPhi();
 
 		//Set angular cut in lab-frame
-		if(th_scattered>3*CLHEP::deg and th_scattered<30*CLHEP::deg){
+		if(th_scattered>thetaMin and th_scattered<thetaMax){
 
 			//Boost momentum of deuteron from lab-sytem to cm-system.
 			TVector3 CMv = cms.BoostVector();     // in case beam simulation
