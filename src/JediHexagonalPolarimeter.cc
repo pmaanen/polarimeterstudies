@@ -100,9 +100,9 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
 			G4ThreeVector placement;
 			if(iCrystalX % 2 == 0)
-				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,iCrystalY*crystalWidth,DetectorZ+0.5*crystalLength);
+				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
 			else
-				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,(iCrystalY+0.5)*crystalWidth,DetectorZ+0.5*crystalLength);
+				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,(iCrystalY+0.5)*crystalWidth,detectorZ+0.5*crystalLength);
 			if((placement.perp()-crystalWidth/CLHEP::mm/2)<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/2)>outerDetectorRadius)
 				continue;
 			G4double phi=placement.phi();
