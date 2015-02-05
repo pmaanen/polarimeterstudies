@@ -121,7 +121,6 @@ int main(int argc, char** argv){
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
 	notify(vm);
-
 	DCElasticFileWriter *dc=new DCElasticFileWriter();
 	dc->setBeamEnergy(vm["beam_energy"].as<double>()*CLHEP::MeV);
 	dc->setBeamPolarization(vm["beam_polarization"].as<double>());
