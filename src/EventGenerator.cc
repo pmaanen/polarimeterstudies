@@ -25,6 +25,9 @@
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include "G4ios.hh"
+
+//Particle def's
+#include <G4Geantino.hh>
 #include <G4Proton.hh>
 #include <G4Deuteron.hh>
 #include <G4ChargedGeantino.hh>
@@ -44,6 +47,7 @@ EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),dc(
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle);
 	dc=new DCElasticEventGenerator();
+	illuminationAngle=-1;
 	DefineCommands();
 	Analysis* an=Analysis::Instance();
 	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
@@ -309,7 +313,10 @@ void EventGenerator::setInfile(G4String string)
 }
 
 void EventGenerator::GeneratePrimaries(G4Event* E) {
-
+	if(illuminationAngle>0){
+		illuminateAngle(E);
+		return;
+	}
 	switch(_mode){
 	case GUN:
 		generateEventFromGun(E);
@@ -350,6 +357,26 @@ void EventGenerator::generateDCElasticEvent(G4Event* E) {
 	}
 }
 
+void EventGenerator::illuminateAngle(G4Event* E) {
+	auto oldparticle=this->_pGun->GetParticleDefinition();
+	auto oldmomentum=this->_pGun->GetParticleMomentumDirection();
+	auto oldposition=this->_pGun->GetParticlePosition();
+
+	G4ThreeVector direction(0,0,1);
+	direction.setTheta(illuminationAngle);
+	this->_pGun->SetParticlePosition(G4ThreeVector(0,0,0));
+	this->_pGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
+	for(int i=0;i<360;i++){
+		direction.setPhi(i*CLHEP::deg);
+		this->_pGun->SetParticleMomentumDirection(direction);
+		this->_pGun->GeneratePrimaryVertex(E);
+	}
+	this->_pGun->SetParticleDefinition(oldparticle);
+	this->_pGun->SetParticleMomentumDirection(oldmomentum);
+	this->_pGun->SetParticlePosition(oldposition);
+	illuminationAngle=-1;
+}
+
 void EventGenerator::DefineCommands()
 {
 	fMessenger = new G4GenericMessenger(this,
@@ -366,6 +393,9 @@ void EventGenerator::DefineCommands()
 
 	G4GenericMessenger::Command& inputCmd
 	= fMessenger->DeclareProperty("setFilename",_infile,"Set input file name");
+
+	G4GenericMessenger::Command& illuminateCmd
+		= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
 
 }
 

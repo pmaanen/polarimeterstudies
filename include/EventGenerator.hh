@@ -23,6 +23,7 @@ public:
 	void generateEventFromGun(G4Event* E);
 	void generateEventFromPhaseSpace(G4Event* E);
 	void generateDCElasticEvent(G4Event* E);
+	void illuminateAngle(G4Event* E);
 	G4int getMode() const;
 	void setMode(G4int mode);
 	void setInfile(G4String);
@@ -36,6 +37,7 @@ private:
 	std::ifstream        _instream;
 	DCElasticEventGenerator* dc;
 	std::vector<G4int> myTupleId;
+	G4double illuminationAngle;
 protected:
 
 } ;
