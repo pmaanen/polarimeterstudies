@@ -42,7 +42,7 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #----------------------------------------------------------------------------
-set(DISABLED_WARNINGS "-Wno-shadow")
+set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
 
 #Get rid of warning messages introduced by boost
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS}")
