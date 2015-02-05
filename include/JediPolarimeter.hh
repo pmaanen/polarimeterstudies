@@ -95,13 +95,15 @@ public:
 
 protected:
 	G4LogicalVolume* MakeBeampipe();
+	G4LogicalVolume*  MakeTargetChamber();
 
 	G4VPhysicalVolume* physiWorld;
 	G4GenericMessenger* fMessenger;
 
 	G4double thetaMin, thetaMax;
 	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
-	innerDetectorRadius, outerDetectorRadius,DetectorZ,wrappingThickness;
+	innerDetectorRadius, outerDetectorRadius,detectorZ,wrappingThickness, targetChamberThickness, targetChamberZ1, targetChamberZ2,
+	worldSizeXY,worldSizeZ;
 	G4Material* scintillatorMaterial;
 	static G4ThreadLocal CaloSensitiveDetector* caloSD;
 	G4bool changedParameters;
