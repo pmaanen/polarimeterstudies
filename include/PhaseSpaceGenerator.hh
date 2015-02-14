@@ -19,16 +19,50 @@
 #include "TVector3.h"
 #include "G4GenericMessenger.hh"
 #include <math.h>
+#include <G4ThreeVector.hh>
+#include "TF2.h"
+#include "TGenPhaseSpace.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "globals.hh"
+#include <TMath.h>
+#include <utility>
+#include <vector>
+
+#include <G4UnitsTable.hh>
+
 
 class G4ParticleDefinition;
 class G4GenericMessenger;
 
+#ifndef FILEWRITER
 typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMomentumVector;
+#else
+typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
+#endif
 
 class PhaseSpaceGenerator {
 public:
 	PhaseSpaceGenerator();
 	virtual ~PhaseSpaceGenerator();
+
+	virtual ParticleMomentumVector GenerateEvent()=0;
+protected:
+	G4double beamEnergy,MaxY,thetaMin,thetaMax;
+	G4bool Initialized;
+	static G4ThreadLocal TF2* SigmaFunc;
+	TGenPhaseSpace ps;
+
+	TLorentzVector cms,beam,target;
+
+	//Definition of particles. particles[0] carries the kinetic energy.
+	std::vector<G4ParticleDefinition*> particles;
+
+	G4GenericMessenger* fMessenger;
+
+	void DefineCommands();
+	//Returns a the TF2 for hit and miss.
+	TF2* BuildFunction();
+
 };
 
 #endif /* INCLUDE_PHASESPACEGENERATOR_HH_ */

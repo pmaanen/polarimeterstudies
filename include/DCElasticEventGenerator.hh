@@ -7,6 +7,7 @@
 
 #ifndef DCELASTICEVENTGENERATOR_HH_
 #define DCELASTICEVENTGENERATOR_HH_
+#include "PhaseSpaceGenerator.hh"
 #include <G4ThreeVector.hh>
 #include "TF2.h"
 #include "TGenPhaseSpace.h"
@@ -17,7 +18,6 @@
 #include <vector>
 
 #include <G4UnitsTable.hh>
-
 class G4ParticleDefinition;
 class G4GenericMessenger;
 #ifndef FILEWRITER
@@ -25,7 +25,7 @@ typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMom
 #else
 typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
 #endif
-class DCElasticEventGenerator {
+class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
 	DCElasticEventGenerator();
 	virtual ~DCElasticEventGenerator();
