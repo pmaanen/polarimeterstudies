@@ -97,6 +97,7 @@ public:
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
+	virtual G4LogicalVolume* MakeDetector()=0;
 
 	G4LogicalVolume* logicWorld;
 	G4VPhysicalVolume* physiWorld;

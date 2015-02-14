@@ -36,7 +36,7 @@ protected:
 
 	void UpdateGeometry();
 	void DefineCommands();
-	G4LogicalVolume* MakeDetector();
+	virtual G4LogicalVolume* MakeDetector();
 	virtual ~JediCubicPolarimeter();
 };
 

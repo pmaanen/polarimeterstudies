@@ -36,7 +36,7 @@ public:
 private:
 
 	void DefineCommands();
-	G4LogicalVolume* MakeDetector();
+	virtual G4LogicalVolume* MakeDetector();
 	virtual void UpdateGeometry();
 	virtual ~JediHexagonalPolarimeter();
 };

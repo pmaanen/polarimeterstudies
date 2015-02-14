@@ -74,15 +74,12 @@ int main(int argc,char** argv) {
 	auto gdml=std::string("gdml:");
 	G4VUserDetectorConstruction* jedi;
 	if(!geometry.compare(0,cubic.size(),cubic)){
-		G4cout<<"Geometry=Cubic"<<G4endl;
 		jedi=new JediCubicPolarimeter;
 	}
 	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
-		G4cout<<"Geometry=Hexagonal"<<G4endl;
 		jedi=new JediHexagonalPolarimeter;
 	}
 	if(!geometry.compare(0,gdml.size(),gdml)){
-		G4cout<<"Geometry=gdml"<<G4endl;
 		jedi= new DetectorConstruction();
 	}
 	runManager->SetUserInitialization(jedi);
