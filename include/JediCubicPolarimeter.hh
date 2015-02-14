@@ -31,7 +31,7 @@ class JediCubicPolarimeter: public JediPolarimeter {
 public:
 	JediCubicPolarimeter();
 	void ConstructSDandField();
-	G4VPhysicalVolume* Construct();
+	virtual G4VPhysicalVolume* Construct();
 protected:
 
 	void UpdateGeometry();

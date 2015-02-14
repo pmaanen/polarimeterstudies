@@ -102,13 +102,7 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 }
 
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
-	if(changedParameters)
-		ComputeParameters();
-	G4Box* solidWorld=new G4Box("World",worldSizeXY/2,worldSizeXY/2,worldSizeZ/2);
-	G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
-	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
-
-	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+	JediPolarimeter::Construct();
 	int ii=0;
 	G4LogicalVolume* aCrystal=MakeDetector();
 	G4cout<<"Geometry START"<<G4endl;
@@ -130,9 +124,6 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	G4cout<<"----------------"<<G4endl;
 	G4cout<<"number of crystals: "<<ii<<G4endl;
 	G4cout<<"----------------"<<G4endl;
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),MakeBeampipe(),"Beampipe",logicWorld,false,0,false);
-	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),MakeTargetChamber(),"TargetChamber",logicWorld,false,0,false);
-	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	return physiWorld;
 }
 

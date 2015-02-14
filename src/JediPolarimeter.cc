@@ -98,10 +98,10 @@ G4LogicalVolume* JediPolarimeter::MakeBeampipe() {
 	G4LogicalVolume* logicBeampipe = new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 	G4Tubs* solidMylarFoil=new G4Tubs("MylarFoil",beampipeRadius-beampipeThickness+windowThickness,beampipeRadius-beampipeThickness+foilThickness+windowThickness,(targetChamberZ2-targetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
 	G4LogicalVolume* logicMylarFoil=new G4LogicalVolume(solidMylarFoil,mylar,"MylarFoil");
-	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)/2),logicMylarFoil,"MylarFoil",logicBeampipe,0,false,0);
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),logicMylarFoil,"MylarFoil",logicBeampipe,0,false,0);
 	G4Tubs* solidGap= new G4Tubs("Gap",beampipeRadius-beampipeThickness+foilThickness+windowThickness,beampipeRadius,(targetChamberZ2-targetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
 	G4LogicalVolume* logicGap=new G4LogicalVolume(solidGap,uhv,"Gap");
-	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)/2),logicGap,"Gap",logicBeampipe,0,false,0);
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),logicGap,"Gap",logicBeampipe,0,false,0);
 	logicGap->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* beampipeVisAttr = new G4VisAttributes(gray);
 	logicBeampipe->SetVisAttributes(beampipeVisAttr);
@@ -172,4 +172,17 @@ void JediPolarimeter::DefineCommands() {
 	crystalWidthCmd.SetRange("width>=0.");
 	crystalWidthCmd.SetDefaultValue("30.");
 
+}
+
+G4VPhysicalVolume* JediPolarimeter::Construct() {
+	if(changedParameters)
+		ComputeParameters();
+	G4Box* solidWorld=new G4Box("World",worldSizeXY/2,worldSizeXY/2,worldSizeZ/2);
+	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
+	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),MakeBeampipe(),"Beampipe",logicWorld,false,0,false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),MakeTargetChamber(),"TargetChamber",logicWorld,false,0,false);
+	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	return physiWorld;
 }

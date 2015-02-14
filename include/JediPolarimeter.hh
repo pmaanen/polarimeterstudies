@@ -66,6 +66,7 @@ class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
 	JediPolarimeter();
 	virtual ~JediPolarimeter();
+	virtual G4VPhysicalVolume* Construct();
 	void WriteWorldToFile(G4String filename);
 
 	void setBeampipeRadius(G4double beampipeRadius) {
@@ -97,6 +98,7 @@ protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
 
+	G4LogicalVolume* logicWorld;
 	G4VPhysicalVolume* physiWorld;
 	G4GenericMessenger* fMessenger;
 

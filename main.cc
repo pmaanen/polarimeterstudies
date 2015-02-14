@@ -68,7 +68,23 @@ int main(int argc,char** argv) {
 
 	// set mandatory initialization classes
 	//DetectorConstruction* detector = new DetectorConstruction;
-	JediCubicPolarimeter* jedi= new JediCubicPolarimeter;
+	auto geometry=vm["detector.geometry"].as<std::string>();
+	auto cubic=std::string("cubic:");
+	auto hexagonal=std::string("hexagonal:");
+	auto gdml=std::string("gdml:");
+	G4VUserDetectorConstruction* jedi;
+	if(!geometry.compare(0,cubic.size(),cubic)){
+		G4cout<<"Geometry=Cubic"<<G4endl;
+		jedi=new JediCubicPolarimeter;
+	}
+	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
+		G4cout<<"Geometry=Hexagonal"<<G4endl;
+		jedi=new JediHexagonalPolarimeter;
+	}
+	if(!geometry.compare(0,gdml.size(),gdml)){
+		G4cout<<"Geometry=gdml"<<G4endl;
+		jedi= new DetectorConstruction();
+	}
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
