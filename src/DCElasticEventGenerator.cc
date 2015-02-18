@@ -20,7 +20,6 @@
 #include <math.h>
 using namespace CLHEP;
 G4ThreadLocal DCElasticEventGenerator::MyFunction* DCElasticEventGenerator::func = 0;
-G4ThreadLocal TF2* DCElasticEventGenerator::SigmaFunc = 0;
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
@@ -39,14 +38,14 @@ DCElasticEventGenerator::~DCElasticEventGenerator() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
-	beam_particle=G4Deuteron::DeuteronDefinition();
-	target_particle=G4IonTable::GetIonTable()->GetIon(6,12);
-	if(!beam_particle)
-		throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
-	if(!target_particle)
-		throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC002",0,"target particle not found.");
-	Double_t m_target = target_particle->GetPDGMass()/GeV;
-	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
+	particles.push_back(G4Deuteron::DeuteronDefinition());
+	particles.push_back(G4IonTable::GetIonTable()->GetIon(6,12));
+	for(auto ipart=particles.begin();ipart!=particles.end();++ipart){
+		if(!(*ipart))
+				throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
+	}
+	Double_t m_target = particles[1]->GetPDGMass()/GeV;
+	Double_t m_beam = particles[0]->GetPDGMass()/GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
 	Double_t masses[2] = {m_beam, m_target} ;
 	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
@@ -66,10 +65,6 @@ void DCElasticEventGenerator::Initialize() {
 
 void DCElasticEventGenerator::DefineCommands() {
 
-	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/dcElastic/",
-			"DC event generator control");
-
 	G4GenericMessenger::Command& polCmd
 	= fMessenger->DeclareMethod("polarization",
 			&DCElasticEventGenerator::setBeamPolarization,
@@ -77,12 +72,6 @@ void DCElasticEventGenerator::DefineCommands() {
 	polCmd.SetParameterName("polarization",false,false);
 	//polCmd.SetRange("polarization<=1. && polarization>=-1");
 
-	G4GenericMessenger::Command& enCmd
-	= fMessenger->DeclareMethodWithUnit("energy","MeV",
-			&DCElasticEventGenerator::setBeamEnergy,
-			"Set beam energy");
-	enCmd.SetParameterName("energy",false,false);
-	//enCmd.SetRange("energy>50. && energy<300.");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -150,8 +139,8 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 				//G4cout<<"CMS:"<<CM_theta_scattered/CLHEP::deg<<G4endl;
 				ParticleMomentumVector res;
 #ifndef FILEWRITER
-				res.push_back(std::make_pair(beam_particle,pscattered_3));
-				res.push_back(std::make_pair(target_particle,precoil_3));
+				res.push_back(std::make_pair(particles[0],pscattered_3));
+				res.push_back(std::make_pair(particles[1],precoil_3));
 #else
 				res.push_back(std::make_pair(1000010020,pscattered_3));
 				res.push_back(std::make_pair(1000060120,precoil_3));

@@ -44,8 +44,11 @@ class PhaseSpaceGenerator {
 public:
 	PhaseSpaceGenerator();
 	virtual ~PhaseSpaceGenerator();
-
 	virtual ParticleMomentumVector GenerateEvent()=0;
+
+	G4double getBeamEnergy() const {return beamEnergy;}
+	void setBeamEnergy(G4double xBeamEnergy) {beamEnergy = xBeamEnergy;Initialized=false;}
+
 protected:
 	G4double beamEnergy,MaxY,thetaMin,thetaMax;
 	G4bool Initialized;
@@ -59,10 +62,10 @@ protected:
 
 	G4GenericMessenger* fMessenger;
 
-	void DefineCommands();
+	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
-	TF2* BuildFunction();
-
+	virtual TF2* BuildFunction()=0;
+	virtual void Initialize()=0;
 };
 
 #endif /* INCLUDE_PHASESPACEGENERATOR_HH_ */

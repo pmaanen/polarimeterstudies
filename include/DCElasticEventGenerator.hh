@@ -29,9 +29,6 @@ class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
 	DCElasticEventGenerator();
 	virtual ~DCElasticEventGenerator();
-
-	G4double getBeamEnergy() const {return beamEnergy;}
-	void setBeamEnergy(G4double xBeamEnergy) {beamEnergy = xBeamEnergy;Initialized=false;}
 	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);Initialized=false;}
 
 
@@ -41,20 +38,12 @@ public:
 
 protected:
 
-	G4double beamEnergy,MaxY,thetaMin,thetaMax;
-	G4bool Initialized;
-	static G4ThreadLocal TF2* SigmaFunc;
-	TGenPhaseSpace ps;
-	//This is the Function to build the TF2. x[0] is theta_cm, x[1] is phi par[0] is beam energy.
-	TLorentzVector cms,beam,target;
 	Double_t momentum_cms,beamPolarization;
-	G4ParticleDefinition *beam_particle,*target_particle;
-
 	G4GenericMessenger* fMessenger;
 
-	void DefineCommands();
+	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
-	TF2* BuildFunction();
+	virtual TF2* BuildFunction();
 
 	//This is the Function to build the TF2.
 	//x[0] is theta_cm, x[1] is phi par[0] is beam energy. par[1] is beam momentum in cms

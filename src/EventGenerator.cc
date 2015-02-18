@@ -42,11 +42,11 @@
 #include <vector>
 #include <utility>
 using namespace CLHEP;
-EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),dc(0) {
+EventGenerator::EventGenerator():_infile(""),_instream("",std::ifstream::in),psGen(0) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle);
-	dc=new DCElasticEventGenerator();
+	psGen=new DCElasticEventGenerator();
 	illuminationAngle=-1;
 	DefineCommands();
 	Analysis* an=Analysis::Instance();
@@ -283,14 +283,17 @@ void EventGenerator::generateEventFromGun(G4Event *E)
 void EventGenerator::setMode(G4int mode)
 {
 	this->_mode = static_cast<GeneratorMode>(mode);
-	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DC)){
+	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
 				o.str().c_str());
 	}
-	if(_mode==DC and !dc)
-		dc=new DCElasticEventGenerator();
+	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(psGen))
+		psGen=new DCElasticEventGenerator();
+
+	if(_mode==DCBREAKUP and !dynamic_cast<DCBreakupEventGenerator*>(psGen))
+		psGen=new DCBreakupEventGenerator();
 }
 
 
@@ -327,7 +330,10 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 	case GENERATE:
 		generateEventFromPhaseSpace(E);
 		break;
-	case DC:
+	case DCELASTIC:
+		generateDCElasticEvent(E);
+		break;
+	case DCBREAKUP:
 		generateDCElasticEvent(E);
 		break;
 	default:
@@ -340,7 +346,7 @@ void EventGenerator::GeneratePrimaries(G4Event* E) {
 
 void EventGenerator::generateDCElasticEvent(G4Event* E) {
 	Analysis* an=Analysis::Instance();
-	ParticleMomentumVector res(dc->GenerateEvent());
+	ParticleMomentumVector res(psGen->GenerateEvent());
 	for (auto ipart =res.begin(); ipart!=res.end();++ipart){
 		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
 		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],ipart->first->GetPDGEncoding());
