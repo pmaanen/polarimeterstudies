@@ -49,7 +49,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 		const G4String& /*hitsCollectionName*/)
 : G4VSensitiveDetector(name),
   fHitsCollection(NULL),
-  myTupleId(-1)
+  myTupleId()
 {
 	collectionName.insert(name);
 	Analysis* an=Analysis::Instance();
