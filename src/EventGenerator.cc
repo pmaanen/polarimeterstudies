@@ -6,6 +6,7 @@
 #include "Analysis.hh"
 #include "global.hh"
 #include "DCElasticEventGenerator.hh"
+#include "DCBreakupEventGenerator.hh"
 //Geant headers
 #include <G4ParticleTable.hh>
 #include <G4IonTable.hh>
@@ -283,7 +284,7 @@ void EventGenerator::generateEventFromGun(G4Event *E)
 void EventGenerator::setMode(G4int mode)
 {
 	this->_mode = static_cast<GeneratorMode>(mode);
-	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC)){
+	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC or _mode==DCBREAKUP)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,

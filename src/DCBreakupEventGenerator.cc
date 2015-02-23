@@ -6,9 +6,15 @@
  */
 
 #include <DCBreakupEventGenerator.hh>
+#include "G4Proton.hh"
+#include "G4Neutron.hh"
+DCBreakupEventGenerator::DCBreakupEventGenerator():PhaseSpaceGenerator() {
+	beamEnergy=235.*CLHEP::MeV;
+	Initialized=false;
 
-DCBreakupEventGenerator::DCBreakupEventGenerator() {
-
+	thetaMin=5*CLHEP::deg;
+	thetaMax=20*CLHEP::deg;
+	DefineCommands();
 }
 
 DCBreakupEventGenerator::~DCBreakupEventGenerator() {
@@ -16,7 +22,7 @@ DCBreakupEventGenerator::~DCBreakupEventGenerator() {
 }
 
 TF2* DCBreakupEventGenerator::BuildFunction() {
-	SigmaFunc=new TF2("xsec","1",3.,30.,0.,360.,0,"MyFunction","sigma");
+	SigmaFunc=0;
 	return SigmaFunc;
 }
 

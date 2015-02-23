@@ -9,7 +9,7 @@
 class G4GenericMessenger;
 class G4Event;
 class G4ParticleGun;
-class DCElasticEventGenerator;
+class PhaseSpaceGenerator;
 class EventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
