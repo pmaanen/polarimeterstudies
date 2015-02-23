@@ -23,7 +23,7 @@ G4ThreadLocal DCElasticEventGenerator::MyFunction* DCElasticEventGenerator::func
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(){
+DCElasticEventGenerator::DCElasticEventGenerator():PhaseSpaceGenerator(){
 	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(1.);
 	Initialized=false;
@@ -64,7 +64,7 @@ void DCElasticEventGenerator::Initialize() {
 }
 
 void DCElasticEventGenerator::DefineCommands() {
-
+return;
 	G4GenericMessenger::Command& polCmd
 	= fMessenger->DeclareMethod("polarization",
 			&DCElasticEventGenerator::setBeamPolarization,
