@@ -43,7 +43,7 @@ void DCBreakupEventGenerator::Initialize() {
 	ps.SetDecay(cms, 3, masses);
 	if(!SigmaFunc)
 		BuildFunction();
-	MaxY=SigmaFunc->GetMaximum();
+	//MaxY=SigmaFunc->GetMaximum();
 	Initialized=true;
 }
 

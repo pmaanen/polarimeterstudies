@@ -161,8 +161,6 @@ void JediPolarimeter::DefineCommands() {
 	crystalLengthCmd.SetRange("length>=0.");
 	crystalLengthCmd.SetDefaultValue("100.");
 
-
-
 	G4GenericMessenger::Command& crystalWidthCmd
 	= fMessenger->DeclareMethodWithUnit("width","mm",
 			&JediPolarimeter::setCrystalWidth,
@@ -171,6 +169,9 @@ void JediPolarimeter::DefineCommands() {
 	crystalWidthCmd.SetParameterName("width", true);
 	crystalWidthCmd.SetRange("width>=0.");
 	crystalWidthCmd.SetDefaultValue("30.");
+
+	G4GenericMessenger::Command& updateCmd
+	= fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
 
 }
 

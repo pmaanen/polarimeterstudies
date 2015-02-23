@@ -20,6 +20,7 @@
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
+#include "SingleCrystal.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include "G4OpticalPhysics.hh"
@@ -35,15 +36,15 @@ int main(int argc,char** argv) {
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
-										("help,h", "Display this help message")
-										("general.config_file,c", po::value<std::string>(), "config file")
-										("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
-										("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
-										("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
-										("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-										("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
-										("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-										("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV");
+														("help,h", "Display this help message")
+														("general.config_file,c", po::value<std::string>(), "config file")
+														("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
+														("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
+														("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
+														("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
+														("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
+														("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
+														("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
@@ -72,7 +73,8 @@ int main(int argc,char** argv) {
 	auto cubic=std::string("cubic:");
 	auto hexagonal=std::string("hexagonal:");
 	auto gdml=std::string("gdml:");
-	G4VUserDetectorConstruction* jedi;
+	auto single=std::string("single:");
+	G4VUserDetectorConstruction* jedi=0;
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		jedi=new JediCubicPolarimeter;
 	}
@@ -82,6 +84,11 @@ int main(int argc,char** argv) {
 	if(!geometry.compare(0,gdml.size(),gdml)){
 		jedi= new DetectorConstruction();
 	}
+	if(!geometry.compare(0,single.size(),single)){
+		jedi= new SingleCrystal();
+	}
+	if(!jedi)
+		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
