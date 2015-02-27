@@ -23,6 +23,7 @@
 #include "SingleCrystal.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
+#include <FTFP_BERT.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
 #include "EventGenerator.hh"
@@ -92,7 +93,7 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics = new QGSP_INCLXX();
+	G4VModularPhysicsList* the_physics =new FTFP_BERT;//new QGSP_INCLXX();
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);

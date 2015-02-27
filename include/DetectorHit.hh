@@ -45,47 +45,47 @@
 
 class DetectorHit : public G4VHit
 {
-  public:
-    DetectorHit();
-    DetectorHit(const DetectorHit&);
-    virtual ~DetectorHit();
+public:
+	DetectorHit();
+	DetectorHit(const DetectorHit&);
+	virtual ~DetectorHit();
 
-    // operators
-    const DetectorHit& operator=(const DetectorHit&);
-    G4int operator==(const DetectorHit&) const;
+	// operators
+	const DetectorHit& operator=(const DetectorHit&);
+	G4int operator==(const DetectorHit&) const;
 
-    inline void* operator new(size_t);
-    inline void  operator delete(void*);
+	inline void* operator new(size_t);
+	inline void  operator delete(void*);
 
-    // methods from base class
-    virtual void Draw();
-    virtual void Print();
+	// methods from base class
+	virtual void Draw();
+	virtual void Print();
 
-    // Set methods
-    void SetTrackID  (G4int track)      { fTrackID = track; };
-    void SetDetId(uint32_t rawid)      { fId = rawid; };
-    void SetEdep     (G4double de)      { fEdep = de; };
-    void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
-    void SetTruePos      (G4ThreeVector xyz){ fTruePos = xyz; };
-    void SetParticleId(G4int pid)        { fParticleId = pid; };
-    void SetTof(G4double tof)			{ fTof=tof; };
-    // Get methods
-    G4int GetTrackID() const     { return fTrackID; };
-    uint32_t GetDetId() const   { return fId; };
-    G4double GetEdep() const     { return fEdep; };
-    G4ThreeVector GetPos() const { return fPos; };
-    G4ThreeVector GetTruePos() const { return fTruePos; };
-    G4int GetParticleId() const      { return fParticleId; };
-    G4double GetTof() const {return fTof;};
-  private:
+	// Set methods
+	void SetTrackID  (G4int track)      { fTrackID = track; };
+	void SetDetId(uint32_t rawid)      { fId = rawid; };
+	void SetEdep     (G4double de)      { fEdep = de; };
+	void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
+	void SetTruePos      (G4ThreeVector xyz){ fTruePos = xyz; };
+	void SetParticleId(G4int pid)        { fParticleId = pid; };
+	void SetTof(G4double tof)			{ fTof=tof; };
+	// Get methods
+	G4int GetTrackID() const     { return fTrackID; };
+	uint32_t GetDetId() const   { return fId; };
+	G4double GetEdep() const     { return fEdep; };
+	G4ThreeVector GetPos() const { return fPos; };
+	G4ThreeVector GetTruePos() const { return fTruePos; };
+	G4int GetParticleId() const      { return fParticleId; };
+	G4double GetTof() const {return fTof;};
+private:
 
-      G4int         fTrackID;
-      G4int 		fParticleId;
-      uint32_t      fId;
-      G4double      fEdep;
-      G4ThreeVector fPos;
-      G4ThreeVector fTruePos;
-      G4double      fTof;
+	G4int         fTrackID;
+	G4int 		fParticleId;
+	uint32_t      fId;
+	G4double      fEdep;
+	G4ThreeVector fPos;
+	G4ThreeVector fTruePos;
+	G4double      fTof;
 
 };
 
@@ -99,16 +99,18 @@ extern G4ThreadLocal G4Allocator<DetectorHit>* DetectorHitAllocator;
 
 inline void* DetectorHit::operator new(size_t)
 {
-  void *hit;
-  hit = (void *) DetectorHitAllocator->MallocSingle();
-  return hit;
+	if(!DetectorHitAllocator)
+		DetectorHitAllocator = new G4Allocator<DetectorHit>;
+	void *hit;
+	hit = (void *) DetectorHitAllocator->MallocSingle();
+	return hit;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 inline void DetectorHit::operator delete(void *hit)
 {
-  DetectorHitAllocator->FreeSingle((DetectorHit*) hit);
+	DetectorHitAllocator->FreeSingle((DetectorHit*) hit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

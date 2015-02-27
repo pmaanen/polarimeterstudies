@@ -1,4 +1,3 @@
-
 #include "RunAction.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"

@@ -130,6 +130,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],(*fHitsCollection)[ii]->GetPos().x());
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],(*fHitsCollection)[ii]->GetPos().y());
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z());
+		an->AddNtupleRow(myTupleId[0]);
 	}
 	return;
 }

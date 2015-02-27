@@ -18,8 +18,8 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 G4ThreadLocal TrackerSensitiveDetector* SingleCrystal::trkSD = 0;
 SingleCrystal::SingleCrystal() {
-	// TODO Auto-generated constructor stub
-
+	crystalLength=50*CLHEP::cm;
+	crystalWidth=10*CLHEP::cm;
 }
 
 SingleCrystal::~SingleCrystal() {
