@@ -28,15 +28,16 @@ JediPolarimeter::JediPolarimeter() {
 	G4Element* O=G4NistManager::Instance()->FindOrBuildElement("O");
 	G4Element* Y=G4NistManager::Instance()->FindOrBuildElement("Y");
 	G4Material *Lyso = new G4Material("Scint", 7.1*CLHEP::g/CLHEP::cm3, 4);
-	Lyso->AddElement(Lu, 18);
-	Lyso->AddElement(Y,2);
-	Lyso->AddElement(Si, 10);
-	Lyso->AddElement(O, 50);
 
-	scintillatorMaterial=Lyso;
+	G4String el[]={"Lu","Y","Si","O","Ce"};
+	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
+	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
+	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
+	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+	scintillatorMaterialName="G4_Galactic";
 	worldSizeXY=2*CLHEP::m;
-	worldSizeZ=3*CLHEP::m;
+	worldSizeZ=10*CLHEP::m;
 	thetaMin=5*CLHEP::deg;
 	thetaMax=20*CLHEP::deg;
 
@@ -49,7 +50,7 @@ JediPolarimeter::JediPolarimeter() {
 	targetChamberThickness=2*CLHEP::mm;
 
 	wrappingThickness=100*CLHEP::um;
-
+	scintillatorMaterial=0;
 	changedParameters=true;
 	DefineCommands();
 	ComputeParameters();
@@ -81,6 +82,15 @@ void JediPolarimeter::ComputeParameters() {
 			<<G4BestUnit(innerDetectorRadius, "Length")<<"/outer radius: "
 			<<G4BestUnit(outerDetectorRadius, "Length")<<G4endl;
 	G4cout<<"----------------"<<G4endl;
+
+	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
+	if(!scintillatorMaterial){
+		std::stringstream o;
+		o<<"Material ptr null! Material name "<<scintillatorMaterialName<<G4endl;
+		G4Exception("JediPolarimeter::JediPolarimeter", "ConfigurationError", FatalException,
+				o.str().c_str());
+	}
+
 	changedParameters=false;
 }
 
@@ -137,6 +147,7 @@ void JediPolarimeter::DefineCommands() {
 	thetaMinCmd.SetParameterName("thetamin", true);
 	thetaMinCmd.SetRange("thetamin>=0.");
 	thetaMinCmd.SetDefaultValue("5.");
+
 	G4GenericMessenger::Command& thetaMaxCmd
 	= fMessenger->DeclareMethodWithUnit("thetamax","deg",
 			&JediPolarimeter::setThetaMax,
@@ -144,6 +155,7 @@ void JediPolarimeter::DefineCommands() {
 	thetaMaxCmd.SetParameterName("thetamax", true);
 	thetaMaxCmd.SetRange("thetamax>=0.");
 	thetaMaxCmd.SetDefaultValue("20.");
+
 	G4GenericMessenger::Command& beampipeRadiusCmd
 	= fMessenger->DeclareMethodWithUnit("bpRadius","mm",
 			&JediPolarimeter::setBeampipeRadius,
@@ -172,6 +184,13 @@ void JediPolarimeter::DefineCommands() {
 
 	G4GenericMessenger::Command& updateCmd
 	= fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
+
+	G4GenericMessenger::Command& matCmd
+	= fMessenger->DeclareMethod("material",
+			&JediPolarimeter::setScintillatorMaterialName,
+			"scintillator material");
+
+	matCmd.SetParameterName("material", true);
 
 }
 

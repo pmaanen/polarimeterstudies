@@ -18,7 +18,7 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 G4ThreadLocal TrackerSensitiveDetector* SingleCrystal::trkSD = 0;
 SingleCrystal::SingleCrystal() {
-	crystalLength=50*CLHEP::cm;
+	crystalLength=500*CLHEP::cm;
 	crystalWidth=10*CLHEP::cm;
 }
 
@@ -65,7 +65,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 	G4LogicalVolume* aCrystal=MakeDetector();
-	new G4PVPlacement (0, G4ThreeVector(0,0,crystalLength), aCrystal, "Crystal", logicWorld, false, 0, false);
+	new G4PVPlacement (0, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
 
 	return physiWorld;
 }

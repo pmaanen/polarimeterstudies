@@ -94,6 +94,11 @@ public:
 		changedParameters=true;
 	}
 
+	void setScintillatorMaterialName(const G4String& scintillatorMaterialName) {
+		this->scintillatorMaterialName = scintillatorMaterialName;
+		changedParameters=true;
+	}
+
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
@@ -107,6 +112,7 @@ protected:
 	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
 	innerDetectorRadius, outerDetectorRadius,detectorZ,wrappingThickness, targetChamberThickness, targetChamberZ1, targetChamberZ2,
 	worldSizeXY,worldSizeZ;
+	G4String scintillatorMaterialName;
 	G4Material* scintillatorMaterial;
 	static G4ThreadLocal CaloSensitiveDetector* caloSD;
 	G4bool changedParameters;
