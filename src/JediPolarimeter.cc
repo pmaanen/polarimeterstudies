@@ -20,22 +20,15 @@ yellow  (1.0, 1.0, 0.0); // yellow
 G4ThreadLocal CaloSensitiveDetector* JediPolarimeter::caloSD = 0;
 JediPolarimeter::JediPolarimeter() {
 
-	//Lu1.8Y.2SiO5:
-	//Lu18Y2Si10O50
-
-	G4Element* Lu=G4NistManager::Instance()->FindOrBuildElement("Lu");
-	G4Element* Si=G4NistManager::Instance()->FindOrBuildElement("Si");
-	G4Element* O=G4NistManager::Instance()->FindOrBuildElement("O");
-	G4Element* Y=G4NistManager::Instance()->FindOrBuildElement("Y");
-	G4Material *Lyso = new G4Material("Scint", 7.1*CLHEP::g/CLHEP::cm3, 4);
-
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+
 	scintillatorMaterialName="G4_Galactic";
+	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	worldSizeXY=2*CLHEP::m;
 	worldSizeZ=10*CLHEP::m;
 	thetaMin=5*CLHEP::deg;
@@ -50,7 +43,6 @@ JediPolarimeter::JediPolarimeter() {
 	targetChamberThickness=2*CLHEP::mm;
 
 	wrappingThickness=100*CLHEP::um;
-	scintillatorMaterial=0;
 	changedParameters=true;
 	DefineCommands();
 	ComputeParameters();
@@ -62,7 +54,7 @@ JediPolarimeter::~JediPolarimeter() {
 }
 
 void JediPolarimeter::ComputeParameters() {
-	crystalWidth+=2*CLHEP::mm;
+	//crystalWidth+=2*CLHEP::mm;
 	detectorZ = (beampipeRadius+5*CLHEP::mm) / tan( thetaMin );
 
 	innerDetectorRadius=detectorZ*tan( thetaMin );
@@ -83,14 +75,12 @@ void JediPolarimeter::ComputeParameters() {
 			<<G4BestUnit(outerDetectorRadius, "Length")<<G4endl;
 	G4cout<<"----------------"<<G4endl;
 
-	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	if(!scintillatorMaterial){
 		std::stringstream o;
 		o<<"Material ptr null! Material name "<<scintillatorMaterialName<<G4endl;
 		G4Exception("JediPolarimeter::JediPolarimeter", "ConfigurationError", FatalException,
 				o.str().c_str());
 	}
-
 	changedParameters=false;
 }
 
@@ -191,6 +181,7 @@ void JediPolarimeter::DefineCommands() {
 			"scintillator material");
 
 	matCmd.SetParameterName("material", true);
+	matCmd.SetStates(G4State_Idle);
 
 }
 

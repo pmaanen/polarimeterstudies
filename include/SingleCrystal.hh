@@ -22,6 +22,6 @@ private:
 	static G4ThreadLocal TrackerSensitiveDetector* trkSD;
 	virtual G4LogicalVolume* MakeDetector();
 	virtual G4VPhysicalVolume* Construct();
-	virtual void UpdateGeometry(){G4RunManager::GetRunManager()->ReinitializeGeometry(true);};
+	virtual void UpdateGeometry(){G4RunManager::GetRunManager()->ReinitializeGeometry(false);};
 };
 #endif

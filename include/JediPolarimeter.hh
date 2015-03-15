@@ -95,8 +95,10 @@ public:
 	}
 
 	void setScintillatorMaterialName(const G4String& scintillatorMaterialName) {
+		G4cout<<"Changing Material from "<<scintillatorMaterial->GetName();
 		this->scintillatorMaterialName = scintillatorMaterialName;
-		changedParameters=true;
+		scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
+		G4cout<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 	}
 
 protected:

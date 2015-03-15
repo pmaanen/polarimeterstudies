@@ -20,6 +20,8 @@ G4ThreadLocal TrackerSensitiveDetector* SingleCrystal::trkSD = 0;
 SingleCrystal::SingleCrystal() {
 	crystalLength=500*CLHEP::cm;
 	crystalWidth=10*CLHEP::cm;
+
+	G4cout<<"SingleCrystal::SingleCrystal()"<<G4endl;
 }
 
 SingleCrystal::~SingleCrystal() {
