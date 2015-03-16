@@ -40,6 +40,8 @@
 class G4Step;
 class G4HCofThisEvent;
 class SensitiveDetectorMessenger;
+#include <G4String.hh>
+#include <map>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 /// sensitive detector class
@@ -63,6 +65,8 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
   private:
     DetectorHitsCollection* fHitsCollection;
     std::vector<G4int> myTupleId;
+    //std::map<G4String,G4int> particleNames;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

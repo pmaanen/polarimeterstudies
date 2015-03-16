@@ -31,7 +31,6 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
-#include "G4PVParameterised.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4PhysicalVolumeStore.hh"
@@ -61,14 +60,15 @@
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
-
+#include "G4RegionStore.hh"
+#include "G4Cache.hh"
 class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
 	JediPolarimeter();
 	virtual ~JediPolarimeter();
 	virtual G4VPhysicalVolume* Construct();
 	void WriteWorldToFile(G4String filename);
-
+	virtual void ConstructSDandField();
 	void setBeampipeRadius(G4double beampipeRadius) {
 		this->beampipeRadius = beampipeRadius;
 		changedParameters=true;
@@ -95,10 +95,16 @@ public:
 	}
 
 	void setScintillatorMaterialName(const G4String& scintillatorMaterialName) {
-		G4cout<<"Changing Material from "<<scintillatorMaterial->GetName();
-		this->scintillatorMaterialName = scintillatorMaterialName;
-		scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
-		G4cout<<" to "<<scintillatorMaterial->GetName()<<G4endl;
+		auto oldName=scintillatorMaterial->GetName();
+		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
+		if(!newMat){
+			//G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
+			G4cerr<<"Material not found"<<G4endl;
+			return;
+		}
+		scintillatorMaterial=newMat;
+		logicCaloCrystal->SetMaterial(scintillatorMaterial);
+		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 	}
 
 protected:
@@ -116,12 +122,16 @@ protected:
 	worldSizeXY,worldSizeZ;
 	G4String scintillatorMaterialName;
 	G4Material* scintillatorMaterial;
-	static G4ThreadLocal CaloSensitiveDetector* caloSD;
+
 	G4bool changedParameters;
 	G4int MinCrystal,MaxCrystal;
+
 	void DefineCommands();
 	void ComputeParameters();
-	virtual void UpdateGeometry()=0;
+	virtual void UpdateGeometry();
+	G4Cache<CaloSensitiveDetector*> CaloSD;
+	G4Cache<TrackerSensitiveDetector*> TrackerSD;
+	G4LogicalVolume* logicCaloCrystal;
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

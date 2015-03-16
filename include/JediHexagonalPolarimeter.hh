@@ -30,14 +30,12 @@ class G4GenericMessenger;
 class JediHexagonalPolarimeter: public JediPolarimeter {
 public:
 	JediHexagonalPolarimeter();
-	void ConstructSDandField();
 	G4VPhysicalVolume* Construct();
 
 private:
 
 	void DefineCommands();
 	virtual G4LogicalVolume* MakeDetector();
-	virtual void UpdateGeometry();
 	virtual ~JediHexagonalPolarimeter();
 };
 

@@ -16,7 +16,6 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-G4ThreadLocal TrackerSensitiveDetector* SingleCrystal::trkSD = 0;
 SingleCrystal::SingleCrystal() {
 	crystalLength=500*CLHEP::cm;
 	crystalWidth=10*CLHEP::cm;
@@ -45,23 +44,13 @@ G4LogicalVolume* SingleCrystal::MakeDetector() {
 	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
+	logicCaloCrystal=logicDetector;
 	return logicWrapping;
-}
-
-void SingleCrystal::ConstructSDandField() {
-	if(!caloSD){
-		caloSD=new CaloSensitiveDetector("Calorimeter");
-	}
-	SetSensitiveDetector("Detector",caloSD);
-	if(!trkSD){
-		trkSD=new TrackerSensitiveDetector("Tracker","TrackerHitsCollection");
-	}
-	SetSensitiveDetector("Detector",trkSD);
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {
 	if(changedParameters)
-		this->UpdateGeometry();
+		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",worldSizeXY/2,worldSizeXY/2,worldSizeZ/2);
 	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);

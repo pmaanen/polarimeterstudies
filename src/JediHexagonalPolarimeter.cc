@@ -69,11 +69,6 @@ yellow  (1.0, 1.0, 0.0); // yellow
 using namespace CLHEP;
 JediHexagonalPolarimeter::JediHexagonalPolarimeter() {}
 
-void JediHexagonalPolarimeter::ConstructSDandField() {
-	CaloSensitiveDetector* caloSD=new CaloSensitiveDetector("Calorimeter");
-	SetSensitiveDetector("Detector",caloSD);
-}
-
 G4LogicalVolume* JediHexagonalPolarimeter::MakeDetector() {
 	G4double rOuter[]={0,crystalWidth/sqrt(3),crystalWidth/sqrt(3),0};
 	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,crystalLength,crystalLength};
@@ -121,7 +116,4 @@ G4GenericMessenger::Command& updateCmd
 }
 
 JediHexagonalPolarimeter::~JediHexagonalPolarimeter() {
-}
-
-void JediHexagonalPolarimeter::UpdateGeometry() {
 }

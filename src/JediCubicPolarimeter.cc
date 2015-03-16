@@ -70,13 +70,6 @@ JediCubicPolarimeter::JediCubicPolarimeter():JediPolarimeter() {
 	DefineCommands();
 }
 
-void JediCubicPolarimeter::ConstructSDandField(){
-	if(!caloSD){
-		caloSD=new CaloSensitiveDetector("Calorimeter");
-	}
-	SetSensitiveDetector("Detector",caloSD);
-}
-
 G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
@@ -125,9 +118,6 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	G4cout<<"number of crystals: "<<ii<<G4endl;
 	G4cout<<"----------------"<<G4endl;
 	return physiWorld;
-}
-
-void JediCubicPolarimeter::UpdateGeometry() {
 }
 
 JediCubicPolarimeter::~JediCubicPolarimeter() {

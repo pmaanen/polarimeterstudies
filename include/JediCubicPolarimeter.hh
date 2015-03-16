@@ -30,11 +30,9 @@ class G4GenericMessenger;
 class JediCubicPolarimeter: public JediPolarimeter {
 public:
 	JediCubicPolarimeter();
-	void ConstructSDandField();
 	virtual G4VPhysicalVolume* Construct();
 protected:
 
-	void UpdateGeometry();
 	void DefineCommands();
 	virtual G4LogicalVolume* MakeDetector();
 	virtual ~JediCubicPolarimeter();

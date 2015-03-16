@@ -91,7 +91,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	// energy deposit
 	G4double edep = aStep->GetTotalEnergyDeposit();
 
-	if (edep==0.) return false;
+	//if (edep==0.) return false;
 
 	DetectorHit* newHit = new DetectorHit();
 
@@ -106,6 +106,11 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 	newHit->SetPos(worldPosition);
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
+/*
+	if(particleNames.count(aStep->GetTrack()->GetParticleDefinition()->GetParticleName())==0)
+		particleNames[aStep->GetTrack()->GetParticleDefinition()->GetParticleName()]=1;
+*/
+
 	fHitsCollection->insert( newHit );
 	return true;
 }
@@ -132,6 +137,11 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z());
 		an->AddNtupleRow(myTupleId[0]);
 	}
+	/*
+	for(auto iPart=particleNames.begin();iPart!=particleNames.end();++iPart){
+		G4cout<<iPart->first<<"(s) found in event. "<<G4endl;
+	}
+	*/
 	return;
 }
 

@@ -17,7 +17,7 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-G4ThreadLocal CaloSensitiveDetector* JediPolarimeter::caloSD = 0;
+
 JediPolarimeter::JediPolarimeter() {
 
 	G4String el[]={"Lu","Y","Si","O","Ce"};
@@ -53,6 +53,20 @@ JediPolarimeter::~JediPolarimeter() {
 	delete fMessenger;
 }
 
+void JediPolarimeter::ConstructSDandField() {
+	if(CaloSD.Get()==0){
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
+		CaloSD.Put(SD);
+	}
+	if(TrackerSD.Get()==0){
+		TrackerSensitiveDetector* SD=new TrackerSensitiveDetector("Tracker","TrackerHitsCollection");
+		TrackerSD.Put(SD);
+	}
+
+	if(logicCaloCrystal)
+		SetSensitiveDetector(logicCaloCrystal,TrackerSD.Get());
+}
+
 void JediPolarimeter::ComputeParameters() {
 	//crystalWidth+=2*CLHEP::mm;
 	detectorZ = (beampipeRadius+5*CLHEP::mm) / tan( thetaMin );
@@ -69,18 +83,6 @@ void JediPolarimeter::ComputeParameters() {
 	worldSizeXY=2*outerDetectorRadius+0.5*CLHEP::m;
 	worldSizeZ=2*(detectorZ+crystalLength)+0.5*CLHEP::m;
 
-	G4cout<<"----------------"<<G4endl;
-	G4cout<<"detector z: "<<G4BestUnit(detectorZ, "Length")<<"/inner radius: "
-			<<G4BestUnit(innerDetectorRadius, "Length")<<"/outer radius: "
-			<<G4BestUnit(outerDetectorRadius, "Length")<<G4endl;
-	G4cout<<"----------------"<<G4endl;
-
-	if(!scintillatorMaterial){
-		std::stringstream o;
-		o<<"Material ptr null! Material name "<<scintillatorMaterialName<<G4endl;
-		G4Exception("JediPolarimeter::JediPolarimeter", "ConfigurationError", FatalException,
-				o.str().c_str());
-	}
 	changedParameters=false;
 }
 
@@ -196,4 +198,13 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),MakeTargetChamber(),"TargetChamber",logicWorld,false,0,false);
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	return physiWorld;
+}
+
+void JediPolarimeter::UpdateGeometry(){
+
+	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
+	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
+	G4RegionStore::GetInstance()->UpdateMaterialList(physiWorld);
+	G4RunManager::GetRunManager()->ReinitializeGeometry();
+
 }
