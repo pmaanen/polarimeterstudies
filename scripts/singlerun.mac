@@ -1,4 +1,4 @@
-/analysis/SetFilename {pname}_{Ekin}.root
+/analysis/SetFilename {mname}_{pname}_{Ekin}.root
 /gun/energy {Ekin} MeV
 /gun/particle {pname} 
 /run/beamOn 20000

@@ -93,6 +93,9 @@ set(polarimeter_SCRIPTS
 	test_gun.mac
 	matscan.py
 	test_dC.mac
+	material_loop.mac
+	particle_loop.mac
+	singlerun.mac
 ) 
 
 foreach(_script ${polarimeter_SCRIPTS})
