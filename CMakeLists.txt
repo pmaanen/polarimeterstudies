@@ -86,19 +86,22 @@ target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${B
 # relies on these scripts being in the current working directory.
 #
 set(polarimeter_SCRIPTS
-	vis_T0.mac
-	T1.mac
-	vis_T1.mac
-	test_dp.mac
-	test_gun.mac
-	matscan.py
-	test_dC.mac
+	/scripts/vis_T0.mac
+	/scripts/T1.mac
+	/scripts/vis_T1.mac
+	/scripts/test_dp.mac
+	/scripts/test_gun.mac
+	/scripts/matscan.py
+	/scripts/test_dC.mac
+	/scripts/material_loop.mac
+	/scripts/particle_loop.mac
+	/scripts/singlerun.mac
 ) 
 
 foreach(_script ${polarimeter_SCRIPTS})
   configure_file(
-    ${PROJECT_SOURCE_DIR}/scripts/${_script}
-    ${PROJECT_BINARY_DIR}/scripts/${_script}
+    ${PROJECT_SOURCE_DIR}${_script}
+    ${PROJECT_BINARY_DIR}${_script}
     COPYONLY
     )
 endforeach()
@@ -124,3 +127,6 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS polarimeterstudies DESTINATION bin)
+foreach(_script ${polarimeter_SCRIPTS})
+		 install(FILES ${PROJECT_SOURCE_DIR}${_script} DESTINATION scripts)
+endforeach()
