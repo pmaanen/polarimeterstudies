@@ -18,7 +18,7 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 
-JediPolarimeter::JediPolarimeter() {
+JediPolarimeter::JediPolarimeter():logicCaloCrystal(0),logicExitWindow(0),logicDeltaE(0) {
 
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
@@ -97,7 +97,7 @@ void JediPolarimeter::ComputeParameters() {
 	MinCrystal=ceil(innerDetectorRadius/crystalWidth);
 
 	targetChamberZ1=beampipeRadius/ tan(thetaMax)-1*CLHEP::cm;
-	targetChamberZ2=detectorZ-deltaELength;
+	targetChamberZ2=detectorZ-deltaELength-1*CLHEP::cm;
 
 	deltaEZ=detectorZ-5*CLHEP::cm;
 

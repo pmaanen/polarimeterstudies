@@ -36,7 +36,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 			try{
 				an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
 				an->FillNtupleIColumn(myTupleId[0],myTupleId[2],itr->first);
-				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],*(itr->second));
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],*(itr->second)/CLHEP::MeV);
 				an->AddNtupleRow(myTupleId[0]);
 			}
 

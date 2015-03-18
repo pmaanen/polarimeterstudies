@@ -132,9 +132,9 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],(*fHitsCollection)[ii]->GetTrackID());
 		an->FillNtupleIColumn(myTupleId[0],myTupleId[3],(*fHitsCollection)[ii]->GetParticleId());
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],(*fHitsCollection)[ii]->GetEdep());
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],(*fHitsCollection)[ii]->GetPos().x());
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],(*fHitsCollection)[ii]->GetPos().y());
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z());
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],(*fHitsCollection)[ii]->GetPos().x()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],(*fHitsCollection)[ii]->GetPos().y()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z()/CLHEP::mm);
 		an->AddNtupleRow(myTupleId[0]);
 	}
 	/*
