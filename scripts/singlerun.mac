@@ -1,4 +1,5 @@
-/analysis/SetFilename {pname}_{Ekin}.root
+/analysis/SetFileName {mname}_{pname}_{Ekin}.root
+/PolarimeterStudies/detector/material mname
 /gun/energy {Ekin} MeV
 /gun/particle {pname} 
-/run/beamOn 20000
+/run/beamOn 10000
