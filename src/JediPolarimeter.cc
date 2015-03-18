@@ -40,6 +40,9 @@ JediPolarimeter::JediPolarimeter() {
 	crystalLength=10*CLHEP::cm;
 	crystalWidth=3*CLHEP::cm;
 
+	deltaELength=1*CLHEP::cm;
+	deltaEWidth=crystalWidth;
+
 	targetChamberThickness=2*CLHEP::mm;
 
 	wrappingThickness=100*CLHEP::um;
@@ -63,8 +66,24 @@ void JediPolarimeter::ConstructSDandField() {
 		TrackerSD.Put(SD);
 	}
 
+	if(WindowSD.Get()==0){
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Window");
+		WindowSD.Put(SD);
+	}
+
+	if(deltaESD.Get()==0){
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
+		deltaESD.Put(SD);
+	}
+
+	if(logicDeltaE)
+		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
+
 	if(logicCaloCrystal)
 		SetSensitiveDetector(logicCaloCrystal,TrackerSD.Get());
+
+	if(logicExitWindow)
+		SetSensitiveDetector(logicExitWindow,WindowSD.Get());
 }
 
 void JediPolarimeter::ComputeParameters() {
@@ -78,7 +97,9 @@ void JediPolarimeter::ComputeParameters() {
 	MinCrystal=ceil(innerDetectorRadius/crystalWidth);
 
 	targetChamberZ1=beampipeRadius/ tan(thetaMax)-1*CLHEP::cm;
-	targetChamberZ2=detectorZ-1*CLHEP::cm;
+	targetChamberZ2=detectorZ-deltaELength;
+
+	deltaEZ=detectorZ-5*CLHEP::cm;
 
 	worldSizeXY=2*outerDetectorRadius+0.5*CLHEP::m;
 	worldSizeZ=2*(detectorZ+crystalLength)+0.5*CLHEP::m;
@@ -123,6 +144,7 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(targetChamberZ2-targetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(targetChamberZ2-targetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
+	logicExitWindow=logicTargetChamber;
 	return logicTargetChamber;
 }
 
@@ -161,12 +183,12 @@ void JediPolarimeter::DefineCommands() {
 	= fMessenger->DeclareMethodWithUnit("length","mm",
 			&JediPolarimeter::setCrystalLength,
 			"crystal length (mm)");
-	crystalLengthCmd.SetParameterName("length", true);
+	crystalLengthCmd.SetParameterName("calolength", true);
 	crystalLengthCmd.SetRange("length>=0.");
 	crystalLengthCmd.SetDefaultValue("100.");
 
 	G4GenericMessenger::Command& crystalWidthCmd
-	= fMessenger->DeclareMethodWithUnit("width","mm",
+	= fMessenger->DeclareMethodWithUnit("calowidth","mm",
 			&JediPolarimeter::setCrystalWidth,
 			"crystal width (mm)");
 
@@ -179,8 +201,19 @@ void JediPolarimeter::DefineCommands() {
 
 	G4GenericMessenger::Command& matCmd
 	= fMessenger->DeclareMethod("material",
-			&JediPolarimeter::setScintillatorMaterialName,
+			&JediPolarimeter::setCaloMaterialName,
 			"scintillator material");
+
+	G4GenericMessenger::Command& dEWidthCmd
+	= fMessenger->DeclareMethodWithUnit("dEwidth","mm",
+			&JediPolarimeter::setDeltaEwidth,
+			"delta E width (mm)");
+
+	G4GenericMessenger::Command& dELengthCmd
+	= fMessenger->DeclareMethodWithUnit("dElength","mm",
+			&JediPolarimeter::setDeltaElength,
+			"delta E width (mm)");
+
 
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);

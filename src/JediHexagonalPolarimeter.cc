@@ -69,7 +69,7 @@ yellow  (1.0, 1.0, 0.0); // yellow
 using namespace CLHEP;
 JediHexagonalPolarimeter::JediHexagonalPolarimeter() {}
 
-G4LogicalVolume* JediHexagonalPolarimeter::MakeDetector() {
+G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
 	G4double rOuter[]={0,crystalWidth/sqrt(3),crystalWidth/sqrt(3),0};
 	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,crystalLength,crystalLength};
 	G4Polyhedra* solidDetector= new G4Polyhedra("Detector", 0*CLHEP::deg, 360*CLHEP::deg, 6, 4, rOuter, z);
@@ -82,7 +82,7 @@ G4LogicalVolume* JediHexagonalPolarimeter::MakeDetector() {
 G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 	JediPolarimeter::Construct();
 	int ii=0;
-	G4LogicalVolume* aCrystal=MakeDetector();
+	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4cout<<"Geometry START"<<G4endl;
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){

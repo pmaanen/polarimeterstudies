@@ -94,7 +94,20 @@ public:
 		changedParameters=true;
 	}
 
-	void setScintillatorMaterialName(const G4String& scintillatorMaterialName) {
+	void setDeltaElength(G4double deltaElength)
+	{
+		this->deltaELength = deltaElength;
+		changedParameters=true;
+	}
+
+	void setDeltaEwidth(G4double deltaEwidth)
+	{
+		this->deltaEWidth = deltaEwidth;
+		changedParameters=true;
+	}
+
+
+	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=scintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 		if(!newMat){
@@ -106,12 +119,10 @@ public:
 		logicCaloCrystal->SetMaterial(scintillatorMaterial);
 		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 	}
-
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
-	virtual G4LogicalVolume* MakeDetector()=0;
-
+	virtual G4LogicalVolume* MakeCaloCrystal()=0;
 	G4LogicalVolume* logicWorld;
 	G4VPhysicalVolume* physiWorld;
 	G4GenericMessenger* fMessenger;
@@ -119,7 +130,7 @@ protected:
 	G4double thetaMin, thetaMax;
 	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
 	innerDetectorRadius, outerDetectorRadius,detectorZ,wrappingThickness, targetChamberThickness, targetChamberZ1, targetChamberZ2,
-	worldSizeXY,worldSizeZ;
+	worldSizeXY,worldSizeZ,deltaELength,deltaEWidth,deltaEZ;
 	G4String scintillatorMaterialName;
 	G4Material* scintillatorMaterial;
 
@@ -131,7 +142,12 @@ protected:
 	virtual void UpdateGeometry();
 	G4Cache<CaloSensitiveDetector*> CaloSD;
 	G4Cache<TrackerSensitiveDetector*> TrackerSD;
+
+	G4Cache<CaloSensitiveDetector*> WindowSD;
+	G4Cache<CaloSensitiveDetector*> deltaESD;
 	G4LogicalVolume* logicCaloCrystal;
+	G4LogicalVolume* logicDeltaE;
+	G4LogicalVolume* logicExitWindow;
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

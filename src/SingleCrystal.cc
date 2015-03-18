@@ -30,7 +30,7 @@ SingleCrystal::~SingleCrystal() {
 void SingleCrystal::DefineCommands() {
 }
 
-G4LogicalVolume* SingleCrystal::MakeDetector() {
+G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
 	G4Box* solidReflector= new G4Box("Wrapping",(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2,(crystalLength-1*wrappingThickness)/2);
@@ -55,7 +55,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
-	G4LogicalVolume* aCrystal=MakeDetector();
+	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	new G4PVPlacement (0, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
 
 	return physiWorld;

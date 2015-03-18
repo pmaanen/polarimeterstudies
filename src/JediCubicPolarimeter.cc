@@ -70,7 +70,7 @@ JediCubicPolarimeter::JediCubicPolarimeter():JediPolarimeter() {
 	DefineCommands();
 }
 
-G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
+G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
 	G4Box* solidReflector= new G4Box("Wrapping",(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2,(crystalLength-1*wrappingThickness)/2);
@@ -84,6 +84,8 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
+
+	logicCaloCrystal=logicDetector;
 	return logicWrapping;
 	/*
 	 * 	<polyhedra name= "Crystal" startphi="0" deltaphi="360" numsides="6" aunit="deg" lunit= "mm">
@@ -94,15 +96,38 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector() {
 	 */
 }
 
+
+G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
+
+	G4Box* solidWrapping= new G4Box("Wrapping",deltaEWidth/2,deltaEWidth/2,deltaELength/2);
+	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
+	G4Box* solidReflector= new G4Box("Reflector",(deltaEWidth-1*wrappingThickness)/2,(deltaEWidth-1*wrappingThickness)/2,(deltaELength-1*wrappingThickness)/2);
+	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
+	G4Box* solidDetector= new G4Box("Detector",(deltaEWidth-2*wrappingThickness)/2,(deltaEWidth-2*wrappingThickness)/2,(deltaELength-2*wrappingThickness)/2);
+	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"DeltaE");
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"deltaECrystal",logicReflector, false, 0 , false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
+
+	logicWrapping->SetVisAttributes(G4VisAttributes::Invisible);
+	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
+	G4VisAttributes* detectorVisAttr=new G4VisAttributes(cyan);
+	logicDetector->SetVisAttributes(detectorVisAttr);
+
+	logicDeltaE=logicDetector;
+	return logicWrapping;
+
+}
+
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	JediPolarimeter::Construct();
 	int ii=0;
-	G4LogicalVolume* aCrystal=MakeDetector();
+	G4LogicalVolume* aCrystal=MakeCaloCrystal();
+	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
 	G4cout<<"Geometry START"<<G4endl;
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
-			G4ThreeVector placement;
-			placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
+			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
+			auto dePlacement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ-0.5*deltaELength);
 			if((placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))>outerDetectorRadius)
 				continue;
 			G4double phi=placement.phi();
@@ -110,6 +135,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 				phi+=360*CLHEP::deg;
 			G4cout<<ii+1<<" "<<iCrystalX<<" "<<iCrystalY<<" "<<placement.getX()<<" "<<placement.getY()<<" "<<placement.getZ()<<G4endl;
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, ++ii, false);
+			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, ii, false);
 		}
 	}
 
@@ -119,6 +145,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	G4cout<<"----------------"<<G4endl;
 	return physiWorld;
 }
+
 
 JediCubicPolarimeter::~JediCubicPolarimeter() {
 	// TODO Auto-generated destructor stub

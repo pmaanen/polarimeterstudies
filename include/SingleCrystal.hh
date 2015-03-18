@@ -17,7 +17,7 @@ public:
 
 private:
 	virtual void DefineCommands();
-	virtual G4LogicalVolume* MakeDetector();
+	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
 };
 #endif
