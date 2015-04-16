@@ -29,7 +29,7 @@ class G4GenericMessenger;
 
 class JediHexagonalPolarimeter: public JediPolarimeter {
 public:
-	JediHexagonalPolarimeter();
+	JediHexagonalPolarimeter(std::string infile="");
 	G4VPhysicalVolume* Construct();
 
 private:

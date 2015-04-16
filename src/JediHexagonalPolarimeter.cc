@@ -67,8 +67,10 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 using namespace CLHEP;
-JediHexagonalPolarimeter::JediHexagonalPolarimeter() {}
 
+JediHexagonalPolarimeter::JediHexagonalPolarimeter(std::string infile):JediPolarimeter(infile) {
+	DefineCommands();
+}
 G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
 	G4double rOuter[]={0,crystalWidth/sqrt(3),crystalWidth/sqrt(3),0};
 	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,crystalLength,crystalLength};

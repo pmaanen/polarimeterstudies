@@ -64,49 +64,21 @@
 #include "G4Cache.hh"
 class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
-	JediPolarimeter();
+	JediPolarimeter(std::string _infile="");
 	virtual ~JediPolarimeter();
 	virtual G4VPhysicalVolume* Construct();
+
+	//Dump world to gdml file.
 	void WriteWorldToFile(G4String filename);
 	virtual void ConstructSDandField();
-	void setBeampipeRadius(G4double beampipeRadius) {
-		this->beampipeRadius = beampipeRadius;
-		changedParameters=true;
-	}
-
-	void setCrystalLength(G4double crystalLength) {
-		this->crystalLength = crystalLength;
-		changedParameters=true;
-	}
-
-	void setCrystalWidth(G4double crystalWidth) {
-		this->crystalWidth = crystalWidth;
-		changedParameters=true;
-	}
-
-	void setThetaMax(G4double thetaMax) {
-		this->thetaMax = thetaMax;
-		changedParameters=true;
-	}
-
-	void setThetaMin(G4double thetaMin) {
-		this->thetaMin = thetaMin;
-		changedParameters=true;
-	}
-
-	void setDeltaElength(G4double deltaElength)
-	{
-		this->deltaELength = deltaElength;
-		changedParameters=true;
-	}
-
-	void setDeltaEwidth(G4double deltaEwidth)
-	{
-		this->deltaEWidth = deltaEwidth;
-		changedParameters=true;
-	}
-
-
+	//Setters for properties
+	void setBeampipeRadius(G4double beampipeRadius) {this->beampipeRadius = beampipeRadius;	changedParameters=true;	}
+	void setCrystalLength(G4double crystalLength) {	this->crystalLength = crystalLength;changedParameters=true;	}
+	void setCrystalWidth(G4double crystalWidth) {this->crystalWidth = crystalWidth;changedParameters=true;}
+	void setThetaMax(G4double thetaMax) {this->thetaMax = thetaMax; changedParameters=true;}
+	void setThetaMin(G4double thetaMin) {this->thetaMin = thetaMin;changedParameters=true;}
+	void setDeltaElength(G4double deltaElength){this->deltaELength = deltaElength;changedParameters=true;}
+	void setDeltaEwidth(G4double deltaEwidth){this->deltaEWidth = deltaEwidth;changedParameters=true;}
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=scintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
@@ -118,11 +90,17 @@ public:
 		scintillatorMaterial=newMat;
 		logicCaloCrystal->SetMaterial(scintillatorMaterial);
 		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
+		return;
 	}
+
+	void setInfile(const std::string& infile) {this->infile = infile;}
+
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+
+
 	G4LogicalVolume* logicWorld;
 	G4VPhysicalVolume* physiWorld;
 	G4GenericMessenger* fMessenger;
@@ -140,14 +118,16 @@ protected:
 	void DefineCommands();
 	void ComputeParameters();
 	virtual void UpdateGeometry();
+
 	G4Cache<CaloSensitiveDetector*> CaloSD;
 	G4Cache<TrackerSensitiveDetector*> TrackerSD;
-
 	G4Cache<CaloSensitiveDetector*> WindowSD;
 	G4Cache<CaloSensitiveDetector*> deltaESD;
 	G4LogicalVolume* logicCaloCrystal;
 	G4LogicalVolume* logicDeltaE;
 	G4LogicalVolume* logicExitWindow;
+
+	std::string infile;
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

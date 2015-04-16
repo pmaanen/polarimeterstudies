@@ -29,7 +29,7 @@ class G4GenericMessenger;
 
 class JediCubicPolarimeter: public JediPolarimeter {
 public:
-	JediCubicPolarimeter();
+	JediCubicPolarimeter(std::string infile="");
 	virtual G4VPhysicalVolume* Construct();
 protected:
 

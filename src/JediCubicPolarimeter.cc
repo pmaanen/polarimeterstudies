@@ -56,6 +56,12 @@
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
 
+
+ #include <iostream>
+ #include <fstream>
+ #include <sstream>
+ #include <string>
+
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -66,9 +72,10 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-JediCubicPolarimeter::JediCubicPolarimeter():JediPolarimeter() {
+JediCubicPolarimeter::JediCubicPolarimeter(std::string infile):JediPolarimeter(infile) {
 	DefineCommands();
 }
+
 
 G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
@@ -120,10 +127,37 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	JediPolarimeter::Construct();
+
+	G4cout<<"infile="<<infile<<G4endl;
+	if(infile!=""){
+		std::ifstream ifile(infile);
+		std::string line;
+		//read until first non-comment line, then break loop
+		while(std::getline(ifile, line)){
+			if(line[0]=='#') continue;
+			else{
+				std::istringstream(line)>>crystalWidth>>crystalWidth>>crystalLength;
+				break;
+			}
+		}
+		G4LogicalVolume* aCrystal=MakeCaloCrystal();
+		double placementX,placementY,placementZ;
+		int copyNo=0;
+		while(std::getline(ifile, line)){
+			if(line[0]=='#') continue;
+			std::istringstream(line)>>copyNo>>placementX>>placementY>>placementZ;
+			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm), aCrystal, "Crystal", logicWorld, false, copyNo, false);
+		}
+		return physiWorld;
+	}
+
 	int ii=0;
+
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
-	G4cout<<"Geometry START"<<G4endl;
+	G4cout<<"#Crystal size"<<G4endl;
+	G4cout<<crystalWidth/CLHEP::mm<<" "<<crystalWidth/CLHEP::mm<<" "<<crystalLength/CLHEP::mm<<G4endl;
+	G4cout<<"#Crystal placement"<<G4endl;
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
 			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
@@ -133,16 +167,11 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
-			G4cout<<ii+1<<" "<<iCrystalX<<" "<<iCrystalY<<" "<<placement.getX()<<" "<<placement.getY()<<" "<<placement.getZ()<<G4endl;
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, ++ii, false);
+			G4cout<<ii<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z()<<G4endl;
 			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, ii, false);
 		}
 	}
-
-	G4cout<<"Geometry END"<<G4endl;
-	G4cout<<"----------------"<<G4endl;
-	G4cout<<"number of crystals: "<<ii<<G4endl;
-	G4cout<<"----------------"<<G4endl;
 	return physiWorld;
 }
 

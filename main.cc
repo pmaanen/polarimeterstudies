@@ -77,7 +77,7 @@ int main(int argc,char** argv) {
 	auto single=std::string("single:");
 	G4VUserDetectorConstruction* jedi=0;
 	if(!geometry.compare(0,cubic.size(),cubic)){
-		jedi=new JediCubicPolarimeter;
+		jedi=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}
 	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
 		jedi=new JediHexagonalPolarimeter;

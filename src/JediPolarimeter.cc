@@ -18,7 +18,7 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 
-JediPolarimeter::JediPolarimeter():logicCaloCrystal(0),logicExitWindow(0),logicDeltaE(0) {
+JediPolarimeter::JediPolarimeter(std::string _infile):logicCaloCrystal(0),logicExitWindow(0),logicDeltaE(0),infile(_infile) {
 
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );

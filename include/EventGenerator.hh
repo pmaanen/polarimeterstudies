@@ -14,7 +14,7 @@ class EventGenerator : public G4VUserPrimaryGeneratorAction {
 
 
 public:
-	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4, DCBREAKUP=5};
+	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5};
 
 	~EventGenerator();
 	EventGenerator() ;
