@@ -14,7 +14,7 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 CaloSensitiveDetector::CaloSensitiveDetector(G4String name):G4MultiFunctionalDetector(name),myTupleId(0) {
-	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",2);
+	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep");
 	this->RegisterPrimitive(scorer);
 	Analysis* an=Analysis::Instance();
 	myTupleId.push_back(an->CreateNtuple(name,name));

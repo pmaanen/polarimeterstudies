@@ -57,33 +57,31 @@ JediPolarimeter::~JediPolarimeter() {
 }
 
 void JediPolarimeter::ConstructSDandField() {
-	if(CaloSD.Get()==0){
+	if(CaloSD.Get()==0 and logicCaloCrystal){
 		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
 		CaloSD.Put(SD);
 	}
-	if(TrackerSD.Get()==0){
+	if(TrackerSD.Get()==0 and false){
 		TrackerSensitiveDetector* SD=new TrackerSensitiveDetector("Tracker","TrackerHitsCollection");
 		TrackerSD.Put(SD);
 	}
 
-	if(WindowSD.Get()==0){
+	if(WindowSD.Get()==0 and logicExitWindow){
 		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Window");
 		WindowSD.Put(SD);
 	}
 
-	if(deltaESD.Get()==0){
+	if(deltaESD.Get()==0 and logicDeltaE){
 		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
 		deltaESD.Put(SD);
 	}
 
-	if(logicDeltaE)
 		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
-
-	if(logicCaloCrystal)
-		SetSensitiveDetector(logicCaloCrystal,TrackerSD.Get());
-
+		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
+/*
 	if(logicExitWindow)
 		SetSensitiveDetector(logicExitWindow,WindowSD.Get());
+		*/
 }
 
 void JediPolarimeter::ComputeParameters() {
@@ -174,16 +172,18 @@ void JediPolarimeter::DefineCommands() {
 	= fMessenger->DeclareMethodWithUnit("bpRadius","mm",
 			&JediPolarimeter::setBeampipeRadius,
 			"beampipe radius (mm)");
+
 	beampipeRadiusCmd.SetParameterName("bpRadius", true);
 	beampipeRadiusCmd.SetRange("bpRadius>=0.");
 	beampipeRadiusCmd.SetDefaultValue("100.");
 
 
 	G4GenericMessenger::Command& crystalLengthCmd
-	= fMessenger->DeclareMethodWithUnit("length","mm",
+	= fMessenger->DeclareMethodWithUnit("calolength","mm",
 			&JediPolarimeter::setCrystalLength,
 			"crystal length (mm)");
-	crystalLengthCmd.SetParameterName("calolength", true);
+
+	crystalLengthCmd.SetParameterName("length", true);
 	crystalLengthCmd.SetRange("length>=0.");
 	crystalLengthCmd.SetDefaultValue("100.");
 

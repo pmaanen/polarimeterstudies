@@ -15,8 +15,7 @@ public:
 	SingleCrystal();
 	virtual ~SingleCrystal();
 
-private:
-	virtual void DefineCommands();
+protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
 };
