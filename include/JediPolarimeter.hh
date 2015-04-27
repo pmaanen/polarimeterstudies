@@ -115,8 +115,8 @@ protected:
 	G4bool changedParameters;
 	G4int MinCrystal,MaxCrystal;
 
-	void DefineCommands();
-	void ComputeParameters();
+	virtual void DefineCommands();
+	virtual void ComputeParameters();
 	virtual void UpdateGeometry();
 
 	G4Cache<CaloSensitiveDetector*> CaloSD;

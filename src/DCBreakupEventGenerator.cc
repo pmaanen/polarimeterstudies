@@ -8,7 +8,8 @@
 #include <DCBreakupEventGenerator.hh>
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
-DCBreakupEventGenerator::DCBreakupEventGenerator():PhaseSpaceGenerator() {
+#include "G4ParticleGun.hh"
+DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun) {
 	beamEnergy=235.*CLHEP::MeV;
 	Initialized=false;
 
@@ -47,7 +48,19 @@ void DCBreakupEventGenerator::Initialize() {
 	Initialized=true;
 }
 
-ParticleMomentumVector DCBreakupEventGenerator::GenerateEvent() {
+void DCBreakupEventGenerator::Generate(G4Event* E) {
+	auto event=Generate();
+	for(auto iPart=event.begin();iPart!=event.end();++iPart){
+
+		//TODO Write Truth
+		pGun->SetParticleDefinition(iPart->first);
+		pGun->SetParticleMomentum(iPart->second);
+		pGun->GeneratePrimaryVertex(E);
+	}
+	return;
+}
+
+ParticleMomentumVector DCBreakupEventGenerator::Generate() {
 
 	if(!Initialized)
 		Initialize();
@@ -104,4 +117,4 @@ ParticleMomentumVector DCBreakupEventGenerator::GenerateEvent() {
 				return res;
 			}
 		}
-	}
+}

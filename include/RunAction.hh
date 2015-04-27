@@ -13,28 +13,26 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Run;
 
 class RunAction: public G4UserRunAction
 {
-	public:
+public:
 
-		RunAction();
-		~RunAction();
-		G4int fNEvents;
+	RunAction();
+	~RunAction();
+	G4int fNEvents;
 
-		void BeginOfRunAction(const G4Run*);
-		void EndOfRunAction(const G4Run*);
-		inline G4int GetNEvents() { return fNEvents; };
+	void BeginOfRunAction(const G4Run*);
+	void EndOfRunAction(const G4Run*);
+	inline G4int GetNEvents() { return fNEvents; };
 
-	private:
-
-		  G4int saveRndm;
-		  G4int luxury;
-		  G4int seed;
+private:
+	G4int saveRndm;
+	G4int luxury;
+	G4int seed;
 
 
 };

@@ -18,12 +18,13 @@
 #include "TVector3.h"
 #include "G4GenericMessenger.hh"
 #include <math.h>
+#include "G4ParticleGun.hh"
 using namespace CLHEP;
 G4ThreadLocal DCElasticEventGenerator::MyFunction* DCElasticEventGenerator::func = 0;
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator():PhaseSpaceGenerator(){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun){
 	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(1.);
 	Initialized=false;
@@ -84,8 +85,21 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 	return SigmaFunc;
 }
 
+void DCElasticEventGenerator::Generate(G4Event* E) {
+
+	auto event=Generate();
+	for(auto iPart=event.begin();iPart!=event.end();++iPart){
+
+		//TODO Write Truth
+		pGun->SetParticleDefinition(iPart->first);
+		pGun->SetParticleMomentum(iPart->second);
+		pGun->GeneratePrimaryVertex(E);
+	}
+	return;
+}
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
+ParticleMomentumVector DCElasticEventGenerator::Generate() {
 
 	if(!Initialized)
 		Initialize();
@@ -134,9 +148,6 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 			Analysis::Instance()->FillH1(4, phi_scattered/CLHEP::deg);
 			if(SigmaFunc->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc) continue;
 			else {
-				//G4cout<<G4endl;
-				//G4cout<<"Lab:"<<th_scattered/CLHEP::deg<<G4endl;
-				//G4cout<<"CMS:"<<CM_theta_scattered/CLHEP::deg<<G4endl;
 				ParticleMomentumVector res;
 #ifndef FILEWRITER
 				res.push_back(std::make_pair(particles[0],pscattered_3));
@@ -145,10 +156,6 @@ ParticleMomentumVector DCElasticEventGenerator::GenerateEvent() {
 				res.push_back(std::make_pair(1000010020,pscattered_3));
 				res.push_back(std::make_pair(1000060120,precoil_3));
 #endif
-				Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
-				Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
-				//G4cout<<"Phi in ::Generate="<<phi_scattered/CLHEP::deg<<G4endl;
-				Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
 				return res;
 			}
 		}

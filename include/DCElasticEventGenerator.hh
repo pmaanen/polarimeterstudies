@@ -27,14 +27,16 @@ typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
 #endif
 class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
-	DCElasticEventGenerator();
+	DCElasticEventGenerator(G4ParticleGun* pgun=0);
 	virtual ~DCElasticEventGenerator();
 	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);Initialized=false;}
 
 
 	virtual void Initialize();
 	//Generates one Event.
-	virtual ParticleMomentumVector GenerateEvent();
+	virtual ParticleMomentumVector Generate();
+	virtual void Generate(G4Event* E);
+	virtual void beginOfRun(){};
 
 protected:
 

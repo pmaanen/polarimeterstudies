@@ -30,9 +30,10 @@
 
 #include <G4UnitsTable.hh>
 
-
+#include "EventGenerator.hh"
 class G4ParticleDefinition;
 class G4GenericMessenger;
+class G4ParticleGun;
 
 #ifndef FILEWRITER
 typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMomentumVector;
@@ -40,11 +41,11 @@ typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMom
 typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
 #endif
 
-class PhaseSpaceGenerator {
+class PhaseSpaceGenerator: public EventGenerator {
 public:
-	PhaseSpaceGenerator();
+	PhaseSpaceGenerator(G4ParticleGun* gun=0);
 	virtual ~PhaseSpaceGenerator();
-	virtual ParticleMomentumVector GenerateEvent()=0;
+	virtual ParticleMomentumVector Generate()=0;
 
 	G4double getBeamEnergy() const {return beamEnergy;}
 	void setBeamEnergy(G4double xBeamEnergy) {beamEnergy = xBeamEnergy;Initialized=false;}
@@ -66,6 +67,9 @@ protected:
 	//Returns a the TF2 for hit and miss.
 	virtual TF2* BuildFunction()=0;
 	virtual void Initialize()=0;
+	std::vector<G4int> myTupleId;
+	G4ParticleGun* pGun;
+
 };
 
 #endif /* INCLUDE_PHASESPACEGENERATOR_HH_ */

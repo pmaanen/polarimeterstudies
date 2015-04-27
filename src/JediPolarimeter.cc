@@ -75,13 +75,14 @@ void JediPolarimeter::ConstructSDandField() {
 		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
 		deltaESD.Put(SD);
 	}
-
+	if(logicDeltaE)
 		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
+	if(logicCaloCrystal)
 		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
-/*
+	/*
 	if(logicExitWindow)
 		SetSensitiveDetector(logicExitWindow,WindowSD.Get());
-		*/
+	 */
 }
 
 void JediPolarimeter::ComputeParameters() {
@@ -217,6 +218,8 @@ void JediPolarimeter::DefineCommands() {
 
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);
+
+	return;
 
 }
 

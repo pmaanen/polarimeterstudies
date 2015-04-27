@@ -19,7 +19,9 @@ public:
 	DCElasticFileWriter();
 	virtual ~DCElasticFileWriter();
 	virtual void Initialize();
-	virtual ParticleMomentumVector GenerateEvent();
+	virtual ParticleMomentumVector Generate();
+	virtual void Generate(G4Event* evt){};
+	virtual void beginOfRun(){};
 
 private:
 
@@ -50,7 +52,7 @@ void DCElasticFileWriter::Initialize(){
 	Initialized=true;
 }
 
-ParticleMomentumVector DCElasticFileWriter::GenerateEvent(){
+ParticleMomentumVector DCElasticFileWriter::Generate(){
 
 	if(!Initialized)
 		Initialize();
@@ -127,7 +129,7 @@ int main(int argc, char** argv){
 	int nevents=vm["nevents"].as<int>();
 	ParticleMomentumVector ievent;
 	for(int ii=0;ii<nevents;ii++){
-		auto ievent=dc->GenerateEvent();
+		auto ievent=dc->Generate();
 		for(auto imom : ievent){
 			G4cout<<ii<<" "<<imom.first<<" "<<imom.second.getX()<<" "<<imom.second.getX()<<" "<<imom.second.getY()<<" "<<imom.second.getZ()<<G4endl;
 		}

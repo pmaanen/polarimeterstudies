@@ -1,3 +1,4 @@
+
 #define MAIN
 #include "global.hh"
 #ifdef G4MULTITHREADED
@@ -28,7 +29,7 @@
 #include <FTFP_BERT.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
-#include "EventGenerator.hh"
+#include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
 namespace CLHEP {}
 using namespace CLHEP; 

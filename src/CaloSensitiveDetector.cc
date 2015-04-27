@@ -16,12 +16,7 @@
 CaloSensitiveDetector::CaloSensitiveDetector(G4String name):G4MultiFunctionalDetector(name),myTupleId(0) {
 	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep");
 	this->RegisterPrimitive(scorer);
-	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple(name,name));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
-	an->FinishNtuple(myTupleId[0]);
+	runInitialized=false;
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
@@ -39,7 +34,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],*(itr->second)/CLHEP::MeV);
 				an->AddNtupleRow(myTupleId[0]);
 			}
-
 			catch(myG4Exception& exc){
 				G4cout <<exc.getExceptionCode()<<" catched in hit loop"<<G4endl;
 				continue;
@@ -50,4 +44,14 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::Initialize(HC);
+	if(!runInitialized){
+		myTupleId.clear();
+		Analysis* an=Analysis::Instance();
+		myTupleId.push_back(an->CreateNtuple(this->GetName(),this->GetName()));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
+		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
+		an->FinishNtuple(myTupleId[0]);
+		runInitialized=true;
+	}
 }

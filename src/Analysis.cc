@@ -35,7 +35,7 @@ G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
 Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enable(false),_path(""),_basename(""),_filename(""),_oldname("")
 {
-
+	this->SetHistoDirectoryName("histos");
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
 		description

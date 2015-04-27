@@ -52,16 +52,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
   myTupleId()
 {
 	collectionName.insert(name);
-	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple(name,name));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"trackId"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"particleId"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"x"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"y"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"z"));
-	an->FinishNtuple(myTupleId[0]);
+	runInitialized=false;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -81,6 +72,21 @@ void TrackerSensitiveDetector::Initialize(G4HCofThisEvent* hce)
 	G4int hcID
 	= G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	hce->AddHitsCollection( hcID, fHitsCollection );
+
+	if(!runInitialized){
+	Analysis* an=Analysis::Instance();
+	myTupleId.clear();
+	myTupleId.push_back(an->CreateNtuple(this->GetName(),this->GetName()));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"trackId"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"particleId"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"x"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"y"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"z"));
+	an->FinishNtuple(myTupleId[0]);
+	runInitialized=true;
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -5,15 +5,15 @@
  *      Author: pmaanen
  */
 
+#include <PrimaryGeneratorAction.hh>
 #include <UserActionInitialization.hh>
-#include "EventGenerator.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
 
 void UserActionInitialization::Build() const {
-	SetUserAction(new EventGenerator);
-	SetUserAction(new RunAction);
+	SetUserAction(new PrimaryGeneratorAction);
+	SetUserAction(new RunAction());
 	SetUserAction(new EventAction);
 }
 

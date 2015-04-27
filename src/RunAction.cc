@@ -4,14 +4,15 @@
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
 #include "Analysis.hh"
+#include "G4RunManager.hh"
 #include "Randomize.hh"
 #include <ctime>
-
+#include "PrimaryGeneratorAction.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 RunAction::RunAction()
 {
 	Analysis::Instance();
+
 
 
 	seed = -1;      // RANLUX seed
@@ -19,22 +20,16 @@ RunAction::RunAction()
 	saveRndm = 1;
 	fNEvents=0;
 
-	  Analysis* analysisManager = Analysis::Instance();
-	  analysisManager->SetVerboseLevel(1);
-	  analysisManager->SetFirstHistoId(1);
+	Analysis* analysisManager = Analysis::Instance();
+	analysisManager->SetVerboseLevel(1);
+	analysisManager->SetFirstHistoId(1);
 
-	  // Creating histograms
-	  analysisManager->CreateH1("1","Theta", 30, 0., 30);
-	  analysisManager->CreateH1("2","Phi", 32, 0 , 360);
-	  analysisManager->CreateH1("3","ds", 30, 0., 30);
-	  analysisManager->CreateH1("4","PhiBefore", 32, 0 , 360);
+	// Creating histograms
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{
-	delete Analysis::Instance();
-}
+{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -46,16 +41,12 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	Analysis::Instance()->PrepareNewRun(aRun);
-	G4cout<<"----------------"<<G4endl;
-	G4cout<<Analysis::Instance()->getFilename()<<G4endl;
-	G4cout<<"----------------"<<G4endl;
 	Analysis::Instance()->OpenFile(Analysis::Instance()->getFilename());
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		//Analysis::Instance()->PrepareNewRun(aRun);
 
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
-		return;
 	}
 
 	//Master or sequential
@@ -88,6 +79,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	Analysis::Instance()->Write();
 	Analysis::Instance()->CloseFile();
+	delete Analysis::Instance();
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;

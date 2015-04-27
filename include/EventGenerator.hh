@@ -1,47 +1,33 @@
-#ifndef SFEventGenerator_h
-#define SFEventGenerator_h 1
-#include <G4VUserPrimaryGeneratorAction.hh>
-#include "globals.hh"
-#include <iomanip> 
-#include <iostream>
-#include <fstream>
-#include <vector>
-class G4GenericMessenger;
-class G4Event;
+/*
+ * EventGenerator.hh
+ *
+ *  Created on: 27.04.2015
+ *      Author: pmaanen
+ */
+
+#ifndef INCLUDE_EVENTGENERATOR_HH_
+#define INCLUDE_EVENTGENERATOR_HH_
 class G4ParticleGun;
-class PhaseSpaceGenerator;
-class EventGenerator : public G4VUserPrimaryGeneratorAction {
+class G4Event;
+#include "G4Types.hh"
+#include <vector>
 
-
+class G4ParticleGun;
+class EventGenerator {
 public:
-	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5};
+	EventGenerator(G4ParticleGun* pgun=0);
+	virtual ~EventGenerator();
 
-	~EventGenerator();
-	EventGenerator() ;
-	void GeneratePrimaries(G4Event* E);
-	void generateEventFromInput(G4Event* E);
-	void generateEventFromGun(G4Event* E);
-	void generateEventFromPhaseSpace(G4Event* E);
-	void generateDCElasticEvent(G4Event* E);
-	void illuminateAngle(G4Event* E);
-	G4int getMode() const;
-	void setMode(G4int mode);
-	void setInfile(G4String);
-	G4ParticleGun* getPGun() const{return _pGun;};
-private:
-	void DefineCommands();
-	G4ParticleGun			*_pGun ;
-	GeneratorMode			_mode;
-	G4GenericMessenger*		fMessenger;
-	G4String 				_infile;
-	std::ifstream        _instream;
-	PhaseSpaceGenerator* psGen;
-	std::vector<G4int> myTupleId;
-	G4double illuminationAngle;
+	virtual void Generate(G4Event*)=0;
+	virtual void beginOfRun()=0;
+
 protected:
+	std::vector<G4int> myTupleId;
+	std::vector<G4int> myHistoId;
 
-} ;
 
-#endif
+	G4ParticleGun* pGun;
+	G4bool runInitialized;
+};
 
-// eof
+#endif /* INCLUDE_EVENTGENERATOR_HH_ */

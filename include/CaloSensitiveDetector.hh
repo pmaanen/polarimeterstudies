@@ -17,6 +17,7 @@ public:
 	virtual void Initialize(G4HCofThisEvent* HC);
 private:
 	std::vector<G4int> myTupleId;
+	G4bool runInitialized;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */
