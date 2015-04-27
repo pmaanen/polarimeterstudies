@@ -45,6 +45,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::Initialize(HC);
 	if(!runInitialized){
+	G4cout<<"CaloSensitiveDetector::Initialize()"<<G4endl;
 		myTupleId.clear();
 		Analysis* an=Analysis::Instance();
 		myTupleId.push_back(an->CreateNtuple(this->GetName(),this->GetName()));

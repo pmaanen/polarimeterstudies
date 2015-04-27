@@ -93,6 +93,7 @@ void Analysis::PrepareNewRun(const G4Run* aRun=0)
 	}
 	_oldname=fname.str();
 	this->_filename=fname.str();
+	G4cout<<"Analysis::PrepareNewRun() finished"<<G4endl;
 }
 
 void Analysis::EndOfEvent(const G4Event* /*anEvent*/)

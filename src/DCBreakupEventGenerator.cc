@@ -111,9 +111,10 @@ ParticleMomentumVector DCBreakupEventGenerator::Generate() {
 				res.push_back(std::make_pair(2112,neutron_3));
 				res.push_back(std::make_pair(1000060120,carbon_3));
 #endif
-				Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
-				Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
-				Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
+				G4cout<<"BREAKUP!"<<G4endl;
+				//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
+				//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
+				//Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
 				return res;
 			}
 		}

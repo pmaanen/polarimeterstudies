@@ -145,7 +145,6 @@ ParticleMomentumVector DCElasticEventGenerator::Generate() {
 			//retrieve polar scattering angle for deuteron in cm-frame
 			G4double CM_theta_scattered = pscattered_4.Theta()*CLHEP::rad;
 			G4double acc=MaxY*G4UniformRand();
-			Analysis::Instance()->FillH1(4, phi_scattered/CLHEP::deg);
 			if(SigmaFunc->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc) continue;
 			else {
 				ParticleMomentumVector res;
