@@ -13,6 +13,7 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
+#include <vector>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Run;
@@ -33,6 +34,11 @@ private:
 	G4int saveRndm;
 	G4int luxury;
 	G4int seed;
+
+	static std::vector<G4String>* filenames;
+	void ClearFileNames();
+	void PushBackFileName(G4String filename);
+
 
 };
 
