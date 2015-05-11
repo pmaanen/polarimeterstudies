@@ -13,10 +13,15 @@
 #include "G4EventManager.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
-CaloSensitiveDetector::CaloSensitiveDetector(G4String name):G4MultiFunctionalDetector(name),myTupleId(0) {
+CaloSensitiveDetector::CaloSensitiveDetector(G4String name):G4MultiFunctionalDetector(name),myTupleId() {
 	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep");
 	this->RegisterPrimitive(scorer);
-	runInitialized=false;
+	Analysis* an=Analysis::Instance();
+	myTupleId.push_back(an->CreateNtuple(name,name));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
+	an->FinishNtuple(myTupleId[0]);
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
@@ -44,15 +49,4 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::Initialize(HC);
-	if(!runInitialized){
-	G4cout<<"CaloSensitiveDetector::Initialize()"<<G4endl;
-		myTupleId.clear();
-		Analysis* an=Analysis::Instance();
-		myTupleId.push_back(an->CreateNtuple(this->GetName(),this->GetName()));
-		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
-		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
-		an->FinishNtuple(myTupleId[0]);
-		runInitialized=true;
-	}
 }
