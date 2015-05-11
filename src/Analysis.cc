@@ -35,7 +35,6 @@ G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
 Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enable(false),_path(""),_basename(""),_filename(""),_oldname("")
 {
-	this->SetHistoDirectoryName("histos");
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
 		description
@@ -99,14 +98,12 @@ void Analysis::PrepareNewRun(const G4Run* aRun=0)
 void Analysis::EndOfEvent(const G4Event* /*anEvent*/)
 {
 	if(!_enable) return;
-	G4cout<<"Analysis::EndOfEvent"<<G4endl;
 	return;
 }
 
 void Analysis::EndOfRun(const G4Run* /*aRun*/)
 {
 	if(!_enable) return;
-	G4cout<<"Analysis::EndOfRun"<<G4endl;
 	return;
 	/*
 	G4int numEvents = aRun->GetNumberOfEvent();
