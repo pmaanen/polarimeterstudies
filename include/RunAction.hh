@@ -34,7 +34,6 @@ private:
 	G4int luxury;
 	G4int seed;
 
-
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

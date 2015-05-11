@@ -29,7 +29,7 @@ RunAction::RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{}
+{	delete Analysis::Instance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -42,6 +42,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	Analysis::Instance()->PrepareNewRun(aRun);
 	Analysis::Instance()->OpenFile(Analysis::Instance()->getFilename());
+	Analysis::Instance()->CreateH1("dummy","dummy",1,0,1);
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		//Analysis::Instance()->PrepareNewRun(aRun);
@@ -56,7 +57,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 
 		seed=time(0);
 		G4Random::setTheSeed(seed,luxury);
-		G4Random::showEngineStatus();
 	}
 
 	// save Rndm status
@@ -79,7 +79,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	Analysis::Instance()->Write();
 	Analysis::Instance()->CloseFile();
-	delete Analysis::Instance();
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
