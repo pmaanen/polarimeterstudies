@@ -1,0 +1,5 @@
+/analysis/Enable
+/PolarimeterStudies/generator/Mode 6
+/gun/position 0 20 5 cm
+/run/beamOn 1000
+/run/beamOn 1000

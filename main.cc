@@ -31,25 +31,35 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
+#include <signal.h>
 namespace CLHEP {}
 using namespace CLHEP; 
 
 
+void    Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; }
+
+
+
 int main(int argc,char** argv) {
+
+	signal(SIGTERM,&Interrupt) ;
+	signal(SIGINT ,&Interrupt) ;
+	signal(SIGPIPE,&Interrupt) ;
+
 
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
-		("help,h", "Display this help message")
-		("general.config_file,c", po::value<std::string>(), "config file")
-		("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
-		("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
-		("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
-		("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-		("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
-		("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-		("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV")
-		("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions");
+				("help,h", "Display this help message")
+				("general.config_file,c", po::value<std::string>(), "config file")
+				("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
+				("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
+				("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
+				("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
+				("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
+				("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
+				("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV")
+				("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), vm);
@@ -166,8 +176,8 @@ int main(int argc,char** argv) {
 		G4cout<<"Batch mode"<<G4endl;
 		std::stringstream o;
 		if(vm.count("general.macro_file")){
-		o<<"/control/execute "<<vm["general.macro_file"].as<std::string>().c_str();
-		UImanager->ApplyCommand(o.str().c_str());
+			o<<"/control/execute "<<vm["general.macro_file"].as<std::string>().c_str();
+			UImanager->ApplyCommand(o.str().c_str());
 		}
 	}
 
