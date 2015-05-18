@@ -10,7 +10,24 @@
 class G4ParticleGun;
 class G4Event;
 #include "G4Types.hh"
+
+#include <ostream>
 #include <vector>
+
+struct PrimaryParticle {
+	G4int id;
+	G4double px;
+	G4double py;
+	G4double pz;
+
+	PrimaryParticle(G4int id,G4double px,G4double py,G4double pz):id(id),px(px),py(py),pz(pz){};
+
+	friend std::ostream& operator<< (std::ostream& stream, const PrimaryParticle& particle){
+		stream<<particle.id<<" "<<particle.px<<" "<<particle.py<<" "<<particle.pz;
+		return stream;
+	};
+};
+typedef std::vector<PrimaryParticle> PrimaryEvent;
 
 class G4ParticleGun;
 class EventGenerator {
@@ -19,7 +36,7 @@ public:
 	virtual ~EventGenerator();
 
 	virtual void Generate(G4Event*)=0;
-	virtual void beginOfRun()=0;
+	virtual void Initialize()=0;
 
 protected:
 	std::vector<G4int> myTupleId;
