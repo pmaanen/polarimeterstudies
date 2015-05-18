@@ -23,7 +23,7 @@ DCBreakupEventGenerator::~DCBreakupEventGenerator() {
 }
 
 TF2* DCBreakupEventGenerator::BuildFunction() {
-	SigmaFunc=0;
+	SigmaFunc=new TF2("tf1","sin(x)*exp(-x)",0,100,0,100);
 	return SigmaFunc;
 }
 
@@ -53,14 +53,14 @@ void DCBreakupEventGenerator::Generate(G4Event* E) {
 	for(auto iPart=event.begin();iPart!=event.end();++iPart){
 
 		//TODO Write Truth
-		pGun->SetParticleDefinition(iPart->first);
-		pGun->SetParticleMomentum(iPart->second);
+		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
+		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		pGun->GeneratePrimaryVertex(E);
 	}
 	return;
 }
 
-ParticleMomentumVector DCBreakupEventGenerator::Generate() {
+PrimaryEvent DCBreakupEventGenerator::Generate() {
 
 	if(!Initialized)
 		Initialize();
@@ -101,16 +101,13 @@ ParticleMomentumVector DCBreakupEventGenerator::Generate() {
 
 		//Set angular cut in lab-frame
 		if(th_scattered>thetaMin and th_scattered<thetaMax){
-				ParticleMomentumVector res;
-#ifndef FILEWRITER
-				res.push_back(std::make_pair(particles[0],proton_3));
-				res.push_back(std::make_pair(particles[1],neutron_3));
-				res.push_back(std::make_pair(particles[2],carbon_3));
-#else
-				res.push_back(std::make_pair(2212,proton_3));
-				res.push_back(std::make_pair(2112,neutron_3));
-				res.push_back(std::make_pair(1000060120,carbon_3));
-#endif
+				PrimaryEvent res;
+
+
+				PrimaryParticle a(2212,1.,1.,1.);
+				res.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
+				res.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
+				res.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
 				G4cout<<"BREAKUP!"<<G4endl;
 				//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
 				//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);

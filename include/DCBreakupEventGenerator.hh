@@ -18,7 +18,7 @@ public:
 private:
 	virtual TF2* BuildFunction();
 	virtual void Initialize();
-	virtual ParticleMomentumVector Generate();
+	virtual PrimaryEvent Generate();
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
 };

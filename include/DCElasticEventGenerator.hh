@@ -20,11 +20,6 @@
 #include <G4UnitsTable.hh>
 class G4ParticleDefinition;
 class G4GenericMessenger;
-#ifndef FILEWRITER
-typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMomentumVector;
-#else
-typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
-#endif
 class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
 	DCElasticEventGenerator(G4ParticleGun* pgun=0);
@@ -33,8 +28,9 @@ public:
 
 
 	virtual void Initialize();
-	//Generates one Event.
-	virtual ParticleMomentumVector Generate();
+	//For use by file writer
+	virtual PrimaryEvent Generate();
+	//For use by geant
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
 

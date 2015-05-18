@@ -39,11 +39,12 @@ DCElasticEventGenerator::~DCElasticEventGenerator() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
+	particles.clear();
 	particles.push_back(G4Deuteron::DeuteronDefinition());
 	particles.push_back(G4IonTable::GetIonTable()->GetIon(6,12));
 	for(auto ipart=particles.begin();ipart!=particles.end();++ipart){
 		if(!(*ipart))
-				throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
+			throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
 	}
 	Double_t m_target = particles[1]->GetPDGMass()/GeV;
 	Double_t m_beam = particles[0]->GetPDGMass()/GeV;
@@ -65,7 +66,7 @@ void DCElasticEventGenerator::Initialize() {
 }
 
 void DCElasticEventGenerator::DefineCommands() {
-return;
+	return;
 	G4GenericMessenger::Command& polCmd
 	= fMessenger->DeclareMethod("polarization",
 			&DCElasticEventGenerator::setBeamPolarization,
@@ -91,15 +92,15 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 	for(auto iPart=event.begin();iPart!=event.end();++iPart){
 
 		//TODO Write Truth
-		pGun->SetParticleDefinition(iPart->first);
-		pGun->SetParticleMomentum(iPart->second);
+		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
+		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		pGun->GeneratePrimaryVertex(E);
 	}
 	return;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-ParticleMomentumVector DCElasticEventGenerator::Generate() {
+PrimaryEvent DCElasticEventGenerator::Generate() {
 
 	if(!Initialized)
 		Initialize();
@@ -147,14 +148,9 @@ ParticleMomentumVector DCElasticEventGenerator::Generate() {
 			G4double acc=MaxY*G4UniformRand();
 			if(SigmaFunc->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc) continue;
 			else {
-				ParticleMomentumVector res;
-#ifndef FILEWRITER
-				res.push_back(std::make_pair(particles[0],pscattered_3));
-				res.push_back(std::make_pair(particles[1],precoil_3));
-#else
-				res.push_back(std::make_pair(1000010020,pscattered_3));
-				res.push_back(std::make_pair(1000060120,precoil_3));
-#endif
+				PrimaryEvent res;
+				res.push_back(PrimaryParticle(2212,pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
+				res.push_back(PrimaryParticle(1000060120,precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
 			}
 		}
