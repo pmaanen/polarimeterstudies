@@ -43,14 +43,18 @@
 #include <vector>
 #include <utility>
 using namespace CLHEP;
-PrimaryGeneratorAction::PrimaryGeneratorAction():_infile(""),_instream("",std::ifstream::in),evtGen(0) {
+#include "G4AutoLock.hh"
+
+namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
+
+PrimaryGeneratorAction::FileReader* PrimaryGeneratorAction::fileReader = 0;
+PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),_infile(""),_instream("",std::ifstream::in) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle);
-	evtGen=0;
 	illuminationAngle=-1;
 	DefineCommands();
-
+	evtGen=new CosmicMuonGenerator(_pGun);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
@@ -158,85 +162,20 @@ void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 
 void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 {
-	//check if input filename is set
-	if(_infile==""){
-		/*
-		G4cerr<<"EventGenerator: Error. Input file not set "<<G4endl;
-		G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
-				" ERROR: Input file not set.");
-		 */
-	}
-	//check if input file is open
-	if(!_instream){
-		//if not, try to open
-		_instream.open(_infile.c_str());
-		//if not opened, file is not found, throw
-		if(!_instream){
-			/*
-			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
-			G4Exception("[EventGenerator]", "generateEventFromInput()", FatalException,
-					" ERROR: Input file not found.");
-			 */
-		}
+	PrimaryEvent evt;
+	if(fileReader)
+	{
+		G4AutoLock lock(&PrimaryGeneratorMutex);
+		evt = fileReader->GetEvent();
 	}
 
-
-	const	G4double ProtonMass = 938.27231 ;
-	const	G4double DeuteronMass = 1875.61282 ;
-	double d2r = 3.141592654/180;
-	G4double Pmom, theta_lab, phi, Ek=10*MeV ;
-	G4double pmom1, pmom2, theta1, phi1, theta2, phi2,vx,vy,vz,xp,yp;
-	int iev, part1, part2 ;
-
-	_instream >> iev >> part1 >> part2 >> pmom1 >> pmom2 >> theta1  >> theta2 >> phi1 >> phi2>>vx>>vy>>vz>>xp>>yp;
-	try{
-		Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
-	}
-	catch(myG4Exception& exc){
-		//If object is not found, book it and try again.
-		if(exc.getExceptionCode()=="ObjectNotFound"){
-			Analysis::Instance()->BookObject<TNtuple>("GeneratorInfo","GeneratorInfo","pmom1:pmom2:phi1:phi2:theta1:theta2:vx:vy:vz:xp:yp");
-			Analysis::Instance()->GetObject<TNtuple>("GeneratorInfo")->Fill(pmom1,pmom2,phi1,phi2,theta1,theta2,vx,vy,vz,xp,yp);
-		}
-		//If it is something else, rethrow (which, in geant4 is not an exception, but a function *yik*)
-		else
-			G4Exception(exc.getOriginOfException().c_str(),exc.getOriginOfException().c_str(),exc.getSeverity(),exc.getDescription().c_str());
+	for(auto ipart : evt){
+		_pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(ipart.id));
+		_pGun->SetParticleMomentum(G4ThreeVector(ipart.px,ipart.py,ipart.pz)) ;
+		_pGun->GeneratePrimaryVertex(E);
 	}
 
-	G4ThreeVector	v(vx,vy,vz);
-	Pmom = pmom1 * 1000 ;
-	theta_lab = theta1 * d2r ;
-	phi       = phi1   * d2r ;
-	if(part1 == 14) {
-		_pGun->SetParticleDefinition(G4Proton::ProtonDefinition()) ;
-		Ek = sqrt(Pmom*Pmom + ProtonMass*ProtonMass) - ProtonMass ;
-	}
-	else if(part1 == 45) {
-		_pGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition()) ;
-		Ek = sqrt(Pmom*Pmom + DeuteronMass*DeuteronMass) - DeuteronMass ;
-	}
-	_pGun->SetParticleEnergy(Ek) ;
-	_pGun->SetParticleMomentumDirection(G4ThreeVector(sin(theta_lab)*cos(phi),sin(theta_lab)*sin(phi),cos(theta_lab))) ;
-	_pGun->SetParticlePosition(v) ;
-	_pGun->SetParticleTime(0) ;
-	_pGun->GeneratePrimaryVertex(E) ;
-
-	Pmom = pmom2 * 1000;
-	theta_lab = theta2 * d2r ;
-	phi       = phi2   * d2r ;
-	if(part2 == 14) {
-		_pGun->SetParticleDefinition(G4Proton::ProtonDefinition()) ;
-		Ek = sqrt(Pmom*Pmom + ProtonMass*ProtonMass) - ProtonMass ;
-	}
-	else if(part2 == 45) {
-		_pGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition()) ;
-		Ek = sqrt(Pmom*Pmom + DeuteronMass*DeuteronMass) - DeuteronMass ;
-	}
-	_pGun->SetParticleEnergy(Ek) ;
-	_pGun->SetParticleMomentumDirection(G4ThreeVector(sin(theta_lab)*cos(phi),sin(theta_lab)*sin(phi),cos(theta_lab))) ;
-	_pGun->SetParticlePosition(v) ;
-	_pGun->SetParticleTime(0) ;  
-	_pGun->GeneratePrimaryVertex(E) ;
+	return;
 
 }
 
@@ -254,20 +193,18 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
 				o.str().c_str());
 	}
+	G4AutoLock lock(&PrimaryGeneratorMutex);
+	if(_mode==INPUTFILE and !fileReader){
+		fileReader = new PrimaryGeneratorAction::FileReader(_infile);
+	}
 	if(_mode==MUON and !dynamic_cast<CosmicMuonGenerator*>(evtGen)){
-		if(evtGen)
-			delete evtGen;
 		evtGen=new CosmicMuonGenerator(_pGun);
 	}
-	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(evtGen))
-		if(evtGen)
-			delete evtGen;
-	evtGen=new DCElasticEventGenerator();
-
+	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(evtGen)){
+		evtGen=new DCElasticEventGenerator(_pGun);
+	}
 	if(_mode==DCBREAKUP and !dynamic_cast<DCBreakupEventGenerator*>(evtGen)){
-		if(evtGen)
-		  delete evtGen;
-		evtGen=new DCBreakupEventGenerator();
+		evtGen=new DCBreakupEventGenerator(_pGun);
 	}
 }
 
@@ -306,14 +243,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		generateEventFromPhaseSpace(E);
 		break;
 	case DCELASTIC:
-		generateEventFromGenerator(E);
+		evtGen->Generate(E);
 		break;
 	case DCBREAKUP:
-		generateEventFromGenerator(E);
+		evtGen->Generate(E);
 		break;
 	case MUON:
-		G4cout<<"MUON!"<<G4endl;
-		generateEventFromGenerator(E);
+		evtGen->Generate(E);
 		break;
 	default:
 		std::stringstream o;
@@ -321,10 +257,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		G4Exception("EventGenerator::SetMode()", "ModeError", FatalException,
 				o.str().c_str());
 	}
-}
-
-void PrimaryGeneratorAction::generateEventFromGenerator(G4Event* E) {
-	evtGen->Generate(E);
 }
 
 void PrimaryGeneratorAction::illuminateAngle(G4Event* E) {
@@ -367,21 +299,6 @@ void PrimaryGeneratorAction::DefineCommands()
 	G4GenericMessenger::Command& illuminateCmd
 	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
 
-}
-
-void PrimaryGeneratorAction::beginOfRun() {
-
-	//if external generator is used, generator takes care of truth info
-	if(_mode!=GUN and _mode!=INPUTFILE){
-G4cout<<"PrimaryGeneratorAction::beginOfRun()"<<G4endl;
-		evtGen->beginOfRun();
-	}
-	if(_mode==GUN){
-
-	}
-	if(_mode==INPUTFILE){
-
-	}
 }
 // eof
 
