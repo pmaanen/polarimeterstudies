@@ -35,17 +35,10 @@ class G4ParticleDefinition;
 class G4GenericMessenger;
 class G4ParticleGun;
 
-#ifndef FILEWRITER
-typedef std::vector<std::pair<G4ParticleDefinition*,G4ThreeVector> > ParticleMomentumVector;
-#else
-typedef std::vector<std::pair<G4int,G4ThreeVector> > ParticleMomentumVector;
-#endif
-
 class PhaseSpaceGenerator: public EventGenerator {
 public:
 	PhaseSpaceGenerator(G4ParticleGun* gun=0);
 	virtual ~PhaseSpaceGenerator();
-	virtual ParticleMomentumVector Generate()=0;
 
 	G4double getBeamEnergy() const {return beamEnergy;}
 	void setBeamEnergy(G4double xBeamEnergy) {beamEnergy = xBeamEnergy;Initialized=false;}
@@ -55,6 +48,7 @@ protected:
 	G4bool Initialized;
 	static G4ThreadLocal TF2* SigmaFunc;
 	TGenPhaseSpace ps;
+
 
 	TLorentzVector cms,beam,target;
 
