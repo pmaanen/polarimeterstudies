@@ -17,18 +17,6 @@ CosmicSetup::CosmicSetup():SingleCrystal(),logicTrigger(0) {
 	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 
 	DefineCommands();
-
-	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
-	an->FinishNtuple(myTupleId[0]);
 }
 
 CosmicSetup::~CosmicSetup(){
@@ -73,8 +61,14 @@ void CosmicSetup::DefineCommands() {
 }
 
 void CosmicSetup::ConstructSDandField() {
-	JediPolarimeter::ConstructSDandField();
 
+	if(CaloSD.Get()==0 and logicCaloCrystal){
+			CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
+			CaloSD.Put(SD);
+		}
+	if(logicCaloCrystal){
+		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
+	}
 	if(logicTrigger and triggerSD.Get()==0){
 		triggerSD.Put(new CaloSensitiveDetector("Trigger"));
 	}
