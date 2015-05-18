@@ -1,4 +1,3 @@
-
 #define MAIN
 #include "global.hh"
 #ifdef G4MULTITHREADED
@@ -36,7 +35,7 @@ namespace CLHEP {}
 using namespace CLHEP; 
 
 
-void    Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; }
+void    Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; exit(1);}
 
 
 
