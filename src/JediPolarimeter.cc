@@ -115,7 +115,6 @@ G4LogicalVolume* JediPolarimeter::MakeBeampipe() {
 	auto mylar=G4NistManager::Instance()->FindOrBuildMaterial("G4_MYLAR");
 	auto uhv=G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 
-
 	G4Tubs* solidBeampipe=new G4Tubs("Beampipe",beampipeRadius-beampipeThickness,beampipeRadius,worldSizeZ/2-1*CLHEP::cm,0*CLHEP::deg,360*CLHEP::deg);
 	G4LogicalVolume* logicBeampipe = new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 	G4Tubs* solidMylarFoil=new G4Tubs("MylarFoil",beampipeRadius-beampipeThickness+windowThickness,beampipeRadius-beampipeThickness+foilThickness+windowThickness,(targetChamberZ2-targetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
@@ -124,6 +123,7 @@ G4LogicalVolume* JediPolarimeter::MakeBeampipe() {
 	G4Tubs* solidGap= new G4Tubs("Gap",beampipeRadius-beampipeThickness+foilThickness+windowThickness,beampipeRadius,(targetChamberZ2-targetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
 	G4LogicalVolume* logicGap=new G4LogicalVolume(solidGap,uhv,"Gap");
 	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),logicGap,"Gap",logicBeampipe,0,false,0);
+
 	logicGap->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* beampipeVisAttr = new G4VisAttributes(gray);
 	logicBeampipe->SetVisAttributes(beampipeVisAttr);

@@ -34,7 +34,7 @@ void Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; exit(
 
 class FileWriterActionInitialization: public G4VUserActionInitialization {
 public:
-	FileWriterActionInitialization(G4int nEvents,G4String filename){this->nEvents=nEvents;this->filename=filename;};
+	FileWriterActionInitialization(G4int nEvents,G4String filename=""){this->nEvents=nEvents;this->filename=filename;};
 	virtual void Build() const{
 		SetUserAction(new FileWriterPrimaryGeneratorAction(nEvents,filename));
 	};
@@ -57,13 +57,13 @@ int main(int argc,char** argv) {
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
-																										("help,h", "Display this help message")
-																										("general.config_file,c", po::value<std::string>(), "config file")
-																										("general.num_threads,t", po::value<int>()->default_value(1), "number of worker threads")
-																										("general.num_events,n", po::value<int>()->default_value(1), "number of events to be generated.")
-																										("generator.beam_energy,e", po::value<double>()->default_value(270),"energy of beam in MeV"),
-																										("generator.beam_polarization,p", po::value<double>()->default_value(1),"polarization of beam"),
-																										("generator.output_file,o", po::value<std::string>()->default_value("events.dat"),"output file");
+																																("help,h", "Display this help message")
+																																("general.config_file,c", po::value<std::string>(), "config file")
+																																("general.num_threads,t", po::value<int>()->default_value(1), "number of worker threads")
+																																("general.num_events,n", po::value<int>()->default_value(1), "number of events to be generated.")
+																																("generator.beam_energy,e", po::value<double>()->default_value(270),"energy of beam in MeV")
+																																("generator.beam_polarization,p", po::value<double>()->default_value(1),"polarization of beam")
+																																("generator.output_file,o", po::value<std::string>(),"output file");
 
 
 	std::ifstream cfg;
@@ -96,7 +96,10 @@ int main(int argc,char** argv) {
 	FTFP_BERT* the_physics =new FTFP_BERT(0);
 	runManager->SetUserInitialization(the_physics);
 	//User action initialization
-	runManager->SetUserInitialization(new FileWriterActionInitialization(vm["general.num_events"].as<int>(),G4String("events.dat")));
+	if(vm.count("generator.output_file"))
+		runManager->SetUserInitialization(new FileWriterActionInitialization(vm["general.num_events"].as<int>(),G4String(vm["generator.output_file"].as<std::string>())));
+	else
+		runManager->SetUserInitialization(new FileWriterActionInitialization(vm["general.num_events"].as<int>()));
 	// Initialize G4 kernel
 	runManager->Initialize();
 	runManager->BeamOn(vm["general.num_threads"].as<int>());

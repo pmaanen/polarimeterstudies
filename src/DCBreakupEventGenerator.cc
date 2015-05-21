@@ -51,7 +51,6 @@ void DCBreakupEventGenerator::Initialize() {
 void DCBreakupEventGenerator::Generate(G4Event* E) {
 	auto event=Generate();
 	for(auto iPart=event.begin();iPart!=event.end();++iPart){
-
 		//TODO Write Truth
 		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));

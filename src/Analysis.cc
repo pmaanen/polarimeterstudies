@@ -60,7 +60,8 @@ void Analysis::AddAuxiliary(G4String name, G4String value)
 
 void Analysis::PrepareNewRun(const G4Run* aRun=0)
 {
-	if(!_enable) return;
+	return;
+
 	G4cout<<"Analysis::PrepareNewRun"<<G4endl;
 	std::stringstream fname;
 

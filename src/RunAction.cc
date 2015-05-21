@@ -86,6 +86,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	Analysis::Instance()->Write();
 	Analysis::Instance()->CloseFile();
 	if(IsMaster()){
+		return;
 		if(filenames){
 			std::ostringstream hadd;
 			std::ostringstream rm;
@@ -95,6 +96,16 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 			hadd<<"hadd "<<Analysis::Instance()->GetFileName()<<"_merged.root ";
 			G4cout<<"I have "<<filenames->size()<<" filenames. ";
 			G4cout<<"These are: ";
+			G4String extension;
+			auto name=Analysis::Instance()->GetFileName();
+			if ( name.find(".") != std::string::npos ) {
+				extension = name.substr(name.find("."));
+				name = name.substr(0, name.find("."));
+			}
+			else {
+				extension = ".";
+				extension.append(Analysis::Instance()->GetFileType());
+			}
 			for(auto iName : *filenames){
 				G4cout<<iName<<" ";
 				hadd<<iName<<" ";
@@ -140,9 +151,9 @@ void RunAction::PushBackFileName(G4String filename) {
 
 	std::ostringstream fullName;
 	if(G4Threading::IsWorkerThread())
-		fullName<<filename<<"_t"<<G4Threading::G4GetThreadId()<<".root";
+		fullName<<filename<<"_t"<<G4Threading::G4GetThreadId();
 	else
-		fullName<<filename<<".root";
+		fullName<<filename;
 
 	filenames->push_back(fullName.str());
 }

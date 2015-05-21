@@ -128,7 +128,12 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	JediPolarimeter::Construct();
 
-	G4cout<<"infile="<<infile<<G4endl;
+	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
+
+	G4Box* solidTarget=new G4Box("Target",3./2*CLHEP::cm,3./2*CLHEP::cm,5./2*CLHEP::cm);
+	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
+	new G4PVPlacement(0,G4ThreeVector(0,0,5/2.*CLHEP::cm),logicTarget,"Target",logicWorld,0,false,0);
+
 	if(infile!=""){
 		std::ifstream ifile(infile);
 		std::string line;
@@ -155,9 +160,6 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
-	G4cout<<"#Crystal size"<<G4endl;
-	G4cout<<crystalWidth/CLHEP::mm<<" "<<crystalWidth/CLHEP::mm<<" "<<crystalLength/CLHEP::mm<<G4endl;
-	G4cout<<"#Crystal placement"<<G4endl;
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
 			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);

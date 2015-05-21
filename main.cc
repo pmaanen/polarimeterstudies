@@ -37,8 +37,6 @@ using namespace CLHEP;
 
 void    Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; exit(1);}
 
-
-
 int main(int argc,char** argv) {
 
 	signal(SIGTERM,&Interrupt) ;
@@ -115,7 +113,7 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics =new FTFP_BERT(0);//new QGSP_INCLXX();
+	G4VModularPhysicsList* the_physics =new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);

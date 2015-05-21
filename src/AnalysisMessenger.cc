@@ -26,12 +26,12 @@ AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),ana
 	disableCmd=new G4UIcommand("/analysis/Disable",this);
 	disableCmd->SetGuidance("Disable Output");
 
-	delete this->fFileMessenger->fSetFileNameCmd;
+/*
 	fileCmd=new G4UIcmdWithAString("/analysis/SetFileName",this);
 	fileCmd->SetGuidance("Set output file name");
 	fileCmd->SetParameterName("file",false);
 
-
+*/
 
 }
 

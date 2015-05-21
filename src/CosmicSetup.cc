@@ -57,7 +57,6 @@ void CosmicSetup::DefineCommands() {
 	triggerWidthCmd.SetParameterName("width", true);
 	triggerWidthCmd.SetRange("width>=0.");
 	triggerWidthCmd.SetDefaultValue("30.");
-
 }
 
 void CosmicSetup::ConstructSDandField() {

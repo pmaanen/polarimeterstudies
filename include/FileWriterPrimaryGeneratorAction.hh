@@ -12,17 +12,25 @@
 
 #include "G4String.hh"
 #include "G4Types.hh"
+#include "G4UIsession.hh"
 #include <fstream>
 class DCElasticEventGenerator;
 class FileWriterPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction{
 public:
 	class FileWriter{
 	public:
-		FileWriter(G4String fileName,G4int nEvents):currentEventId(0),nEvents(nEvents){
+		FileWriter(G4String fileName,G4int nEvents):currentEventId(0),nEvents(nEvents),buf(0){
 			currentEventId=0;
-			outFile.open(fileName.data());
+			if(fileName!=""){
+				outFile.open(fileName.data());
+				buf = outFile.rdbuf();
+			}
+			else{
+				buf=std::cout.rdbuf();
+			}
+			out=new std::ostream(buf);
 		};
-		~FileWriter(){outFile.close();};
+		~FileWriter(){if(outFile.is_open())outFile.close();delete out;};
 
 		bool WriteEventsToFile(const std::vector<PrimaryEvent> &someEvents){
 			for(auto iEvent:someEvents){
@@ -30,7 +38,7 @@ public:
 					return false;
 				//Write one event to file, then check if goal is reached. If yes, return false. Otherwise continue until vector is empty
 				for(auto iParticle:iEvent){
-					outFile<<currentEventId<<" "<<iParticle<<std::endl;
+					*out<<currentEventId<<" "<<iParticle<<std::endl;
 				}
 				currentEventId++;
 			}
@@ -39,6 +47,8 @@ public:
 
 	private:
 		G4int currentEventId,nEvents;
+		std::ostream *out;
+		std::streambuf * buf;
 		std::ofstream outFile;
 	};
 
@@ -46,7 +56,7 @@ public:
 	virtual ~FileWriterPrimaryGeneratorAction();
 	virtual void GeneratePrimaries(G4Event* E);
 private:
-	DCElasticEventGenerator* evtGen;
+	EventGenerator* evtGen;
 	static FileWriter* fileWriter;
 };
 #endif /* FILEWRITERPRIMARYGENERATORACTION_HH_ */

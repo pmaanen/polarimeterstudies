@@ -65,16 +65,8 @@ void DCElasticEventGenerator::Initialize() {
 	Initialized=true;
 }
 
-void DCElasticEventGenerator::DefineCommands() {
-	return;
-	G4GenericMessenger::Command& polCmd
-	= fMessenger->DeclareMethod("polarization",
-			&DCElasticEventGenerator::setBeamPolarization,
-			"Set beam polarization");
-	polCmd.SetParameterName("polarization",false,false);
-	//polCmd.SetRange("polarization<=1. && polarization>=-1");
-
-}
+void DCElasticEventGenerator::DefineCommands()
+{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TF2* DCElasticEventGenerator::BuildFunction() {
@@ -149,8 +141,8 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 			if(SigmaFunc->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc) continue;
 			else {
 				PrimaryEvent res;
-				res.push_back(PrimaryParticle(2212,pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
-				res.push_back(PrimaryParticle(1000060120,precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
+				res.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
+				res.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
 			}
 		}

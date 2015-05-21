@@ -170,7 +170,23 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 	}
 
 	for(auto ipart : evt){
-		_pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(ipart.id));
+		auto part=G4ParticleTable::GetParticleTable()->FindParticle(ipart.id);
+		if(!part){
+			G4int Z,A,lvl;
+			Z=0;
+			A=0;
+			G4double E;
+			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,E,lvl);
+			G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
+			part=G4IonTable::GetIonTable()->GetIon(Z,A);
+			if(!part){
+				std::stringstream message;
+				message<<"primary particle not found.particle id: "<<ipart.id;
+				G4Exception("EventGenerator::generateEventFromInput()", "ParticleError", FatalException,
+						message.str().c_str());
+			}
+		}
+		_pGun->SetParticleDefinition(part);
 		_pGun->SetParticleMomentum(G4ThreeVector(ipart.px,ipart.py,ipart.pz)) ;
 		_pGun->GeneratePrimaryVertex(E);
 	}
@@ -186,16 +202,26 @@ void PrimaryGeneratorAction::generateEventFromGun(G4Event *E)
 
 void PrimaryGeneratorAction::setMode(G4int mode)
 {
+	auto oldmode=this->_mode;
 	this->_mode = static_cast<GeneratorMode>(mode);
 	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC or _mode==DCBREAKUP or _mode==MUON)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
 				o.str().c_str());
+		this->_mode=oldmode;
 	}
-	G4AutoLock lock(&PrimaryGeneratorMutex);
-	if(_mode==INPUTFILE and !fileReader){
-		fileReader = new PrimaryGeneratorAction::FileReader(_infile);
+	if(_mode==INPUTFILE){
+		if(_infile==""){
+			G4Exception("[EventGenerator]", "setMode", JustWarning,
+					" ERROR: Set input file before switching mode.");
+			this->_mode=oldmode;
+		}
+		else{
+			G4AutoLock lock(&PrimaryGeneratorMutex);
+			if(!fileReader)
+				fileReader = new PrimaryGeneratorAction::FileReader(_infile);
+		}
 	}
 	if(_mode==MUON and !dynamic_cast<CosmicMuonGenerator*>(evtGen)){
 		evtGen=new CosmicMuonGenerator(_pGun);

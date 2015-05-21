@@ -60,6 +60,7 @@
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "global.hh"
+#include <map>
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
