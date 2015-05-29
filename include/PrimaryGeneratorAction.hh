@@ -33,21 +33,21 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 				std::string line;
 				for(auto iev=0;iev<100;++iev){
 					while(std::getline(inputFile,line)){
-						G4double px,py,pz;
+						G4double px,py,pz,vx,vy,vz,t;
 						G4int ev,id;
 						std::istringstream iss(line);
-						iss>>ev>>id>>px>>py>>pz;
+						iss>>ev>>id>>px>>py>>pz>>vx>>vy>>vz>>t;
 						px*=CLHEP::GeV,py*=CLHEP::GeV,pz*=CLHEP::GeV;
 						thisParticle=PrimaryParticle(id,px,py,pz);
 						if(ev!=iEvent){
 							evCache.push_back(thisEvent);
-							thisEvent.clear();
-							thisEvent.push_back(thisParticle);
+							thisEvent.particles.clear();
+							thisEvent.particles.push_back(thisParticle);
 							iEvent=ev;
 							break;
 						}
 						else{
-							thisEvent.push_back(thisParticle);
+							thisEvent.particles.push_back(thisParticle);
 						}
 					}
 				}
