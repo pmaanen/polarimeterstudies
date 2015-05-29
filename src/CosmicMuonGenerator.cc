@@ -13,6 +13,7 @@
 #include "Randomize.hh"
 #include "Analysis.hh"
 #include "G4Threading.hh"
+#include "G4GenericMessenger.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun) {
 
 	functions.Put(new function_helper);
@@ -20,21 +21,24 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 	momentumAmp.Put(new TF1("energy",functions.Get(),&CosmicMuonGenerator::function_helper::energy,0,20,0,"function_helper","energy"));
 
 	position=pgun->GetParticlePosition();
+
+	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
+	G4GenericMessenger::Command& spotsizeCmd
+	= fMessenger->DeclareProperty("spotsize", spotsize, "spotsize of muon gun");
 }
 
-CosmicMuonGenerator::~CosmicMuonGenerator() {}
+CosmicMuonGenerator::~CosmicMuonGenerator() {
+	delete fMessenger;
+}
 
 void CosmicMuonGenerator::Generate(G4Event* E) {
 	if(!runInitialized)
 		Initialize();
-	auto muon=Generate()[0];
+	auto event=Generate();
+	auto muon=event.particles[0];
 	auto momentum=G4ThreeVector(muon.px,muon.py,muon.pz);
 
-
-	auto vx=position.getX()+spotsize.getX()*(G4UniformRand()-0.5);
-	auto vy=position.getY()+spotsize.getY()*(G4UniformRand()-0.5);
-	auto vz=position.getZ()+spotsize.getZ()*(G4UniformRand()-0.5);
-	pGun->SetParticlePosition(G4ThreeVector(vx,vy,vz));
+	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 
 	Analysis* an=Analysis::Instance();
 	an->FillH2(myHistoId[0],momentum.mag()/CLHEP::MeV,momentum.angle(G4ThreeVector(0,-1,0))/CLHEP::deg);
@@ -63,7 +67,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	G4ParticleDefinition* part=0;
 	while(yMom>0){
 		while(1){
-			theta=G4UniformRand()*CLHEP::pi/4;
+			theta=G4UniformRand()*CLHEP::pi/2;
 			if(angle.Get()->Eval(theta)>angle.Get()->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
 				break;
 		}
@@ -74,16 +78,19 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 		else
 			part=G4MuonMinus::MuonMinusDefinition();
 		while(1){
-			mom=G4UniformRand()*10;
-			if(momentumAmp.Get()->Eval(mom)>momentumAmp.Get()->GetMaximum(0,10)*G4UniformRand())
+			mom=G4UniformRand()*20;
+			if(momentumAmp.Get()->Eval(mom)>momentumAmp.Get()->GetMaximum(0,20)*G4UniformRand())
 				break;
 		}
 		mom*=CLHEP::GeV;
 		momentum=G4ThreeVector(mom*sin(theta)*cos(phi),mom*(-cos(theta)),mom*(sin(theta)*sin(phi)));
 		yMom=momentum.getY();
 	}
-	PrimaryEvent res;
-	res.push_back(PrimaryParticle(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ()));
+	auto vx=position.getX()+spotsize.getX()*(G4UniformRand()-0.5);
+	auto vy=position.getY()+spotsize.getY()*(G4UniformRand()-0.5);
+	auto vz=position.getZ()+spotsize.getZ()*(G4UniformRand()-0.5);
+	PrimaryEvent res(0,vx,vy,vz);
+	res.particles.push_back(PrimaryParticle(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ()));
 	return res;
 }
 

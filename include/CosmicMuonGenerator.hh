@@ -13,6 +13,7 @@
 #include "EventGenerator.hh"
 #include <cmath>
 #include "G4ThreeVector.hh"
+class G4GenericMessenger;
 class CosmicMuonGenerator: public EventGenerator{
 public:
 	CosmicMuonGenerator(G4ParticleGun* pgun=0);
@@ -32,6 +33,9 @@ public:
 	G4Cache<CosmicMuonGenerator::function_helper*> functions;
 	G4Cache<TF1*> angle,momentumAmp;
 	G4ThreeVector position, spotsize;
+
+
+	G4GenericMessenger* fMessenger;
 };
 
 #endif /* INCLUDE_COSMICMUONGENERATOR_HH_ */
