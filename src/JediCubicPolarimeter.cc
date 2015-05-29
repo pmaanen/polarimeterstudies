@@ -130,7 +130,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 
 	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
 
-	G4Box* solidTarget=new G4Box("Target",3./2*CLHEP::cm,3./2*CLHEP::cm,5./2*CLHEP::cm);
+	G4Box* solidTarget=new G4Box("Target",1./2*CLHEP::cm,1./2*CLHEP::cm,3./2*CLHEP::cm);
 	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
 	new G4PVPlacement(0,G4ThreeVector(0,0,5/2.*CLHEP::cm),logicTarget,"Target",logicWorld,0,false,0);
 

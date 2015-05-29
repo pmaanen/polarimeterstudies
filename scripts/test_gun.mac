@@ -1,6 +1,10 @@
-/analysis/Enable
-/gun/position 0 0 -1 m
-/gun/direction 0 0 -1
+analysis/Enable
+/analysis/setFileName protons.root
+/PolarimeterStudies/detector/material G4_LYSO_SCINT
+/PolarimeterStudies/detector/update
+/gun/position 0 0 -10 cm
+/gun/direction 0 0 1
 /gun/particle proton
 /gun/momentumAmp 701 MeV
-/run/beamOn 100000000
+/run/beamOn 100000
+
