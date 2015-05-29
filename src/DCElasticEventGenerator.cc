@@ -66,7 +66,9 @@ void DCElasticEventGenerator::Initialize() {
 }
 
 void DCElasticEventGenerator::DefineCommands()
-{}
+{
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TF2* DCElasticEventGenerator::BuildFunction() {
@@ -80,9 +82,8 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 
 void DCElasticEventGenerator::Generate(G4Event* E) {
 
-	auto event=Generate();
-	for(auto iPart=event.begin();iPart!=event.end();++iPart){
-
+	auto event=PrimaryEvent(Generate());
+	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		//TODO Write Truth
 		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
@@ -141,8 +142,8 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 			if(SigmaFunc->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc) continue;
 			else {
 				PrimaryEvent res;
-				res.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
-				res.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
+				res.particles.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
+				res.particles.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
 			}
 		}

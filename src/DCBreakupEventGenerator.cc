@@ -49,8 +49,8 @@ void DCBreakupEventGenerator::Initialize() {
 }
 
 void DCBreakupEventGenerator::Generate(G4Event* E) {
-	auto event=Generate();
-	for(auto iPart=event.begin();iPart!=event.end();++iPart){
+	auto event=PrimaryEvent(Generate());
+	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		//TODO Write Truth
 		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
@@ -104,9 +104,9 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 
 
 				PrimaryParticle a(2212,1.,1.,1.);
-				res.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
-				res.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
-				res.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
+				res.particles.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
+				res.particles.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
+				res.particles.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
 				G4cout<<"BREAKUP!"<<G4endl;
 				//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
 				//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
