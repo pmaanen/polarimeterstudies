@@ -23,8 +23,8 @@ DCBreakupEventGenerator::~DCBreakupEventGenerator() {
 }
 
 TF2* DCBreakupEventGenerator::BuildFunction() {
-	SigmaFunc=new TF2("tf1","sin(x)*exp(-x)",0,100,0,100);
-	return SigmaFunc;
+	cross_section=new TF2("tf1","sin(x)*exp(-x)",0,100,0,100);
+	return cross_section;
 }
 
 void DCBreakupEventGenerator::Initialize() {
@@ -42,7 +42,7 @@ void DCBreakupEventGenerator::Initialize() {
 	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
 	cms = beam + target;
 	ps.SetDecay(cms, 3, masses);
-	if(!SigmaFunc)
+	if(!cross_section)
 		BuildFunction();
 	//MaxY=SigmaFunc->GetMaximum();
 	Initialized=true;

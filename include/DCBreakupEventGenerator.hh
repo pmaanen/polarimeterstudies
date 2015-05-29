@@ -15,12 +15,14 @@ public:
 	DCBreakupEventGenerator(G4ParticleGun* pgun=0);
 	virtual ~DCBreakupEventGenerator();
 
-private:
+protected:
 	virtual TF2* BuildFunction();
 	virtual void Initialize();
 	virtual PrimaryEvent Generate();
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
+
+	TF2* cross_section;
 };
 
 #endif /* INCLUDE_DCBREAKUPEVENTGENERATOR_HH_ */

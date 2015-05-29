@@ -16,9 +16,9 @@
 #include "G4GenericMessenger.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun) {
 
-	functions.Put(new function_helper);
-	angle.Put(new TF1("cos_squared",functions.Get(),&CosmicMuonGenerator::function_helper::angle,0,3.1415,0,"function_helper","angle"));
-	momentumAmp.Put(new TF1("energy",functions.Get(),&CosmicMuonGenerator::function_helper::energy,0,20,0,"function_helper","energy"));
+	functions=new function_helper;
+	angle=new TF1("cos_squared",functions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
+	momentumAmp=new TF1("energy",functions,&function_helper::energy,0,20,0,"function_helper","energy");
 
 	position=pgun->GetParticlePosition();
 
@@ -68,7 +68,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	while(yMom>0){
 		while(1){
 			theta=G4UniformRand()*CLHEP::pi/2;
-			if(angle.Get()->Eval(theta)>angle.Get()->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
+			if(angle->Eval(theta)>angle->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
 				break;
 		}
 		phi=G4UniformRand()*2*CLHEP::pi;
@@ -79,7 +79,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 			part=G4MuonMinus::MuonMinusDefinition();
 		while(1){
 			mom=G4UniformRand()*20;
-			if(momentumAmp.Get()->Eval(mom)>momentumAmp.Get()->GetMaximum(0,20)*G4UniformRand())
+			if(momentumAmp->Eval(mom)>momentumAmp->GetMaximum(0,20)*G4UniformRand())
 				break;
 		}
 		mom*=CLHEP::GeV;

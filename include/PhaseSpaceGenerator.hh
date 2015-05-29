@@ -46,9 +46,7 @@ public:
 protected:
 	G4double beamEnergy,MaxY,thetaMin,thetaMax;
 	G4bool Initialized;
-	static G4ThreadLocal TF2* SigmaFunc;
 	TGenPhaseSpace ps;
-
 
 	TLorentzVector cms,beam,target;
 

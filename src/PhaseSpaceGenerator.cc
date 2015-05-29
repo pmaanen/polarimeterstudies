@@ -9,8 +9,6 @@
 #include "G4ParticleGun.hh"
 #include <PhaseSpaceGenerator.hh>
 
-G4ThreadLocal TF2* PhaseSpaceGenerator::SigmaFunc = 0;
-
 PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun) {
 
 	beamEnergy=235.*CLHEP::MeV;

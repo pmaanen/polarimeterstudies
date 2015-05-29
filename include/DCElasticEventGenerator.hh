@@ -20,64 +20,66 @@
 #include <G4UnitsTable.hh>
 class G4ParticleDefinition;
 class G4GenericMessenger;
+class elastic_scattering_modell;
 class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
 	DCElasticEventGenerator(G4ParticleGun* pgun=0);
 	virtual ~DCElasticEventGenerator();
-	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);Initialized=false;}
-
-
 	virtual void Initialize();
 	//For use by file writer
 	virtual PrimaryEvent Generate();
 	//For use by geant
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
-
+	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
+	if(cross_section)
+		cross_section->SetParameter(1,beamPolarization);
+	}
 protected:
 
 	Double_t momentum_cms,beamPolarization;
 	G4GenericMessenger* fMessenger;
-
+	elastic_scattering_modell* scattering_modell;
+	TF2* cross_section;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 	virtual TF2* BuildFunction();
+};
 
-	//This is the Function to build the TF2.
-	//x[0] is theta_cm, x[1] is phi par[0] is beam energy. par[1] is beam momentum in cms
-	//par[2] is polarization
-	//Units: E:MeV Theta:deg q:GeV/c
-	//Note: The root classes use GeV
-	//Sigma=SigmaUnpol*(1+Ay*Py*cos(phi))
 
-	class MyFunction{
-	public:
-		Double_t sigma(Double_t *x, Double_t *par);
-		MyFunction();
-	private:
-		Double_t SigmaUnpol(Double_t, Double_t, Double_t);
-		//quick conversion for theta_cm to momentum transfer
-		Double_t q(Double_t theta, Double_t mom);
+//This is the Function to build the TF2.
+//x[0] is theta_cm, x[1] is phi par[0] is beam energy. par[1] is beam momentum in cms
+//par[2] is polarization
+//Units: E:MeV Theta:deg q:GeV/c
+//Note: The root classes use GeV
+//Sigma=SigmaUnpol*(1+Ay*Py*cos(phi))
 
-		//Parameters for ds/dOmega. x is ln(E)
-		double a1(Double_t x);
-		double a2(Double_t x);
-		double a3(Double_t x);
-		double a4(Double_t x);
-		double a5(Double_t x);
-		double a6(Double_t x);
+class elastic_scattering_modell{
+public:
+	Double_t sigma(Double_t *x, Double_t *par);
+	elastic_scattering_modell();
+private:
+	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
+	//quick conversion for theta_cm to momentum transfer
+	Double_t q(Double_t theta, Double_t mom);
 
-		//Parameters for Ay. Conversion from theta_cm to theta_lab is missing, but this does not affect us very much.
-		double Ay(Double_t E, Double_t theta);
-		double b1(Double_t E);
-		double b2(Double_t E);
-		double b3(Double_t E);
-		double b4(Double_t E);
-		double b5(Double_t E);
-		double b6(Double_t E);
-		double b7(Double_t E);
-		double b8(Double_t E);
-	};
-	static G4ThreadLocal MyFunction* func;
+	//Parameters for ds/dOmega. x is ln(E)
+	double a1(Double_t x);
+	double a2(Double_t x);
+	double a3(Double_t x);
+	double a4(Double_t x);
+	double a5(Double_t x);
+	double a6(Double_t x);
+
+	//Parameters for Ay. Conversion from theta_cm to theta_lab is missing, but this does not affect us very much.
+	double Ay(Double_t E, Double_t theta);
+	double b1(Double_t E);
+	double b2(Double_t E);
+	double b3(Double_t E);
+	double b4(Double_t E);
+	double b5(Double_t E);
+	double b6(Double_t E);
+	double b7(Double_t E);
+	double b8(Double_t E);
 };
 #endif /* DCELASTICEVENTGENERATOR_HH_ */
