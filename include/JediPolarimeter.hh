@@ -95,6 +95,16 @@ public:
 
 	void setInfile(const std::string& infile) {this->infile = infile;}
 
+	void setTargetThickness(G4double targetThickness) {
+		this->targetThickness = targetThickness;
+		changedParameters=true;
+	}
+
+	void setTargetWidth(G4double targetWidth) {
+		this->targetWidth = targetWidth;
+		changedParameters=true;
+	}
+
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
@@ -108,7 +118,7 @@ protected:
 	G4double thetaMin, thetaMax;
 	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
 	innerDetectorRadius, outerDetectorRadius,detectorZ,wrappingThickness, targetChamberThickness, targetChamberZ1, targetChamberZ2,
-	worldSizeXY,worldSizeZ,deltaELength,deltaEWidth,deltaEZ;
+	worldSizeXY,worldSizeZ,deltaELength,deltaEWidth,deltaEZ,targetThickness,targetWidth;
 	G4String scintillatorMaterialName;
 	G4Material* scintillatorMaterial;
 

@@ -46,6 +46,9 @@ JediPolarimeter::JediPolarimeter(std::string _infile):logicCaloCrystal(0),logicE
 	targetChamberThickness=2*CLHEP::mm;
 
 	wrappingThickness=100*CLHEP::um;
+
+	targetThickness=1*CLHEP::cm;
+	targetWidth=1*CLHEP::cm;
 	changedParameters=true;
 	DefineCommands();
 	ComputeParameters();
@@ -215,6 +218,23 @@ void JediPolarimeter::DefineCommands() {
 			&JediPolarimeter::setDeltaElength,
 			"delta E width (mm)");
 
+	G4GenericMessenger::Command& targetThicknessCmd
+	= fMessenger->DeclareMethodWithUnit("tgtThickness","mm",
+			&JediPolarimeter::setTargetThickness,
+			"");
+
+	targetThicknessCmd.SetParameterName("Thickness", true);
+	targetThicknessCmd.SetRange("Thickness>=0.");
+	targetThicknessCmd.SetDefaultValue("10.");
+
+	G4GenericMessenger::Command& targetWidthCmd
+	= fMessenger->DeclareMethodWithUnit("tgtWidth","mm",
+			&JediPolarimeter::setTargetWidth,
+			"");
+
+	targetWidthCmd.SetParameterName("Width", true);
+	targetWidthCmd.SetRange("Width>=0.");
+	targetWidthCmd.SetDefaultValue("10.");
 
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);
@@ -233,6 +253,13 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),MakeBeampipe(),"Beampipe",logicWorld,false,0,false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,targetChamberZ1+0.5*(targetChamberZ2-targetChamberZ1)),MakeTargetChamber(),"TargetChamber",logicWorld,false,0,false);
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+
+	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
+
+	G4Box* solidTarget=new G4Box("Target",targetWidth/2,targetWidth/2,targetThickness/2);
+	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
+
 	return physiWorld;
 }
 

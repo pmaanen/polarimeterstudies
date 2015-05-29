@@ -13,10 +13,11 @@
 #include "G4EventManager.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
-CaloSensitiveDetector::CaloSensitiveDetector(G4String name):G4MultiFunctionalDetector(name),myTupleId() {
-	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",0);
+CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name),myTupleId() {
+	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",depth);
 	this->RegisterPrimitive(scorer);
 	Analysis* an=Analysis::Instance();
+	runInitialized=false;
 	myTupleId.push_back(an->CreateNtuple(name,name));
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));

@@ -127,13 +127,6 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	JediPolarimeter::Construct();
-
-	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
-
-	G4Box* solidTarget=new G4Box("Target",1./2*CLHEP::cm,1./2*CLHEP::cm,3./2*CLHEP::cm);
-	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
-	new G4PVPlacement(0,G4ThreeVector(0,0,5/2.*CLHEP::cm),logicTarget,"Target",logicWorld,0,false,0);
-
 	if(infile!=""){
 		std::ifstream ifile(infile);
 		std::string line;
@@ -194,13 +187,17 @@ void JediCubicPolarimeter::DefineCommands() {
 void JediCubicPolarimeter::ConstructSDandField() {
 
 	if(CaloSD.Get()==0 and logicCaloCrystal){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter",2);
 		CaloSD.Put(SD);
 	}
 
 	if(deltaESD.Get()==0 and logicDeltaE){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE",2);
 		deltaESD.Put(SD);
 	}
+	if(logicDeltaE)
+		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
+	if(logicCaloCrystal)
+		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
 
 }
