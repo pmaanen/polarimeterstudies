@@ -190,3 +190,17 @@ void JediCubicPolarimeter::DefineCommands() {
 			&JediCubicPolarimeter::UpdateGeometry,
 			"update geometry");
 }
+
+void JediCubicPolarimeter::ConstructSDandField() {
+
+	if(CaloSD.Get()==0 and logicCaloCrystal){
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
+		CaloSD.Put(SD);
+	}
+
+	if(deltaESD.Get()==0 and logicDeltaE){
+		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
+		deltaESD.Put(SD);
+	}
+
+}

@@ -31,6 +31,7 @@ class JediCubicPolarimeter: public JediPolarimeter {
 public:
 	JediCubicPolarimeter(std::string infile="");
 	virtual G4VPhysicalVolume* Construct();
+	virtual void ConstructSDandField();
 protected:
 
 	void DefineCommands();
