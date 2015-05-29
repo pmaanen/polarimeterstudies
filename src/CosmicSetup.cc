@@ -27,8 +27,8 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 
 	G4Box* solidTrigger=new G4Box("Trigger",triggerWidth/2,triggerThickness/2,triggerLength/2);
 	logicTrigger=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
-	new G4PVPlacement(0,G4ThreeVector(0,crystalWidth/2+triggerThickness/2,triggerLength/2),logicTrigger,"Trigger",logicWorld,false,0,false);
-	new G4PVPlacement(0,G4ThreeVector(0,-crystalWidth/2-triggerThickness/2,triggerLength/2),logicTrigger,"Trigger",logicWorld,false,1,false);
+	//new G4PVPlacement(0,G4ThreeVector(0,crystalWidth/2+triggerThickness/2,triggerLength/2),logicTrigger,"Trigger",logicWorld,false,0,false);
+	//new G4PVPlacement(0,G4ThreeVector(0,-crystalWidth/2-triggerThickness/2,triggerLength/2),logicTrigger,"Trigger",logicWorld,false,1,false);
 	return physiWorld;
 
 
