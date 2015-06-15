@@ -57,10 +57,10 @@
 #include <G4UnitsTable.hh>
 
 
- #include <iostream>
- #include <fstream>
- #include <sstream>
- #include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
@@ -92,15 +92,8 @@ G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
-	logicCaloCrystal=logicDetector;
+	logicalVolumes["CaloCrystal"]=logicDetector;
 	return logicWrapping;
-	/*
-	 * 	<polyhedra name= "Crystal" startphi="0" deltaphi="360" numsides="6" aunit="deg" lunit= "mm">
-   		<zplane  rmax="25.9807" z="0"/>
-   		<zplane  rmax="25.9807" z="100" />
-	G4Box* solidDetector=new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
-
-	 */
 }
 
 
@@ -120,7 +113,7 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(cyan);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
-	logicDeltaE=logicDetector;
+	logicalVolumes["DeltaE"]=logicDetector;
 	return logicWrapping;
 
 }
@@ -186,18 +179,21 @@ void JediCubicPolarimeter::DefineCommands() {
 
 void JediCubicPolarimeter::ConstructSDandField() {
 
-	if(CaloSD.Get()==0 and logicCaloCrystal){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter",2);
-		CaloSD.Put(SD);
+/*	if(CaloSD.find("Calorimeter")==CaloSD.end()){
+		CaloSD["Calorimeter"]=new G4Cache<CaloSensitiveDetector>();
+	}*/
+
+	if (CaloSD["Calorimeter"].Get()==0 and logicalVolumes["CaloCrystal"]){
+		CaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
 	}
 
-	if(deltaESD.Get()==0 and logicDeltaE){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE",2);
-		deltaESD.Put(SD);
+	if (CaloSD["DeltaE"].Get()==0 and logicalVolumes["DeltaE"]){
+		CaloSD["DeltaE"].Put(new CaloSensitiveDetector("DeltaE"));
 	}
-	if(logicDeltaE)
-		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
-	if(logicCaloCrystal)
-		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
+
+	if(logicalVolumes["CaloCrystal"])
+		SetSensitiveDetector(logicalVolumes["CaloCrystal"],CaloSD["Calorimeter"].Get());
+	if(logicalVolumes["DeltaE"])
+		SetSensitiveDetector(logicalVolumes["DeltaE"],CaloSD["DeltaE"].Get());
 
 }

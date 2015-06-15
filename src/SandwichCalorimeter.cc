@@ -45,7 +45,7 @@ G4LogicalVolume* SandwichCalorimeter::MakeCaloCrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 	logicAbsorber->SetVisAttributes(absorberVisAttr);
-	logicCaloCrystal=logicDetector;
+	logicalVolumes["CaloCrystal"]=logicDetector;
 	G4cout<<G4BestUnit(logicCrystal->GetMass(),"Mass")<<G4endl;
 	return logicCrystal;
 }

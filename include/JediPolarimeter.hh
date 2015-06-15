@@ -62,6 +62,8 @@
 #include <G4UnitsTable.hh>
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"
+
+#include <map>
 class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
 	JediPolarimeter(std::string _infile="");
@@ -88,7 +90,7 @@ public:
 			return;
 		}
 		scintillatorMaterial=newMat;
-		logicCaloCrystal->SetMaterial(scintillatorMaterial);
+		logicalVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
 		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 		return;
 	}
@@ -129,13 +131,9 @@ protected:
 	virtual void ComputeParameters();
 	virtual void UpdateGeometry();
 
-	G4Cache<CaloSensitiveDetector*> CaloSD;
-	G4Cache<TrackerSensitiveDetector*> TrackerSD;
-	G4Cache<CaloSensitiveDetector*> WindowSD;
-	G4Cache<CaloSensitiveDetector*> deltaESD;
-	G4LogicalVolume* logicCaloCrystal;
-	G4LogicalVolume* logicDeltaE;
-	G4LogicalVolume* logicExitWindow;
+	std::map<std::string,G4Cache<CaloSensitiveDetector*> > CaloSD;
+	std::map<std::string,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
+	std::map<std::string,G4LogicalVolume*> logicalVolumes;
 
 	std::string infile;
 };

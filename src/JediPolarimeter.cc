@@ -18,7 +18,7 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 
-JediPolarimeter::JediPolarimeter(std::string _infile):logicCaloCrystal(0),logicExitWindow(0),logicDeltaE(0),infile(_infile) {
+JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
@@ -59,34 +59,7 @@ JediPolarimeter::~JediPolarimeter() {
 	delete fMessenger;
 }
 
-void JediPolarimeter::ConstructSDandField() {
-	if(CaloSD.Get()==0 and logicCaloCrystal){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
-		CaloSD.Put(SD);
-	}
-	if(TrackerSD.Get()==0 and false){
-		TrackerSensitiveDetector* SD=new TrackerSensitiveDetector("Tracker","TrackerHitsCollection");
-		TrackerSD.Put(SD);
-	}
-
-	if(WindowSD.Get()==0 and logicExitWindow){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("Window");
-		WindowSD.Put(SD);
-	}
-
-	if(deltaESD.Get()==0 and logicDeltaE){
-		CaloSensitiveDetector* SD=new CaloSensitiveDetector("dE");
-		deltaESD.Put(SD);
-	}
-	if(logicDeltaE)
-		SetSensitiveDetector(logicDeltaE,deltaESD.Get());
-	if(logicCaloCrystal)
-		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
-	/*
-	if(logicExitWindow)
-		SetSensitiveDetector(logicExitWindow,WindowSD.Get());
-	 */
-}
+void JediPolarimeter::ConstructSDandField() {}
 
 void JediPolarimeter::ComputeParameters() {
 	//crystalWidth+=2*CLHEP::mm;
@@ -146,7 +119,7 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(targetChamberZ2-targetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(targetChamberZ2-targetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	logicExitWindow=logicTargetChamber;
+	logicalVolumes["logicExitWindow"]=logicTargetChamber;
 	return logicTargetChamber;
 }
 

@@ -44,7 +44,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	*/
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	logicCaloCrystal=logicDetector;
+	logicalVolumes["CaloCrystal"]=logicDetector;
 	return logicDetector;
 }
 

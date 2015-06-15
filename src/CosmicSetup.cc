@@ -61,17 +61,19 @@ void CosmicSetup::DefineCommands() {
 
 void CosmicSetup::ConstructSDandField() {
 
-	if(CaloSD.Get()==0 and logicCaloCrystal){
-			CaloSensitiveDetector* SD=new CaloSensitiveDetector("Calorimeter");
-			CaloSD.Put(SD);
-		}
-	if(logicCaloCrystal){
-		SetSensitiveDetector(logicCaloCrystal,CaloSD.Get());
+	if (CaloSD.find("Calorimeter")==CaloSD.end() and logicalVolumes["CaloCrystal"]){
+		CaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
 	}
-	if(logicTrigger and triggerSD.Get()==0){
-		triggerSD.Put(new CaloSensitiveDetector("Trigger"));
+
+	if (CaloSD.find("Trigger")==CaloSD.end() and logicalVolumes["Trigger"]){
+		CaloSD["Trigger"].Put(new CaloSensitiveDetector("Trigger"));
 	}
-	if(logicTrigger)
-		SetSensitiveDetector(logicTrigger,triggerSD.Get());
+
+	if(logicalVolumes["CaloCrystal"])
+		SetSensitiveDetector(logicalVolumes["CaloCrystal"],CaloSD["Calorimeter"].Get());
+
+	if(logicalVolumes["Trigger"])
+		SetSensitiveDetector(logicalVolumes["Trigger"],CaloSD["Trigger"].Get());
+
 	return;
 }
