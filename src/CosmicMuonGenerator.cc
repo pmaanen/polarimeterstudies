@@ -19,9 +19,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 	functions=new function_helper;
 	angle=new TF1("cos_squared",functions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
 	momentumAmp=new TF1("energy",functions,&function_helper::energy,0,20,0,"function_helper","energy");
-
-	position=pgun->GetParticlePosition();
-
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
 	G4GenericMessenger::Command& spotsizeCmd
 	= fMessenger->DeclareProperty("spotsize", spotsize, "spotsize of muon gun");
@@ -95,6 +92,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 }
 
 void CosmicMuonGenerator::Initialize() {
+	position=pGun->GetParticlePosition();
 	myTupleId.clear();
 	myHistoId.clear();
 	Analysis* an=Analysis::Instance();
