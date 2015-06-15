@@ -5,6 +5,7 @@
 #include "global.hh"
 #include "DCElasticEventGenerator.hh"
 #include "DCBreakupEventGenerator.hh"
+#include "DCElasticTimeDependentGenerator.hh"
 #include "CosmicMuonGenerator.hh"
 //Geant headers
 #include <G4ParticleTable.hh>
@@ -204,7 +205,7 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 {
 	auto oldmode=this->_mode;
 	this->_mode = static_cast<GeneratorMode>(mode);
-	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC or _mode==DCBREAKUP or _mode==MUON)){
+	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC or _mode==DCBREAKUP or _mode==MUON or _mode==DCELASTICWITHTIME)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
@@ -224,13 +225,24 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 		}
 	}
 	if(_mode==MUON and !dynamic_cast<CosmicMuonGenerator*>(evtGen)){
+		if(evtGen)
+			delete evtGen;
 		evtGen=new CosmicMuonGenerator(_pGun);
 	}
 	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(evtGen)){
+		if(evtGen)
+			delete evtGen;
 		evtGen=new DCElasticEventGenerator(_pGun);
 	}
 	if(_mode==DCBREAKUP and !dynamic_cast<DCBreakupEventGenerator*>(evtGen)){
+		if(evtGen)
+			delete evtGen;
 		evtGen=new DCBreakupEventGenerator(_pGun);
+	}
+	if(_mode==DCELASTICWITHTIME and !dynamic_cast<DCElasticTimeDependentGenerator*>(evtGen)){
+		if(evtGen)
+			delete evtGen;
+		evtGen=new DCElasticTimeDependentGenerator(_pGun);
 	}
 }
 
@@ -275,6 +287,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		evtGen->Generate(E);
 		break;
 	case MUON:
+		evtGen->Generate(E);
+		break;
+	case DCELASTICWITHTIME:
 		evtGen->Generate(E);
 		break;
 	default:

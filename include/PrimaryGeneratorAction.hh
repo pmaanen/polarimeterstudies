@@ -39,6 +39,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 						iss>>ev>>id>>px>>py>>pz>>vx>>vy>>vz>>t;
 						px*=CLHEP::GeV,py*=CLHEP::GeV,pz*=CLHEP::GeV;
 						thisParticle=PrimaryParticle(id,px,py,pz);
+						thisEvent.t=t;
+						thisEvent.vx=vx;
+						thisEvent.vy=vy;
+						thisEvent.vz=vz;
 						if(ev!=iEvent){
 							evCache.push_back(thisEvent);
 							thisEvent.particles.clear();
@@ -62,7 +66,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 		std::list<PrimaryEvent> evCache;
 	};
 public:
-	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5,MUON=6};
+	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5,MUON=6,DCELASTICWITHTIME=7};
 
 	~PrimaryGeneratorAction();
 	PrimaryGeneratorAction() ;
