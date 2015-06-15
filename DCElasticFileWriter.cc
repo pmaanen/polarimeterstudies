@@ -1,3 +1,4 @@
+
 #define FILEWRITER
 #define MAIN
 #include "global.hh"
@@ -23,7 +24,7 @@
 
 #include <FTFP_BERT.hh>
 
-#include "FileWriterPrimaryGeneratorAction.hh"
+#include <FileWriterPrimaryGeneratorAction.hh>
 
 #include <signal.h>
 namespace CLHEP {}

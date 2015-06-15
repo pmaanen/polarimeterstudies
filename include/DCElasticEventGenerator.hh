@@ -20,7 +20,7 @@
 #include <G4UnitsTable.hh>
 class G4ParticleDefinition;
 class G4GenericMessenger;
-class elastic_scattering_modell;
+class elastic_scattering_model;
 class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
 	DCElasticEventGenerator(G4ParticleGun* pgun=0);
@@ -33,13 +33,13 @@ public:
 	virtual void beginOfRun(){};
 	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
 	if(cross_section)
-		cross_section->SetParameter(1,beamPolarization);
+		cross_section->SetParameter(2,beamPolarization);
 	}
 protected:
 
 	Double_t momentum_cms,beamPolarization;
 	G4GenericMessenger* fMessenger;
-	elastic_scattering_modell* scattering_modell;
+	elastic_scattering_model* scattering_model;
 	TF2* cross_section;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
@@ -54,10 +54,10 @@ protected:
 //Note: The root classes use GeV
 //Sigma=SigmaUnpol*(1+Ay*Py*cos(phi))
 
-class elastic_scattering_modell{
+class elastic_scattering_model{
 public:
 	Double_t sigma(Double_t *x, Double_t *par);
-	elastic_scattering_modell();
+	elastic_scattering_model();
 private:
 	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
 	//quick conversion for theta_cm to momentum transfer
