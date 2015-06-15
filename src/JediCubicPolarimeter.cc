@@ -143,7 +143,10 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	}
 
 	int ii=0;
-
+	geomCache.clear();
+	std::stringstream buf;
+	buf<<crystalWidth<<" "<<crystalWidth<<" "<<" "<<crystalLength;
+	geomCache.push_back(buf.str());
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
@@ -156,7 +159,8 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 			if(phi<0)
 				phi+=360*CLHEP::deg;
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, ++ii, false);
-			G4cout<<ii<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z()<<G4endl;
+			buf<<ii<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
+			geomCache.push_back(buf.str());
 			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, ii, false);
 		}
 	}

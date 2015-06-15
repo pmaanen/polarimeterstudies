@@ -131,6 +131,8 @@ protected:
 	virtual void ComputeParameters();
 	virtual void UpdateGeometry();
 
+	std::vector<std::string> geomCache;
+
 	std::map<std::string,G4Cache<CaloSensitiveDetector*> > CaloSD;
 	std::map<std::string,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
 	std::map<std::string,G4LogicalVolume*> logicalVolumes;

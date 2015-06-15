@@ -7,6 +7,7 @@
 
 #include <JediPolarimeter.hh>
 #include <G4UnionSolid.hh>
+#include <fstream>
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -34,7 +35,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	thetaMin=5*CLHEP::deg;
 	thetaMax=20*CLHEP::deg;
 
-	beampipeRadius=10*CLHEP::cm;
+	beampipeRadius=5*CLHEP::cm;
 	beampipeThickness=2*CLHEP::mm;
 
 	crystalLength=10*CLHEP::cm;
@@ -231,9 +232,32 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 
 	G4Box* solidTarget=new G4Box("Target",targetWidth/2,targetWidth/2,targetThickness/2);
 	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
-	new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
+	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
 
 	return physiWorld;
+}
+
+void JediPolarimeter::WriteWorldToFile(G4String filename) {
+
+	if(filename.contains(".gdml")){
+		//TODO: gdml yaddayadda
+	}
+	else{
+		std::streambuf * buf;
+		std::ofstream outFile;
+		if(filename!=""){
+			outFile.open(filename.data());
+			buf = outFile.rdbuf();
+		}
+		else{
+			buf=std::cout.rdbuf();
+		}
+		std::ostream out(buf);
+		for(auto line:geomCache){
+			out<<line<<std::endl;
+		}
+	}
+
 }
 
 void JediPolarimeter::UpdateGeometry(){
