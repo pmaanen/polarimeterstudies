@@ -5,8 +5,10 @@
  *      Author: pmaanen
  */
 
-#include "FileWriterPrimaryGeneratorAction.hh"
+#include <FileWriterPrimaryGeneratorAction.hh>
 #include "DCElasticEventGenerator.hh"
+#include "DCBreakupEventGenerator.hh"
+#include "DCElasticTimeDependentGenerator.hh"
 #include "CosmicMuonGenerator.hh"
 #include "G4AutoLock.hh"
 
@@ -14,10 +16,11 @@ namespace { G4Mutex FileWriterMutex = G4MUTEX_INITIALIZER; }
 
 FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fileWriter = 0;
 
-FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),evtGen(new DCElasticEventGenerator){
+FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),evtGen(new DCElasticTimeDependentGenerator){
 	G4AutoLock lock(&FileWriterMutex);
-	if(!fileWriter)
-		fileWriter=new FileWriter(fileName,nEvents);
+	if(!fileWriter){
+			fileWriter=new FileWriter(fileName,nEvents);
+	}
 }
 
 void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
@@ -66,4 +69,9 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
 
 FileWriterPrimaryGeneratorAction::~FileWriterPrimaryGeneratorAction() {
 	delete evtGen;
+	G4AutoLock lock(&FileWriterMutex);
+		if(fileWriter){
+				delete fileWriter;
+				fileWriter=0;
+		}
 }
