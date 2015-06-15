@@ -8,8 +8,13 @@
 #include <DCBreakupEventGenerator.hh>
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
+#include "TMath.h"
 #include "G4ParticleGun.hh"
-DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun) {
+
+static double DegToRad=3.14159265359/180.;
+static double RadToDeg=1/DegToRad;
+
+DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun),cross_section(0) {
 	beamEnergy=235.*CLHEP::MeV;
 	Initialized=false;
 
@@ -23,7 +28,11 @@ DCBreakupEventGenerator::~DCBreakupEventGenerator() {
 }
 
 TF2* DCBreakupEventGenerator::BuildFunction() {
-	cross_section=new TF2("tf1","sin(x)*exp(-x)",0,100,0,100);
+	scattering_model=new deuteron_breakup_model;
+	cross_section=new TF2("xsec",scattering_model,&deuteron_breakup_model::sigma,3.,30.,0.,360.,3,"MyFunction","sigma");
+	cross_section->SetParName(0,"Energy");
+	cross_section->SetParName(1,"Momentum");
+	cross_section->SetParName(2,"Polarization");
 	return cross_section;
 }
 
@@ -44,7 +53,15 @@ void DCBreakupEventGenerator::Initialize() {
 	ps.SetDecay(cms, 3, masses);
 	if(!cross_section)
 		BuildFunction();
-	//MaxY=SigmaFunc->GetMaximum();
+	TLorentzVector temp=beam;
+	temp.Boost(-cms.BoostVector());
+	momentum_cms=temp.Vect().Mag();
+	if(!cross_section)
+			BuildFunction();
+	cross_section->SetParameter(0,beamEnergy/CLHEP::MeV);
+	cross_section->SetParameter(1,momentum_cms);
+	cross_section->SetParameter(2,beamPolarization);
+	MaxY=cross_section->GetMaximum();
 	Initialized=true;
 }
 
@@ -100,18 +117,72 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 
 		//Set angular cut in lab-frame
 		if(th_scattered>thetaMin and th_scattered<thetaMax){
-				PrimaryEvent res;
+
+			//Boost momentum of deuteron from lab-sytem to cm-system.
+			TVector3 CMv = cms.BoostVector();     // in case beam simulation
+
+			proton_4.Boost(-CMv);          // in case beam simulation
+			//retrieve polar scattering angle for deuteron in cm-frame
+			G4double CM_theta_scattered = proton_4.Theta()*CLHEP::rad;
+			G4double acc=MaxY*G4UniformRand();
+			if(cross_section->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg,0)<acc) continue;
+			PrimaryEvent res;
 
 
-				PrimaryParticle a(2212,1.,1.,1.);
-				res.particles.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
-				res.particles.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
-				res.particles.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
-				G4cout<<"BREAKUP!"<<G4endl;
-				//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
-				//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
-				//Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
-				return res;
-			}
+			PrimaryParticle a(2212,1.,1.,1.);
+			res.particles.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
+			res.particles.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
+			res.particles.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
+			//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
+			//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
+			//Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
+			return res;
 		}
+	}
+}
+deuteron_breakup_model::deuteron_breakup_model(){}
+Double_t deuteron_breakup_model::sigma(Double_t* x, Double_t* par) {
+	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[2],0)*cos(x[1]*DegToRad));
+}
+
+Double_t deuteron_breakup_model::SigmaUnpol(Double_t E, Double_t theta,
+		Double_t Ex) {
+	if(Ex>(c2(theta,E)-c3(theta)*c4(theta)))
+		return c1(theta,E)*exp(-pow(Ex-c2(theta,E),2)/(2*c3(theta)*c3(theta)));
+	else
+		return c1(theta,E)*exp(-c4(theta)*c4(theta)/2.)*exp(-(c5(theta)*(c2(theta,E-c4(theta)*c3(theta)-Ex)))/c3(theta));
+
+}
+
+Double_t deuteron_breakup_model::c1(Double_t theta,Double_t E) {
+	return sqrt(113./E)*exp(1.5586-0.07178*(theta-40)+4.0733e-4*pow(theta-40,2));
+}
+
+Double_t deuteron_breakup_model::c2(Double_t theta, Double_t E) {
+	return sqrt(113./E)*(62.214+0.30061*(theta-40)-0.004704*pow(theta-40,2));
+}
+
+Double_t deuteron_breakup_model::c3(Double_t theta) {
+	return 14.384-0.048676*(theta-40);
+}
+
+Double_t deuteron_breakup_model::c4(Double_t theta) {
+	return 0.74342+0.0069414*(theta-40);
+}
+
+Double_t deuteron_breakup_model::c5(Double_t theta) {
+	return c3(theta)*(0.070367-3.3534e-4*(theta-40)+1.1845e-5*(theta-40)*(theta-40)+1.1436e-6*pow(theta-40,3));
+}
+
+Double_t deuteron_breakup_model::Ay(Double_t E, Double_t theta,
+		Double_t Ex) {
+	return d1(theta,E)+d2(theta,E)*(Ex-E/2.);
+}
+
+Double_t deuteron_breakup_model::d1(Double_t theta, Double_t E) {
+	return -1280./E/E+0.528*theta/E;
+}
+
+Double_t deuteron_breakup_model::d2(Double_t theta, Double_t E) {
+	return -7.35/pow(E,3./2.)+6.2e-5*(theta-40)+11.7/pow(E,3)*pow(theta-40,2)-3.1e-7*pow(theta-40,3);
 }
