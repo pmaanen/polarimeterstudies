@@ -147,6 +147,8 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	std::stringstream buf;
 	buf<<crystalWidth<<" "<<crystalWidth<<" "<<" "<<crystalLength;
 	geomCache.push_back(buf.str());
+	buf.clear();
+	buf.str(std::string());
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
 	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
@@ -161,6 +163,8 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, ++ii, false);
 			buf<<ii<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			geomCache.push_back(buf.str());
+			buf.clear();
+			buf.str(std::string());
 			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, ii, false);
 		}
 	}
@@ -182,10 +186,6 @@ void JediCubicPolarimeter::DefineCommands() {
 }
 
 void JediCubicPolarimeter::ConstructSDandField() {
-
-/*	if(CaloSD.find("Calorimeter")==CaloSD.end()){
-		CaloSD["Calorimeter"]=new G4Cache<CaloSensitiveDetector>();
-	}*/
 
 	if (CaloSD["Calorimeter"].Get()==0 and logicalVolumes["CaloCrystal"]){
 		CaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
