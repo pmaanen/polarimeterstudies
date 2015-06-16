@@ -213,6 +213,11 @@ void JediPolarimeter::DefineCommands() {
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);
 
+	G4GenericMessenger::Command& dumpCmd
+	= fMessenger->DeclareMethod("dump",&JediPolarimeter::WriteWorldToFile,"dump geometry to file");
+
+	dumpCmd.SetParameterName("filename",true);
+
 	return;
 
 }

@@ -71,7 +71,7 @@ public:
 	virtual G4VPhysicalVolume* Construct();
 
 	//Dump world to gdml file.
-	void WriteWorldToFile(G4String filename);
+	void WriteWorldToFile(G4String filename="");
 	virtual void ConstructSDandField();
 	//Setters for properties
 	void setBeampipeRadius(G4double beampipeRadius) {this->beampipeRadius = beampipeRadius;	changedParameters=true;	}
