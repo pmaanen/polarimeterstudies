@@ -34,16 +34,4 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun) {
 
 PhaseSpaceGenerator::~PhaseSpaceGenerator() {}
 
-void PhaseSpaceGenerator::DefineCommands() {
-
-	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/dcElastic/",
-			"DC event generator control");
-
-	G4GenericMessenger::Command& enCmd
-	= fMessenger->DeclareMethodWithUnit("energy","MeV",
-			&PhaseSpaceGenerator::setBeamEnergy,
-			"Set beam energy");
-	enCmd.SetParameterName("energy",false,false);
-	//enCmd.SetRange("energy>50. && energy<300.");
-}
+void PhaseSpaceGenerator::DefineCommands() {}

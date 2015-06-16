@@ -48,14 +48,18 @@ using namespace CLHEP;
 
 namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 
-PrimaryGeneratorAction::FileReader* PrimaryGeneratorAction::fileReader = 0;
+FileReader* PrimaryGeneratorAction::fileReader = 0;
 PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),_infile(""),_instream("",std::ifstream::in) {
 	_mode=GUN;
 	G4int Nparticle = 1 ;
 	_pGun = new G4ParticleGun(Nparticle);
 	illuminationAngle=-1;
 	DefineCommands();
-	evtGen=new CosmicMuonGenerator(_pGun);
+	evtGenerators["muon"]=new CosmicMuonGenerator(_pGun);
+	evtGenerators["dcelastic"]=new DCElasticEventGenerator(_pGun);
+	evtGenerators["dcbreakup"]=new DCBreakupEventGenerator(_pGun);
+	evtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(_pGun);
+	evtGen=evtGenerators["muon"];
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
@@ -221,28 +225,20 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 		else{
 			G4AutoLock lock(&PrimaryGeneratorMutex);
 			if(!fileReader)
-				fileReader = new PrimaryGeneratorAction::FileReader(_infile);
+				fileReader = new FileReader(_infile);
 		}
 	}
 	if(_mode==MUON and !dynamic_cast<CosmicMuonGenerator*>(evtGen)){
-		if(evtGen)
-			delete evtGen;
-		evtGen=new CosmicMuonGenerator(_pGun);
+		evtGen=evtGenerators["muon"];
 	}
 	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(evtGen)){
-		if(evtGen)
-			delete evtGen;
-		evtGen=new DCElasticEventGenerator(_pGun);
+		evtGen=evtGenerators["dcelastic"];
 	}
 	if(_mode==DCBREAKUP and !dynamic_cast<DCBreakupEventGenerator*>(evtGen)){
-		if(evtGen)
-			delete evtGen;
-		evtGen=new DCBreakupEventGenerator(_pGun);
+		evtGen=evtGenerators["dcbreakup"];
 	}
 	if(_mode==DCELASTICWITHTIME and !dynamic_cast<DCElasticTimeDependentGenerator*>(evtGen)){
-		if(evtGen)
-			delete evtGen;
-		evtGen=new DCElasticTimeDependentGenerator(_pGun);
+		evtGen=evtGenerators["dcelastictime"];
 	}
 }
 
