@@ -186,3 +186,12 @@ Double_t deuteron_breakup_model::d1(Double_t theta, Double_t E) {
 Double_t deuteron_breakup_model::d2(Double_t theta, Double_t E) {
 	return -7.35/pow(E,3./2.)+6.2e-5*(theta-40)+11.7/pow(E,3)*pow(theta-40,2)-3.1e-7*pow(theta-40,3);
 }
+
+void DCBreakupEventGenerator::DefineCommands() {
+	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCbreakup/", "breakup event generator control");
+	G4GenericMessenger::Command& polCmd
+	= fMessenger->DeclareMethod("polarization", &DCBreakupEventGenerator::setBeamPolarization, "beam polarization");
+
+	G4GenericMessenger::Command& eneCmd
+	= fMessenger->DeclareMethod("energy", &DCBreakupEventGenerator::setBeamEnergy, "beam energy");
+}

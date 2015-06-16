@@ -22,9 +22,15 @@ protected:
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
 
+	virtual void DefineCommands();
 	Double_t momentum_cms,beamPolarization;
 	deuteron_breakup_model* scattering_model;
 	TF2* cross_section;
+
+	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
+	if(cross_section)
+		cross_section->SetParameter(2,beamPolarization);
+	}
 };
 
 
