@@ -10,13 +10,13 @@
 #include "TF1.h"
 #include "Analysis.hh"
 DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator(G4ParticleGun* pgun):DCElasticEventGenerator(pgun) {
-
-	fct_helper=new time_functions;
-	polarization_time_dependence=new TF1("polarization_time_dependence",fct_helper,&time_functions::polarization_time_dependence,0,1000,0,"time_functions","polarization_time_dependence");
-	intensity_time_dependence=new TF1("intensity_time_dependence",fct_helper,&time_functions::intensity_time_dependence,0,1000,0,"time_functions","intensity_time_dependence");
 	t_min=0;
-	t_max=1000;
+	t_max=100;
 	tau=1;
+	t_cur=0;
+	fct_helper=new time_functions(t_max,t_min,tau);
+	polarization_time_dependence=new TF1("polarization_time_dependence",fct_helper,&time_functions::polarization_time_dependence,t_min,t_max,0,"time_functions","polarization_time_dependence");
+	intensity_time_dependence=new TF1("intensity_time_dependence",fct_helper,&time_functions::intensity_time_dependence,t_min,t_max,0,"time_functions","intensity_time_dependence");
 	Initialized=false;
 }
 
@@ -28,16 +28,17 @@ DCElasticTimeDependentGenerator::~DCElasticTimeDependentGenerator() {
 PrimaryEvent DCElasticTimeDependentGenerator::Generate() {
 	if(!Initialized)
 		Initialize();
-	G4double cur_time=0;
+	G4double delta_t;
 	while(true){
-		cur_time=t_min+(t_max-t_min)*G4UniformRand();
-		G4double acc=G4UniformRand()*intensity_time_dependence->GetMaximum(0,1000);
-		if(intensity_time_dependence->Eval(cur_time)>acc)
+		delta_t=t_cur+(t_max-t_cur)*G4UniformRand();
+		G4double acc=G4UniformRand()*intensity_time_dependence->GetMaximum(t_min,t_max);
+		if(intensity_time_dependence->Eval(delta_t)>acc)
 			break;
 	}
-	setBeamPolarization(polarization_time_dependence->Eval(cur_time)/t_max);
+	t_cur+=delta_t;
+	setBeamPolarization(polarization_time_dependence->Eval(t_cur));
 	auto event=PrimaryEvent(DCElasticEventGenerator::Generate());
-	event.t=cur_time;
+	event.t=t_cur;
 	return event;
 }
 
@@ -58,8 +59,9 @@ void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],pGun->GetParticlePosition().getX()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],pGun->GetParticlePosition().getY()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[9],pGun->GetParticleTime()/CLHEP::s);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[10],this->beamPolarization);
 		an->AddNtupleRow(myTupleId[0]);
-
 	}
 	return;
 }

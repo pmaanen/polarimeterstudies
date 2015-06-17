@@ -24,20 +24,24 @@ private:
 	TF1* intensity_time_dependence;
 
 	time_functions* fct_helper;
-	G4double t_min,t_max,tau;
+	G4double t_min,t_max,tau,t_cur;
 	void Initialize();
 
 
 };
 
 class time_functions{
+	time_functions(Double_t max,Double_t min,Double_t t):t_max(max),t_min(min),tau(t){};
 public:
 	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
-		return x[0];
+		return x[0]/(t_max)*2/3;
 	}
 	Double_t intensity_time_dependence(Double_t* x,Double_t *par){
-		return exp(-x[0]/400.);
+		return exp(-x[0]/tau)/tau;
 	}
+
+private:
+	Double_t t_max,t_min,tau;
 
 };
 
