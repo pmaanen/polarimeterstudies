@@ -100,12 +100,10 @@ public:
 				}
 				currentEventId++;
 			}
-			outTree->Write();
-			outFile->Write();
 			return true;
 
 		};
-		virtual ~FileWriter_root(){outFile->Write();outFile->Close(); delete outFile;};
+		virtual ~FileWriter_root(){outTree->Write();outFile->Write(); delete outTree; outFile->Close(); delete outFile;};
 	private:
 		TFile* outFile;
 		TTree* outTree;
