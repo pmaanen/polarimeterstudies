@@ -22,6 +22,7 @@ CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiF
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"edep"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
 	an->FinishNtuple(myTupleId[0]);
 }
 
@@ -38,6 +39,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 				an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
 				an->FillNtupleIColumn(myTupleId[0],myTupleId[2],itr->first);
 				an->FillNtupleFColumn(myTupleId[0],myTupleId[3],*(itr->second)/CLHEP::MeV);
+				an->FillNtupleFColumn(myTupleId[0],myTupleId[4],0);
 				an->AddNtupleRow(myTupleId[0]);
 			}
 			catch(myG4Exception& exc){

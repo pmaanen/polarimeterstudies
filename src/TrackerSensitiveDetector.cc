@@ -84,6 +84,7 @@ void TrackerSensitiveDetector::Initialize(G4HCofThisEvent* hce)
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"x"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"y"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"z"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
 	an->FinishNtuple(myTupleId[0]);
 	runInitialized=true;
 	}
@@ -107,7 +108,9 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
 
-	newHit->SetTof(preStepPoint->GetGlobalTime());
+
+	newHit->SetDetId(theTouchable->GetCopyNumber(2));
+	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::s);
 	G4ThreeVector worldPosition = preStepPoint->GetPosition();
 
 	newHit->SetPos(worldPosition);
@@ -141,6 +144,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],(*fHitsCollection)[ii]->GetPos().x()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],(*fHitsCollection)[ii]->GetPos().y()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],(*fHitsCollection)[ii]->GetPos().z()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],(*fHitsCollection)[ii]->GetTof());
 		an->AddNtupleRow(myTupleId[0]);
 	}
 	/*
