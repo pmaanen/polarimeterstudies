@@ -188,11 +188,11 @@ void JediCubicPolarimeter::DefineCommands() {
 void JediCubicPolarimeter::ConstructSDandField() {
 
 	if (CaloSD["Calorimeter"].Get()==0 and logicalVolumes["CaloCrystal"]){
-		CaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
+		CaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter",2));
 	}
 
 	if (CaloSD["DeltaE"].Get()==0 and logicalVolumes["DeltaE"]){
-		CaloSD["DeltaE"].Put(new CaloSensitiveDetector("DeltaE"));
+		CaloSD["DeltaE"].Put(new CaloSensitiveDetector("DeltaE",2));
 	}
 
 	if(logicalVolumes["CaloCrystal"])
