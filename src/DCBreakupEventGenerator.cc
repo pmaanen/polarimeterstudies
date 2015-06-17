@@ -62,6 +62,20 @@ void DCBreakupEventGenerator::Initialize() {
 	cross_section->SetParameter(1,momentum_cms);
 	cross_section->SetParameter(2,beamPolarization);
 	MaxY=cross_section->GetMaximum();
+
+	Analysis* an=Analysis::Instance();
+	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
+	an->FinishNtuple(myTupleId[0]);
+	Initialized=true;
+
 	Initialized=true;
 }
 
