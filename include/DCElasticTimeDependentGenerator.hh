@@ -31,8 +31,8 @@ private:
 };
 
 class time_functions{
-	time_functions(Double_t max,Double_t min,Double_t t):t_max(max),t_min(min),tau(t){};
 public:
+	time_functions(Double_t max,Double_t min,Double_t t):t_max(max),t_min(min),tau(t){};
 	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
 		return x[0]/(t_max)*2/3;
 	}
