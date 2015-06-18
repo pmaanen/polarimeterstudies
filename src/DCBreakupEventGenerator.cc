@@ -47,20 +47,19 @@ void DCBreakupEventGenerator::Initialize() {
 	Double_t m_target = G4IonTable::GetIonTable()->GetIon(6,12)->GetPDGMass()/CLHEP::GeV;
 	Double_t m_beam = G4Deuteron::DeuteronDefinition()->GetPDGMass()/CLHEP::GeV;
 	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
-	Double_t masses[3] = {particles[0]->GetPDGMass()/CLHEP::GeV,particles[1]->GetPDGMass()/CLHEP::GeV,particles[1]->GetPDGMass()/CLHEP::GeV} ;
+	Double_t masses[3] = {particles[0]->GetPDGMass()/CLHEP::GeV,particles[1]->GetPDGMass()/CLHEP::GeV,particles[2]->GetPDGMass()/CLHEP::GeV} ;
 	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
 	cms = beam + target;
-	ps.SetDecay(cms, 3, masses);
+	ps.SetDecay(cms, 3, masses); //first decay into p+13C
 	if(!cross_section)
 		BuildFunction();
 	TLorentzVector temp=beam;
 	temp.Boost(-cms.BoostVector());
 	momentum_cms=temp.Vect().Mag();
 	if(!cross_section)
-			BuildFunction();
+		BuildFunction();
 	cross_section->SetParameter(0,beamEnergy/CLHEP::MeV);
-	cross_section->SetParameter(1,momentum_cms);
-	cross_section->SetParameter(2,beamPolarization);
+	cross_section->SetParameter(1,beamPolarization);
 	MaxY=cross_section->GetMaximum();
 
 	Analysis* an=Analysis::Instance();
@@ -73,9 +72,8 @@ void DCBreakupEventGenerator::Initialize() {
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"Ex"));
 	an->FinishNtuple(myTupleId[0]);
-	Initialized=true;
-
 	Initialized=true;
 }
 
@@ -136,27 +134,27 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 			TVector3 CMv = cms.BoostVector();     // in case beam simulation
 
 			proton_4.Boost(-CMv);          // in case beam simulation
-			//retrieve polar scattering angle for deuteron in cm-frame
+			//retrieve polar scattering angle for proton in cm-frame
 			G4double CM_theta_scattered = proton_4.Theta()*CLHEP::rad;
+
+
+			G4double Ex=(beam.Energy()+target.Energy()-proton_4.Energy()-carbon_4.Energy()-neutron_4.Energy())*CLHEP::GeV-2.22*CLHEP::MeV;
+			if(Ex<0)
+				continue;
 			G4double acc=MaxY*G4UniformRand();
-			if(cross_section->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg,0)<acc) continue;
+
+			if(cross_section->Eval(th_scattered/CLHEP::deg,phi_scattered/CLHEP::deg,Ex)<acc) continue;
 			PrimaryEvent res;
-
-
-			PrimaryParticle a(2212,1.,1.,1.);
-			res.particles.push_back(PrimaryParticle(2212,proton_3.getX(),proton_3.getY(),proton_3.getZ()));
-			res.particles.push_back(PrimaryParticle(2112,neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
-			res.particles.push_back(PrimaryParticle(1000060120,carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
-			//Analysis::Instance()->FillH1(1, th_scattered/CLHEP::deg);
-			//Analysis::Instance()->FillH1(2, phi_scattered/CLHEP::deg);
-			//Analysis::Instance()->FillH1(3, th_scattered/CLHEP::deg,1/sin(th_scattered));
+			res.particles.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),proton_3.getX(),proton_3.getY(),proton_3.getZ()));
+			res.particles.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
+			res.particles.push_back(PrimaryParticle(particles[2]->GetPDGEncoding(),carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
 			return res;
 		}
 	}
 }
 deuteron_breakup_model::deuteron_breakup_model(){}
 Double_t deuteron_breakup_model::sigma(Double_t* x, Double_t* par) {
-	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[2],0)*cos(x[1]*DegToRad));
+	return SigmaUnpol(par[0],x[0],x[2])*(1+par[1]*Ay(par[0],x[0],x[2])*cos(x[1]*DegToRad));
 }
 
 Double_t deuteron_breakup_model::SigmaUnpol(Double_t E, Double_t theta,

@@ -26,7 +26,8 @@ protected:
 	Double_t momentum_cms,beamPolarization;
 	deuteron_breakup_model* scattering_model;
 	TF2* cross_section;
-
+	TGenPhaseSpace intermediate;
+	Double_t intermediate_masses[2];
 	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
 	if(cross_section)
 		cross_section->SetParameter(2,beamPolarization);
