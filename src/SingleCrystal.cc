@@ -19,6 +19,8 @@ yellow  (1.0, 1.0, 0.0); // yellow
 SingleCrystal::SingleCrystal():JediPolarimeter() {
 	crystalLength=500*CLHEP::cm;
 	crystalWidth=10*CLHEP::cm;
+
+	DefineCommands();
 }
 
 SingleCrystal::~SingleCrystal() {
