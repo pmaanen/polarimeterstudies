@@ -40,6 +40,8 @@ protected:
 	Double_t momentum_cms,beamPolarization;
 	G4GenericMessenger* fMessenger;
 	elastic_scattering_model* scattering_model;
+	G4double xprime,yprime,tiltx,tilty;
+	G4ThreeVector beamspot, spotsize;
 	TF2* cross_section;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.

@@ -20,11 +20,15 @@
 #include <math.h>
 #include "G4ParticleGun.hh"
 #include <signal.h>
+#include "Randomize.hh"
+
+#include "VertexGeneratorO.hh"
+#include "VertexGeneratorU.hh"
 using namespace CLHEP;
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),cross_section(0){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),cross_section(0),tiltx(0),tilty(0),xprime(0),yprime(0),beamspot(0,0,0),spotsize(0,0,0){
 	beamEnergy=235.*CLHEP::MeV;
 	beamPolarization=Double_t(2./3.);
 	Initialized=false;
@@ -83,6 +87,10 @@ void DCElasticEventGenerator::Initialize() {
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"t"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pol"));
 	an->FinishNtuple(myTupleId[0]);
+
+	VertexGeneratorO::GetInstance()->setBeamposition(0,0,0);
+	VertexGeneratorO::GetInstance()->setBeamsize(1*CLHEP::mm,1*CLHEP::mm,1*CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,5*CLHEP::mm);
 	Initialized=true;
 }
 
@@ -108,7 +116,9 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 
 void DCElasticEventGenerator::Generate(G4Event* E) {
 
+
 	auto event=PrimaryEvent(Generate());
+	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
@@ -124,7 +134,6 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[9],pGun->GetParticleTime()/CLHEP::s);
 		an->AddNtupleRow(myTupleId[0]);
-
 	}
 	return;
 }
@@ -133,7 +142,11 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 PrimaryEvent DCElasticEventGenerator::Generate() {
 	if(!Initialized)
 		Initialize();
+	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
+	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	while (1) {
+		beam.RotateX(tiltx+G4RandGauss::shoot(tiltx,xprime));
+		beam.RotateY(tilty+G4RandGauss::shoot(tilty,yprime));
 
 		//Sample an event assuming constant cross-section in cm-system
 		ps.Generate();
@@ -178,6 +191,9 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 			}
 			else {
 				PrimaryEvent res;
+				res.vx=pos.getX();
+				res.vy=pos.getY();
+				res.vz=pos.getZ();
 				res.particles.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
 				res.particles.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
