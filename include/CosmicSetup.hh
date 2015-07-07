@@ -30,6 +30,21 @@ public:
 		changedParameters=true;
 	}
 
+	void setPhi(G4double phi) {
+		this->phi = phi;
+		changedParameters=true;
+	}
+
+	void setPsi(G4double psi) {
+		this->psi = psi;
+		changedParameters=true;
+	}
+
+	void setTheta(G4double theta) {
+		this->theta = theta;
+		changedParameters=true;
+	}
+
 protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
@@ -37,7 +52,7 @@ protected:
 	G4Cache<CaloSensitiveDetector*> triggerSD;
 	G4LogicalVolume* logicTrigger;
 	std::vector<int> myTupleId;
-	G4double triggerLength,triggerWidth,triggerThickness;
+	G4double triggerLength,triggerWidth,triggerThickness,theta,phi,psi;
 };
 
 #endif /* INCLUDE_COSMICSETUP_HH_ */
