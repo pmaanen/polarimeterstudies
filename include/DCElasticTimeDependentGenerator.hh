@@ -18,6 +18,22 @@ public:
 
 	virtual PrimaryEvent Generate();
 	virtual void Generate(G4Event* E);
+	virtual void DefineCommands();
+
+	void setMax(G4double max) {
+		t_max = max;
+		Initialized=false;
+	}
+
+	void setMin(G4double min) {
+		t_min = min;
+		Initialized=false;
+	}
+
+	void setTau(G4double tau) {
+		this->tau = tau;
+		Initialized=false;
+	}
 
 private:
 	TF1* polarization_time_dependence;
@@ -32,17 +48,13 @@ private:
 
 class time_functions{
 public:
-	time_functions(Double_t max,Double_t min,Double_t t):t_max(max),t_min(min),tau(t){};
+	time_functions(Double_t max,Double_t min,Double_t t){};
 	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
-		return x[0]/(t_max)*2/3;
+		return x[0]/(par[0])*2/3;
 	}
 	Double_t intensity_time_dependence(Double_t* x,Double_t *par){
-		return exp(-x[0]/tau)/tau;
+		return exp(-x[0]/par[0]);
 	}
-
-private:
-	Double_t t_max,t_min,tau;
-
 };
 
 #endif /* INCLUDE_DCELASTICTIMEDEPENDENTGENERATOR_HH_ */
