@@ -95,6 +95,10 @@ public:
 					px=Float_t(iParticle.px/CLHEP::GeV);
 					py=Float_t(iParticle.py/CLHEP::GeV);
 					pz=Float_t(iParticle.pz/CLHEP::GeV);
+					vx=Float_t(iEvent.vx/CLHEP::mm);
+					vy=Float_t(iEvent.vy/CLHEP::mm);
+					vz=Float_t(iEvent.vz/CLHEP::mm);
+
 					t=Float_t(iEvent.t);
 					outTree->Fill();
 				}
