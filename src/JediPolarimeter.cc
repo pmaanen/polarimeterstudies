@@ -27,20 +27,22 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-
-	scintillatorMaterialName="G4_Galactic";
 	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	worldSizeXY=2*CLHEP::m;
 	worldSizeZ=10*CLHEP::m;
-	thetaMin=5*CLHEP::deg;
-	thetaMax=20*CLHEP::deg;
-
-	beampipeRadius=5*CLHEP::cm;
-	beampipeThickness=2*CLHEP::mm;
-
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=3*CLHEP::cm;
-
+	try{
+		scintillatorMaterialName=gConfig["detector.scintillatorMaterial"].as<std::string>();
+		thetaMin=gConfig["detector.thetamin"].as<double>()*CLHEP::mm*CLHEP::deg;
+		thetaMax=gConfig["detector.thetamax"].as<double>()*CLHEP::mm*CLHEP::deg;
+		beampipeRadius=gConfig["detector.beampipeRadius"].as<double>()*CLHEP::mm;
+		beampipeThickness=gConfig["detector.beampipeThickness"].as<double>()*CLHEP::mm;
+		crystalLength=gConfig["detector.crystalLength"].as<double>()*CLHEP::mm;
+		crystalWidth=gConfig["detector.crystalWidth"].as<double>()*CLHEP::mm;
+	}
+	catch(const std::exception& e){
+		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
+		throw e;
+	}
 	deltaELength=1*CLHEP::cm;
 	deltaEWidth=crystalWidth;
 
@@ -120,7 +122,7 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(targetChamberZ2-targetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(targetChamberZ2-targetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	logicalVolumes["logicExitWindow"]=logicTargetChamber;
+	caloSDVolumes["logicExitWindow"]=logicTargetChamber;
 	return logicTargetChamber;
 }
 
