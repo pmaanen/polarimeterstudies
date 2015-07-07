@@ -178,6 +178,7 @@ class G4ParticleGun;
 	G4double illuminationAngle;
 	static FileReader* fileReader;
 	std::map<G4String,EventGenerator*> evtGenerators;
+	G4String generatorName;
 
 	protected:
 

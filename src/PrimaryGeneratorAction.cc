@@ -60,6 +60,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	evtGenerators["dcbreakup"]=new DCBreakupEventGenerator(_pGun);
 	evtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(_pGun);
 	evtGen=evtGenerators["muon"];
+
+	_pGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
@@ -68,101 +70,14 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 
 void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 {
-
-	TLorentzVector target;
-	//TODO: Determine by config file
-	// Declare the supported options.
-	G4int PDGbeam,PDGtarget;
-	G4double T_beam;
-	try{
-		if(vm.count("generator.beam_particle"))
-			PDGbeam=vm["generator.beam_particle"].as<int>();
-		else
-			throw std::invalid_argument("beam particle not set.");
-		if(vm.count("generator.target_particle"))
-			PDGtarget=vm["generator.target_particle"].as<int>();
-		else
-			throw std::invalid_argument("target particle not set.");
-		if(vm.count("generator.beam_energy"))
-			T_beam = vm["generator.beam_energy"].as<double>()*MeV;
-		else
-			throw std::invalid_argument("beam energy not set.");
-
+	if(evtGenerators.count(generatorName)==0){
+		std::stringstream message;
+		message<<"event generator "<<generatorName<<" is not known.";
+		G4Exception("PrimaryGeneratorAction::generateEventFromPhaseSpace","NO_SUCH_GENERATOR",RunMustBeAborted,message.str().c_str());
+		return;
 	}
-	catch(const std::exception & exc){
-		std::stringstream o;
-		o<<"Parsing of config file failed with "<<exc.what()<<G4endl;
-		G4Exception("EventGenerator::generateEventFromPhaseSpace", "ConfigurationError", FatalException,
-				o.str().c_str());
-
-	}
-	G4ParticleDefinition * beam_particle=G4ParticleTable::GetParticleTable()->FindParticle(PDGbeam);
-	G4ParticleDefinition * target_particle=G4ParticleTable::GetParticleTable()->FindParticle(PDGtarget);
-	Double_t m_beam = beam_particle->GetPDGMass()/GeV;
-	Double_t m_target = target_particle->GetPDGMass()/GeV;
-	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
-
-	TLorentzVector beam;
-	Double_t masses[2] = {m_beam, m_target} ;
-	TGenPhaseSpace event;
-	Analysis* an=Analysis::Instance();
-	while (1) {
-
-		beam.SetPxPyPzE(0, 0, sqrt(T_beam*(T_beam+2*m_beam)), T_beam+m_beam);
-
-		TLorentzVector W = beam + target;
-		event.SetDecay(W, 2, masses);
-		//Sample an event assuming constant cross-section in cm-system
-		event.Generate();
-
-		//L-vector of recoil particle in lab-frame
-		TLorentzVector precoil_4 = *event.GetDecay(1) ;
-
-		//L-vector of scattered particle in lab-frame
-		TLorentzVector pscattered_4 = *event.GetDecay(0) ;
-
-		//spatial parts of generated L-vectors
-		G4ThreeVector precoil_3(precoil_4.Vect().X()*GeV,precoil_4.Vect().Y()*GeV,precoil_4.Vect().Z()*GeV);
-		G4ThreeVector pscattered_3(pscattered_4.Vect().X()*GeV,pscattered_4.Vect().Y()*GeV,pscattered_4.Vect().Z()*GeV);
-
-		//Magnitude of spatial vectors
-		//G4double momentum_recoil  = precoil_3.mag();
-		//G4double momentum_scattered  = pscattered_3.mag();
-
-
-		//Polar angle for deuteron in lab-frame (degrees)
-		G4double th_scattered  = pscattered_3.getTheta()-beam.Theta();
-		//Polar angle for proton in lab-frame (degrees)
-		//G4double th_recoil  = precoil_3.getTheta();
-		//G4double phi_scattered = pscattered_3.getPhi();
-		//G4double phi_recoil = precoil_3.getPhi();
-
-		//Set angular cut in lab-frame
-		if(true){ // continue;
-
-			//Boost momentum of deuteron from lab-sytem to cm-system.
-			TVector3 CMv = W.BoostVector();     // in case beam simulation
-			pscattered_4.Boost(-CMv);          // in case beam simulation
-			//retrieve polar scattering angle for deuteron in cm-frame
-			//Double_t CM_theta_scattered = pscattered_4.Theta();
-
-
-			//TODO: Implement Hit or Miss
-			//
-			if(false) continue;
-			else {
-				this->_pGun->SetParticleDefinition(beam_particle);
-				this->_pGun->SetParticleMomentum(pscattered_3);
-				this->_pGun->GeneratePrimaryVertex(E);
-				this->_pGun->SetParticleDefinition(target_particle);
-				this->_pGun->SetParticleMomentum(precoil_3);
-				this->_pGun->GeneratePrimaryVertex(E);
-				break;
-
-			}
-		}
-	}
-
+	else evtGenerators[generatorName]->Generate(E);
+	return;
 }
 
 void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
@@ -209,7 +124,7 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 {
 	auto oldmode=this->_mode;
 	this->_mode = static_cast<GeneratorMode>(mode);
-	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE or _mode==DCELASTIC or _mode==DCBREAKUP or _mode==MUON or _mode==DCELASTICWITHTIME)){
+	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE)){
 		std::stringstream o;
 		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
@@ -219,7 +134,7 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 	if(_mode==INPUTFILE){
 		if(_infile==""){
 			G4Exception("[EventGenerator]", "setMode", JustWarning,
-					" ERROR: Set input file before switching mode.");
+					" ERROR: Set input file before switching mode. Command ignored");
 			this->_mode=oldmode;
 		}
 		else{
@@ -227,18 +142,6 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 			if(!fileReader)
 				fileReader = new FileReader(_infile);
 		}
-	}
-	if(_mode==MUON and !dynamic_cast<CosmicMuonGenerator*>(evtGen)){
-		evtGen=evtGenerators["muon"];
-	}
-	if(_mode==DCELASTIC and !dynamic_cast<DCElasticEventGenerator*>(evtGen)){
-		evtGen=evtGenerators["dcelastic"];
-	}
-	if(_mode==DCBREAKUP and !dynamic_cast<DCBreakupEventGenerator*>(evtGen)){
-		evtGen=evtGenerators["dcbreakup"];
-	}
-	if(_mode==DCELASTICWITHTIME and !dynamic_cast<DCElasticTimeDependentGenerator*>(evtGen)){
-		evtGen=evtGenerators["dcelastictime"];
 	}
 }
 
@@ -275,18 +178,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		break;
 	case GENERATE:
 		generateEventFromPhaseSpace(E);
-		break;
-	case DCELASTIC:
-		evtGen->Generate(E);
-		break;
-	case DCBREAKUP:
-		evtGen->Generate(E);
-		break;
-	case MUON:
-		evtGen->Generate(E);
-		break;
-	case DCELASTICWITHTIME:
-		evtGen->Generate(E);
 		break;
 	default:
 		std::stringstream o;
@@ -332,6 +223,9 @@ void PrimaryGeneratorAction::DefineCommands()
 
 	G4GenericMessenger::Command& inputCmd
 	= fMessenger->DeclareProperty("setFilename",_infile,"Set input file name");
+
+	G4GenericMessenger::Command& generator
+	= fMessenger->DeclareProperty("setGenerator",generatorName,"Set generator name");
 
 	G4GenericMessenger::Command& illuminateCmd
 	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
