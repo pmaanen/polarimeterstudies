@@ -90,7 +90,7 @@ public:
 			return;
 		}
 		scintillatorMaterial=newMat;
-		logicalVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
+		caloSDVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
 		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 		return;
 	}
@@ -133,9 +133,9 @@ protected:
 
 	std::vector<std::string> geomCache;
 
-	std::map<std::string,G4Cache<CaloSensitiveDetector*> > CaloSD;
-	std::map<std::string,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
-	std::map<std::string,G4LogicalVolume*> logicalVolumes;
+	std::map<G4String,G4Cache<CaloSensitiveDetector*> > CaloSD;
+	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
+	std::map<G4String,G4LogicalVolume*> caloSDVolumes;
 
 	std::string infile;
 };
