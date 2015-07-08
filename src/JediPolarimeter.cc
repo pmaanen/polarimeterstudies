@@ -27,7 +27,6 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	worldSizeXY=2*CLHEP::m;
 	worldSizeZ=10*CLHEP::m;
 	try{
@@ -41,8 +40,9 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	}
 	catch(const std::exception& e){
 		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
-		throw e;
+		exit(1);
 	}
+	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	deltaELength=1*CLHEP::cm;
 	deltaEWidth=crystalWidth;
 
@@ -178,6 +178,10 @@ void JediPolarimeter::DefineCommands() {
 
 	G4GenericMessenger::Command& updateCmd
 	= fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
+
+	G4GenericMessenger::Command& checkCmd
+	= fMessenger->DeclareMethod("check",&JediPolarimeter::checkGeometry,"check geometry for overlaps");
+
 
 	G4GenericMessenger::Command& matCmd
 	= fMessenger->DeclareMethod("material",
