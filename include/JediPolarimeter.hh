@@ -107,6 +107,10 @@ public:
 		changedParameters=true;
 	}
 
+	 void checkGeometry(){
+		auto check=physiWorld->CheckOverlaps(2000);
+	}
+
 protected:
 	G4LogicalVolume* MakeBeampipe();
 	G4LogicalVolume*  MakeTargetChamber();
