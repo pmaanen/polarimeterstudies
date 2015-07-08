@@ -161,7 +161,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		return physiWorld;
 	}
 
-	int ii=0;
+	int fx=-999,fy=-999;
 	geomCache.clear();
 	std::stringstream buf;
 	buf.clear();
@@ -170,23 +170,35 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	caloSDVolumes["Calorimeter"]=aCrystal;
 	G4LogicalVolume* aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),deltaEWidth,deltaEWidth,deltaELength);
 	caloSDVolumes["DeltaE"]=aDeltaETile;
-	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
-		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
+	for(int iCrystalX=-MaxCrystal; iCrystalX<MaxCrystal+1;iCrystalX++){
+		if(fx!=-999)
+			fx++;
+		for(int iCrystalY=-MaxCrystal; iCrystalY<MaxCrystal+1;iCrystalY++){
 			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
 			auto dePlacement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ-0.5*deltaELength);
 			if((placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))>outerDetectorRadius)
 				continue;
+			if(fy!=-999)
+				fy++;
+			if(fx==-999){
+				fx=iCrystalX;
+				G4cout<<"fx="<<fx<<G4endl;
+			}
+			if(fy==-999){
+				fy=iCrystalY;
+				G4cout<<"fy="<<fy<<G4endl;
+			}
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
-			G4int copyNo=100*(iCrystalX+20)+iCrystalY+20;
+			G4int copyNo=1000*(iCrystalX+MaxCrystal)+iCrystalY+MaxCrystal;
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, copyNo, false);
-			buf<<copyNo<<" "<<aCrystal->GetName()<<" "<<aCrystal->GetMaterial()->GetName()<<" "<<crystalWidth<<" "<<crystalWidth<<" "<<crystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
+			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aCrystal->GetName()<<" "<<aCrystal->GetMaterial()->GetName()<<" "<<crystalWidth<<" "<<crystalWidth<<" "<<crystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			geomCache.push_back(buf.str());
 			buf.clear();
 			buf.str(std::string());
 			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, copyNo, false);
-			buf<<copyNo<<" "<<aDeltaETile->GetName()<<" "<<aDeltaETile->GetMaterial()->GetName()<<" "<<deltaEWidth<<" "<<deltaEWidth<<" "<<deltaELength<<" "<<dePlacement.x()<<" "<<dePlacement.y()<<" "<<dePlacement.z();
+			buf<<std::setw(6)<<copyNo<<" "<<aDeltaETile->GetName()<<" "<<aDeltaETile->GetMaterial()->GetName()<<" "<<deltaEWidth<<" "<<deltaEWidth<<" "<<deltaELength<<" "<<dePlacement.x()<<" "<<dePlacement.y()<<" "<<dePlacement.z();
 			geomCache.push_back(buf.str());
 			buf.clear();
 			buf.str(std::string());
