@@ -26,7 +26,26 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
-	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+
+	const G4int numentrieslyso = 6;
+	G4double lysoenergies[numentrieslyso] = { 1.2*CLHEP::eV, 2.94*CLHEP::eV, 2.95*CLHEP::eV, 2.96*CLHEP::eV, 2.97*CLHEP::eV, 6.5*CLHEP::eV }; // saint-gobain (420 nm)
+	G4double lysofastcomp[numentrieslyso] = { 0.0, 0., 1.0, 1.0, 0., 0.0 };
+	G4double lysorindices[numentrieslyso] = { 1.81, 1.81, 1.81, 1.81, 1.81, 1.81 }; // saint-gobain
+	G4double lysoabsorptionlength[numentrieslyso] = { 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm }; // vilardi2006
+	G4MaterialPropertiesTable* lysoprop = new G4MaterialPropertiesTable();
+	lysoprop->AddProperty("FASTCOMPONENT", lysoenergies, lysofastcomp, numentrieslyso);
+	lysoprop->AddProperty("RINDEX",        lysoenergies, lysorindices, numentrieslyso);
+	lysoprop->AddProperty("ABSLENGTH",     lysoenergies, lysoabsorptionlength,  numentrieslyso);
+	lysoprop->AddConstProperty("SCINTILLATIONYIELD",32./CLHEP::keV); // saint-gobain
+	lysoprop->AddConstProperty("RESOLUTIONSCALE",1.0);
+	lysoprop->AddConstProperty("FASTTIMECONSTANT",41.0*CLHEP::ns); // saint-gobain
+	lysoprop->AddConstProperty("YIELDRATIO",1.0);
+	G4NistManager::Instance()->FindOrBuildMaterial("LYSO")->SetMaterialPropertiesTable(lysoprop);
+
+
+
+
 	worldSizeXY=2*CLHEP::m;
 	worldSizeZ=10*CLHEP::m;
 	try{

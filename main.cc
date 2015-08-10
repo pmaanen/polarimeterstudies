@@ -108,6 +108,7 @@ int main(int argc,char** argv) {
 	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
+	the_physics->RegisterPhysics(new G4OpticalPhysics);
 	runManager->SetUserInitialization(the_physics);
 	if(gConfig.count("detector.positions")){
 		auto positions=gConfig["detector.positions"].as<std::vector<double> >();
