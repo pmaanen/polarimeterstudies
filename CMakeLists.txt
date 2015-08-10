@@ -40,7 +40,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
-
+file(GLOB_RECURSE scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ *.*)
 #----------------------------------------------------------------------------
 #set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
 
@@ -87,21 +87,8 @@ target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${B
 # build gammagamma. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(polarimeter_SCRIPTS
-	vis_T0.mac
-	T1.mac
-	vis_T1.mac
-	test_dp.mac
-	test_gun.mac
-	matscan.py
-	test_dC.mac
-	material_loop.mac
-	particle_loop.mac
-	singlerun.mac
-	test_cosmic.mac
-) 
 
-foreach(_script ${polarimeter_SCRIPTS})
+foreach(_script ${scripts})
   configure_file(
     ${PROJECT_SOURCE_DIR}/scripts/${_script}
     ${PROJECT_BINARY_DIR}/scripts/${_script}

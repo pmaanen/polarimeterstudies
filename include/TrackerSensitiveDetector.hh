@@ -66,7 +66,7 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
     DetectorHitsCollection* fHitsCollection;
     std::vector<G4int> myTupleId;
     G4bool runInitialized;
-    //std::map<G4String,G4int> particleNames;
+    std::map<G4String,G4int> secondaries;
 
 };
 
