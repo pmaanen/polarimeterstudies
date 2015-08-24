@@ -70,6 +70,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 
 void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 {
+	generatorName.toLower();
 	if(evtGenerators.count(generatorName)==0){
 		std::stringstream message;
 		message<<"event generator "<<generatorName<<" is not known.";
