@@ -6,6 +6,6 @@
 /PolarimeterStudies/detector/calowidth 3 cm
 /PolarimeterStudies/detector/calolength 10 cm
 /PolarimeterStudies/detector/update
-/PolarimeterStudies/muon/spotsize 100 100 0 mm
-/PolarimeterStudies/muon/position 0 200 50 mm
-/run/beamOn 100000
+/PolarimeterStudies/muon/spotsize 1000 1000 0 mm
+/PolarimeterStudies/muon/position 0 2000<0 50 mm
+/run/beamOn 1000000
