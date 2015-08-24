@@ -14,7 +14,7 @@
 #include "Analysis.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),spotsize(0,0,0),position(0,0,0) {
 
 	functions=new function_helper;
 	angle=new TF1("cos_squared",functions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
@@ -22,6 +22,9 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
 	G4GenericMessenger::Command& spotsizeCmd
 	= fMessenger->DeclareProperty("spotsize", spotsize, "spotsize of muon gun");
+
+	G4GenericMessenger::Command& posCmd
+	= fMessenger->DeclareProperty("position", position, "position of muon gun");
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {
@@ -38,7 +41,6 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 
 	Analysis* an=Analysis::Instance();
-	an->FillH2(myHistoId[0],momentum.mag()/CLHEP::MeV,momentum.angle(G4ThreeVector(0,-1,0))/CLHEP::deg);
 	an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
 	an->FillNtupleIColumn(myTupleId[0],myTupleId[2],muon.id);
 	an->FillNtupleFColumn(myTupleId[0],myTupleId[3],momentum.getX());
@@ -92,9 +94,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 }
 
 void CosmicMuonGenerator::Initialize() {
-	position=pGun->GetParticlePosition();
 	myTupleId.clear();
-	myHistoId.clear();
 	Analysis* an=Analysis::Instance();
 	myTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
@@ -106,8 +106,5 @@ void CosmicMuonGenerator::Initialize() {
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
 	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
 	an->FinishNtuple(myTupleId[0]);
-	myHistoId.push_back(an->GetH2Id("thetap"));
-	position=pGun->GetParticlePosition();
-	spotsize=G4ThreeVector(3*CLHEP::cm,3*CLHEP::cm,10*CLHEP::cm);
 	runInitialized=true;
 }

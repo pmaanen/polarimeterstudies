@@ -19,6 +19,8 @@ yellow  (1.0, 1.0, 0.0); // yellow
 SingleCrystal::SingleCrystal():JediPolarimeter() {
 	crystalLength=500*CLHEP::cm;
 	crystalWidth=10*CLHEP::cm;
+
+	DefineCommands();
 }
 
 SingleCrystal::~SingleCrystal() {
@@ -44,7 +46,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	*/
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	logicalVolumes["CaloCrystal"]=logicDetector;
+	caloSDVolumes["Calorimeter"]=logicDetector;
 	return logicDetector;
 }
 

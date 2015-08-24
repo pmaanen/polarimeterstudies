@@ -71,7 +71,7 @@ public:
 	virtual G4VPhysicalVolume* Construct();
 
 	//Dump world to gdml file.
-	void WriteWorldToFile(G4String filename);
+	void WriteWorldToFile(G4String filename="");
 	virtual void ConstructSDandField();
 	//Setters for properties
 	void setBeampipeRadius(G4double beampipeRadius) {this->beampipeRadius = beampipeRadius;	changedParameters=true;	}
@@ -90,7 +90,7 @@ public:
 			return;
 		}
 		scintillatorMaterial=newMat;
-		logicalVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
+		caloSDVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
 		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
 		return;
 	}
@@ -105,6 +105,10 @@ public:
 	void setTargetWidth(G4double targetWidth) {
 		this->targetWidth = targetWidth;
 		changedParameters=true;
+	}
+
+	 void checkGeometry(){
+		auto check=physiWorld->CheckOverlaps(2000);
 	}
 
 protected:
@@ -131,9 +135,11 @@ protected:
 	virtual void ComputeParameters();
 	virtual void UpdateGeometry();
 
-	std::map<std::string,G4Cache<CaloSensitiveDetector*> > CaloSD;
-	std::map<std::string,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
-	std::map<std::string,G4LogicalVolume*> logicalVolumes;
+	std::vector<std::string> geomCache;
+
+	std::map<G4String,G4Cache<CaloSensitiveDetector*> > CaloSD;
+	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
+	std::map<G4String,G4LogicalVolume*> caloSDVolumes;
 
 	std::string infile;
 };

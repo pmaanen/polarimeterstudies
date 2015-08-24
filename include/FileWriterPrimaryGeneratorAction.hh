@@ -95,17 +95,19 @@ public:
 					px=Float_t(iParticle.px/CLHEP::GeV);
 					py=Float_t(iParticle.py/CLHEP::GeV);
 					pz=Float_t(iParticle.pz/CLHEP::GeV);
+					vx=Float_t(iEvent.vx/CLHEP::mm);
+					vy=Float_t(iEvent.vy/CLHEP::mm);
+					vz=Float_t(iEvent.vz/CLHEP::mm);
+
 					t=Float_t(iEvent.t);
 					outTree->Fill();
 				}
 				currentEventId++;
 			}
-			outTree->Write();
-			outFile->Write();
 			return true;
 
 		};
-		virtual ~FileWriter_root(){outFile->Write();outFile->Close(); delete outFile;};
+		virtual ~FileWriter_root(){outTree->Write();outFile->Write(); delete outTree; outFile->Close(); delete outFile;};
 	private:
 		TFile* outFile;
 		TTree* outTree;

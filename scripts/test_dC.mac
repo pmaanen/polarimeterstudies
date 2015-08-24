@@ -1,27 +1,22 @@
 /analysis/Enable
+/PolarimeterStudies/detector/material G4_LYSO_SCINT
 /PolarimeterStudies/generator/Mode 4
-/gun/position -2 0 0 mm
-/PolarimeterStudies/dcElastic/polarization 1
-/run/beamOn 1000000
-/PolarimeterStudies/dcElastic/polarization -1
-/run/beamOn 1000000
-/gun/position -1 0 0 mm
-/PolarimeterStudies/dcElastic/polarization 1
-/run/beamOn 1000000
-/PolarimeterStudies/dcElastic/polarization -1
-/run/beamOn 1000000
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/dCelastic/polarization -0.5
+/PolarimeterStudies/dCelastic/energy 235
+/PolarimeterStudies/detector/dump geometry.dat
 /gun/position 0 0 0 mm
-/PolarimeterStudies/dcElastic/polarization 1
-/run/beamOn 1000000
-/PolarimeterStudies/dcElastic/polarization -1
-/run/beamOn 1000000
-/gun/position 1 0 0 mm
-/PolarimeterStudies/dcElastic/polarization 1
-/run/beamOn 1000000
-/PolarimeterStudies/dcElastic/polarization -1
-/run/beamOn 1000000
-/gun/position 2 0 0 mm
-/PolarimeterStudies/dcElastic/polarization 1
-/run/beamOn 1000000
-/PolarimeterStudies/dcElastic/polarization -1
-/run/beamOn 1000000
+/analysis/setFileName dc_elastic_235_d050.root
+/run/beamOn 100000
+/PolarimeterStudies/dCelastic/polarization -0.25
+/analysis/setFileName dc_elastic_235_d025.root
+/run/beamOn 100000
+/PolarimeterStudies/dCelastic/polarization 0.0
+/analysis/setFileName dc_elastic_235_d000.root
+/run/beamOn 100000
+/PolarimeterStudies/dCelastic/polarization 0.25
+/analysis/setFileName dc_elastic_235_u025.root
+/run/beamOn 100000
+/PolarimeterStudies/dCelastic/polarization 0.5
+/analysis/setFileName dc_elastic_235_u050.root
+/run/beamOn 100000

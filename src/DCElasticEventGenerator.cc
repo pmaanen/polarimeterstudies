@@ -20,13 +20,17 @@
 #include <math.h>
 #include "G4ParticleGun.hh"
 #include <signal.h>
+#include "Randomize.hh"
+
+#include "VertexGeneratorO.hh"
+#include "VertexGeneratorU.hh"
 using namespace CLHEP;
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),cross_section(0){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),cross_section(0),tiltx(0),tilty(0),xprime(0),yprime(0),beamspot(0,0,0),spotsize(0,0,0){
 	beamEnergy=235.*CLHEP::MeV;
-	beamPolarization=Double_t(1.);
+	beamPolarization=Double_t(2./3.);
 	Initialized=false;
 
 	thetaMin=5*CLHEP::deg;
@@ -70,6 +74,23 @@ void DCElasticEventGenerator::Initialize() {
 	cross_section->SetParameter(1,momentum_cms);
 	cross_section->SetParameter(2,beamPolarization);
 	MaxY=cross_section->GetMaximum();
+	Analysis* an=Analysis::Instance();
+	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"t"));
+	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pol"));
+	an->FinishNtuple(myTupleId[0]);
+
+	VertexGeneratorO::GetInstance()->setBeamposition(0,0,0);
+	VertexGeneratorO::GetInstance()->setBeamsize(1*CLHEP::mm,1*CLHEP::mm,1*CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,5*CLHEP::mm);
 	Initialized=true;
 }
 
@@ -95,12 +116,24 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 
 void DCElasticEventGenerator::Generate(G4Event* E) {
 
+
 	auto event=PrimaryEvent(Generate());
+	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		//TODO Write Truth
 		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		pGun->GeneratePrimaryVertex(E);
+		Analysis* an=Analysis::Instance();
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],iPart->id);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[3],iPart->px);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],iPart->py);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],iPart->pz);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],pGun->GetParticlePosition().getX()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],pGun->GetParticlePosition().getY()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[9],pGun->GetParticleTime()/CLHEP::s);
+		an->AddNtupleRow(myTupleId[0]);
 	}
 	return;
 }
@@ -109,7 +142,11 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 PrimaryEvent DCElasticEventGenerator::Generate() {
 	if(!Initialized)
 		Initialize();
+	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
+	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	while (1) {
+		beam.RotateX(tiltx+G4RandGauss::shoot(tiltx,xprime));
+		beam.RotateY(tilty+G4RandGauss::shoot(tilty,yprime));
 
 		//Sample an event assuming constant cross-section in cm-system
 		ps.Generate();
@@ -154,6 +191,9 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 			}
 			else {
 				PrimaryEvent res;
+				res.vx=pos.getX();
+				res.vy=pos.getY();
+				res.vz=pos.getZ();
 				res.particles.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
 				res.particles.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
@@ -165,7 +205,13 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 }
 
 
-elastic_scattering_model::elastic_scattering_model(){}
+elastic_scattering_model::elastic_scattering_model(){
+	/*
+	for(int ii=0;ii<30;ii++){
+		G4cout<<"Theta="<<ii<<"deg Ay="<<Ay(270,ii)<<G4endl;
+	}
+	 */
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 Double_t elastic_scattering_model::sigma(Double_t* x, Double_t* par) {
 	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[0])*cos(x[1]*DegToRad));
@@ -208,10 +254,8 @@ double elastic_scattering_model::a6(Double_t x) {
 }
 
 double elastic_scattering_model::Ay(Double_t E, Double_t theta) {
-	return 1/(1+900/pow(theta,4))*
-			(b4(E)-
-					b1(E)/(1+exp((theta-b2(E))/b3(E)))+
-					b5(E)*(1-theta/b6(E))*sin(b7(E)+b8(E)*theta));
+	return (1/(1+900./pow(theta,4)))*
+			(b4(E)-b1(E)/(1+exp((theta-b2(E))/b3(E)))+b5(E)*(1-theta/b6(E))*sin(b7(E)+b8(E)*theta));
 }
 
 double elastic_scattering_model::b1(Double_t E) {

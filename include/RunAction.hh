@@ -23,7 +23,7 @@ class RunAction: public G4UserRunAction
 public:
 
 	RunAction();
-	~RunAction();
+	virtual ~RunAction();
 	G4int fNEvents;
 
 	void BeginOfRunAction(const G4Run*);

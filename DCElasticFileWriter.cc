@@ -68,12 +68,12 @@ int main(int argc,char** argv) {
 
 
 	std::ifstream cfg;
-	po::store(po::parse_command_line(argc, argv, description), vm);
-	notify(vm);
-	if(vm.count("general.config_file")){
-		cfg.open(vm["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
-		po::store(po::parse_config_file(cfg, description), vm);
-		notify(vm);
+	po::store(po::parse_command_line(argc, argv, description), gConfig);
+	notify(gConfig);
+	if(gConfig.count("general.config_file")){
+		cfg.open(gConfig["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
+		po::store(po::parse_config_file(cfg, description), gConfig);
+		notify(gConfig);
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
@@ -83,7 +83,7 @@ int main(int argc,char** argv) {
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
-	runManager->SetNumberOfThreads(vm["general.num_threads"].as<int>());
+	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
@@ -97,13 +97,13 @@ int main(int argc,char** argv) {
 	FTFP_BERT* the_physics =new FTFP_BERT(0);
 	runManager->SetUserInitialization(the_physics);
 	//User action initialization
-	if(vm.count("generator.output_file"))
-		runManager->SetUserInitialization(new FileWriterActionInitialization(vm["general.num_events"].as<int>(),G4String(vm["generator.output_file"].as<std::string>())));
+	if(gConfig.count("generator.output_file"))
+		runManager->SetUserInitialization(new FileWriterActionInitialization(gConfig["general.num_events"].as<int>(),G4String(gConfig["generator.output_file"].as<std::string>())));
 	else
-		runManager->SetUserInitialization(new FileWriterActionInitialization(vm["general.num_events"].as<int>()));
+		runManager->SetUserInitialization(new FileWriterActionInitialization(gConfig["general.num_events"].as<int>()));
 	// Initialize G4 kernel
 	runManager->Initialize();
-	runManager->BeamOn(vm["general.num_threads"].as<int>());
+	runManager->BeamOn(gConfig["general.num_threads"].as<int>());
 
 	// Job termination
 	// Free the store: user actions, physics_list and detector_description are

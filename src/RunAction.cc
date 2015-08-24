@@ -9,6 +9,10 @@
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
 
+#include "G4AutoLock.hh"
+
+namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
+
 std::vector<G4String>* RunAction::filenames=0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 RunAction::RunAction()
@@ -31,7 +35,13 @@ RunAction::RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{	delete Analysis::Instance();}
+{
+	G4AutoLock lock(&RunActionMutex);
+	if(filenames){
+		delete filenames;
+		filenames=0;
+	}
+	delete Analysis::Instance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -47,13 +57,9 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	PushBackFileName(Analysis::Instance()->GetFileName());
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
-		Analysis::Instance()->CreateH1("slave","slave",1,0,1);
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
-		Analysis::Instance()->CreateH2("thetap","Theta vs p",100,0,10000,45,0,90);
 	}
 	else{
-		Analysis::Instance()->CreateH1("master","master",1,0,1);
-		Analysis::Instance()->CreateH2("thetap","Theta vs p",100,0,10000,45,0,90);
 	}
 
 	//Master or sequential
@@ -131,11 +137,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	return;
 
 }
-
-#include "G4AutoLock.hh"
-
-namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
-
 
 void RunAction::ClearFileNames() {
 	G4AutoLock lock(&RunActionMutex);

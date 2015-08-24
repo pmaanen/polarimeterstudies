@@ -1,3 +1,4 @@
+
 #define MAIN
 #include "global.hh"
 #ifdef G4MULTITHREADED
@@ -21,50 +22,41 @@
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
-#include "SandwichCalorimeter.hh"
+#include <JediSandwichCalorimeter.hh>
 #include "CosmicSetup.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
+#include <QGSP_BIC.hh>
 #include <FTFP_BERT.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
 #include <signal.h>
+#include "G4StateManager.hh"
 namespace CLHEP {}
 using namespace CLHEP; 
 
 
-void    Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; exit(1);}
+void    Interrupt(int signum) {
+	auto state=G4StateManager::GetStateManager()->GetCurrentState();
+	if(state==G4ApplicationState::G4State_EventProc
+			or state==G4ApplicationState::G4State_GeomClosed)
+		G4RunManager::GetRunManager()->AbortRun();
+	exit(signum);
+}
 
 int main(int argc,char** argv) {
 
 	signal(SIGTERM,&Interrupt) ;
 	signal(SIGINT ,&Interrupt) ;
 	signal(SIGPIPE,&Interrupt) ;
-
-
-	namespace po = boost::program_options;
-	po::options_description description("Usage");
-	description.add_options()
-				("help,h", "Display this help message")
-				("general.config_file,c", po::value<std::string>(), "config file")
-				("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
-				("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
-				("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
-				("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-				("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
-				("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
-				("generator.beam_energy,e", po::value<double>()->default_value(1),"energy of beam in MeV")
-				("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions");
-
-	std::ifstream cfg;
-	po::store(po::parse_command_line(argc, argv, description), vm);
-	notify(vm);
-	if(vm.count("general.config_file")){
-		cfg.open(vm["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
-		po::store(po::parse_config_file(cfg, description), vm);
-		notify(vm);
+	try{
+		initializeConfiguration(argc,argv);
+	}
+	catch(const std::exception& e){
+		std::cout<<"uncaught exception in main: "<<e.what()<<std::endl;
+		throw e;
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
@@ -74,14 +66,14 @@ int main(int argc,char** argv) {
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
-	runManager->SetNumberOfThreads(vm["general.num_threads"].as<int>());
+	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
 
 	// set mandatory initialization classes
 	//DetectorConstruction* detector = new DetectorConstruction;
-	auto geometry=vm["detector.geometry"].as<std::string>();
+	auto geometry=gConfig["detector.geometry"].as<std::string>();
 	std::string cubic("cubic:");
 	std::string hexagonal("hexagonal:");
 	std::string gdml("gdml:");
@@ -102,7 +94,7 @@ int main(int argc,char** argv) {
 		jedi= new SingleCrystal();
 	}
 	if(!geometry.compare(0,sandwich.size(),sandwich)){
-		jedi= new SandwichCalorimeter();
+		jedi= new JediSandwichCalorimeter();
 	}
 	if(!geometry.compare(0,cosmic.size(),cosmic)){
 		jedi= new CosmicSetup();
@@ -113,12 +105,12 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(jedi);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics =new QGSP_INCLXX();//new FTFP_BERT(0);
+	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);
-	if(vm.count("detector.positions")){
-		auto positions=vm["detector.positions"].as<std::vector<double> >();
+	if(gConfig.count("detector.positions")){
+		auto positions=gConfig["detector.positions"].as<std::vector<double> >();
 		if(positions.size()%3){
 			G4cout<<"Error: positions vector not valid."<<G4endl;
 			for(auto i:positions){
@@ -152,16 +144,16 @@ int main(int argc,char** argv) {
 
 
 
-	if (!vm["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
+	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
 
 #ifdef G4UI_USE
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
 		G4cout<<"Interactive mode"<<G4endl;
-		G4cout <<vm["general.macro_file"].as<std::string>()<<G4endl;
+		G4cout <<gConfig["general.macro_file"].as<std::string>()<<G4endl;
 		std::stringstream o;
-		o<<"/control/execute "<<vm["general.macro_file"].as<std::string>().c_str();
+		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
@@ -172,8 +164,8 @@ int main(int argc,char** argv) {
 	{
 		G4cout<<"Batch mode"<<G4endl;
 		std::stringstream o;
-		if(vm.count("general.macro_file")){
-			o<<"/control/execute "<<vm["general.macro_file"].as<std::string>().c_str();
+		if(gConfig.count("general.macro_file")){
+			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
 			UImanager->ApplyCommand(o.str().c_str());
 		}
 	}

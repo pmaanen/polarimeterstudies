@@ -7,6 +7,7 @@
 
 #include <JediPolarimeter.hh>
 #include <G4UnionSolid.hh>
+#include <fstream>
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -26,20 +27,22 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-
-	scintillatorMaterialName="G4_Galactic";
-	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	worldSizeXY=2*CLHEP::m;
 	worldSizeZ=10*CLHEP::m;
-	thetaMin=5*CLHEP::deg;
-	thetaMax=20*CLHEP::deg;
-
-	beampipeRadius=10*CLHEP::cm;
-	beampipeThickness=2*CLHEP::mm;
-
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=3*CLHEP::cm;
-
+	try{
+		scintillatorMaterialName=gConfig["detector.scintillatorMaterial"].as<std::string>();
+		thetaMin=gConfig["detector.thetamin"].as<double>()*CLHEP::mm*CLHEP::deg;
+		thetaMax=gConfig["detector.thetamax"].as<double>()*CLHEP::mm*CLHEP::deg;
+		beampipeRadius=gConfig["detector.beampipeRadius"].as<double>()*CLHEP::mm;
+		beampipeThickness=gConfig["detector.beampipeThickness"].as<double>()*CLHEP::mm;
+		crystalLength=gConfig["detector.crystalLength"].as<double>()*CLHEP::mm;
+		crystalWidth=gConfig["detector.crystalWidth"].as<double>()*CLHEP::mm;
+	}
+	catch(const std::exception& e){
+		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
+		exit(1);
+	}
+	scintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	deltaELength=1*CLHEP::cm;
 	deltaEWidth=crystalWidth;
 
@@ -119,7 +122,7 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(targetChamberZ2-targetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(targetChamberZ2-targetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	logicalVolumes["logicExitWindow"]=logicTargetChamber;
+	caloSDVolumes["logicExitWindow"]=logicTargetChamber;
 	return logicTargetChamber;
 }
 
@@ -176,6 +179,10 @@ void JediPolarimeter::DefineCommands() {
 	G4GenericMessenger::Command& updateCmd
 	= fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
 
+	G4GenericMessenger::Command& checkCmd
+	= fMessenger->DeclareMethod("check",&JediPolarimeter::checkGeometry,"check geometry for overlaps");
+
+
 	G4GenericMessenger::Command& matCmd
 	= fMessenger->DeclareMethod("material",
 			&JediPolarimeter::setCaloMaterialName,
@@ -212,6 +219,11 @@ void JediPolarimeter::DefineCommands() {
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);
 
+	G4GenericMessenger::Command& dumpCmd
+	= fMessenger->DeclareMethod("dump",&JediPolarimeter::WriteWorldToFile,"dump geometry to file");
+
+	dumpCmd.SetParameterName("filename",true);
+
 	return;
 
 }
@@ -231,9 +243,32 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 
 	G4Box* solidTarget=new G4Box("Target",targetWidth/2,targetWidth/2,targetThickness/2);
 	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
-	new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
+	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
 
 	return physiWorld;
+}
+
+void JediPolarimeter::WriteWorldToFile(G4String filename) {
+
+	if(filename.contains(".gdml")){
+		//TODO: gdml yaddayadda
+	}
+	else{
+		std::streambuf * buf;
+		std::ofstream outFile;
+		if(filename!=""){
+			outFile.open(filename.data());
+			buf = outFile.rdbuf();
+		}
+		else{
+			buf=std::cout.rdbuf();
+		}
+		std::ostream out(buf);
+		for(auto line:geomCache){
+			out<<line<<std::endl;
+		}
+	}
+
 }
 
 void JediPolarimeter::UpdateGeometry(){

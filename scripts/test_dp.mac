@@ -1,4 +1,2 @@
-/analysis/Enable
-/polarimeterStudies/Generator/SetMode 1
-/polarimeterStudies/Generator/SetInputFile Point9EventList.out
-/run/beamOn 1000000
+/PolarimeterStudies/generator/Mode 5
+/run/beamOn 10000
