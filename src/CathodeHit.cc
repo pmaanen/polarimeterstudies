@@ -7,7 +7,8 @@
 
 using namespace CLHEP;
 
-G4Allocator<CathodeHit> CathodeHitAllocator;
+G4ThreadLocal G4Allocator<CathodeHit>* CathodeHitAllocator=0;
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
