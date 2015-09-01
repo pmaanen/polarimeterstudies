@@ -9,7 +9,7 @@
 #define INCLUDE_SINGLECRYSTAL_HH_
 
 #include <JediPolarimeter.hh>
-
+class CathodeSensitiveDetector;
 class SingleCrystal: public JediPolarimeter {
 public:
 	SingleCrystal();
@@ -18,6 +18,7 @@ public:
 protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
+	virtual void ConstructSDandField();
 
 	void defineSurfaces();
 
@@ -41,6 +42,9 @@ private:
 	G4OpticalSurface *BGOGroundAirTeflon;   // ground BGO surface wrapped with teflon
 
 	G4double airThickness;
-	G4PVPlacement *physiScint, *physiAirGap;
+	G4PVPlacement *physiScint, *physiAirGap,*physiCathode;
+
+	G4Cache<CathodeSensitiveDetector*> CathodeSD;
+	G4Cache<CaloSensitiveDetector*> CrystalSD;
 };
 #endif

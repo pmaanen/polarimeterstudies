@@ -25,7 +25,7 @@ RunAction::RunAction()
 	luxury = 3;     // RANLUX luxury level (3 is default)
 	saveRndm = 1;
 	fNEvents=0;
-
+	filenames=0;
 	Analysis* analysisManager = Analysis::Instance();
 	analysisManager->SetVerboseLevel(1);
 	analysisManager->SetFirstHistoId(1);
@@ -39,9 +39,8 @@ RunAction::~RunAction()
 	G4AutoLock lock(&RunActionMutex);
 	if(filenames){
 		delete filenames;
-		filenames=0;
 	}
-
+	filenames=0;
 	//delete Analysis::Instance();
 
 }

@@ -7,6 +7,7 @@
 
 #include <SingleCrystal.hh>
 #include <G4UserLimits.hh>
+#include "CathodeSD.hh"
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -17,13 +18,73 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0) {
+using namespace CLHEP;
+SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0),physiCathode(0) {
 	crystalLength=10*CLHEP::cm;
 	crystalWidth=3*CLHEP::cm;
 	airThickness=0.2*CLHEP::mm;
 
 	DefineCommands();
 	defineSurfaces();
+
+
+
+
+	G4NistManager* man = G4NistManager::Instance();
+
+	G4Element *C = man->FindOrBuildElement("C");
+	G4Element *H = man->FindOrBuildElement("H");
+	G4Element *Si = man->FindOrBuildElement("Si");
+	G4Element *O = man->FindOrBuildElement("O");
+	G4Element *Sb = man->FindOrBuildElement("Sb");
+	G4Element *Rb = man->FindOrBuildElement("Rb");
+	G4Element *Cs = man->FindOrBuildElement("Cs");
+	//------------------------------------------------
+	// Polydimethylsiloxane (Grease)
+	G4Material* Polydimethylsiloxane = new G4Material("Polydimethylsiloxane", 0.97*g/cm3, 4, kStateLiquid);
+	Polydimethylsiloxane->AddElement(Si, 1);
+	Polydimethylsiloxane->AddElement(O, 1);
+	Polydimethylsiloxane->AddElement(C, 2);
+	Polydimethylsiloxane->AddElement(H, 6);
+	G4MaterialPropertiesTable* polydimethylsiloxaneprop = new G4MaterialPropertiesTable();
+	const G4int numentriespolydimethylsiloxane = 3;
+	G4double polydimethylsiloxaneenergy[numentriespolydimethylsiloxane] = {1.2*eV, 3.1*eV, 6.5*eV};
+	G4double polydimethylsiloxaneabsorp[numentriespolydimethylsiloxane] = {10.*cm, 10.*cm, 10.*cm};
+	G4double polydimethylsiloxanerindex[numentriespolydimethylsiloxane] = {1.4, 1.4, 1.4};
+	polydimethylsiloxaneprop->AddProperty("ABSLENGTH", polydimethylsiloxaneenergy, polydimethylsiloxaneabsorp, numentriespolydimethylsiloxane);
+	polydimethylsiloxaneprop->AddProperty("RINDEX", polydimethylsiloxaneenergy, polydimethylsiloxanerindex, numentriespolydimethylsiloxane);
+	Polydimethylsiloxane->SetMaterialPropertiesTable(polydimethylsiloxaneprop);
+	//------------------------------------------------
+
+	//------------------------------
+	// Fused silica
+	G4Material* FusedSilica = new G4Material("FusedSilica", 2.201*g/cm3, 2, kStateSolid);
+	FusedSilica->AddElement(Si, 1);
+	FusedSilica->AddElement(O, 2);
+	G4MaterialPropertiesTable* fusedsilicaprop = new G4MaterialPropertiesTable();
+	const G4int numentriesfusedsilica = 3;
+	G4double fusedsilicaenergy[numentriesfusedsilica] = {1.2*eV, 3.1*eV, 6.5*eV};
+	G4double fusedsilicaabsorp[numentriesfusedsilica] = {2.*m, 2.*m, 2.*m};
+	G4double fusedsilicarindex[numentriesfusedsilica] = {1.56, 1.47, 1.45};
+	fusedsilicaprop->AddProperty("ABSLENGTH", fusedsilicaenergy, fusedsilicaabsorp, numentriesfusedsilica);
+	fusedsilicaprop->AddProperty("RINDEX", fusedsilicaenergy, fusedsilicarindex, numentriesfusedsilica);
+	FusedSilica->SetMaterialPropertiesTable(fusedsilicaprop);
+	//------------------------------
+
+	//------------------------------
+	// Bialkali Cathode (dummy)
+	G4Material* BialkaliCathode = new G4Material("BialkaliCathode", 3*g/cm3, 3, kStateSolid);
+	BialkaliCathode->AddElement(Sb, 1);
+	BialkaliCathode->AddElement(Rb, 1);
+	BialkaliCathode->AddElement(Cs, 1);
+	G4MaterialPropertiesTable* bialkalicathodeprop = new G4MaterialPropertiesTable();
+	//  const G4int numentriesbialkalicath = 2;
+	//  G4double bialkalicathodeenergy[numentriesbialkalicath] = {1.2*eV, 6.5*eV};
+	//  G4double bialkalicathodeabsorp[numentriesbialkalicath] = {1.e-6*mm, 1.e-6*mm}; // absorb all
+	//  bialkalicathodeprop->AddProperty("ABSLENGTH", bialkalicathodeenergy, bialkalicathodeabsorp, numentriesbialkalicath);
+	bialkalicathodeprop->AddProperty("RINDEX", fusedsilicaenergy, fusedsilicarindex, numentriesfusedsilica); // use values from window to prevent refraction
+	BialkaliCathode->SetMaterialPropertiesTable(bialkalicathodeprop);
+
 }
 
 SingleCrystal::~SingleCrystal() {
@@ -42,6 +103,10 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
 
+	G4Box* solidCathode= new G4Box("Detector",crystalWidth/2,crystalWidth/2,1*cm);
+	G4LogicalVolume* logicCathode = new G4LogicalVolume(solidCathode,G4Material::GetMaterial("BialkaliCathode"),"Cathode");
+
+	physiCathode=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicCathode,"Cathode",logicDetector, false, 0 , false);
 	physiScint=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
 	physiAirGap=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 
@@ -51,7 +116,10 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
+
+
 	caloSDVolumes["Calorimeter"]=logicDetector;
+	caloSDVolumes["Cathode"]=logicCathode;
 	return logicWrapping;
 }
 
@@ -74,12 +142,26 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	//AirGap to Scintillator
 	G4LogicalBorderSurface* air2ScintSurface = 0;
 	air2ScintSurface = new G4LogicalBorderSurface("air2ScintSurface", physiScint, physiAirGap, groundAir);
-
+	//Scintillator to Cathode
+	G4LogicalBorderSurface* scint2CathSurface = 0;
+	scint2CathSurface=new G4LogicalBorderSurface("scint2CathSurface", physiScint, physiCathode, silicaCathodeMaterial);
 	// Set user cuts to avoid deadlocks
 	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
 	logicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
 
 	return physiWorld;
+}
+
+void SingleCrystal::ConstructSDandField() {
+	if (CrystalSD.Get()==0)
+		CrystalSD.Put(new CaloSensitiveDetector("Calorimeter"));
+	SetSensitiveDetector(caloSDVolumes["Calorimeter"],CrystalSD.Get());
+
+
+	if(CathodeSD.Get()==0)
+		CathodeSD.Put(new CathodeSensitiveDetector("Cathode"));
+	SetSensitiveDetector(caloSDVolumes["Cathode"],CathodeSD.Get());
+
 }
 
 void SingleCrystal::defineSurfaces() {

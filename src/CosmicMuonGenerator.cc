@@ -14,6 +14,7 @@
 #include "Analysis.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
+namespace { G4Mutex MuonGeneratorMutex = G4MUTEX_INITIALIZER; }
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),spotsize(0,0,0),position(0,0,0) {
 
 	functions=new function_helper;
@@ -28,7 +29,10 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {
-	delete fMessenger;
+	G4AutoLock lock(&MuonGeneratorMutex);
+	if(fMessenger)
+		delete fMessenger;
+	fMessenger=0;
 }
 
 void CosmicMuonGenerator::Generate(G4Event* E) {
