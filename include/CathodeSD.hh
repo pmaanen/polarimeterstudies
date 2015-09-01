@@ -11,19 +11,21 @@ class G4HCofThisEvent;
 
 class CathodeSensitiveDetector : public G4VSensitiveDetector
 {
-  public:
-      CathodeSensitiveDetector(G4String);
-     ~CathodeSensitiveDetector();
+public:
+	CathodeSensitiveDetector(G4String);
+	~CathodeSensitiveDetector();
 
-      void Initialize(G4HCofThisEvent*);
-      G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-      void EndOfEvent(G4HCofThisEvent*);
+	void Initialize(G4HCofThisEvent*);
+	G4bool ProcessHits(G4Step*, G4TouchableHistory*);
+	void EndOfEvent(G4HCofThisEvent*);
 
-  private:
-      CathodeHitsCollection* photonCollection;
-      bool savetime;
-      bool saveposition;
-      bool saveenergy;
+private:
+	CathodeHitsCollection* photonCollection;
+	bool savetime;
+	bool saveposition;
+	bool saveenergy;
+	std::vector<G4int> myTupleId;
+	G4bool runInitialized;
 
 };
 
