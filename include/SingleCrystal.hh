@@ -42,7 +42,7 @@ private:
 	G4OpticalSurface *BGOGroundAirTeflon;   // ground BGO surface wrapped with teflon
 
 	G4double airThickness;
-	G4PVPlacement *physiScint, *physiAirGap,*physiCathode;
+	G4PVPlacement *physiScint, *physiAirGap,*physiCathode,*physiWindow,*physiGrease;
 
 	G4Cache<CathodeSensitiveDetector*> CathodeSD;
 	G4Cache<CaloSensitiveDetector*> CrystalSD;

@@ -93,26 +93,36 @@ SingleCrystal::~SingleCrystal() {
 
 G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
+	auto greaseThickness=.1*mm;
+	auto windowThickness=2*mm;
+	auto cathodeThickness=1*cm;
+
 	G4Box* solidWrapping= new G4Box("Wrapping",(crystalWidth+1*wrappingThickness+airThickness)/2,(crystalWidth+1*wrappingThickness+airThickness)/2,(crystalLength+1*wrappingThickness+airThickness)/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_Al"),"Wrapping");
 
 	G4Box* solidReflector= new G4Box("Reflector",(crystalWidth+airThickness)/2,(crystalWidth+airThickness)/2,(crystalLength+airThickness)/2);
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),"AirGap");
 
-
 	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
 
-	G4Box* solidCathode= new G4Box("Detector",crystalWidth/2,crystalWidth/2,1*cm);
+	G4Box* solidCathode= new G4Box("Cathode",crystalWidth/2,crystalWidth/2,cathodeThickness/2);
 	G4LogicalVolume* logicCathode = new G4LogicalVolume(solidCathode,G4Material::GetMaterial("BialkaliCathode"),"Cathode");
 
-	physiCathode=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicCathode,"Cathode",logicDetector, false, 0 , false);
+	G4Box* solidGrease= new G4Box("Grease",crystalWidth/2,crystalWidth/2,greaseThickness/2);
+	G4LogicalVolume* logicGrease= new G4LogicalVolume(solidCathode,G4Material::GetMaterial("Polydimethylsiloxane"),"Grease");
+
+	G4Box* solidWindow= new G4Box("Window",crystalWidth/2,crystalWidth/2,windowThickness/2);
+	G4LogicalVolume* logicWindow = new G4LogicalVolume(solidWindow,G4Material::GetMaterial("FusedSilica"),"Window");
+
+	physiGrease=new G4PVPlacement(0,G4ThreeVector(0,0,cathodeThickness/2-greaseThickness/2),logicWindow,"Grease",logicCathode, false, 0 , false);
+	physiWindow=new G4PVPlacement(0,G4ThreeVector(0,0,cathodeThickness/2-greaseThickness-windowThickness/2),logicWindow,"Window",logicCathode, false, 0 , false);
+	physiCathode=new G4PVPlacement(0,G4ThreeVector(0,0,-crystalLength/2+cathodeThickness/2),logicCathode,"Cathode",logicDetector, false, 0 , false);
 	physiScint=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
 	physiAirGap=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 
 	logicWrapping->SetVisAttributes(new G4VisAttributes(white));
 	//logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
-
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
@@ -132,7 +142,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 	G4LogicalVolume* logicCrystal=MakeCaloCrystal();
 	auto detectorHalfLength=crystalLength/2+airThickness+wrappingThickness;
-	G4PVPlacement* physiDetector=new G4PVPlacement (0, G4ThreeVector(0,0,detectorHalfLength/2), logicCrystal, "Detector", logicWorld, false, 0, false);
+	G4PVPlacement* physiDetector=new G4PVPlacement (0, G4ThreeVector(0,0,detectorHalfLength), logicCrystal, "Detector", logicWorld, false, 0, false);
 	//World to Wrapping Surface
 	G4LogicalBorderSurface* world2WrapSurface = 0;
 	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, physiWorld, airGroundAluminum);
@@ -142,9 +152,15 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	//AirGap to Scintillator
 	G4LogicalBorderSurface* air2ScintSurface = 0;
 	air2ScintSurface = new G4LogicalBorderSurface("air2ScintSurface", physiScint, physiAirGap, groundAir);
-	//Scintillator to Cathode
-	G4LogicalBorderSurface* scint2CathSurface = 0;
-	scint2CathSurface=new G4LogicalBorderSurface("scint2CathSurface", physiScint, physiCathode, silicaCathodeMaterial);
+	//Scintillator to Grease
+	G4LogicalBorderSurface* scint2GreaseSurface = 0;
+	scint2GreaseSurface = new G4LogicalBorderSurface("scint2WindowSurface", physiScint, physiGrease, groundAir);
+	//Grease to Window
+	G4LogicalBorderSurface* grease2WindowSurface = 0;
+	grease2WindowSurface = new G4LogicalBorderSurface("scint2WindowSurface", physiGrease, physiWindow, groundAir);
+	//Window to Cathode
+	G4LogicalBorderSurface* window2CathSurface = 0;
+	window2CathSurface=new G4LogicalBorderSurface("scint2CathSurface", physiWindow, physiCathode, silicaCathodeMaterial);
 	// Set user cuts to avoid deadlocks
 	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
 	logicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
