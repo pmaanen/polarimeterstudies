@@ -23,6 +23,9 @@ protected:
 
 private:
 	// surfaces
+	G4OpticalSurface *LYSOPolishedAirTeflon; // polished LYSO surface wrapped with teflon
+	G4OpticalSurface *LYSOGroundAirTeflon;   // ground LYSO surface wrapped with teflon
+
 	G4OpticalSurface *polishedAir;          // polished crystal surface, not wrapped
 	G4OpticalSurface *groundAir;            // ground crystal surface, not wrapped
 	G4OpticalSurface *polishedWhitePainted; // polished crystal surface painted white
@@ -33,5 +36,11 @@ private:
 	G4OpticalSurface *airGroundAluminum; // ground aluminm surface
 	G4OpticalSurface *silicaCathodeMaterial; // surface between window and cathode
 
+
+	G4OpticalSurface *BGOPolishedAirTeflon; // polished BGO surface wrapped with teflon
+	G4OpticalSurface *BGOGroundAirTeflon;   // ground BGO surface wrapped with teflon
+
+	G4double airThickness;
+	G4PVPlacement *physiScint, *physiAirGap;
 };
 #endif

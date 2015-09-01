@@ -44,6 +44,20 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 	G4NistManager::Instance()->FindOrBuildMaterial("LYSO")->SetMaterialPropertiesTable(lysoprop);
 
 
+	 //------------------------------
+	  // Air
+	  G4Material* Air = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
+	  Air->SetName("Air");
+	  const G4int numentries = 2;
+	  G4double energies[numentries] = { 0.1*CLHEP::eV, 10.0*CLHEP::eV };
+	  G4double vacrindices[numentries] = { 1., 1. };
+	  G4double airabsorpti[numentries] = { 100.*CLHEP::m, 100.*CLHEP::m }; // avoid infinite light-paths
+	  G4MaterialPropertiesTable* airprop = new G4MaterialPropertiesTable();
+	  airprop->AddProperty("ABSLENGTH", energies, airabsorpti, numentries);
+	  airprop->AddProperty("RINDEX", energies, vacrindices, numentries);
+	  Air->SetMaterialPropertiesTable(airprop);
+
+
 
 
 	worldSizeXY=2*CLHEP::m;

@@ -6,6 +6,7 @@
  */
 
 #include <SingleCrystal.hh>
+#include <G4UserLimits.hh>
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -16,11 +17,13 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-SingleCrystal::SingleCrystal():JediPolarimeter() {
-	crystalLength=500*CLHEP::cm;
-	crystalWidth=10*CLHEP::cm;
+SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0) {
+	crystalLength=10*CLHEP::cm;
+	crystalWidth=3*CLHEP::cm;
+	airThickness=0.2*CLHEP::mm;
 
 	DefineCommands();
+	defineSurfaces();
 }
 
 SingleCrystal::~SingleCrystal() {
@@ -28,26 +31,28 @@ SingleCrystal::~SingleCrystal() {
 }
 
 G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
-	/*
-	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);
-	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
-	G4Box* solidReflector= new G4Box("Wrapping",(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2,(crystalLength-1*wrappingThickness)/2);
-	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
-	 */
+
+	G4Box* solidWrapping= new G4Box("Wrapping",(crystalWidth+1*wrappingThickness+airThickness)/2,(crystalWidth+1*wrappingThickness+airThickness)/2,(crystalLength+1*wrappingThickness+airThickness)/2);
+	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_Al"),"Wrapping");
+
+	G4Box* solidReflector= new G4Box("Reflector",(crystalWidth+airThickness)/2,(crystalWidth+airThickness)/2,(crystalLength+airThickness)/2);
+	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),"AirGap");
+
 
 	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
-	/*
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 
-	logicWrapping->SetVisAttributes(G4VisAttributes::Invisible);
-	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
-	 */
+	physiScint=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
+	physiAirGap=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
+
+	logicWrapping->SetVisAttributes(new G4VisAttributes(white));
+	//logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
+
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
+
 	caloSDVolumes["Calorimeter"]=logicDetector;
-	return logicDetector;
+	return logicWrapping;
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {
@@ -57,8 +62,22 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-	new G4PVPlacement (0, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
+	G4LogicalVolume* logicCrystal=MakeCaloCrystal();
+	auto detectorHalfLength=crystalLength/2+airThickness+wrappingThickness;
+	G4PVPlacement* physiDetector=new G4PVPlacement (0, G4ThreeVector(0,0,detectorHalfLength/2), logicCrystal, "Detector", logicWorld, false, 0, false);
+	//World to Wrapping Surface
+	G4LogicalBorderSurface* world2WrapSurface = 0;
+	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, physiWorld, airGroundAluminum);
+	//Wrapping to Air Gap
+	G4LogicalBorderSurface* wrap2AirSurface = 0;
+	wrap2AirSurface = new G4LogicalBorderSurface("wrap2AirSurface", physiDetector, physiAirGap, airGroundAluminum);
+	//AirGap to Scintillator
+	G4LogicalBorderSurface* air2ScintSurface = 0;
+	air2ScintSurface = new G4LogicalBorderSurface("air2ScintSurface", physiScint, physiAirGap, groundAir);
+
+	// Set user cuts to avoid deadlocks
+	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
+	logicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
 
 	return physiWorld;
 }
@@ -66,6 +85,16 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 void SingleCrystal::defineSurfaces() {
 
 	G4double ener[2] = {.1*CLHEP::eV, 10.*CLHEP::eV};
+
+	LYSOPolishedAirTeflon = new G4OpticalSurface("LYSOPolishedAirTeflon", unified);
+	LYSOPolishedAirTeflon->SetType(dielectric_LUT);
+	LYSOPolishedAirTeflon->SetModel(LUT);
+	LYSOPolishedAirTeflon->SetFinish(polishedteflonair);
+
+	LYSOGroundAirTeflon = new G4OpticalSurface("LYSOGroundAirTeflon", unified);
+	LYSOGroundAirTeflon->SetType(dielectric_LUT);
+	LYSOGroundAirTeflon->SetModel(LUT);
+	LYSOGroundAirTeflon->SetFinish(groundteflonair);
 
 	polishedAir = new G4OpticalSurface("polishedAir", unified);
 	polishedAir->SetType(dielectric_dielectric);
