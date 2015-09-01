@@ -48,9 +48,9 @@ void    Interrupt(int signum) {
 
 int main(int argc,char** argv) {
 
-	signal(SIGTERM,&Interrupt) ;
-	signal(SIGINT ,&Interrupt) ;
-	signal(SIGPIPE,&Interrupt) ;
+	//signal(SIGTERM,&Interrupt) ;
+	//signal(SIGINT ,&Interrupt) ;
+	//signal(SIGPIPE,&Interrupt) ;
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -60,9 +60,9 @@ int main(int argc,char** argv) {
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
-	if(argc>2){
-		theEngine->setSeed(strtol(argv[2], NULL, 10));
-	}
+	//if(argc>2){
+	//	theEngine->setSeed(strtol(argv[2], NULL, 10));
+	//}
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;

@@ -41,7 +41,10 @@ RunAction::~RunAction()
 		delete filenames;
 		filenames=0;
 	}
-	delete Analysis::Instance();}
+
+	//delete Analysis::Instance();
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
