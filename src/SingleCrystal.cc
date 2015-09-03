@@ -17,8 +17,8 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 SingleCrystal::SingleCrystal():JediPolarimeter() {
-	crystalLength=500*CLHEP::cm;
-	crystalWidth=10*CLHEP::cm;
+	crystalLength=10*CLHEP::cm;
+	crystalWidth=3*CLHEP::cm;
 
 	DefineCommands();
 }
