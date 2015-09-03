@@ -33,6 +33,7 @@
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
 #include "G4EventManager.hh"
+#include "G4Event.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 #include "Randomize.hh"

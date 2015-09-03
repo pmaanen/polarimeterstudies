@@ -52,8 +52,8 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-	Analysis::Instance()->PrepareNewRun(aRun);
-	Analysis::Instance()->OpenFile(Analysis::Instance()->getFilename());
+	//Analysis::Instance()->PrepareNewRun(aRun);
+	Analysis::Instance()->OpenFile();
 	PushBackFileName(Analysis::Instance()->GetFileName());
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
@@ -92,34 +92,32 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	Analysis::Instance()->Write();
 	Analysis::Instance()->CloseFile();
 	if(IsMaster()){
-		return;
-		if(filenames){
 			std::ostringstream hadd;
 			std::ostringstream rm;
 			std::ostringstream mv;
-			rm<<"rm ";
-			mv<<"mv "<<Analysis::Instance()->GetFileName()<<"_merged.root "<<Analysis::Instance()->GetFileName()<<".root ";;
-			hadd<<"hadd "<<Analysis::Instance()->GetFileName()<<"_merged.root ";
-			G4cout<<"I have "<<filenames->size()<<" filenames. ";
-			G4cout<<"These are: ";
 			G4String extension;
 			auto name=Analysis::Instance()->GetFileName();
-			if ( name.find(".") != std::string::npos ) {
-				extension = name.substr(name.find("."));
-				name = name.substr(0, name.find("."));
+			if ( name.last(".") != std::string::npos ) {
+				extension = name.substr(name.last("."));
+				name = name.substr(0, name.last("."));
 			}
 			else {
 				extension = ".";
 				extension.append(Analysis::Instance()->GetFileType());
 			}
-			for(auto iName : *filenames){
-				G4cout<<iName<<" ";
-				hadd<<iName<<" ";
+			rm<<"rm ";
+			mv<<"mv "<<name<<"_merged.root "<<name<<".root ";
+			hadd<<"hadd "<<name<<"_merged.root "<<name<<".root ";
+			for(size_t ii=0; ii<G4Threading::G4GetNumberOfCores(); ii++){
+				hadd<<name<<"_t"<<ii<<".root ";
 				rm<<iName<<" ";
 			}
-			G4cout<<G4endl;
+
+			G4cout<<hadd<<G4endl;
 			system(hadd.str().c_str());
+			G4cout<<rm<<G4endl;
 			system(rm.str().c_str());
+			G4cout<<mv<<G4endl;
 			system(mv.str().c_str());
 		}
 		ClearFileNames();
@@ -136,25 +134,4 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
-}
-
-void RunAction::ClearFileNames() {
-	G4AutoLock lock(&RunActionMutex);
-	if(filenames)
-		delete filenames;
-	filenames=0;
-}
-
-void RunAction::PushBackFileName(G4String filename) {
-	G4AutoLock lock(&RunActionMutex);
-	if(!filenames)
-		filenames=new std::vector<G4String>;
-
-	std::ostringstream fullName;
-	if(G4Threading::IsWorkerThread())
-		fullName<<filename<<"_t"<<G4Threading::G4GetThreadId();
-	else
-		fullName<<filename;
-
-	filenames->push_back(fullName.str());
 }

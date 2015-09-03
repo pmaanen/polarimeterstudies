@@ -1,6 +1,9 @@
 #ifndef ANALYSIS_HH_
 #define ANALYSIS_HH_
 
+#include "G4RootAnalysisManager.hh"
+typedef G4RootAnalysisManager Analysis;
+/*
 #include "G4Event.hh"
 #include "G4Run.hh"
 #include "G4ThreeVector.hh"
@@ -26,7 +29,6 @@ class AnalysisMessenger;
  * The class is designed as a singleton.
  * To access it you need to use:
  * Analysis* analysis = Analysis::GetInstance()
- */
 class Analysis: public G4RootAnalysisManager {
 public:
 	//! Singleton
@@ -119,5 +121,5 @@ private:
 	std::map<G4String,TObject*> _objects;
 };
 
-
+*/
 #endif /* ANALYSIS_HH_ */

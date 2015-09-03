@@ -8,6 +8,7 @@
 #include "DCElasticEventGenerator.hh"
 #include "G4ParticleDefinition.hh"
 #include <G4Deuteron.hh>
+#include <G4Event.hh>
 #include "G4IonTable.hh"
 #include "G4ios.hh"
 #include "TCanvas.h"

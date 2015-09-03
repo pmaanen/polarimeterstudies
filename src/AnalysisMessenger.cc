@@ -4,6 +4,7 @@
  *  Created on: Jun 19, 2013
  *      Author: maanen
  */
+#if 0
 #include "G4UIdirectory.hh"
 #include "AnalysisMessenger.hh"
 #include "Analysis.hh"
@@ -58,5 +59,4 @@ void AnalysisMessenger::SetNewValue(G4UIcommand *cmd, G4String value)
 		ana->Enable(false);
 	}
 }
-
-
+#endif

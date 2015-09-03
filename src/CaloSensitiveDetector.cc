@@ -8,6 +8,7 @@
 #include <CaloSensitiveDetector.hh>
 #include "G4String.hh"
 #include "Analysis.hh"
+#include <G4Event.hh>
 #include "G4Exception.hh"
 #include "TNtuple.h"
 #include "G4EventManager.hh"

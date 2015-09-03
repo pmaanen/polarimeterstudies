@@ -4,6 +4,7 @@
  *  Created on: Jun 19, 2013
  *      Author: maanen
  */
+#if 0
 #ifndef POLARIMETERSTUDIESAMESSENGER_HH_
 #define POLARIMETERSTUDIESAMESSENGER_HH_
 
@@ -32,3 +33,4 @@ private:
 };
 
 #endif /* POLARIMETERSTUDIESAMESSENGER_HH_ */
+#endif

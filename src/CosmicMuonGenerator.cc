@@ -12,6 +12,7 @@
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"
 #include "Analysis.hh"
+#include "G4Event.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),spotsize(0,0,0),position(0,0,0) {

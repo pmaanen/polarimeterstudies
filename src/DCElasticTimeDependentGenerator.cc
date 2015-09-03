@@ -6,6 +6,7 @@
  */
 
 #include <DCElasticTimeDependentGenerator.hh>
+#include <G4Event.hh>
 #include "G4ParticleGun.hh"
 #include "TF1.h"
 #include "Analysis.hh"
