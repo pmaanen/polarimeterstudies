@@ -14,7 +14,20 @@ class SingleCrystal: public JediPolarimeter {
 public:
 	SingleCrystal();
 	virtual ~SingleCrystal();
+	void setPhi(G4double phi) {
+		this->phi = phi;
+		changedParameters=true;
+	}
 
+	void setPsi(G4double psi) {
+		this->psi = psi;
+		changedParameters=true;
+	}
+
+	void setTheta(G4double theta) {
+		this->theta = theta;
+		changedParameters=true;
+	}
 protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
@@ -23,6 +36,7 @@ protected:
 	void defineSurfaces();
 
 private:
+  virtual void DefineCommands();
 	// surfaces
 	G4OpticalSurface *LYSOPolishedAirTeflon; // polished LYSO surface wrapped with teflon
 	G4OpticalSurface *LYSOGroundAirTeflon;   // ground LYSO surface wrapped with teflon
@@ -46,5 +60,6 @@ private:
 
 	G4Cache<CathodeSensitiveDetector*> CathodeSD;
 	G4Cache<CaloSensitiveDetector*> CrystalSD;
+	G4double theta,phi,psi;
 };
 #endif

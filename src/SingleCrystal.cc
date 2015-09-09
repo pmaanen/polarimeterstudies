@@ -19,7 +19,7 @@ cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 using namespace CLHEP;
-SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0),physiCathode(0) {
+SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0),physiCathode(0),theta(0),phi(0),psi(0)  {
 	crystalLength=10*CLHEP::cm;
 	crystalWidth=3*CLHEP::cm;
 	airThickness=0.2*CLHEP::mm;
@@ -140,9 +140,13 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+
 	G4LogicalVolume* logicCrystal=MakeCaloCrystal();
 	auto detectorHalfLength=crystalLength/2+airThickness+wrappingThickness;
-	G4PVPlacement* physiDetector=new G4PVPlacement (0, G4ThreeVector(0,0,detectorHalfLength), logicCrystal, "Detector", logicWorld, false, 0, false);
+	
+		G4RotationMatrix* rot=new G4RotationMatrix();
+	rot->set(phi,theta,psi);
+	G4PVPlacement* physiDetector=new G4PVPlacement (rot, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
 	//World to Wrapping Surface
 	G4LogicalBorderSurface* world2WrapSurface = 0;
 	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, physiWorld, airGroundAluminum);
@@ -164,9 +168,9 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	// Set user cuts to avoid deadlocks
 	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
 	logicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
-
 	return physiWorld;
 }
+
 
 void SingleCrystal::ConstructSDandField() {
 	if (CrystalSD.Get()==0)
@@ -293,5 +297,23 @@ void SingleCrystal::defineSurfaces() {
 	silicaCathodeMaterialProperty->AddProperty("REFLECTIVITY",ener,cathoderefl,2);
 	silicaCathodeMaterialProperty->AddProperty("EFFICIENCY",ener,cathodeeff,2);
 	silicaCathodeMaterial->SetMaterialPropertiesTable(silicaCathodeMaterialProperty);
+	}
 
+void SingleCrystal::DefineCommands() {
+	JediPolarimeter::DefineCommands();
+
+	G4GenericMessenger::Command& thetaCmd
+	= fMessenger->DeclareMethodWithUnit("theta","deg",
+			&SingleCrystal::setTheta,
+			"set theta");
+
+	G4GenericMessenger::Command& phiCmd
+	= fMessenger->DeclareMethodWithUnit("phi","deg",
+			&SingleCrystal::setPhi,
+			"set phi");
+
+	G4GenericMessenger::Command& psiCmd
+	= fMessenger->DeclareMethodWithUnit("psi","deg",
+			&SingleCrystal::setPsi,
+			"set psi");
 }
