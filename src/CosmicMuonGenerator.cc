@@ -21,10 +21,10 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 	momentumAmp=new TF1("energy",functions,&function_helper::energy,0,20,0,"function_helper","energy");
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
 	G4GenericMessenger::Command& spotsizeCmd
-	= fMessenger->DeclareProperty("spotsize", spotsize, "spotsize of muon gun");
+	= fMessenger->DeclarePropertyWithUnit("spotsize","mm", spotsize, "spotsize of muon gun");
 
 	G4GenericMessenger::Command& posCmd
-	= fMessenger->DeclareProperty("position", position, "position of muon gun");
+	= fMessenger->DeclarePropertyWithUnit("position","mm", position, "position of muon gun");
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {

@@ -228,6 +228,8 @@ void PrimaryGeneratorAction::DefineCommands()
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",generatorName,"Set generator name");
 
+	generator.SetGuidance("Possible values are: muon, dcelastic, dcbreakup, dcelastictime.");
+
 	G4GenericMessenger::Command& illuminateCmd
 	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
 
