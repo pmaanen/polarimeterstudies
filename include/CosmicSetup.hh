@@ -30,18 +30,18 @@ public:
 		changedParameters=true;
 	}
 
-	void setPhi(G4double phi) {
-		this->phi = phi;
+	void setTriggerOffsetX(G4double triggerOffsetX) {
+		this->triggerOffsetX = triggerOffsetX;
 		changedParameters=true;
 	}
 
-	void setPsi(G4double psi) {
-		this->psi = psi;
+	void setTriggerOffsetY(G4double triggerOffsetY) {
+		this->triggerOffsetY = triggerOffsetY;
 		changedParameters=true;
 	}
 
-	void setTheta(G4double theta) {
-		this->theta = theta;
+	void setTriggerOffsetZ(G4double triggerOffsetZ) {
+		this->triggerOffsetZ = triggerOffsetZ;
 		changedParameters=true;
 	}
 
@@ -52,7 +52,8 @@ protected:
 	G4Cache<CaloSensitiveDetector*> triggerSD;
 	G4LogicalVolume* logicTrigger;
 	std::vector<int> myTupleId;
-	G4double triggerLength,triggerWidth,triggerThickness,theta,phi,psi;
+	G4double triggerLength,triggerWidth,triggerThickness,triggerOffsetX,triggerOffsetY,triggerOffsetZ;
+	G4bool upperTrigger,lowerTrigger;
 };
 
 #endif /* INCLUDE_COSMICSETUP_HH_ */

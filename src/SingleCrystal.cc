@@ -16,7 +16,7 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-SingleCrystal::SingleCrystal():JediPolarimeter() {
+SingleCrystal::SingleCrystal():JediPolarimeter(),theta(0),phi(0),psi(0) {
 	crystalLength=10*CLHEP::cm;
 	crystalWidth=3*CLHEP::cm;
 
@@ -68,7 +68,29 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-	new G4PVPlacement (0, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
+
+	G4RotationMatrix* rot=new G4RotationMatrix();
+	rot->set(phi,theta,psi);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
 
 	return physiWorld;
+}
+
+void SingleCrystal::DefineCommands() {
+	JediPolarimeter::DefineCommands();
+
+	G4GenericMessenger::Command& thetaCmd
+	= fMessenger->DeclareMethodWithUnit("theta","deg",
+			&SingleCrystal::setTheta,
+			"set theta");
+
+	G4GenericMessenger::Command& phiCmd
+	= fMessenger->DeclareMethodWithUnit("phi","deg",
+			&SingleCrystal::setPhi,
+			"set phi");
+
+	G4GenericMessenger::Command& psiCmd
+	= fMessenger->DeclareMethodWithUnit("psi","deg",
+			&SingleCrystal::setPsi,
+			"set psi");
 }
