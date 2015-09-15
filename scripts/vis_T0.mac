@@ -13,7 +13,7 @@
 /vis/viewer/set/viewpointThetaPhi 90 0
 /vis/viewer/zoom 10
 /vis/drawVolume 
-/vis/scene/add/axes 0 -1.5 0 3 cm
+/vis/scene/add/axes 0 0 0 3 cm
 # global
 /vis/viewer/set/culling  global  true
 # invisible

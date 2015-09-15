@@ -35,7 +35,6 @@ protected:
 
 	void defineSurfaces();
 
-private:
   virtual void DefineCommands();
 	// surfaces
 	G4OpticalSurface *LYSOPolishedAirTeflon; // polished LYSO surface wrapped with teflon

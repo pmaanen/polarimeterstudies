@@ -141,7 +141,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 
-	G4LogicalVolume* logicCrystal=MakeCaloCrystal();
+	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	auto detectorHalfLength=crystalLength/2+airThickness+wrappingThickness;
 	
 		G4RotationMatrix* rot=new G4RotationMatrix();
