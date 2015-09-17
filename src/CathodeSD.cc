@@ -72,6 +72,7 @@ G4bool CathodeSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 void CathodeSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
 	G4int NbHits = photonCollection->entries();
+	G4cout<<"CathodeSD "<<NbHits<<" photons detected."<<G4endl;
 	Analysis* an=Analysis::Instance();
 	an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
 	an->FillNtupleIColumn(myTupleId[0],myTupleId[2],0);

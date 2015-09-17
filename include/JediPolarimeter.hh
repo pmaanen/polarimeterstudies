@@ -81,6 +81,7 @@ public:
 	void setThetaMin(G4double thetaMin) {this->thetaMin = thetaMin;changedParameters=true;}
 	void setDeltaElength(G4double deltaElength){this->deltaELength = deltaElength;changedParameters=true;}
 	void setDeltaEwidth(G4double deltaEwidth){this->deltaEWidth = deltaEwidth;changedParameters=true;}
+	void setWrappingThickness(G4double wrappingThickness) {this->wrappingThickness = wrappingThickness;changedParameters=true;}
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=scintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);

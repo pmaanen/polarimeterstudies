@@ -28,6 +28,22 @@ public:
 		this->theta = theta;
 		changedParameters=true;
 	}
+
+	void setCathodeThickness(G4double cathodeThickness) {
+		this->cathodeThickness = cathodeThickness;
+		changedParameters=true;
+	}
+
+	void setGreaseThickness(G4double greaseThickness) {
+		this->greaseThickness = greaseThickness;
+		changedParameters=true;
+	}
+
+	void setWindowThickness(G4double windowThickness) {
+		this->windowThickness = windowThickness;
+		changedParameters=true;
+	}
+
 protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
@@ -54,7 +70,7 @@ protected:
 	G4OpticalSurface *BGOPolishedAirTeflon; // polished BGO surface wrapped with teflon
 	G4OpticalSurface *BGOGroundAirTeflon;   // ground BGO surface wrapped with teflon
 
-	G4double airThickness;
+	G4double airThickness,greaseThickness,windowThickness,cathodeThickness;
 	G4PVPlacement *physiScint, *physiAirGap,*physiCathode,*physiWindow,*physiGrease;
 
 	G4Cache<CathodeSensitiveDetector*> CathodeSD;

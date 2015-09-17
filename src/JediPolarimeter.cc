@@ -190,7 +190,6 @@ void JediPolarimeter::DefineCommands() {
 	beampipeRadiusCmd.SetRange("bpRadius>=0.");
 	beampipeRadiusCmd.SetDefaultValue("100.");
 
-
 	G4GenericMessenger::Command& crystalLengthCmd
 	= fMessenger->DeclareMethodWithUnit("calolength","mm",
 			&JediPolarimeter::setCrystalLength,
@@ -199,6 +198,15 @@ void JediPolarimeter::DefineCommands() {
 	crystalLengthCmd.SetParameterName("length", true);
 	crystalLengthCmd.SetRange("length>=0.");
 	crystalLengthCmd.SetDefaultValue("100.");
+
+	G4GenericMessenger::Command& wrappingThicknessCmd
+	= fMessenger->DeclareMethodWithUnit("wrapping","um",
+			&JediPolarimeter::setWrappingThickness,
+			"crystal length (um)");
+
+	wrappingThicknessCmd.SetParameterName("wrapping", true);
+	wrappingThicknessCmd.SetRange("wrapping>=0.");
+	wrappingThicknessCmd.SetDefaultValue("100.");
 
 	G4GenericMessenger::Command& crystalWidthCmd
 	= fMessenger->DeclareMethodWithUnit("calowidth","mm",
