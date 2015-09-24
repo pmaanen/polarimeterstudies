@@ -7,6 +7,7 @@
 
 #include <JediPolarimeter.hh>
 #include <G4UnionSolid.hh>
+#include <algorithm>
 #include <fstream>
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
@@ -28,11 +29,13 @@ JediPolarimeter::JediPolarimeter(std::string _infile):infile(_infile) {
 
 	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
 
-	const G4int numentrieslyso = 6;
-	G4double lysoenergies[numentrieslyso] = { 1.2*CLHEP::eV, 2.94*CLHEP::eV, 2.95*CLHEP::eV, 2.96*CLHEP::eV, 2.97*CLHEP::eV, 6.5*CLHEP::eV }; // saint-gobain (420 nm)
-	G4double lysofastcomp[numentrieslyso] = { 0.0, 0., 1.0, 1.0, 0., 0.0 };
-	G4double lysorindices[numentrieslyso] = { 1.81, 1.81, 1.81, 1.81, 1.81, 1.81 }; // saint-gobain
-	G4double lysoabsorptionlength[numentrieslyso] = { 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm, 42*CLHEP::cm }; // vilardi2006
+	const G4int numentrieslyso = 20;
+	G4double lysoenergies[numentrieslyso] = {1.5*CLHEP::eV, 1.97*CLHEP::eV, 2.08*CLHEP::eV, 2.18*CLHEP::eV, 2.29*CLHEP::eV, 2.42*CLHEP::eV, 2.57*CLHEP::eV, 2.71*CLHEP::eV, 2.78*CLHEP::eV, 2.80*CLHEP::eV, 2.85*CLHEP::eV, 2.93*CLHEP::eV, 3.00*CLHEP::eV, 3.06*CLHEP::eV, 3.11*CLHEP::eV, 3.15*CLHEP::eV, 3.24*CLHEP::eV, 3.29*CLHEP::eV, 3.36*CLHEP::eV, 6*CLHEP::eV}; // saint-gobain (420 nm)
+	G4double lysofastcomp[numentrieslyso] = {0.00,0.56,1.26,2.39,5.19,9.73,16.56,22.65,23.82,24.57,24.94,23.49,20.26,16.19,12.03,8.84,3.70,1.68,0.66,0.00};
+	G4double lysorindices[numentrieslyso];
+	std::fill_n(lysorindices,numentrieslyso,1.81);// saint-gobain
+	G4double lysoabsorptionlength[numentrieslyso];
+	std::fill_n(lysoabsorptionlength,numentrieslyso,42*CLHEP::cm);// vilardi2006
 	G4MaterialPropertiesTable* lysoprop = new G4MaterialPropertiesTable();
 	lysoprop->AddProperty("FASTCOMPONENT", lysoenergies, lysofastcomp, numentrieslyso);
 	lysoprop->AddProperty("RINDEX",        lysoenergies, lysorindices, numentrieslyso);
