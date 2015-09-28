@@ -8,23 +8,8 @@ class hit:
         self.detid=hit.detid
         self.edep=hit.edep
         self.event=hit.event
-def readGeom(geomfile):
-    rawdata=genfromtxt(geomfile,skip_header=1)
-    detIds=[]
-    phis=[]
-    theta=[]
-    for row in rawdata:
-        detIds.append(int(row[0]))
-        phi=atan2(float(row[1]),float(row[2]))*180./3.1415
-        if phi<0:
-            phi+=360
-        phis.append(phi)
-        theta.append(atan2(hypot(row[1],row[2]),row[3])*180/3.1415)
-    angles=zip(phis,theta)
-    return dict(zip(detIds,angles))
 
-
-def doEvent(calo,de,phihisto,thetahisto,phivsthetahisto,etothisto,dehisto,geometry):
+def doEvent(calo,de):
     if len(calo)==0:
         print "no hits, event skipped"
         return
@@ -40,26 +25,20 @@ def doEvent(calo,de,phihisto,thetahisto,phivsthetahisto,etothisto,dehisto,geomet
                 dehisto.Fill(calohit.edep,dehit.edep)
                 
 def doFile(filename):
-    angle_dict=readGeom("geometry.dat")
     infile=ROOT.TFile(filename,"UPDATE")
     calorimeter=infile.Get("Calorimeter")
-    de=infile.Get("DeltaE")
+    trigger=infile.Get("Trigger")
     
     calorhits=[]
-    dehits=[]
+    triggerhits=[]
     print "reading hits into vectors"
     for ihit in calorimeter:
         calorhits.append(hit(ihit))
     for ihit in de:
-        dehits.append(hit(ihit))
+        triggerhits.append(hit(ihit))
     print "sorting hits"
     calorhits.sort(key=lambda hit: hit.event)
-    dehits.sort(key=lambda hit: hit.detid)
-    phihisto=ROOT.TH1F("phi","phi",8,0,360)
-    thetahisto=ROOT.TH1F("theta","theta",10,0,20)
-    anglehisto=ROOT.TH2F("PhivsTheta","PhiVsTheta",8,0,360,10,0,20)
-    dehisto_etot=ROOT.TH2F("E1vsEtot","E1 vs Etot",250,0,250,100,0,100)
-    dehisto_ecal=ROOT.TH2F("E1vsE2","E1 vs E2",250,0,250,100,0,100)
+    triggerhits.sort(key=lambda hit: hit.event)
 
         
     thisEventCalor=[]
@@ -82,17 +61,8 @@ def doFile(filename):
                     break
         if len(calorhits)==0 or len(dehits)==0:
             break
-    #while True:
-    #    if de
-    fitfunc=ROOT.TF1("fitfunc","[1]*(1+[0]*cos(3.1415/180.*x+[2]))",0,360)
-    phihisto.Scale(1./phihisto.GetEntries())
-    phihisto.Fit("fitfunc")
-    phihisto.Write()
-    thetahisto.Write()
-    anglehisto.Write()
-    dehisto_etot.Write()
-    dehisto_ecal.Write()
-    return [fitfunc.GetParameter(0),fitfunc.GetParError(0)]
+
+        
 files=[]
 asym=[]
 asymErr=[]
