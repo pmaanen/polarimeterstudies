@@ -20,6 +20,7 @@ public:
 private:
 	std::vector<G4int> myTupleId;
 	G4bool runInitialized;
+	G4String name;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */

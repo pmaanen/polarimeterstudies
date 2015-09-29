@@ -52,9 +52,11 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-	Analysis::Instance()->PrepareNewRun(aRun);
-	Analysis::Instance()->OpenFile(Analysis::Instance()->getFilename());
-	PushBackFileName(Analysis::Instance()->GetFileName());
+	auto an=Analysis::Instance();
+	if(an->isEnabled()){
+		Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
+		PushBackFileName(Analysis::Instance()->GetFileName());
+	}
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
@@ -88,41 +90,43 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	G4cout <<"Run Number:" <<aRun->GetRunID()<<" ended\n";
-
-	Analysis::Instance()->Write();
-	Analysis::Instance()->CloseFile();
-	if(IsMaster()){
-		return;
-		if(filenames){
-			std::ostringstream hadd;
-			std::ostringstream rm;
-			std::ostringstream mv;
-			rm<<"rm ";
-			mv<<"mv "<<Analysis::Instance()->GetFileName()<<"_merged.root "<<Analysis::Instance()->GetFileName()<<".root ";;
-			hadd<<"hadd "<<Analysis::Instance()->GetFileName()<<"_merged.root ";
-			G4cout<<"I have "<<filenames->size()<<" filenames. ";
-			G4cout<<"These are: ";
-			G4String extension;
-			auto name=Analysis::Instance()->GetFileName();
-			if ( name.find(".") != std::string::npos ) {
-				extension = name.substr(name.find("."));
-				name = name.substr(0, name.find("."));
+	auto an=Analysis::Instance();
+	if(an->isEnabled()){
+		an->Write();
+		an->CloseFile();
+		if(IsMaster()){
+			return;
+			if(filenames){
+				std::ostringstream hadd;
+				std::ostringstream rm;
+				std::ostringstream mv;
+				rm<<"rm ";
+				mv<<"mv "<<Analysis::Instance()->GetFileName()<<"_merged.root "<<Analysis::Instance()->GetFileName()<<".root ";;
+				hadd<<"hadd "<<Analysis::Instance()->GetFileName()<<"_merged.root ";
+				G4cout<<"I have "<<filenames->size()<<" filenames. ";
+				G4cout<<"These are: ";
+				G4String extension;
+				auto name=Analysis::Instance()->GetFileName();
+				if ( name.find(".") != std::string::npos ) {
+					extension = name.substr(name.find("."));
+					name = name.substr(0, name.find("."));
+				}
+				else {
+					extension = ".";
+					extension.append(Analysis::Instance()->GetFileType());
+				}
+				for(auto iName : *filenames){
+					G4cout<<iName<<" ";
+					hadd<<iName<<" ";
+					rm<<iName<<" ";
+				}
+				G4cout<<G4endl;
+				system(hadd.str().c_str());
+				system(rm.str().c_str());
+				system(mv.str().c_str());
 			}
-			else {
-				extension = ".";
-				extension.append(Analysis::Instance()->GetFileType());
-			}
-			for(auto iName : *filenames){
-				G4cout<<iName<<" ";
-				hadd<<iName<<" ";
-				rm<<iName<<" ";
-			}
-			G4cout<<G4endl;
-			system(hadd.str().c_str());
-			system(rm.str().c_str());
-			system(mv.str().c_str());
+			ClearFileNames();
 		}
-		ClearFileNames();
 	}
 	if (!IsMaster())
 	{
