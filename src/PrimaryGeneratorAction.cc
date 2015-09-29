@@ -233,6 +233,9 @@ void PrimaryGeneratorAction::DefineCommands()
 	G4GenericMessenger::Command& illuminateCmd
 	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
 
+	
+	G4GenericMessenger::Command& listCmd
+	  = fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
 }
 // eof
 

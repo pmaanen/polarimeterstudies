@@ -15,21 +15,40 @@ Command line options:
 
 --general.macro_file -m: macro file
 
---general.batch_mode -b: choose if batch mode or graphical
+--general.batch_mode -b: flag for batch mode
 
 
 
 ===GEOMETRY===
-gdml:file load gdml file. 
+
+gdml:file load gdml file.
+
 cubic:[file]
+
 ===HITS===
+
 Todo
+
 ===GENERATOR===
-you can set generator mode by /PolarimeterStudies/generator/Mode N
-enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5,MUON=6};
-GUN: Standard particle gun
-INPUTFILE: inputfile in the format eventid particleid id px/GeV py/GeV pz/GeV [vx/mm] [vy/mm] [vz/mm] [t/s]
-GENERATE: generate from phase space.
+
+You can set generator mode by /PolarimeterStudies/generator/Mode N
+
+The following modes are available:
+
+1: Particle Gun
+
+2: Read from input file in the format  eventid particleid id px/GeV py/GeV pz/GeV [vx/mm] [vy/mm] [vz/mm] [t/s]
+
+3: Built-In generator
+
+The following generators are available
+
+GENERATE: generate from TGenPhaseSpace
+
 DCELASTIC: dc elastic scattering with the model taken from Ed's note
-DCBREAKUP: the same for dc->pnnc from the same note
+
+dcelastictime: dc elastic scattering with the model taken with
+intensity and polarization
+
+DCBREAKUP: dc->pnc from the same note
 MUON: muon gun with model from PDG booklet
