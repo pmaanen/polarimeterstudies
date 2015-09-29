@@ -38,6 +38,7 @@ protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double length);
 	virtual G4LogicalVolume* MakeDeltaECrystal();
+	G4double distanceToEdge(G4double a, G4double b, G4ThreeVector direction);
 	virtual ~JediCubicPolarimeter();
 };
 
