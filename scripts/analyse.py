@@ -60,8 +60,10 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
+    return edep.GetMaximumBin()
 def main():
+    edep_mean=[]
     for filename in sys.argv[1:]:
         print "analysing "+str(filename)
-        doFile(filename)
+        edep_mean.append(doFile(filename))
 main()
