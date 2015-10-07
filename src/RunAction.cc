@@ -4,7 +4,11 @@
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
 #include "Analysis.hh"
+#ifdef G4MULTITHREADED
+#include "G4MTRunManager.hh"
+#else
 #include "G4RunManager.hh"
+#endif
 #include "Randomize.hh"
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
@@ -13,7 +17,6 @@
 
 namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
 
-std::vector<G4String>* RunAction::filenames=0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 RunAction::RunAction()
 {
@@ -23,7 +26,7 @@ RunAction::RunAction()
 
 	seed = -1;      // RANLUX seed
 	luxury = 3;     // RANLUX luxury level (3 is default)
-	saveRndm = 1;
+	saveRndm = 0;
 	fNEvents=0;
 
 	Analysis* analysisManager = Analysis::Instance();
@@ -37,10 +40,6 @@ RunAction::RunAction()
 RunAction::~RunAction()
 {
 	G4AutoLock lock(&RunActionMutex);
-	if(filenames){
-		delete filenames;
-		filenames=0;
-	}
 	delete Analysis::Instance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -55,7 +54,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	auto an=Analysis::Instance();
 	if(an->isEnabled()){
 		Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
-		PushBackFileName(Analysis::Instance()->GetFileName());
 	}
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
@@ -95,16 +93,9 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		an->Write();
 		an->CloseFile();
 		if(IsMaster()){
-			return;
-			if(filenames){
 				std::ostringstream hadd;
 				std::ostringstream rm;
 				std::ostringstream mv;
-				rm<<"rm ";
-				mv<<"mv "<<Analysis::Instance()->GetFileName()<<"_merged.root "<<Analysis::Instance()->GetFileName()<<".root ";;
-				hadd<<"hadd "<<Analysis::Instance()->GetFileName()<<"_merged.root ";
-				G4cout<<"I have "<<filenames->size()<<" filenames. ";
-				G4cout<<"These are: ";
 				G4String extension;
 				auto name=Analysis::Instance()->GetFileName();
 				if ( name.find(".") != std::string::npos ) {
@@ -115,17 +106,15 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 					extension = ".";
 					extension.append(Analysis::Instance()->GetFileType());
 				}
-				for(auto iName : *filenames){
-					G4cout<<iName<<" ";
-					hadd<<iName<<" ";
-					rm<<iName<<" ";
+				rm<<"rm ";
+				hadd<<"hadd -f "<<Analysis::Instance()->GetFileName()<<" ";
+				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
+					hadd<<name<<"_t"<<ii<<extension<<" ";
+					rm<<name<<"_t"<<ii<<extension<<" ";
 				}
-				G4cout<<G4endl;
 				system(hadd.str().c_str());
 				system(rm.str().c_str());
 				system(mv.str().c_str());
-			}
-			ClearFileNames();
 		}
 	}
 	if (!IsMaster())
@@ -140,25 +129,4 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
-}
-
-void RunAction::ClearFileNames() {
-	G4AutoLock lock(&RunActionMutex);
-	if(filenames)
-		delete filenames;
-	filenames=0;
-}
-
-void RunAction::PushBackFileName(G4String filename) {
-	G4AutoLock lock(&RunActionMutex);
-	if(!filenames)
-		filenames=new std::vector<G4String>;
-
-	std::ostringstream fullName;
-	if(G4Threading::IsWorkerThread())
-		fullName<<filename<<"_t"<<G4Threading::G4GetThreadId();
-	else
-		fullName<<filename;
-
-	filenames->push_back(fullName.str());
 }
