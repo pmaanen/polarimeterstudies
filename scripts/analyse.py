@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/python
 import ROOT
 from numpy import genfromtxt,asarray
 from array import array
