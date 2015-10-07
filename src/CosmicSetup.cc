@@ -38,11 +38,11 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 	new G4PVPlacement (rot, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
 	if(triggerThickness>0 and triggerLength>0 and triggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",triggerWidth/2,triggerThickness/2,triggerLength/2);
-		logicTrigger=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
+		caloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
 		if(upperTrigger)
-		new G4PVPlacement(0,G4ThreeVector(triggerOffsetX,crystalWidth/2+triggerThickness/2+triggerOffsetY,triggerLength/2+triggerOffsetZ),logicTrigger,"Trigger",logicWorld,false,0,false);
+		new G4PVPlacement(0,G4ThreeVector(triggerOffsetX,crystalWidth/2+triggerThickness/2+triggerOffsetY,triggerLength/2+triggerOffsetZ),caloSDVolumes["Trigger"],"Trigger",logicWorld,false,0,false);
 		if(lowerTrigger)
-		new G4PVPlacement(0,G4ThreeVector(triggerOffsetX,-crystalWidth/2-triggerThickness/2-triggerOffsetY,triggerLength/2+triggerOffsetZ),logicTrigger,"Trigger",logicWorld,false,1,false);
+		new G4PVPlacement(0,G4ThreeVector(triggerOffsetX,-crystalWidth/2-triggerThickness/2-triggerOffsetY,triggerLength/2+triggerOffsetZ),caloSDVolumes["Trigger"],"Trigger",logicWorld,false,1,false);
 	}
 	return physiWorld;
 }
@@ -80,7 +80,7 @@ void CosmicSetup::DefineCommands() {
 			&CosmicSetup::setTriggerOffsetY,
 			"trigger offset in y dir. (mm)");
 	G4GenericMessenger::Command& trgOffsetZCmd
-	= fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
+	= fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
 			&CosmicSetup::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 

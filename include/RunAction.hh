@@ -35,11 +35,6 @@ private:
 	G4int luxury;
 	G4int seed;
 
-	static std::vector<G4String>* filenames;
-	void ClearFileNames();
-	void PushBackFileName(G4String filename);
-
-
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

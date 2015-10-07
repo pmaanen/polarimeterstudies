@@ -98,8 +98,6 @@ JediPolarimeter::~JediPolarimeter() {
 	delete fMessenger;
 }
 
-void JediPolarimeter::ConstructSDandField() {}
-
 void JediPolarimeter::ComputeParameters() {
 	//crystalWidth+=2*CLHEP::mm;
 	detectorZ = (beampipeRadius+5*CLHEP::mm) / tan( thetaMin );
@@ -322,4 +320,12 @@ void JediPolarimeter::UpdateGeometry(){
 	G4RegionStore::GetInstance()->UpdateMaterialList(physiWorld);
 	G4RunManager::GetRunManager()->ReinitializeGeometry();
 
+}
+
+void JediPolarimeter::ConstructSDandField() {
+	for(auto iVol: caloSDVolumes){
+		if (CaloSD[iVol.first].Get()==0)
+			CaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
+		SetSensitiveDetector(iVol.second,CaloSD[iVol.first].Get());
+	}
 }

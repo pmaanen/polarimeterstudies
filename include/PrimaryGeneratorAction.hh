@@ -49,6 +49,7 @@ class G4ParticleGun;
 	G4String generatorName;
 
 	protected:
+	  void listModes(){for (auto iGen:evtGenerators){G4cout<<iGen.first;}};
 
 } ;
 
