@@ -176,7 +176,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		for(int iCrystalY=-MaxCrystal; iCrystalY<MaxCrystal+1;iCrystalY++){
 			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
 			auto dePlacement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ-0.5*deltaELength);
-			if((placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/sqrt(2))>outerDetectorRadius)
+			if((placement.perp()-distanceToEdge(crystalWidth,crystalWidth,placement))<innerDetectorRadius or (placement.perp()-distanceToEdge(crystalWidth,crystalWidth,placement))>outerDetectorRadius)
 				continue;
 			if(fy!=-999)
 				fy++;
@@ -227,4 +227,13 @@ void JediCubicPolarimeter::ConstructSDandField() {
 			CaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
 		SetSensitiveDetector(iVol.second,CaloSD[iVol.first].Get());
 	}
+}
+
+G4double JediCubicPolarimeter::distanceToEdge(G4double a, G4double b,
+		G4ThreeVector direction) {
+	auto direction2d=G4TwoVector(direction.getX(),direction.getY());
+	auto alpha=direction.angle(G4ThreeVector(0,1,0))*CLHEP::rad;
+	while(alpha>45*CLHEP::deg)
+		alpha-=90*CLHEP::deg;
+	return a*sqrt(1+tan(alpha)*tan(alpha));
 }
