@@ -63,7 +63,13 @@ def doFile(filename):
     return edep.GetMaximumBin()
 def main():
     edep_mean=[]
-    for filename in sys.argv[1:]:
+    Leff=range(30,85,5)
+    for iLeff in Leff:
+        filename="deuterons_"+str(iLeff)+".root"
         print "analysing "+str(filename)
         edep_mean.append(doFile(filename))
+    myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
+    c1=ROOT.TCanvas("",800,600)
+    myGraph.Draw("ALP")
+    c1.Print("c1.eps")
 main()
