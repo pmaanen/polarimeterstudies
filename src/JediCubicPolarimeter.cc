@@ -83,8 +83,8 @@ G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
 	G4Box* solidReflector= new G4Box("Wrapping",(crystalWidth-1*wrappingThickness)/2,(crystalWidth-1*wrappingThickness)/2,(crystalLength-1*wrappingThickness)/2);
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
 	 */
-	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
-	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
+	G4Box* solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
+	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
 	/*
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
@@ -95,7 +95,7 @@ G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
-	caloSDVolumes["CaloCrystal"]=logicDetector;
+	fCaloSDVolumes["CaloCrystal"]=logicDetector;
 	return logicDetector;
 }
 
@@ -123,11 +123,11 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDetector(G4String name, G4Material* m
 
 G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 
-	G4Box* solidWrapping= new G4Box("Wrapping",deltaEWidth/2,deltaEWidth/2,deltaELength/2);
+	G4Box* solidWrapping= new G4Box("Wrapping",fDeltaEWidth/2,fDeltaEWidth/2,fDeltaELength/2);
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Wrapping");
-	G4Box* solidReflector= new G4Box("Reflector",(deltaEWidth-1*wrappingThickness)/2,(deltaEWidth-1*wrappingThickness)/2,(deltaELength-1*wrappingThickness)/2);
+	G4Box* solidReflector= new G4Box("Reflector",(fDeltaEWidth-1*fWrappingThickness)/2,(fDeltaEWidth-1*fWrappingThickness)/2,(fDeltaELength-1*fWrappingThickness)/2);
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
-	G4Box* solidDetector= new G4Box("Detector",(deltaEWidth-2*wrappingThickness)/2,(deltaEWidth-2*wrappingThickness)/2,(deltaELength-2*wrappingThickness)/2);
+	G4Box* solidDetector= new G4Box("Detector",(fDeltaEWidth-2*fWrappingThickness)/2,(fDeltaEWidth-2*fWrappingThickness)/2,(fDeltaELength-2*fWrappingThickness)/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"DeltaE");
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"deltaECrystal",logicReflector, false, 0 , false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
@@ -137,15 +137,15 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(cyan);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 
-	caloSDVolumes["DeltaE"]=logicDetector;
+	fCaloSDVolumes["DeltaE"]=logicDetector;
 	return logicWrapping;
 
 }
 
 G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	JediPolarimeter::Construct();
-	if(infile!=""){
-		std::ifstream ifile(infile);
+	if(fInfileName!=""){
+		std::ifstream ifile(fInfileName);
 		std::string line;
 		double placementX,placementY,placementZ,x,y,z;
 		G4String name="",matName;
@@ -153,30 +153,30 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		while(std::getline(ifile, line)){
 			if(line[0]=='#') continue;
 			std::istringstream(line)>>copyNo>>name>>matName>>x>>y>>z>>placementX>>placementY>>placementZ;
-			if(!caloSDVolumes[name]){
-				caloSDVolumes[name]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);;
+			if(!fCaloSDVolumes[name]){
+				fCaloSDVolumes[name]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);;
 			}
-			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),caloSDVolumes[name] , name, logicWorld, false, copyNo, false);
+			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fCaloSDVolumes[name] , name, fLogicWorld, false, copyNo, false);
 		}
-		return physiWorld;
+		return fPhysiWorld;
 	}
 
 	int fx=-999,fy=-999;
-	geomCache.clear();
+	fGeomCache.clear();
 	std::stringstream buf;
 	buf.clear();
 	buf.str(std::string());
-	G4LogicalVolume* aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName),crystalWidth,crystalWidth,crystalLength);
-	caloSDVolumes["Calorimeter"]=aCrystal;
-	G4LogicalVolume* aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),deltaEWidth,deltaEWidth,deltaELength);
-	caloSDVolumes["DeltaE"]=aDeltaETile;
-	for(int iCrystalX=-MaxCrystal; iCrystalX<MaxCrystal+1;iCrystalX++){
+	G4LogicalVolume* aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
+	fCaloSDVolumes["Calorimeter"]=aCrystal;
+	G4LogicalVolume* aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
+	fCaloSDVolumes["DeltaE"]=aDeltaETile;
+	for(int iCrystalX=-fMaxCrystal; iCrystalX<fMaxCrystal+1;iCrystalX++){
 		if(fx!=-999)
 			fx++;
-		for(int iCrystalY=-MaxCrystal; iCrystalY<MaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
-			auto dePlacement=G4ThreeVector(iCrystalX*crystalWidth,iCrystalY*crystalWidth,detectorZ-0.5*deltaELength);
-			if((placement.perp()-distanceToEdge(crystalWidth,crystalWidth,placement))<innerDetectorRadius or (placement.perp()-distanceToEdge(crystalWidth,crystalWidth,placement))>outerDetectorRadius)
+		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
+			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
+			auto dePlacement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ-0.5*fDeltaELength);
+			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
 				fy++;
@@ -191,20 +191,20 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
-			G4int copyNo=1000*(iCrystalX+MaxCrystal)+iCrystalY+MaxCrystal;
-			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, copyNo, false);
-			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aCrystal->GetName()<<" "<<aCrystal->GetMaterial()->GetName()<<" "<<crystalWidth<<" "<<crystalWidth<<" "<<crystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
-			geomCache.push_back(buf.str());
+			G4int copyNo=1000*(iCrystalX+fMaxCrystal)+iCrystalY+fMaxCrystal;
+			new G4PVPlacement (0, placement, aCrystal, "Crystal", fLogicWorld, false, copyNo, false);
+			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aCrystal->GetName()<<" "<<aCrystal->GetMaterial()->GetName()<<" "<<fCrystalWidth<<" "<<fCrystalWidth<<" "<<fCrystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
+			fGeomCache.push_back(buf.str());
 			buf.clear();
 			buf.str(std::string());
-			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", logicWorld, false, copyNo, false);
-			buf<<std::setw(6)<<copyNo<<" "<<aDeltaETile->GetName()<<" "<<aDeltaETile->GetMaterial()->GetName()<<" "<<deltaEWidth<<" "<<deltaEWidth<<" "<<deltaELength<<" "<<dePlacement.x()<<" "<<dePlacement.y()<<" "<<dePlacement.z();
-			geomCache.push_back(buf.str());
+			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", fLogicWorld, false, copyNo, false);
+			buf<<std::setw(6)<<copyNo<<" "<<aDeltaETile->GetName()<<" "<<aDeltaETile->GetMaterial()->GetName()<<" "<<fDeltaEWidth<<" "<<fDeltaEWidth<<" "<<fDeltaELength<<" "<<dePlacement.x()<<" "<<dePlacement.y()<<" "<<dePlacement.z();
+			fGeomCache.push_back(buf.str());
 			buf.clear();
 			buf.str(std::string());
 		}
 	}
-	return physiWorld;
+	return fPhysiWorld;
 }
 
 
@@ -222,10 +222,10 @@ void JediCubicPolarimeter::DefineCommands() {
 }
 
 void JediCubicPolarimeter::ConstructSDandField() {
-	for(auto iVol: caloSDVolumes){
-		if (CaloSD[iVol.first].Get()==0)
-			CaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
-		SetSensitiveDetector(iVol.second,CaloSD[iVol.first].Get());
+	for(auto iVol: fCaloSDVolumes){
+		if (fCaloSD[iVol.first].Get()==0)
+			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
+		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
 	}
 }
 

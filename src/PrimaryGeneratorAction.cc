@@ -48,46 +48,46 @@ using namespace CLHEP;
 
 namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 
-FileReader* PrimaryGeneratorAction::fileReader = 0;
-PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),_infile(""),_instream("",std::ifstream::in) {
-	_mode=GUN;
+FileReader* PrimaryGeneratorAction::fgFileReader = 0;
+PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),fInfileName(""),fInstream("",std::ifstream::in) {
+	fEMode=GUN;
 	G4int Nparticle = 1 ;
-	_pGun = new G4ParticleGun(Nparticle);
-	illuminationAngle=-1;
+	fParticleGun = new G4ParticleGun(Nparticle);
+	fIlluminationAngle=-1;
 	DefineCommands();
-	evtGenerators["muon"]=new CosmicMuonGenerator(_pGun);
-	evtGenerators["dcelastic"]=new DCElasticEventGenerator(_pGun);
-	evtGenerators["dcbreakup"]=new DCBreakupEventGenerator(_pGun);
-	evtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(_pGun);
-	evtGen=evtGenerators["muon"];
+	fEvtGenerators["muon"]=new CosmicMuonGenerator(fParticleGun);
+	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
+	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
+	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
+	fEvtGen=fEvtGenerators["muon"];
 
-	_pGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
+	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
-	delete _pGun ;
+	delete fParticleGun ;
 }
 
 void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 {
-	generatorName.toLower();
-	if(evtGenerators.count(generatorName)==0){
+	fGeneratorName.toLower();
+	if(fEvtGenerators.count(fGeneratorName)==0){
 		std::stringstream message;
-		message<<"event generator "<<generatorName<<" is not known.";
+		message<<"event generator "<<fGeneratorName<<" is not known.";
 		G4Exception("PrimaryGeneratorAction::generateEventFromPhaseSpace","NO_SUCH_GENERATOR",RunMustBeAborted,message.str().c_str());
 		return;
 	}
-	else evtGenerators[generatorName]->Generate(E);
+	else fEvtGenerators[fGeneratorName]->Generate(E);
 	return;
 }
 
 void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 {
 	PrimaryEvent evt;
-	if(fileReader)
+	if(fgFileReader)
 	{
 		G4AutoLock lock(&PrimaryGeneratorMutex);
-		evt = fileReader->GetEvent();
+		evt = fgFileReader->GetEvent();
 	}
 
 	for(auto ipart : evt){
@@ -107,9 +107,9 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 						message.str().c_str());
 			}
 		}
-		_pGun->SetParticleDefinition(part);
-		_pGun->SetParticleMomentum(G4ThreeVector(ipart.px,ipart.py,ipart.pz)) ;
-		_pGun->GeneratePrimaryVertex(E);
+		fParticleGun->SetParticleDefinition(part);
+		fParticleGun->SetParticleMomentum(G4ThreeVector(ipart.px,ipart.py,ipart.pz)) ;
+		fParticleGun->GeneratePrimaryVertex(E);
 	}
 
 	return;
@@ -118,30 +118,30 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 
 void PrimaryGeneratorAction::generateEventFromGun(G4Event *E)
 {
-	_pGun->GeneratePrimaryVertex(E) ;
+	fParticleGun->GeneratePrimaryVertex(E) ;
 }
 
 void PrimaryGeneratorAction::setMode(G4int mode)
 {
-	auto oldmode=this->_mode;
-	this->_mode = static_cast<GeneratorMode>(mode);
-	if(!(_mode==GUN or _mode==INPUTFILE or _mode==GENERATE)){
+	auto oldmode=this->fEMode;
+	this->fEMode = static_cast<GeneratorMode>(mode);
+	if(!(fEMode==GUN or fEMode==INPUTFILE or fEMode==GENERATE)){
 		std::stringstream o;
-		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
+		o<<"Mode not recognized. Mode: "<<fEMode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
 				o.str().c_str());
-		this->_mode=oldmode;
+		this->fEMode=oldmode;
 	}
-	if(_mode==INPUTFILE){
-		if(_infile==""){
+	if(fEMode==INPUTFILE){
+		if(fInfileName==""){
 			G4Exception("[EventGenerator]", "setMode", JustWarning,
 					" ERROR: Set input file before switching mode. Command ignored");
-			this->_mode=oldmode;
+			this->fEMode=oldmode;
 		}
 		else{
 			G4AutoLock lock(&PrimaryGeneratorMutex);
-			if(!fileReader)
-				fileReader = new FileReader(_infile);
+			if(!fgFileReader)
+				fgFileReader = new FileReader(fInfileName);
 		}
 	}
 }
@@ -149,13 +149,13 @@ void PrimaryGeneratorAction::setMode(G4int mode)
 
 void PrimaryGeneratorAction::setInfile(G4String string)
 {
-	_infile=string;
+	fInfileName=string;
 	//check if input file is open
-	if(!_instream){
+	if(!fInstream){
 		//if not, try to open
-		_instream.open(_infile.c_str());
+		fInstream.open(fInfileName.c_str());
 		//if not opened, file is not found, throw
-		if(!_instream){
+		if(!fInstream){
 			/*
 			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
 			G4Exception("[EventGenerator]", "setInfile", FatalException,
@@ -166,11 +166,11 @@ void PrimaryGeneratorAction::setInfile(G4String string)
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
-	if(illuminationAngle>0){
+	if(fIlluminationAngle>0){
 		illuminateAngle(E);
 		return;
 	}
-	switch(_mode){
+	switch(fEMode){
 	case GUN:
 		generateEventFromGun(E);
 		break;
@@ -182,30 +182,30 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		break;
 	default:
 		std::stringstream o;
-		o<<"Mode not recognized. Mode: "<<_mode<<G4endl;
+		o<<"Mode not recognized. Mode: "<<fEMode<<G4endl;
 		G4Exception("EventGenerator::SetMode()", "ModeError", FatalException,
 				o.str().c_str());
 	}
 }
 
 void PrimaryGeneratorAction::illuminateAngle(G4Event* E) {
-	auto oldparticle=this->_pGun->GetParticleDefinition();
-	auto oldmomentum=this->_pGun->GetParticleMomentumDirection();
-	auto oldposition=this->_pGun->GetParticlePosition();
+	auto oldparticle=this->fParticleGun->GetParticleDefinition();
+	auto oldmomentum=this->fParticleGun->GetParticleMomentumDirection();
+	auto oldposition=this->fParticleGun->GetParticlePosition();
 
 	G4ThreeVector direction(0,0,1);
-	direction.setTheta(illuminationAngle);
-	this->_pGun->SetParticlePosition(G4ThreeVector(0,0,0));
-	this->_pGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
+	direction.setTheta(fIlluminationAngle);
+	this->fParticleGun->SetParticlePosition(G4ThreeVector(0,0,0));
+	this->fParticleGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
 	for(int i=0;i<360;i++){
 		direction.setPhi(i*CLHEP::deg);
-		this->_pGun->SetParticleMomentumDirection(direction);
-		this->_pGun->GeneratePrimaryVertex(E);
+		this->fParticleGun->SetParticleMomentumDirection(direction);
+		this->fParticleGun->GeneratePrimaryVertex(E);
 	}
-	this->_pGun->SetParticleDefinition(oldparticle);
-	this->_pGun->SetParticleMomentumDirection(oldmomentum);
-	this->_pGun->SetParticlePosition(oldposition);
-	illuminationAngle=-1;
+	this->fParticleGun->SetParticleDefinition(oldparticle);
+	this->fParticleGun->SetParticleMomentumDirection(oldmomentum);
+	this->fParticleGun->SetParticlePosition(oldposition);
+	fIlluminationAngle=-1;
 }
 
 void PrimaryGeneratorAction::DefineCommands()
@@ -223,15 +223,15 @@ void PrimaryGeneratorAction::DefineCommands()
 	modeCmd.SetDefaultValue("1");
 
 	G4GenericMessenger::Command& inputCmd
-	= fMessenger->DeclareProperty("setFilename",_infile,"Set input file name");
+	= fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
 
 	G4GenericMessenger::Command& generator
-	= fMessenger->DeclareProperty("setGenerator",generatorName,"Set generator name");
+	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
 
 	generator.SetGuidance("Possible values are: muon, dcelastic, dcbreakup, dcelastictime.");
 
 	G4GenericMessenger::Command& illuminateCmd
-	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",illuminationAngle,"illuminateAngle");
+	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
 
 	
 	G4GenericMessenger::Command& listCmd

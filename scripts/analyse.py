@@ -1,9 +1,15 @@
-#!/opt/local/bin/python
+#!/usr/bin/python
 import ROOT
 from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
+
+
+class Gaus:
+   def __call__( self, x, p ):
+       p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
+
 class hit:
     def __init__(self,hit):
         self.detid=hit.detid
@@ -60,10 +66,19 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
-    return edep.GetMaximumBin()
+    fitfunc = TF1('fitfunc',Gaus(),0,300,3)
+    edep.Fit(fitfunc)
+    result=0
+    return fitfunc.GetParameter(1)
 def main():
     edep_mean=[]
-    for filename in sys.argv[1:]:
+    Leff=range(30,85,5)
+    for iLeff in Leff:
+        filename="deuterons_"+str(iLeff)+".root"
         print "analysing "+str(filename)
         edep_mean.append(doFile(filename))
+    myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
+    c1=ROOT.TCanvas("",800,600)
+    myGraph.Draw("ALP")
+    c1.Print("c1.eps")
 main()

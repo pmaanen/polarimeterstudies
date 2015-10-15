@@ -1,4 +1,5 @@
-/analysis/setFileName deuterons_{angle}.root
+/analysis/setFileName deuterons_{Leff}.root
 /PolarimeterStudies/detector/theta {angle} deg
 /PolarimeterStudies/detector/update
+/control/add Leff {Leff} 5
 /run/beamOn 100000

@@ -72,8 +72,8 @@ JediHexagonalPolarimeter::JediHexagonalPolarimeter(std::string infile):JediPolar
 	DefineCommands();
 }
 G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
-	G4double rOuter[]={0,crystalWidth/sqrt(3),crystalWidth/sqrt(3),0};
-	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,crystalLength,crystalLength};
+	G4double rOuter[]={0,fCrystalWidth/sqrt(3),fCrystalWidth/sqrt(3),0};
+	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,fCrystalLength,fCrystalLength};
 	G4Polyhedra* solidDetector= new G4Polyhedra("Detector", 0*CLHEP::deg, 360*CLHEP::deg, 6, 4, rOuter, z);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PbWO4"),"Detector");
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
@@ -86,20 +86,20 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 	int ii=0;
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	G4cout<<"Geometry START"<<G4endl;
-	for(int iCrystalX=-MaxCrystal-20; iCrystalX<MaxCrystal+20;iCrystalX++){
-		for(int iCrystalY=-MaxCrystal-20; iCrystalY<MaxCrystal+20;iCrystalY++){
+	for(int iCrystalX=-fMaxCrystal-20; iCrystalX<fMaxCrystal+20;iCrystalX++){
+		for(int iCrystalY=-fMaxCrystal-20; iCrystalY<fMaxCrystal+20;iCrystalY++){
 			G4ThreeVector placement;
 			if(iCrystalX % 2 == 0)
-				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,iCrystalY*crystalWidth,detectorZ+0.5*crystalLength);
+				placement=G4ThreeVector(iCrystalX*fCrystalWidth*sqrt(3)/2.,iCrystalY*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
 			else
-				placement=G4ThreeVector(iCrystalX*crystalWidth*sqrt(3)/2.,(iCrystalY+0.5)*crystalWidth,detectorZ+0.5*crystalLength);
-			if((placement.perp()-crystalWidth/CLHEP::mm/2)<innerDetectorRadius or (placement.perp()-crystalWidth/CLHEP::mm/2)>outerDetectorRadius)
+				placement=G4ThreeVector(iCrystalX*fCrystalWidth*sqrt(3)/2.,(iCrystalY+0.5)*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
+			if((placement.perp()-fCrystalWidth/CLHEP::mm/2)<fInnerDetectorRadius or (placement.perp()-fCrystalWidth/CLHEP::mm/2)>fOuterDetectorRadius)
 				continue;
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
 			G4cout<<"Crystal "<<ii+1<<" "<<phi/CLHEP::deg<<G4endl;
-			new G4PVPlacement (0, placement, aCrystal, "Crystal", logicWorld, false, ++ii, false);
+			new G4PVPlacement (0, placement, aCrystal, "Crystal", fLogicWorld, false, ++ii, false);
 		}
 	}
 
@@ -107,7 +107,7 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 	G4cout<<"----------------"<<G4endl;
 	G4cout<<"number of crystals: "<<ii<<G4endl;
 	G4cout<<"----------------"<<G4endl;
-	return physiWorld;
+	return fPhysiWorld;
 }
 
 void JediHexagonalPolarimeter::DefineCommands() {

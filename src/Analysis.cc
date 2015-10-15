@@ -33,7 +33,7 @@
 Analysis* Analysis::fgMasterInstance = 0;
 G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
-Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enabled(false)
+Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),fEnabled(false)
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
@@ -46,5 +46,5 @@ Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),_enabled(fal
 	}
 	if ( isMaster ) fgMasterInstance = this;
 	fgInstance = this;
-	_analysisMessenger=new AnalysisMessenger(this);
+	fAnalysisMessenger=new AnalysisMessenger(this);
 }

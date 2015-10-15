@@ -25,9 +25,9 @@ public:
 	virtual PrimaryEvent Generate();
 	virtual void Initialize();
 
-	function_helper* functions;
-	TF1* angle,*momentumAmp;
-	G4ThreeVector position, spotsize;
+	function_helper* fFunctions;
+	TF1* fAngle,*fMomentumAmp;
+	G4ThreeVector fPosition, fSpotsize;
 
 
 	G4GenericMessenger* fMessenger;

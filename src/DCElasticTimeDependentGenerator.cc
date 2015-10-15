@@ -10,38 +10,38 @@
 #include "TF1.h"
 #include "Analysis.hh"
 DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator(G4ParticleGun* pgun):DCElasticEventGenerator(pgun) {
-	t_min=0;
+	fTmin=0;
 	t_max=100;
-	tau=25;
-	t_cur=0;
-	fct_helper=new time_functions(t_max,t_min,tau);
-	polarization_time_dependence=new TF1("polarization_time_dependence",fct_helper,&time_functions::polarization_time_dependence,t_min,t_max,1,"time_functions","polarization_time_dependence");
-	intensity_time_dependence=new TF1("intensity_time_dependence",fct_helper,&time_functions::intensity_time_dependence,t_min,t_max,1,"time_functions","intensity_time_dependence");
+	fTau=25;
+	fTcur=0;
+	fTimeFunctions=new time_functions(t_max,fTmin,fTau);
+	fPolarizationTimeDependence=new TF1("polarization_time_dependence",fTimeFunctions,&time_functions::polarization_time_dependence,fTmin,t_max,1,"time_functions","polarization_time_dependence");
+	fIntensityTimeDependence=new TF1("intensity_time_dependence",fTimeFunctions,&time_functions::intensity_time_dependence,fTmin,t_max,1,"time_functions","intensity_time_dependence");
 	DefineCommands();
-	Initialized=false;
+	fInitialized=false;
 }
 
 DCElasticTimeDependentGenerator::~DCElasticTimeDependentGenerator() {
-	delete polarization_time_dependence;
-	delete intensity_time_dependence;
+	delete fPolarizationTimeDependence;
+	delete fIntensityTimeDependence;
 }
 
 PrimaryEvent DCElasticTimeDependentGenerator::Generate() {
-	if(!Initialized)
+	if(!fInitialized)
 		Initialize();
 	G4double delta_t;
 	while(true){
 		//delta_t=t_cur+(t_max-t_cur)*G4UniformRand();
-		t_cur=(t_max-t_min)*G4UniformRand();
-		G4double acc=G4UniformRand()*intensity_time_dependence->GetMaximum(t_min,t_max);
+		fTcur=(t_max-fTmin)*G4UniformRand();
+		G4double acc=G4UniformRand()*fIntensityTimeDependence->GetMaximum(fTmin,t_max);
 		//G4cout<<"t_cur="<<t_cur<<" intensity_time_dependence->Eval(t_cur)="<<intensity_time_dependence->Eval(t_cur/CLHEP::s)<<" acc="<<acc<<G4endl;
-		if(intensity_time_dependence->Eval(t_cur/CLHEP::s)>acc)
+		if(fIntensityTimeDependence->Eval(fTcur/CLHEP::s)>acc)
 			break;
 	}
 	//t_cur+=delta_t;
-	setBeamPolarization(polarization_time_dependence->Eval(t_cur));
+	setBeamPolarization(fPolarizationTimeDependence->Eval(fTcur));
 	auto event=PrimaryEvent(DCElasticEventGenerator::Generate());
-	event.t=t_cur;
+	event.t=fTcur;
 	return event;
 }
 
@@ -63,7 +63,7 @@ void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],pGun->GetParticlePosition().getY()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
 		an->FillNtupleFColumn(myTupleId[0],myTupleId[9],pGun->GetParticleTime()/CLHEP::s);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[10],this->beamPolarization);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[10],this->fBeamPolarization);
 		an->AddNtupleRow(myTupleId[0]);
 	}
 	return;
@@ -93,8 +93,8 @@ void DCElasticTimeDependentGenerator::DefineCommands() {
 
 void DCElasticTimeDependentGenerator::Initialize() {
 	DCElasticEventGenerator::Initialize();
-	intensity_time_dependence->SetParameter(0,tau/CLHEP::s);
-	polarization_time_dependence->SetParameter(0,t_max);
-	Initialized=true;
+	fIntensityTimeDependence->SetParameter(0,fTau/CLHEP::s);
+	fPolarizationTimeDependence->SetParameter(0,t_max);
+	fInitialized=true;
 	return;
 }

@@ -26,38 +26,38 @@ public:
   static const int kSubdetOffset       = 25;
 
 
-  enum Detector { Tracker=1,dE=2,Calo=3};
+  enum Detector { kTracker=1,kDeltaE=2,fCalo=3};
   /// Create an empty or null id
-  DetId()  : id_(0) { }
+  DetId()  : fId(0) { }
   /// Create an id from a raw number
-  DetId(UInt_t id) : id_(id) { }
+  DetId(UInt_t id) : fId(id) { }
   /// Create an id, filling the detector and subdetector fields as specified
   DetId(Detector det, int subdet)  {
-    id_=((det&0xF)<<kDetOffset)|((subdet&0x7)<<kSubdetOffset);
+    fId=((det&0xF)<<kDetOffset)|((subdet&0x7)<<kSubdetOffset);
   }
 
   /// get the detector field from this detid
-  Detector det() const { return Detector((id_>>kDetOffset)&0xF); }
+  Detector det() const { return Detector((fId>>kDetOffset)&0xF); }
   /// get the contents of the subdetector field (not cast into any detector's numbering enum)
-  int subdetId() const { return ((id_>>kSubdetOffset)&0x7); }
+  int subdetId() const { return ((fId>>kSubdetOffset)&0x7); }
 
-  UInt_t operator()() const { return id_; }
-  operator UInt_t() const { return id_; }
+  UInt_t operator()() const { return fId; }
+  operator UInt_t() const { return fId; }
 
   /// get the raw id
-  UInt_t rawId() const { return id_; }
+  UInt_t rawId() const { return fId; }
   /// is this a null id ?
-  bool null() const { return id_==0; }
+  bool null() const { return fId==0; }
 
   /// equality
-  bool operator==(DetId id) const { return id_==id.id_; }
+  bool operator==(DetId id) const { return fId==id.fId; }
   /// inequality
-  bool operator!=(DetId id) const { return id_!=id.id_; }
+  bool operator!=(DetId id) const { return fId!=id.fId; }
   /// comparison
-  bool operator<(DetId id) const { return id_<id.id_; }
+  bool operator<(DetId id) const { return fId<id.fId; }
 
 protected:
-  UInt_t id_;
+  UInt_t fId;
 };
 
 /// equality

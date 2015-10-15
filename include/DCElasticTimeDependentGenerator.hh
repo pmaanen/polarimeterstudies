@@ -21,26 +21,26 @@ public:
 	virtual void DefineCommands();
 
 	void setMax(G4double max) {
-		t_max = max;
-		Initialized=false;
+		fTmax = max;
+		fInitialized=false;
 	}
 
 	void setMin(G4double min) {
-		t_min = min;
-		Initialized=false;
+		fTmin = min;
+		fInitialized=false;
 	}
 
 	void setTau(G4double tau) {
-		this->tau = tau;
-		Initialized=false;
+		this->fTau = tau;
+		fInitialized=false;
 	}
 
 private:
-	TF1* polarization_time_dependence;
-	TF1* intensity_time_dependence;
+	TF1* fPolarizationTimeDependence;
+	TF1* fIntensityTimeDependence;
 
-	time_functions* fct_helper;
-	G4double t_min,t_max,tau,t_cur;
+	time_functions* fTimeFunctions;
+	G4double fTmin,fTmax,fTau,fTcur;
 	void Initialize();
 
 
