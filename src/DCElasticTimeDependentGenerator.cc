@@ -49,7 +49,6 @@ void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
 	auto event=PrimaryEvent(Generate());
 	fParticleGun->SetParticleTime(event.t*CLHEP::s);
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		//TODO Write Truth
 		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		fParticleGun->GeneratePrimaryVertex(E);

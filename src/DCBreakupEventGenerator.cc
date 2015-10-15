@@ -80,10 +80,21 @@ void DCBreakupEventGenerator::Initialize() {
 void DCBreakupEventGenerator::Generate(G4Event* E) {
 	auto event=PrimaryEvent(Generate());
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		//TODO Write Truth
 		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		fParticleGun->GeneratePrimaryVertex(E);
+		Analysis* an=Analysis::Instance();
+		an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
+		an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iPart->id);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[3],iPart->px);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iPart->py);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iPart->pz);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[9],fParticleGun->GetParticleTime()/CLHEP::s);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[10],this->fBeamPolarization);
+		an->AddNtupleRow(fTupleId[0]);
 	}
 	return;
 }
