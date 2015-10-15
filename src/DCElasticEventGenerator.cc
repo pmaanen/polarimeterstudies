@@ -27,7 +27,7 @@
 using namespace CLHEP;
 
 static double DegToRad=3.14159265359/180.;
-static double RadToDeg=1/DegToRad;
+//static double RadToDeg=1/DegToRad;
 DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fCrossSection(0),fTiltX(0),fTiltY(0),fXPrime(0),fYPrime(0),fBeamspot(0,0,0),fSpotsize(0,0,0){
 	fBeamEnergy=235.*CLHEP::MeV;
 	fBeamPolarization=Double_t(2./3.);
@@ -75,18 +75,18 @@ void DCElasticEventGenerator::Initialize() {
 	fCrossSection->SetParameter(2,fBeamPolarization);
 	fMaxY=fCrossSection->GetMaximum();
 	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"t"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pol"));
-	an->FinishNtuple(myTupleId[0]);
+	fTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"t"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pol"));
+	an->FinishNtuple(fTupleId[0]);
 
 	VertexGeneratorO::GetInstance()->setBeamposition(0,0,0);
 	VertexGeneratorO::GetInstance()->setBeamsize(1*CLHEP::mm,1*CLHEP::mm,1*CLHEP::mm);
@@ -118,22 +118,22 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 
 
 	auto event=PrimaryEvent(Generate());
-	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		pGun->GeneratePrimaryVertex(E);
+		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
+		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
+		fParticleGun->GeneratePrimaryVertex(E);
 		Analysis* an=Analysis::Instance();
-		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
-		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],iPart->id);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[3],iPart->px);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],iPart->py);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[5],iPart->pz);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[6],pGun->GetParticlePosition().getX()/CLHEP::mm);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[7],pGun->GetParticlePosition().getY()/CLHEP::mm);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
-		an->FillNtupleFColumn(myTupleId[0],myTupleId[9],pGun->GetParticleTime()/CLHEP::s);
-		an->AddNtupleRow(myTupleId[0]);
+		an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
+		an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iPart->id);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[3],iPart->px);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iPart->py);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iPart->pz);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
+		an->FillNtupleFColumn(fTupleId[0],fTupleId[9],fParticleGun->GetParticleTime()/CLHEP::s);
+		an->AddNtupleRow(fTupleId[0]);
 	}
 	return;
 }

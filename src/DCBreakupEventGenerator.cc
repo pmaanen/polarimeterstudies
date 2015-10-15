@@ -12,7 +12,7 @@
 #include "G4ParticleGun.hh"
 
 static double DegToRad=3.14159265359/180.;
-static double RadToDeg=1/DegToRad;
+//static double RadToDeg=1/DegToRad;
 
 DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun),fCrossSection(0) {
 	fBeamEnergy=235.*CLHEP::MeV;
@@ -63,17 +63,17 @@ void DCBreakupEventGenerator::Initialize() {
 	fMaxY=fCrossSection->GetMaximum();
 
 	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"Ex"));
-	an->FinishNtuple(myTupleId[0]);
+	fTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"Ex"));
+	an->FinishNtuple(fTupleId[0]);
 	fInitialized=true;
 }
 
@@ -81,9 +81,9 @@ void DCBreakupEventGenerator::Generate(G4Event* E) {
 	auto event=PrimaryEvent(Generate());
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		//TODO Write Truth
-		pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		pGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		pGun->GeneratePrimaryVertex(E);
+		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
+		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
+		fParticleGun->GeneratePrimaryVertex(E);
 	}
 	return;
 }
@@ -135,8 +135,6 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 
 			proton_4.Boost(-CMv);          // in case beam simulation
 			//retrieve polar scattering angle for proton in cm-frame
-			G4double CM_theta_scattered = proton_4.Theta()*CLHEP::rad;
-
 
 			G4double Ex=(fBeam.Energy()+fTarget.Energy()-proton_4.Energy()-carbon_4.Energy()-neutron_4.Energy())*CLHEP::GeV-2.22*CLHEP::MeV;
 			if(Ex<0)
@@ -201,9 +199,7 @@ Double_t deuteron_breakup_model::d2(Double_t theta, Double_t E) {
 
 void DCBreakupEventGenerator::DefineCommands() {
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCbreakup/", "breakup event generator control");
-	G4GenericMessenger::Command& polCmd
-	= fMessenger->DeclareMethod("polarization", &DCBreakupEventGenerator::setBeamPolarization, "beam polarization");
 
-	G4GenericMessenger::Command& eneCmd
-	= fMessenger->DeclareMethod("energy", &DCBreakupEventGenerator::setBeamEnergy, "beam energy");
+	fMessenger->DeclareMethod("polarization", &DCBreakupEventGenerator::setBeamPolarization, "beam polarization");
+	fMessenger->DeclareMethod("energy", &DCBreakupEventGenerator::setBeamEnergy, "beam energy");
 }
