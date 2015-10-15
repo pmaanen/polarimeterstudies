@@ -16,44 +16,44 @@ public:
 	virtual ~CosmicSetup();
 
 	void setTriggerLength(G4double triggerLength) {
-		this->triggerLength = triggerLength;
-		changedParameters=true;
+		this->fTriggerLength = triggerLength;
+		fChangedParameters=true;
 	}
 
 	void setTriggerThickness(G4double triggerThickness) {
-		this->triggerThickness = triggerThickness;
-		changedParameters=true;
+		this->fTriggerThickness = triggerThickness;
+		fChangedParameters=true;
 	}
 
 	void setTriggerWidth(G4double triggerWidth) {
-		this->triggerWidth = triggerWidth;
-		changedParameters=true;
+		this->fTriggerWidth = triggerWidth;
+		fChangedParameters=true;
 	}
 
 	void setTriggerOffsetX(G4double triggerOffsetX) {
-		this->triggerOffsetX = triggerOffsetX;
-		changedParameters=true;
+		this->fTriggerOffsetX = triggerOffsetX;
+		fChangedParameters=true;
 	}
 
 	void setTriggerOffsetY(G4double triggerOffsetY) {
-		this->triggerOffsetY = triggerOffsetY;
-		changedParameters=true;
+		this->fTriggerOffsetY = triggerOffsetY;
+		fChangedParameters=true;
 	}
 
 	void setTriggerOffsetZ(G4double triggerOffsetZ) {
-		this->triggerOffsetZ = triggerOffsetZ;
-		changedParameters=true;
+		this->fTriggerOffsetZ = triggerOffsetZ;
+		fChangedParameters=true;
 	}
 
 protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
 	virtual void ConstructSDandField();
-	G4Cache<CaloSensitiveDetector*> triggerSD;
-	G4LogicalVolume* logicTrigger;
-	std::vector<int> myTupleId;
-	G4double triggerLength,triggerWidth,triggerThickness,triggerOffsetX,triggerOffsetY,triggerOffsetZ;
-	G4bool upperTrigger,lowerTrigger;
+	G4Cache<CaloSensitiveDetector*> fTriggerSD;
+	G4LogicalVolume* fLogicTrigger;
+	std::vector<int> fMyTupleId;
+	G4double fTriggerLength,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
+	G4bool fUpperTrigger,fLowerTrigger;
 };
 
 #endif /* INCLUDE_COSMICSETUP_HH_ */

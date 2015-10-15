@@ -14,17 +14,17 @@
 #include "Analysis.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),spotsize(0,0,0),position(0,0,0) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fSpotsize(0,0,0),fPosition(0,0,0) {
 
-	functions=new function_helper;
-	angle=new TF1("cos_squared",functions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
-	momentumAmp=new TF1("energy",functions,&function_helper::energy,0,20,0,"function_helper","energy");
+	fFunctions=new function_helper;
+	fAngle=new TF1("cos_squared",fFunctions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
+	fMomentumAmp=new TF1("energy",fFunctions,&function_helper::energy,0,20,0,"function_helper","energy");
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
 	G4GenericMessenger::Command& spotsizeCmd
-	= fMessenger->DeclarePropertyWithUnit("spotsize","mm", spotsize, "spotsize of muon gun");
+	= fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
 
 	G4GenericMessenger::Command& posCmd
-	= fMessenger->DeclarePropertyWithUnit("position","mm", position, "position of muon gun");
+	= fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {
@@ -32,28 +32,28 @@ CosmicMuonGenerator::~CosmicMuonGenerator() {
 }
 
 void CosmicMuonGenerator::Generate(G4Event* E) {
-	if(!runInitialized)
+	if(!fRunInitialized)
 		Initialize();
 	auto event=Generate();
 	auto muon=event.particles[0];
 	auto momentum=G4ThreeVector(muon.px,muon.py,muon.pz);
 
-	pGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 
 	Analysis* an=Analysis::Instance();
-	an->FillNtupleIColumn(myTupleId[0],myTupleId[1],E->GetEventID());
-	an->FillNtupleIColumn(myTupleId[0],myTupleId[2],muon.id);
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[3],momentum.getX());
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[4],momentum.getY());
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[5],momentum.getZ());
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[6],pGun->GetParticlePosition().getX()/CLHEP::mm);
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[7],pGun->GetParticlePosition().getY()/CLHEP::mm);
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[8],pGun->GetParticlePosition().getZ()/CLHEP::mm);
-	an->AddNtupleRow(myTupleId[0]);
+	an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
+	an->FillNtupleIColumn(fTupleId[0],fTupleId[2],muon.id);
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[3],momentum.getX());
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[4],momentum.getY());
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[5],momentum.getZ());
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
+	an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
+	an->AddNtupleRow(fTupleId[0]);
 
-	pGun->SetParticleMomentum(momentum) ;
-	pGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
-	pGun->GeneratePrimaryVertex(E);
+	fParticleGun->SetParticleMomentum(momentum) ;
+	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
+	fParticleGun->GeneratePrimaryVertex(E);
 
 }
 
@@ -67,7 +67,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	while(yMom>0){
 		while(1){
 			theta=G4UniformRand()*CLHEP::pi/2;
-			if(angle->Eval(theta)>angle->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
+			if(fAngle->Eval(theta)>fAngle->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
 				break;
 		}
 		phi=G4UniformRand()*2*CLHEP::pi;
@@ -78,33 +78,33 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 			part=G4MuonMinus::MuonMinusDefinition();
 		while(1){
 			mom=G4UniformRand()*20;
-			if(momentumAmp->Eval(mom)>momentumAmp->GetMaximum(0,20)*G4UniformRand())
+			if(fMomentumAmp->Eval(mom)>fMomentumAmp->GetMaximum(0,20)*G4UniformRand())
 				break;
 		}
 		mom*=CLHEP::GeV;
 		momentum=G4ThreeVector(mom*sin(theta)*cos(phi),mom*(-cos(theta)),mom*(sin(theta)*sin(phi)));
 		yMom=momentum.getY();
 	}
-	auto vx=position.getX()+spotsize.getX()*(G4UniformRand()-0.5);
-	auto vy=position.getY()+spotsize.getY()*(G4UniformRand()-0.5);
-	auto vz=position.getZ()+spotsize.getZ()*(G4UniformRand()-0.5);
+	auto vx=fPosition.getX()+fSpotsize.getX()*(G4UniformRand()-0.5);
+	auto vy=fPosition.getY()+fSpotsize.getY()*(G4UniformRand()-0.5);
+	auto vz=fPosition.getZ()+fSpotsize.getZ()*(G4UniformRand()-0.5);
 	PrimaryEvent res(0,vx,vy,vz);
 	res.particles.push_back(PrimaryParticle(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ()));
 	return res;
 }
 
 void CosmicMuonGenerator::Initialize() {
-	myTupleId.clear();
+	fTupleId.clear();
 	Analysis* an=Analysis::Instance();
-	myTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"pid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"px"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"py"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"pz"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vx"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vy"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"vz"));
-	an->FinishNtuple(myTupleId[0]);
-	runInitialized=true;
+	fTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
+	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
+	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
+	an->FinishNtuple(fTupleId[0]);
+	fRunInitialized=true;
 }

@@ -19,7 +19,7 @@ public:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
 protected:
-	G4Material* absorberMaterial;
+	G4Material* fAbsorberMaterial;
 };
 
 #endif /* INCLUDE_JEDISANDWICHCALORIMETER_HH_ */

@@ -31,18 +31,18 @@ public:
 	//For use by geant
 	virtual void Generate(G4Event* E);
 	virtual void beginOfRun(){};
-	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
-	if(cross_section)
-		cross_section->SetParameter(2,beamPolarization);
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);
+	if(fCrossSection)
+		fCrossSection->SetParameter(2,fBeamPolarization);
 	}
 protected:
 
-	Double_t momentum_cms,beamPolarization;
+	Double_t fMomentumCMS,fBeamPolarization;
 	G4GenericMessenger* fMessenger;
-	elastic_scattering_model* scattering_model;
-	G4double xprime,yprime,tiltx,tilty;
-	G4ThreeVector beamspot, spotsize;
-	TF2* cross_section;
+	elastic_scattering_model* fScatteringModel;
+	G4double fXPrime,fYPrime,fTiltX,fTiltY;
+	G4ThreeVector fBeamspot, fSpotsize;
+	TF2* fCrossSection;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 	virtual TF2* BuildFunction();

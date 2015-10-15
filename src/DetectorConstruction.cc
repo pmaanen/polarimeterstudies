@@ -65,11 +65,11 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
-:physiWorld(0),parser(G4GDMLParser()),geomfile("")
+:fPhysiWorld(0),fParser(G4GDMLParser()),fGeomFile("")
 {
 	DefineCommands();
 	if(gConfig.count("detector.geometry"))
-		this->geomfile=gConfig["detector.geometry"].as<std::string>().c_str();
+		this->fGeomFile=gConfig["detector.geometry"].as<std::string>().c_str();
 }
 
 
@@ -101,7 +101,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 	G4LogicalVolumeStore::GetInstance()->Clean();
 	G4SolidStore::GetInstance()->Clean();
 	// World
-	if(geomfile==""){
+	if(fGeomFile==""){
 		/*
 		G4double z[]={0,150*mm};
 		G4double rInner={0*mm,0*mm};
@@ -112,7 +112,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		G4Box* solidWorld=new G4Box("World",1*m,1*m,1*m);
 		G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 		logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
-		physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+		fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 
 		/*
 		G4LogicalVolume* logicCrystal=parser.GetVolume("CrystalLV");
@@ -126,22 +126,22 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		 */
 	}
 	else{
-		parser.Read(geomfile);
-		physiWorld=parser.GetWorldVolume();
+		fParser.Read(fGeomFile);
+		fPhysiWorld=fParser.GetWorldVolume();
 	}
 
-	return physiWorld;
+	return fPhysiWorld;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorConstruction::WriteWorldToFile(G4String filename) {
-	if(!physiWorld){
+	if(!fPhysiWorld){
 		std::stringstream o;
 		o<<"physiWorld pointer is NULL.";
 		G4Exception("DetectorConstruction::WriteWorldToFile()","PointerError",JustWarning,o.str().c_str());
 		return;
 	}
-	parser.Write(filename,physiWorld);
+	fParser.Write(filename,fPhysiWorld);
 }
 
 void DetectorConstruction::ConstructSDandField() {
@@ -149,7 +149,7 @@ void DetectorConstruction::ConstructSDandField() {
 	// Sensitive detectors
 	//------------------------------------------------
 
-	const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
+	const G4GDMLAuxMapType* auxmap = fParser.GetAuxMap();
 	G4SDManager* SDman=G4SDManager::GetSDMpointer();
 	for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
 			iter!=auxmap->end(); iter++)

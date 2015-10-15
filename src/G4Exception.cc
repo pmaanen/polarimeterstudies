@@ -9,4 +9,4 @@
 
 myG4Exception::myG4Exception(const char* originOfException,
 		const char* exceptionCode,G4ExceptionSeverity severity,
-		const char* description):_s(""),_originOfException(originOfException),_exceptionCode(exceptionCode),_severity(severity){}
+		const char* description):fWhat(""),fOriginOfException(originOfException),fExceptionCode(exceptionCode),fSeverity(severity){}

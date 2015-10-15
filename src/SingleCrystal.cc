@@ -16,9 +16,9 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-SingleCrystal::SingleCrystal():JediPolarimeter(),theta(0),phi(0),psi(0) {
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=3*CLHEP::cm;
+SingleCrystal::SingleCrystal():JediPolarimeter(),fTheta(0),fPhi(0),fPsi(0) {
+	fCrystalLength=10*CLHEP::cm;
+	fCrystalWidth=3*CLHEP::cm;
 
 	DefineCommands();
 }
@@ -35,8 +35,8 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
 	*/
 
-	G4Box* solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
-	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
+	G4Box* solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
+	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
 	/*
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
@@ -46,24 +46,24 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	*/
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	caloSDVolumes["Calorimeter"]=logicDetector;
+	fCaloSDVolumes["Calorimeter"]=logicDetector;
 	return logicDetector;
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {
-	if(changedParameters)
+	if(fChangedParameters)
 		ComputeParameters();
-	G4Box* solidWorld=new G4Box("World",worldSizeXY/2,worldSizeXY/2,worldSizeZ/2);
-	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
-	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
-	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
+	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
+	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
-	rot->set(phi,theta,psi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,crystalLength/2), aCrystal, "Crystal", logicWorld, false, 0, false);
+	rot->set(fPhi,fTheta,fPsi);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 
-	return physiWorld;
+	return fPhysiWorld;
 }
 
 void SingleCrystal::DefineCommands() {

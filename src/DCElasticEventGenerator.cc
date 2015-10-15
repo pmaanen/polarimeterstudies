@@ -28,52 +28,52 @@ using namespace CLHEP;
 
 static double DegToRad=3.14159265359/180.;
 static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),cross_section(0),tiltx(0),tilty(0),xprime(0),yprime(0),beamspot(0,0,0),spotsize(0,0,0){
-	beamEnergy=235.*CLHEP::MeV;
-	beamPolarization=Double_t(2./3.);
-	Initialized=false;
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fCrossSection(0),fTiltX(0),fTiltY(0),fXPrime(0),fYPrime(0),fBeamspot(0,0,0),fSpotsize(0,0,0){
+	fBeamEnergy=235.*CLHEP::MeV;
+	fBeamPolarization=Double_t(2./3.);
+	fInitialized=false;
 
-	thetaMin=5*CLHEP::deg;
-	thetaMax=20*CLHEP::deg;
+	fThetaMin=5*CLHEP::deg;
+	fThetaMax=20*CLHEP::deg;
 	DefineCommands();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 DCElasticEventGenerator::~DCElasticEventGenerator() {
-	if(cross_section)
-		delete cross_section;
-	cross_section=0;
-	if(scattering_model)
-		delete scattering_model;
-	scattering_model=0;
+	if(fCrossSection)
+		delete fCrossSection;
+	fCrossSection=0;
+	if(fScatteringModel)
+		delete fScatteringModel;
+	fScatteringModel=0;
 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
-	particles.clear();
-	particles.push_back(G4Deuteron::DeuteronDefinition());
-	particles.push_back(G4IonTable::GetIonTable()->GetIon(6,12));
-	for(auto ipart=particles.begin();ipart!=particles.end();++ipart){
+	fParticles.clear();
+	fParticles.push_back(G4Deuteron::DeuteronDefinition());
+	fParticles.push_back(G4IonTable::GetIonTable()->GetIon(6,12));
+	for(auto ipart=fParticles.begin();ipart!=fParticles.end();++ipart){
 		if(!(*ipart))
 			G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",FatalException,"beam particle not found.");
 	}
-	Double_t m_target = particles[1]->GetPDGMass()/GeV;
-	Double_t m_beam = particles[0]->GetPDGMass()/GeV;
-	target.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
+	Double_t m_target = fParticles[1]->GetPDGMass()/GeV;
+	Double_t m_beam = fParticles[0]->GetPDGMass()/GeV;
+	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
 	Double_t masses[2] = {m_beam, m_target} ;
-	beam.SetPxPyPzE(0, 0, sqrt(beamEnergy/CLHEP::GeV*(beamEnergy/CLHEP::GeV+2*m_beam)), beamEnergy/CLHEP::GeV+m_beam);
-	cms = beam + target;
-	TLorentzVector temp=beam;
-	temp.Boost(-cms.BoostVector());
-	momentum_cms=temp.Vect().Mag();
-	ps.SetDecay(cms, 2, masses);
-	if(!cross_section)
+	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
+	fCms = fBeam + fTarget;
+	TLorentzVector temp=fBeam;
+	temp.Boost(-fCms.BoostVector());
+	fMomentumCMS=temp.Vect().Mag();
+	fPhaseSpace.SetDecay(fCms, 2, masses);
+	if(!fCrossSection)
 		BuildFunction();
-	cross_section->SetParameter(0,beamEnergy/CLHEP::MeV);
-	cross_section->SetParameter(1,momentum_cms);
-	cross_section->SetParameter(2,beamPolarization);
-	MaxY=cross_section->GetMaximum();
+	fCrossSection->SetParameter(0,fBeamEnergy/CLHEP::MeV);
+	fCrossSection->SetParameter(1,fMomentumCMS);
+	fCrossSection->SetParameter(2,fBeamPolarization);
+	fMaxY=fCrossSection->GetMaximum();
 	Analysis* an=Analysis::Instance();
 	myTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
 	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
@@ -91,7 +91,7 @@ void DCElasticEventGenerator::Initialize() {
 	VertexGeneratorO::GetInstance()->setBeamposition(0,0,0);
 	VertexGeneratorO::GetInstance()->setBeamsize(1*CLHEP::mm,1*CLHEP::mm,1*CLHEP::mm);
 	VertexGeneratorU::GetInstance()->setBeamsize(0,0,5*CLHEP::mm);
-	Initialized=true;
+	fInitialized=true;
 }
 
 void DCElasticEventGenerator::DefineCommands()
@@ -106,12 +106,12 @@ void DCElasticEventGenerator::DefineCommands()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TF2* DCElasticEventGenerator::BuildFunction() {
-	scattering_model=new elastic_scattering_model;
-	cross_section=new TF2("xsec",scattering_model,&elastic_scattering_model::sigma,3.,30.,0.,360.,3,"MyFunction","sigma");
-	cross_section->SetParName(0,"Energy");
-	cross_section->SetParName(1,"Momentum");
-	cross_section->SetParName(2,"Polarization");
-	return cross_section;
+	fScatteringModel=new elastic_scattering_model;
+	fCrossSection=new TF2("xsec",fScatteringModel,&elastic_scattering_model::sigma,3.,30.,0.,360.,3,"MyFunction","sigma");
+	fCrossSection->SetParName(0,"Energy");
+	fCrossSection->SetParName(1,"Momentum");
+	fCrossSection->SetParName(2,"Polarization");
+	return fCrossSection;
 }
 
 void DCElasticEventGenerator::Generate(G4Event* E) {
@@ -140,21 +140,21 @@ void DCElasticEventGenerator::Generate(G4Event* E) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 PrimaryEvent DCElasticEventGenerator::Generate() {
-	if(!Initialized)
+	if(!fInitialized)
 		Initialize();
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	while (1) {
-		beam.RotateX(tiltx+G4RandGauss::shoot(tiltx,xprime));
-		beam.RotateY(tilty+G4RandGauss::shoot(tilty,yprime));
+		fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
+		fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
 
 		//Sample an event assuming constant cross-section in cm-system
-		ps.Generate();
+		fPhaseSpace.Generate();
 		//L-vector of scattered particle in lab-frame
-		TLorentzVector pscattered_4 = *ps.GetDecay(0);
+		TLorentzVector pscattered_4 = *fPhaseSpace.GetDecay(0);
 
 		//L-vector of recoil particle in lab-frame
-		TLorentzVector precoil_4 = *ps.GetDecay(1) ;
+		TLorentzVector precoil_4 = *fPhaseSpace.GetDecay(1) ;
 
 		//spatial parts of generated L-vectors
 		G4ThreeVector precoil_3(precoil_4.Vect().X()*GeV,precoil_4.Vect().Y()*GeV,precoil_4.Vect().Z()*GeV);
@@ -177,16 +177,16 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 		//G4double phi_recoil = precoil_3.getPhi();
 
 		//Set angular cut in lab-frame
-		if(th_scattered>thetaMin and th_scattered<thetaMax){
+		if(th_scattered>fThetaMin and th_scattered<fThetaMax){
 
 			//Boost momentum of deuteron from lab-sytem to cm-system.
-			TVector3 CMv = cms.BoostVector();     // in case beam simulation
+			TVector3 CMv = fCms.BoostVector();     // in case beam simulation
 
 			pscattered_4.Boost(-CMv);          // in case beam simulation
 			//retrieve polar scattering angle for deuteron in cm-frame
 			G4double CM_theta_scattered = pscattered_4.Theta()*CLHEP::rad;
-			G4double acc=MaxY*G4UniformRand();
-			if(cross_section->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc){
+			G4double acc=fMaxY*G4UniformRand();
+			if(fCrossSection->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc){
 				continue;
 			}
 			else {
@@ -194,8 +194,8 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 				res.vx=pos.getX();
 				res.vy=pos.getY();
 				res.vz=pos.getZ();
-				res.particles.push_back(PrimaryParticle(particles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
-				res.particles.push_back(PrimaryParticle(particles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
+				res.particles.push_back(PrimaryParticle(fParticles[0]->GetPDGEncoding(),pscattered_3.getX(),pscattered_3.getY(),pscattered_3.getZ()));
+				res.particles.push_back(PrimaryParticle(fParticles[1]->GetPDGEncoding(),precoil_3.getX(),precoil_3.getY(),precoil_3.getZ()));
 				return res;
 			}
 		}

@@ -14,12 +14,12 @@
 
 namespace { G4Mutex FileWriterMutex = G4MUTEX_INITIALIZER; }
 
-FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fileWriter = 0;
+FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fgFileWriter = 0;
 
-FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),evtGen(new DCElasticTimeDependentGenerator){
+FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),fEvtGen(new DCElasticTimeDependentGenerator){
 	G4AutoLock lock(&FileWriterMutex);
-	if(!fileWriter){
-			fileWriter=new FileWriter(fileName,nEvents);
+	if(!fgFileWriter){
+			fgFileWriter=new FileWriter(fileName,nEvents);
 	}
 }
 
@@ -49,11 +49,11 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
 	G4bool doMore=true;
 	while(doMore){
 		for(G4int ii=0;ii<cacheSize;ii++){
-			evtCache.push_back(evtGen->Generate());
+			evtCache.push_back(fEvtGen->Generate());
 		}
-		if(fileWriter){
+		if(fgFileWriter){
 			G4AutoLock lock(&FileWriterMutex);
-			doMore=fileWriter->WriteEventsToFile(evtCache);
+			doMore=fgFileWriter->WriteEventsToFile(evtCache);
 			evtCache.clear();
 		}
 		else{
@@ -68,10 +68,10 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
 }
 
 FileWriterPrimaryGeneratorAction::~FileWriterPrimaryGeneratorAction() {
-	delete evtGen;
+	delete fEvtGen;
 	G4AutoLock lock(&FileWriterMutex);
-		if(fileWriter){
-				delete fileWriter;
-				fileWriter=0;
+		if(fgFileWriter){
+				delete fgFileWriter;
+				fgFileWriter=0;
 		}
 }
