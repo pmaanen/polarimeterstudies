@@ -4,6 +4,12 @@ from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
+
+
+class Gaus:
+   def __call__( self, x, p ):
+       p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
+
 class hit:
     def __init__(self,hit):
         self.detid=hit.detid
@@ -60,7 +66,10 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
-    return edep.GetMaximumBin()
+    fitfunc = TF1('fitfunc',Gaus(),0,300,3)
+    edep.Fit(fitfunc)
+    result=0
+    return fitfunc.GetParameter(1)
 def main():
     edep_mean=[]
     Leff=range(30,85,5)
