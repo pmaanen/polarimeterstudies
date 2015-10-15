@@ -9,9 +9,8 @@
 #
 /vis/scene/create
 /vis/open OGLS
-#/vis/viewer/set/style solid
+/vis/viewer/set/style solid
 /vis/viewer/set/viewpointThetaPhi 90 0
-/vis/viewer/zoom 10
 /vis/drawVolume 
 /vis/scene/add/axes 0 -1.5 0 3 cm
 # global
@@ -23,15 +22,11 @@
 /vis/viewer/set/hiddenMarker 1
 /vis/scene/add/trajectories
 /vis/scene/add/hits
-#############Dont draw photons
+#############Dont draw photons and neutrons
 /vis/filtering/trajectories/create/particleFilter
 /vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/add neutron
 /vis/filtering/trajectories/particleFilter-0/invert true
-############## for test 
-#/gun/position 0 1 .3 m
-#/gun/direction 0 -1 0
-#/gun/particle proton
-#/gun/energy 232 MeV
 ################################
 /tracking/storeTrajectory 1
 /vis/scene/endOfEventAction accumulate 1
