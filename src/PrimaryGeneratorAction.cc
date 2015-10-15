@@ -96,8 +96,8 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 			G4int Z,A,lvl;
 			Z=0;
 			A=0;
-			G4double E;
-			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,E,lvl);
+			G4double En=0;
+			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
 			G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
 			part=G4IonTable::GetIonTable()->GetIon(Z,A);
 			if(!part){
@@ -222,20 +222,14 @@ void PrimaryGeneratorAction::DefineCommands()
 	//	modeCmd.SetRange("mode>=1. && mode<=2.");
 	modeCmd.SetDefaultValue("1");
 
-	G4GenericMessenger::Command& inputCmd
-	= fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
-
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
 
 	generator.SetGuidance("Possible values are: muon, dcelastic, dcbreakup, dcelastictime.");
-
-	G4GenericMessenger::Command& illuminateCmd
-	= fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
-
 	
-	G4GenericMessenger::Command& listCmd
-	  = fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
+	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
+	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
+	fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
 }
 // eof
 

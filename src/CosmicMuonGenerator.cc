@@ -14,17 +14,16 @@
 #include "Analysis.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fSpotsize(0,0,0),fPosition(0,0,0) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fFunctions=new function_helper;
 	fAngle=new TF1("cos_squared",fFunctions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
 	fMomentumAmp=new TF1("energy",fFunctions,&function_helper::energy,0,20,0,"function_helper","energy");
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
-	G4GenericMessenger::Command& spotsizeCmd
-	= fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
 
-	G4GenericMessenger::Command& posCmd
-	= fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
+	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
+
+	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {

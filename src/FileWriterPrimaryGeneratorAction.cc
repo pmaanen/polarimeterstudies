@@ -23,7 +23,7 @@ FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents
 	}
 }
 
-void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
+void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	/*
 	 * I hijacked the fct to implement my event generation. This should only be called once per thread.
 	 * TODO: Implement like following

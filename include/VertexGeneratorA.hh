@@ -14,7 +14,7 @@ using namespace std ;
 class VertexGeneratorA : public VVertexGenerator {
 private:
 
-	VertexGeneratorA() : VVertexGenerator() {}
+	VertexGeneratorA() : VVertexGenerator(),qx(0),qy(0) {}
 	virtual	~VertexGeneratorA() {}
 
 public:

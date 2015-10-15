@@ -18,7 +18,7 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun) {
 	fThetaMax=20*CLHEP::deg;
 	DefineCommands();
 
-	pGun=gun;
+	fParticleGun=gun;
 }
 
 PhaseSpaceGenerator::~PhaseSpaceGenerator() {}

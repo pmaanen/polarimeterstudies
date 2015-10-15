@@ -40,7 +40,7 @@ private:
 	TF1* fIntensityTimeDependence;
 
 	time_functions* fTimeFunctions;
-	G4double fTmin,fTmax,fTau,fTcur;
+	G4double fTmin,fTmax,fTau,fTCur;
 	void Initialize();
 
 
@@ -48,7 +48,8 @@ private:
 
 class time_functions{
 public:
-	time_functions(Double_t max,Double_t min,Double_t t){};
+	//max,min,t
+	time_functions(Double_t, Double_t ,Double_t ){};
 	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
 		return x[0]/(par[0])*2/3;
 	}
