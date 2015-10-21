@@ -30,8 +30,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
 			G4int collID=this->GetCollectionID(iPrim);
 			auto evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
-
-			for(const auto& iHit:evtMap->GetMap()){
+			for(const auto& iHit:*(evtMap->GetMap())){
 				try{
 					an->FillNtupleIColumn(fTupleId[0],fTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
 					an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iHit.first);

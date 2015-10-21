@@ -137,7 +137,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		HCE->AddHitsCollection(HCID,fHitsCollection);
 		G4int nHits=fHitsCollection->entries();
 
-		for(const auto &iHit : fHitsCollection->GetVector()){
+		for(const auto &iHit : *(fHitsCollection->GetVector())){
 			an->FillNtupleIColumn(fTupleId[0],fTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
 			an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iHit->GetTrackID());
 			an->FillNtupleIColumn(fTupleId[0],fTupleId[3],iHit->GetParticleId());
