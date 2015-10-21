@@ -97,11 +97,9 @@ void DCElasticEventGenerator::Initialize() {
 void DCElasticEventGenerator::DefineCommands()
 {
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCelastic/", "elastic event generator control");
-	G4GenericMessenger::Command& polCmd
-	= fMessenger->DeclareMethod("polarization", &DCElasticEventGenerator::setBeamPolarization, "beam polarization");
 
-	G4GenericMessenger::Command& eneCmd
-	= fMessenger->DeclareMethod("energy", &DCElasticEventGenerator::setBeamEnergy, "beam energy");
+	fMessenger->DeclareMethod("polarization", &DCElasticEventGenerator::setBeamPolarization, "beam polarization");
+	fMessenger->DeclareMethod("energy", &DCElasticEventGenerator::setBeamEnergy, "beam energy");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

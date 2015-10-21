@@ -17,7 +17,7 @@
 #include <G4Colour.hh>
 #include <G4Transform3D.hh>
 #include <G4VisManager.hh>
-CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name),fMyTupleId(),fName(name),fRunInitialized(false) {
+CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name),fTupleId(),fName(name),fRunInitialized(false) {
 	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",depth);
 	this->RegisterPrimitive(scorer);
 }
@@ -29,15 +29,15 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	if(an->isEnabled()){
 		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
 			G4int collID=this->GetCollectionID(iPrim);
-			G4THitsMap<G4double>* evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
-			std::map<G4int,G4double*>::iterator itr = evtMap->GetMap()->begin();
-			for(; itr != evtMap->GetMap()->end(); itr++){
+			auto evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
+
+			for(const auto& iHit:evtMap->GetMap()){
 				try{
-					an->FillNtupleIColumn(fMyTupleId[0],fMyTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
-					an->FillNtupleIColumn(fMyTupleId[0],fMyTupleId[2],itr->first);
-					an->FillNtupleFColumn(fMyTupleId[0],fMyTupleId[3],*(itr->second)/CLHEP::MeV);
-					an->FillNtupleFColumn(fMyTupleId[0],fMyTupleId[4],0);
-					an->AddNtupleRow(fMyTupleId[0]);
+					an->FillNtupleIColumn(fTupleId[0],fTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
+					an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iHit.first);
+					an->FillNtupleFColumn(fTupleId[0],fTupleId[3],*(iHit.second)/CLHEP::MeV);
+					an->FillNtupleFColumn(fTupleId[0],fTupleId[4],0);
+					an->AddNtupleRow(fTupleId[0]);
 				}
 				catch(myG4Exception& exc){
 					G4cout <<exc.getExceptionCode()<<" caught in hit loop"<<G4endl;
@@ -53,12 +53,12 @@ void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled() and !fRunInitialized){
-		fMyTupleId.push_back(an->CreateNtuple(fName,fName));
-		fMyTupleId.push_back(an->CreateNtupleIColumn(fMyTupleId[0],"event"));
-		fMyTupleId.push_back(an->CreateNtupleIColumn(fMyTupleId[0],"detid"));
-		fMyTupleId.push_back(an->CreateNtupleFColumn(fMyTupleId[0],"edep"));
-		fMyTupleId.push_back(an->CreateNtupleFColumn(fMyTupleId[0],"time"));
-		an->FinishNtuple(fMyTupleId[0]);
+		fTupleId.push_back(an->CreateNtuple(fName,fName));
+		fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
+		fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"detid"));
+		fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"edep"));
+		fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"time"));
+		an->FinishNtuple(fTupleId[0]);
 		fRunInitialized=true;
 	}
 }
