@@ -26,7 +26,7 @@ FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents
 void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	/*
 	 * I hijacked the fct to implement my event generation. This should only be called once per thread.
-	 * TODO: Implement like following
+	 * Implement like following:
 	 * 1) Write events to internal cache
 	 * 2) obtain lock
 	 * 3) Send events to FileWriter

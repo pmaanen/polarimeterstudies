@@ -136,15 +136,16 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		}
 		HCE->AddHitsCollection(HCID,fHitsCollection);
 		G4int nHits=fHitsCollection->entries();
-		for(G4int ii=0;ii<nHits;ii++){
+
+		for(const auto &iHit : *(fHitsCollection->GetVector())){
 			an->FillNtupleIColumn(fTupleId[0],fTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
-			an->FillNtupleIColumn(fTupleId[0],fTupleId[2],(*fHitsCollection)[ii]->GetTrackID());
-			an->FillNtupleIColumn(fTupleId[0],fTupleId[3],(*fHitsCollection)[ii]->GetParticleId());
-			an->FillNtupleFColumn(fTupleId[0],fTupleId[4],(*fHitsCollection)[ii]->GetEdep());
-			an->FillNtupleFColumn(fTupleId[0],fTupleId[5],(*fHitsCollection)[ii]->GetPos().x()/CLHEP::mm);
-			an->FillNtupleFColumn(fTupleId[0],fTupleId[6],(*fHitsCollection)[ii]->GetPos().y()/CLHEP::mm);
-			an->FillNtupleFColumn(fTupleId[0],fTupleId[7],(*fHitsCollection)[ii]->GetPos().z()/CLHEP::mm);
-			an->FillNtupleFColumn(fTupleId[0],fTupleId[8],(*fHitsCollection)[ii]->GetTof());
+			an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iHit->GetTrackID());
+			an->FillNtupleIColumn(fTupleId[0],fTupleId[3],iHit->GetParticleId());
+			an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iHit->GetEdep());
+			an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iHit->GetPos().x()/CLHEP::mm);
+			an->FillNtupleFColumn(fTupleId[0],fTupleId[6],iHit->GetPos().y()/CLHEP::mm);
+			an->FillNtupleFColumn(fTupleId[0],fTupleId[7],iHit->GetPos().z()/CLHEP::mm);
+			an->FillNtupleFColumn(fTupleId[0],fTupleId[8],iHit->GetTof());
 			an->AddNtupleRow(fTupleId[0]);
 		}
 	}
