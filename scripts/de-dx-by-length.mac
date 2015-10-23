@@ -3,7 +3,7 @@
 /gun/direction 0 1 0
 /gun/particle deuteron
 /gun/energy 270 MeV
-/PolarimeterStudies/detector/trgOffsetZ 3.5 cm
+/PolarimeterStudies/detector/trgOffsetZ 1.5 cm
 /PolarimeterStudies/detector/triggerlength 3 cm
 /PolarimeterStudies/detector/trgOffsetY 10 cm
 /PolarimeterStudies/detector/theta 90 deg
