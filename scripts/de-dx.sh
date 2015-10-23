@@ -13,4 +13,4 @@ mkdir sim/de-dx-by-length
 cp ./scripts/analyse.py sim/de-dx-by-angle/.
 cp ./scripts/analyse.py sim/de-dx-by-length/.
 ./sim/de-dx-by-length/analyse.py
-./sim/de-dx-by-length/analyse.py
+./sim/de-dx-by-angle/analyse.py
