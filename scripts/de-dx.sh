@@ -12,5 +12,5 @@ mkdir sim/de-dx-by-length
 ./polarimeterstudies -g cosmic: -m scripts/de-dx-by-length.mac -n $N -b 2>/dev/null 1>/dev/null
 cp ./scripts/analyse.py sim/de-dx-by-angle/.
 cp ./scripts/analyse.py sim/de-dx-by-length/.
-./sim/de-dx-by-length/analyse.py
-./sim/de-dx-by-angle/analyse.py
+cd sim/de-dx-by-length && ./analyse.py && cd -
+cd sim/de-dx-by-angle  && ./analyse.py && cd -

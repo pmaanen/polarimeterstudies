@@ -66,10 +66,12 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
-    fitfunc = ROOT.TF1('FitFunc','gaus',0,300,3)
-    edep.Fit(fitfunc)
-    result=0
-    return fitfunc.GetParameter(1)
+
+    #fitfunc = ROOT.TF1('fitfunc','gaus(0)',0,300)
+    #edep.Fit(fitfunc)
+    #result=0
+    #return fitfunc.GetParameter(1)
+    return edep.GetMean()
 def main():
     edep_mean=[]
     Leff=range(30,85,5)
