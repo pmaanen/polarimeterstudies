@@ -66,6 +66,7 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
+
     #fitfunc = ROOT.TF1('fitfunc','gaus(0)',0,300)
     #edep.Fit(fitfunc)
     #result=0
