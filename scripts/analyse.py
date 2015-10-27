@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import ROOT
 from numpy import genfromtxt,asarray
 from array import array
@@ -66,7 +66,6 @@ def doFile(filename):
         if len(calorhits)==0 or len(triggerhits)==0:
             break
     edep.Write()
-
     #fitfunc = ROOT.TF1('fitfunc','gaus(0)',0,300)
     #edep.Fit(fitfunc)
     #result=0
@@ -79,8 +78,11 @@ def main():
         filename="deuterons_"+str(iLeff)+".root"
         print "analysing "+str(filename)
         edep_mean.append(doFile(filename))
+    for i in range(len(Leff)):
+        Leff[i]=float(Leff[i])*1.0
     myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
-    c1=ROOT.TCanvas("",800,600)
-    myGraph.Draw("ALP")
-    c1.Print("c1.eps")
+    myGraph.Print()
+    c1=ROOT.TCanvas("c1","c1",800,600)
+    myGraph.Draw("AP")
+    c1.Print("c1.root")
 main()
