@@ -40,9 +40,9 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
 		if(fUpperTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
+		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
 		if(fLowerTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
+		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
 	}
 	return fPhysiWorld;
 }
