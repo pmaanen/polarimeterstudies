@@ -73,7 +73,7 @@ def doFile(filename):
     return edep.GetMean()
 def main():
     edep_mean=[]
-    Leff=range(30,85,5)
+    Leff=range(30,70,5)
     for iLeff in Leff:
         filename="deuterons_"+str(iLeff)+".root"
         print "analysing "+str(filename)
