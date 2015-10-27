@@ -20,17 +20,17 @@ protected:
 	virtual void Initialize();
 	virtual PrimaryEvent Generate();
 	virtual void Generate(G4Event* E);
-	virtual void beginOfRun(){};
+	virtual void BeginOfRun(){};
 
 	virtual void DefineCommands();
-	Double_t momentum_cms,beamPolarization;
-	deuteron_breakup_model* scattering_model;
-	TF2* cross_section;
-	TGenPhaseSpace intermediate;
-	Double_t intermediate_masses[2];
-	void setBeamPolarization(G4double xBeamPolarization) {beamPolarization = Double_t(xBeamPolarization);
-	if(cross_section)
-		cross_section->SetParameter(2,beamPolarization);
+	Double_t fMomentum_cms,fBeamPolarization;
+	deuteron_breakup_model* fScattering_model;
+	TF2* fCrossSection;
+	TGenPhaseSpace fIntermediate;
+	Double_t fIntermediateMasses[2];
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);
+	if(fCrossSection)
+		fCrossSection->SetParameter(2,fBeamPolarization);
 	}
 };
 

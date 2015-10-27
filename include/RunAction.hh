@@ -31,9 +31,9 @@ public:
 	inline G4int GetNEvents() { return fNEvents; };
 
 private:
-	G4int saveRndm;
-	G4int luxury;
-	G4int seed;
+	G4int fSaveRndm;
+	G4int fLuxury;
+	G4int fSeed;
 
 };
 

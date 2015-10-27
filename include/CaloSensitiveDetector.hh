@@ -18,9 +18,9 @@ public:
 
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 private:
-	std::vector<G4int> myTupleId;
-	G4bool runInitialized;
-	G4String name;
+	std::vector<G4int> fTupleId;
+	G4bool fRunInitialized;
+	G4String fName;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */

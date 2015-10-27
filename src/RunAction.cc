@@ -24,9 +24,9 @@ RunAction::RunAction()
 
 
 
-	seed = -1;      // RANLUX seed
-	luxury = 3;     // RANLUX luxury level (3 is default)
-	saveRndm = 0;
+	fSeed = -1;      // RANLUX seed
+	fLuxury = 3;     // RANLUX luxury level (3 is default)
+	fSaveRndm = 0;
 	fNEvents=0;
 	filenames=0;
 	Analysis* analysisManager = Analysis::Instance();
@@ -64,15 +64,15 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 
 	//Master or sequential
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
-	if (seed<0) //not initialized by anybody else
+	if (fSeed<0) //not initialized by anybody else
 	{
 
-		seed=time(0);
-		G4Random::setTheSeed(seed,luxury);
+		fSeed=time(0);
+		G4Random::setTheSeed(fSeed,fLuxury);
 	}
 
 	// save Rndm status
-	if (saveRndm > 0)
+	if (fSaveRndm > 0)
 		G4Random::saveEngineStatus("beginOfRun.rndm");
 
 	return;
@@ -125,7 +125,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	// save Rndm status
-	if (saveRndm == 1)
+	if (fSaveRndm == 1)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 

@@ -41,8 +41,8 @@ public:
 		}
 	}
 	virtual ~Analysis() {};
-	void setEnabled(bool xenable){_enabled=xenable;};
-	G4bool isEnabled() const {return _enabled;};
+	void setEnabled(bool xenable){fEnabled=xenable;};
+	G4bool isEnabled() const {return fEnabled;};
 
 private:
 	//! Private constructor: part of singleton pattern
@@ -50,8 +50,8 @@ private:
 	//! Singleton static instance
 	static Analysis* fgMasterInstance;
 	static G4ThreadLocal Analysis* fgInstance;
-	bool _enabled;
-	AnalysisMessenger* _analysisMessenger;
+	bool fEnabled;
+	AnalysisMessenger* fAnalysisMessenger;
 };
 
 

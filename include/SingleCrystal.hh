@@ -15,18 +15,18 @@ public:
 	SingleCrystal();
 	virtual ~SingleCrystal();
 	void setPhi(G4double phi) {
-		this->phi = phi;
-		changedParameters=true;
+		this->fPhi = phi;
+		fChangedParameters=true;
 	}
 
 	void setPsi(G4double psi) {
-		this->psi = psi;
-		changedParameters=true;
+		this->fPsi = psi;
+		fChangedParameters=true;
 	}
 
 	void setTheta(G4double theta) {
-		this->theta = theta;
-		changedParameters=true;
+		this->fTheta = theta;
+		fChangedParameters=true;
 	}
 
 	void setCathodeThickness(G4double cathodeThickness) {
@@ -47,6 +47,7 @@ public:
 protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
+<<<<<<< HEAD
 	virtual void ConstructSDandField();
 
 	void defineSurfaces();
@@ -76,5 +77,9 @@ protected:
 	G4Cache<CathodeSensitiveDetector*> CathodeSD;
 	G4Cache<CaloSensitiveDetector*> CrystalSD;
 	G4double theta,phi,psi;
+=======
+	virtual void DefineCommands();
+	G4double fTheta,fPhi,fPsi;
+>>>>>>> master
 };
 #endif

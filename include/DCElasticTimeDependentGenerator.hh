@@ -21,26 +21,26 @@ public:
 	virtual void DefineCommands();
 
 	void setMax(G4double max) {
-		t_max = max;
-		Initialized=false;
+		fTmax = max;
+		fInitialized=false;
 	}
 
 	void setMin(G4double min) {
-		t_min = min;
-		Initialized=false;
+		fTmin = min;
+		fInitialized=false;
 	}
 
 	void setTau(G4double tau) {
-		this->tau = tau;
-		Initialized=false;
+		this->fTau = tau;
+		fInitialized=false;
 	}
 
 private:
-	TF1* polarization_time_dependence;
-	TF1* intensity_time_dependence;
+	TF1* fPolarizationTimeDependence;
+	TF1* fIntensityTimeDependence;
 
-	time_functions* fct_helper;
-	G4double t_min,t_max,tau,t_cur;
+	time_functions* fTimeFunctions;
+	G4double fTmin,fTmax,fTau,fTCur;
 	void Initialize();
 
 
@@ -48,7 +48,8 @@ private:
 
 class time_functions{
 public:
-	time_functions(Double_t max,Double_t min,Double_t t){};
+	//max,min,t
+	time_functions(Double_t, Double_t ,Double_t ){};
 	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
 		return x[0]/(par[0])*2/3;
 	}

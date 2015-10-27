@@ -1,8 +1,11 @@
 /analysis/Enable
 /gun/position 0 -20 5 cm
 /gun/direction 0 1 0
+/gun/particle deuteron
+/gun/energy 270 MeV
 /PolarimeterStudies/detector/trgOffsetZ 3.5 cm
 /PolarimeterStudies/detector/triggerlength 3 cm
 /PolarimeterStudies/detector/trgOffsetY 10 cm
 /control/macroPath scripts/
-/control/foreach de-dx-singlerun.mac angle "90. 121.00 131.41 138.19 143.13 146.94 150. 152.51 154.62 156.42 157.98"
+/control/add Leff 30 0
+/control/foreach de-dx-singlerun.mac angle "0. 31.00 41.40 48.19 53.12 56.93 60.00 62.50"

@@ -14,29 +14,29 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include "G4FileMessenger.hh"
-AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),ana(Ana)
+AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),fAnalysis(Ana)
 {
-	enableCmd=new G4UIcommand("/analysis/Enable",this);
-	enableCmd->SetGuidance("Enable Output");
+	fEnableCmd=new G4UIcommand("/analysis/Enable",this);
+	fEnableCmd->SetGuidance("Enable Output");
 
-	disableCmd=new G4UIcommand("/analysis/Disable",this);
-	disableCmd->SetGuidance("Disable Output");
+	fDisableCmd=new G4UIcommand("/analysis/Disable",this);
+	fDisableCmd->SetGuidance("Disable Output");
 
 }
 
 AnalysisMessenger::~AnalysisMessenger() {
-	delete enableCmd;
-	delete disableCmd;
+	delete fEnableCmd;
+	delete fDisableCmd;
 }
 
 void AnalysisMessenger::SetNewValue(G4UIcommand *cmd, G4String value)
 {
 	G4AnalysisMessenger::SetNewValue(cmd,value);
-	if( cmd== enableCmd){
-		ana->setEnabled(true);
+	if( cmd== fEnableCmd){
+		fAnalysis->setEnabled(true);
 	}
-	if( cmd== disableCmd){
-		ana->setEnabled(false);
+	if( cmd== fDisableCmd){
+		fAnalysis->setEnabled(false);
 	}
 }
 

@@ -45,10 +45,10 @@ public:
 	void UpdateGeometry();
 private:
 	void DefineCommands();
-	G4GDMLParser parser;
-	G4VPhysicalVolume* physiWorld;
+	G4GDMLParser fParser;
+	G4VPhysicalVolume* fPhysiWorld;
 	G4GenericMessenger* fMessenger;
-	G4String geomfile;
+	G4String fGeomFile;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
