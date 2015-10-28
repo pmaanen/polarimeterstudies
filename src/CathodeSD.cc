@@ -19,12 +19,14 @@ CathodeSensitiveDetector::CathodeSensitiveDetector(G4String name)
 
 	Analysis* an=Analysis::Instance();
 	runInitialized=false;
-	myTupleId.push_back(an->CreateNtuple(name,name));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-	myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"nphot"));
-	myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
-	an->FinishNtuple(myTupleId[0]);
+	if(an->isEnabled()){
+		myTupleId.push_back(an->CreateNtuple(name,name));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
+		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"nphot"));
+		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
+		an->FinishNtuple(myTupleId[0]);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -73,12 +75,13 @@ void CathodeSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
 	G4int NbHits = photonCollection->entries();
 	Analysis* an=Analysis::Instance();
-	an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
-	an->FillNtupleIColumn(myTupleId[0],myTupleId[2],0);
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[3],NbHits);
-	an->FillNtupleFColumn(myTupleId[0],myTupleId[4],0);
-	an->AddNtupleRow(myTupleId[0]);
-
+	if(an->isEnabled()){
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[1],G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID());
+		an->FillNtupleIColumn(myTupleId[0],myTupleId[2],0);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[3],NbHits);
+		an->FillNtupleFColumn(myTupleId[0],myTupleId[4],0);
+		an->AddNtupleRow(myTupleId[0]);
+	}
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
