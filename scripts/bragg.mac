@@ -1,0 +1,7 @@
+/analysis/Enable
+/PolarimeterStudies/detector/material G4_LYSO_SCINT
+/PolarimeterStudies/detector/update
+/gun/position 0 0 50 cm
+/gun/direction 0 0 -1
+/gun/particle deuteron
+/gun/energy 270 MeV

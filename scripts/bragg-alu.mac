@@ -1,0 +1,5 @@
+/control/execute scripts/bragg.mac
+/analysis/setFileName bragg-alu.mac
+/PolarimeterStudies/detector/material G4_Al
+/PolarimeterStudies/detector/update
+/run/beamOn 100000
