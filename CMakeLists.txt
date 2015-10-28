@@ -45,16 +45,10 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 # NB: headers are included so they will show up in IDEs
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-<<<<<<< HEAD
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/scripts/*)
-=======
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
-file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/scripts/*)
-#MESSAGE("DBG scripts=${scripts}")
 
 
->>>>>>> master
 #----------------------------------------------------------------------------
 #set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
 

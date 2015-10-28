@@ -28,7 +28,6 @@ RunAction::RunAction()
 	fLuxury = 3;     // RANLUX luxury level (3 is default)
 	fSaveRndm = 0;
 	fNEvents=0;
-	filenames=0;
 	Analysis* analysisManager = Analysis::Instance();
 	analysisManager->SetVerboseLevel(1);
 	analysisManager->SetFirstHistoId(1);

@@ -19,25 +19,18 @@ blue    (0.0, 0.0, 1.0), // blue
 tblue    (0.0, 0.0, 1.0, 0.5), // transparent blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
-<<<<<<< HEAD
 yellow  (1.0, 1.0, 0.0), // yellow
 tcyan    (0.0, 1.0, 1.0, 0.5), // transparent cyan
 tmagenta (1.0, 0.0, 1.0, 0.5); // transparent magenta
 using namespace CLHEP;
-SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0),physiCathode(0),theta(0),phi(0),psi(0)  {
-	crystalLength=10*CLHEP::cm;
-	crystalWidth=3*CLHEP::cm;
+SingleCrystal::SingleCrystal():JediPolarimeter(),physiScint(0),physiAirGap(0),physiCathode(0),fTheta(0),fPhi(0),fPsi(0)  {
 	airThickness=0.2*CLHEP::mm;
 	greaseThickness=.1*mm;
 	windowThickness=1*mm;
 	cathodeThickness=1*cm;
-=======
-yellow  (1.0, 1.0, 0.0); // yellow
-SingleCrystal::SingleCrystal():JediPolarimeter(),fTheta(0),fPhi(0),fPsi(0) {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
 
->>>>>>> master
 	DefineCommands();
 	defineSurfaces();
 
@@ -45,7 +38,7 @@ SingleCrystal::SingleCrystal():JediPolarimeter(),fTheta(0),fPhi(0),fPsi(0) {
 
 
 	G4NistManager* man = G4NistManager::Instance();
-
+	fScintillatorMaterial=man->FindOrBuildMaterial("LYSO");
 	G4Element *C = man->FindOrBuildElement("C");
 	G4Element *H = man->FindOrBuildElement("H");
 	G4Element *Si = man->FindOrBuildElement("Si");
@@ -107,39 +100,33 @@ SingleCrystal::~SingleCrystal() {
 
 G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
-<<<<<<< HEAD
-	auto totalModuleLength=(wrappingThickness+crystalLength+greaseThickness+windowThickness+cathodeThickness);
-=======
-	G4Box* solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
-	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
-	/*
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
->>>>>>> master
+	auto totalModuleLength=(wrappingThickness+fCrystalLength+greaseThickness+windowThickness+cathodeThickness);
+	auto solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 
-	auto solidMother= new G4Box("Module",(crystalWidth+2*wrappingThickness)/2,(crystalWidth+2*wrappingThickness)/2,totalModuleLength/2);
+	auto solidMother= new G4Box("Module",(fCrystalWidth+2*wrappingThickness)/2,(fCrystalWidth+2*wrappingThickness)/2,totalModuleLength/2);
 	auto logicMother= new G4LogicalVolume(solidMother,G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),"Module");
-	auto solidWrappingFull= new G4Box("WrappingFull",(crystalWidth+2*wrappingThickness)/2,(crystalWidth+2*wrappingThickness)/2,(crystalLength+wrappingThickness)/2);
-	auto solidDetector= new G4Box("Detector",crystalWidth/2,crystalWidth/2,crystalLength/2);
+	auto solidWrappingFull= new G4Box("WrappingFull",(fCrystalWidth+2*wrappingThickness)/2,(fCrystalWidth+2*wrappingThickness)/2,(fCrystalLength+wrappingThickness)/2);
 	auto solidWrapping=new G4SubtractionSolid("Wrapping",solidWrappingFull,solidDetector,0,G4ThreeVector(0,0,-wrappingThickness/2));
 
-
-	auto logicDetector = new G4LogicalVolume(solidDetector,scintillatorMaterial,"Detector");
+	assert(fScintillatorMaterial);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
+	//new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"CaloCrystal",logicReflector, false, 0 , false);
+	//new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 
 	G4LogicalVolume*  logicWrapping= new G4LogicalVolume(solidWrapping,G4NistManager::Instance()->FindOrBuildMaterial("G4_Al"),"Wrapping");
-	G4Box* solidCathode= new G4Box("Cathode",crystalWidth/2,crystalWidth/2,cathodeThickness/2);
+	G4Box* solidCathode= new G4Box("Cathode",fCrystalWidth/2,fCrystalWidth/2,cathodeThickness/2);
 	G4LogicalVolume* logicCathode = new G4LogicalVolume(solidCathode,G4Material::GetMaterial("BialkaliCathode"),"Cathode");
 	logicCathode->SetVisAttributes(new G4VisAttributes(G4Colour(0.5,0.5,0.5)));
 
 	G4LogicalVolume* logicGrease=0;
 	if(greaseThickness>0){
-		auto solidGrease= new G4Box("Grease",crystalWidth/2,crystalWidth/2,greaseThickness/2);
+		auto solidGrease= new G4Box("Grease",fCrystalWidth/2,fCrystalWidth/2,greaseThickness/2);
 		logicGrease= new G4LogicalVolume(solidGrease,G4Material::GetMaterial("Polydimethylsiloxane"),"Grease");
 		logicGrease->SetVisAttributes(new G4VisAttributes(yellow));
 	}
 	G4LogicalVolume* logicWindow=0;
 	if(windowThickness>0){
-		G4Box* solidWindow= new G4Box("Window",crystalWidth/2,crystalWidth/2,windowThickness/2);
+		G4Box* solidWindow= new G4Box("Window",fCrystalWidth/2,fCrystalWidth/2,windowThickness/2);
 		logicWindow = new G4LogicalVolume(solidWindow,G4Material::GetMaterial("FusedSilica"),"Window");
 		logicWindow->SetVisAttributes(new G4VisAttributes(tblue));
 	}
@@ -150,14 +137,14 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
 	auto physiWrapping=new G4PVPlacement(0,G4ThreeVector(0,0,(windowThickness+greaseThickness+cathodeThickness)/2),logicWrapping,"Wrapping",logicMother,false,0,false);
 	physiCathode=new G4PVPlacement(0,G4ThreeVector(0,0,-totalModuleLength/2+cathodeThickness/2),logicCathode,"Cathode",logicMother, false, 0 , false);
-	physiScint=new G4PVPlacement(0,G4ThreeVector(0,0,-totalModuleLength/2+crystalLength/2+windowThickness+greaseThickness+cathodeThickness),logicDetector,"CaloCrystal",logicMother, false, 0 , false);
+	physiScint=new G4PVPlacement(0,G4ThreeVector(0,0,-totalModuleLength/2+fCrystalLength/2+windowThickness+greaseThickness+cathodeThickness),logicDetector,"CaloCrystal",logicMother, false, 0 , false);
 	//physiAirGap=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicReflector,"Reflector",logicWrapping,false,0,false);
 
 	logicWrapping->SetVisAttributes(new G4VisAttributes(tcyan));
 	//logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-<<<<<<< HEAD
+
 	new G4LogicalSkinSurface("WrappingSurface",logicWrapping,airGroundAluminum);
 	new G4LogicalSkinSurface("PhotoCathodeSurface",logicCathode,silicaCathodeMaterial);
 	new G4LogicalSkinSurface("GreaseSurface",logicGrease,polishedAir);
@@ -187,64 +174,47 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4LogicalBorderSurface* window2CathSurface = 0;
 	if(physiWindow)
 		window2CathSurface=new G4LogicalBorderSurface("scint2CathSurface", physiWindow, physiCathode, silicaCathodeMaterial);
-	*/
-	caloSDVolumes["Calorimeter"]=logicDetector;
-	caloSDVolumes["Cathode"]=logicCathode;
+	 */
+	fCaloSDVolumes["Cathode"]=logicCathode;
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
-	return logicMother;
-=======
 	fCaloSDVolumes["Calorimeter"]=logicDetector;
-	return logicDetector;
->>>>>>> master
+	return logicMother;
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();
-<<<<<<< HEAD
-	G4Box* solidWorld=new G4Box("World",worldSizeXY/2,worldSizeXY/2,worldSizeZ/2);
-	logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
-	logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
-	physiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
 
-=======
-	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
+	auto solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
->>>>>>> master
+
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-	auto detectorLength=(wrappingThickness+crystalLength+greaseThickness+windowThickness+cathodeThickness);
+	auto detectorLength=(wrappingThickness+fCrystalLength+greaseThickness+windowThickness+cathodeThickness);
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
-<<<<<<< HEAD
-	rot->set(phi,theta,psi);
-	G4PVPlacement* physiDetector=new G4PVPlacement (rot, G4ThreeVector(0,0,detectorLength/2-cathodeThickness-windowThickness-greaseThickness), aCrystal, "Crystal", logicWorld, false, 0, false);
+	rot->set(fPhi,fTheta,fPsi);
+	G4PVPlacement* physiDetector=new G4PVPlacement (rot, G4ThreeVector(0,0,detectorLength/2-cathodeThickness-windowThickness-greaseThickness), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	//World to Wrapping Surface
 	G4LogicalBorderSurface* world2WrapSurface = 0;
-	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, physiWorld, airGroundAluminum);
+	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, fPhysiWorld, airGroundAluminum);
 	// Set user cuts to avoid deadlocks
 	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
-	logicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
-	return physiWorld;
-=======
-	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
-
+	fLogicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
 	return fPhysiWorld;
->>>>>>> master
 }
 
 
 void SingleCrystal::ConstructSDandField() {
 	if (CrystalSD.Get()==0)
 		CrystalSD.Put(new CaloSensitiveDetector("Calorimeter"));
-	SetSensitiveDetector(caloSDVolumes["Calorimeter"],CrystalSD.Get());
+	SetSensitiveDetector(fCaloSDVolumes["Calorimeter"],CrystalSD.Get());
 
 
 	if(CathodeSD.Get()==0)
 		CathodeSD.Put(new CathodeSensitiveDetector("Cathode"));
-	SetSensitiveDetector(caloSDVolumes["Cathode"],CathodeSD.Get());
+	SetSensitiveDetector(fCaloSDVolumes["Cathode"],CathodeSD.Get());
 
 }
 

@@ -74,16 +74,7 @@ public:
 	void WriteWorldToFile(G4String filename="");
 	virtual void ConstructSDandField();
 	//Setters for properties
-<<<<<<< HEAD
-	void setBeampipeRadius(G4double beampipeRadius) {this->beampipeRadius = beampipeRadius;	changedParameters=true;	}
-	void setCrystalLength(G4double crystalLength) {	this->crystalLength = crystalLength;changedParameters=true;	}
-	void setCrystalWidth(G4double crystalWidth) {this->crystalWidth = crystalWidth;changedParameters=true;}
-	void setThetaMax(G4double thetaMax) {this->thetaMax = thetaMax; changedParameters=true;}
-	void setThetaMin(G4double thetaMin) {this->thetaMin = thetaMin;changedParameters=true;}
-	void setDeltaElength(G4double deltaElength){this->deltaELength = deltaElength;changedParameters=true;}
-	void setDeltaEwidth(G4double deltaEwidth){this->deltaEWidth = deltaEwidth;changedParameters=true;}
-	void setWrappingThickness(G4double wrappingThickness) {this->wrappingThickness = wrappingThickness;changedParameters=true;}
-=======
+
 	void setBeampipeRadius(G4double beampipeRadius) {this->fBeampipeRadius = beampipeRadius;	fChangedParameters=true;	}
 	void setCrystalLength(G4double crystalLength) {	this->fCrystalLength = crystalLength;fChangedParameters=true;	}
 	void setCrystalWidth(G4double crystalWidth) {this->fCrystalWidth = crystalWidth;fChangedParameters=true;}
@@ -91,7 +82,7 @@ public:
 	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
 	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
 	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
->>>>>>> master
+
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=fScintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
@@ -120,6 +111,12 @@ public:
 
 	 void checkGeometry(){
 		auto check=fPhysiWorld->CheckOverlaps(2000);
+		return;
+	}
+
+	void setWrappingThickness(G4double wrappingThickness) {
+		fWrappingThickness = wrappingThickness;
+		fChangedParameters=true;
 	}
 
 protected:

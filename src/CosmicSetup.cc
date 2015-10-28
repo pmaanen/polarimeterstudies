@@ -7,6 +7,9 @@
 
 #include <CosmicSetup.hh>
 #include <Analysis.hh>
+
+#include "G4UserLimits.hh"
+#include "CathodeSD.hh"
 CosmicSetup::CosmicSetup():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
 	fCrystalLength=10*CLHEP::cm;
 	fTriggerLength=fCrystalLength;
@@ -14,7 +17,7 @@ CosmicSetup::CosmicSetup():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),f
 	fTriggerThickness=1*CLHEP::cm;
 	fUpperTrigger=true;
 	fLowerTrigger=false;
-	fScintillatorMaterialName="G4_LYSO_SCINT";
+	fScintillatorMaterialName="LYSO";
 	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 
 	DefineCommands();
@@ -33,17 +36,24 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
+	auto detectorLength=(wrappingThickness+fCrystalLength+greaseThickness+windowThickness+cathodeThickness);
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	auto physiDetector=new G4PVPlacement (rot, G4ThreeVector(0,0,detectorLength/2-cathodeThickness-windowThickness-greaseThickness), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	if(fTriggerThickness>0 and fTriggerLength>0 and fTriggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
 		if(fUpperTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
+			new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
 		if(fLowerTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
+			new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
 	}
+	//World to Wrapping Surface
+	G4LogicalBorderSurface* world2WrapSurface = 0;
+	world2WrapSurface=  new G4LogicalBorderSurface("world2WrapSurface", physiDetector, fPhysiWorld, airGroundAluminum);
+	// Set user cuts to avoid deadlocks
+	G4double maxStep = 10.0*CLHEP::m, maxLength = 10.0*CLHEP::m, maxTime = 100.0*CLHEP::ns, minEkin = 0.5*CLHEP::eV;
+	fLogicWorld->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,minEkin));
 	return fPhysiWorld;
 }
 
@@ -96,6 +106,10 @@ void CosmicSetup::ConstructSDandField() {
 	if (fCaloSD["Trigger"].Get()==0 and fCaloSDVolumes["Trigger"]){
 		fCaloSD["Trigger"].Put(new CaloSensitiveDetector("Trigger"));
 	}
+
+	if(CathodeSD.Get()==0)
+		CathodeSD.Put(new CathodeSensitiveDetector("Cathode"));
+	SetSensitiveDetector(fCaloSDVolumes["Cathode"],CathodeSD.Get());
 
 	if(fCaloSDVolumes["Calorimeter"])
 		SetSensitiveDetector(fCaloSDVolumes["Calorimeter"],fCaloSD["Calorimeter"].Get());

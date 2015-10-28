@@ -14,12 +14,8 @@
 #include "Analysis.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
-<<<<<<< HEAD
 namespace { G4Mutex MuonGeneratorMutex = G4MUTEX_INITIALIZER; }
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),spotsize(0,0,0),position(0,0,0) {
-=======
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
->>>>>>> master
 
 	fFunctions=new function_helper;
 	fAngle=new TF1("cos_squared",fFunctions,&function_helper::angle,0,3.1415,0,"function_helper","angle");

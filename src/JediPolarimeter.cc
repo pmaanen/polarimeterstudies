@@ -27,8 +27,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
-<<<<<<< HEAD
-	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+	fScintillatorMaterial=G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
 
 	const G4int numentrieslyso = 20;
 	G4double lysoenergies[numentrieslyso] = {1.5*CLHEP::eV, 1.97*CLHEP::eV, 2.08*CLHEP::eV, 2.18*CLHEP::eV, 2.29*CLHEP::eV, 2.42*CLHEP::eV, 2.57*CLHEP::eV, 2.71*CLHEP::eV, 2.78*CLHEP::eV, 2.80*CLHEP::eV, 2.85*CLHEP::eV, 2.93*CLHEP::eV, 3.00*CLHEP::eV, 3.06*CLHEP::eV, 3.11*CLHEP::eV, 3.15*CLHEP::eV, 3.24*CLHEP::eV, 3.29*CLHEP::eV, 3.36*CLHEP::eV, 6*CLHEP::eV}; // saint-gobain (420 nm)
@@ -62,15 +61,8 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	  Air->SetMaterialPropertiesTable(airprop);
 
 
-
-
-	worldSizeXY=2*CLHEP::m;
-	worldSizeZ=10*CLHEP::m;
-=======
-	G4NistManager::Instance()->ConstructNewMaterial("G4_LYSO_SCINT",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
 	fWorldSizeXY=2*CLHEP::m;
 	fWorldSizeZ=10*CLHEP::m;
->>>>>>> master
 	try{
 		fScintillatorMaterialName=gConfig["detector.scintillatorMaterial"].as<std::string>();
 		fThetaMin=gConfig["detector.thetamin"].as<double>()*CLHEP::mm*CLHEP::deg;
