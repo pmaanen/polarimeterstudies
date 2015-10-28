@@ -4,5 +4,5 @@
 /PolarimeterStudies/detector/calowidth 3 cm
 /PolarimeterStudies/detector/calolength 10 cm
 /PolarimeterStudies/detector/update
-/PolarimeterStudies/muon/spotsize 10 0 5 mm
-/control/loop scripts/muon.mac zPos 5 105 10
+/PolarimeterStudies/muon/spotsize 30 0 10 mm
+/control/loop scripts/homogenity-singlerun.mac zPos 0 95 10 

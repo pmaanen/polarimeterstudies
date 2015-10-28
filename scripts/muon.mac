@@ -1,3 +1,0 @@
-/analysis/setFileName muons_zPos_{zPos}.root
-/PolarimeterStudies/muon/position 0 30 {zPos} mm
-/run/beamOn 1000
