@@ -14,9 +14,23 @@
 
 namespace { G4Mutex FileWriterMutex = G4MUTEX_INITIALIZER; }
 
-FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fgFileWriter = 0;
+FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fgFileWriter = nullptr;
 
-FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),fEvtGen(new DCElasticTimeDependentGenerator){
+FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents, G4String generator, G4String fileName=""):G4VUserPrimaryGeneratorAction(),fEvtGen(nullptr){
+	G4String muon("muon");
+	G4String dcelastic("dcelastic");
+	G4String dcbreakup("dcbreakup");
+	G4String dcelastictime("dcelastictime");
+	if(generator==muon)
+		fEvtGen=new CosmicMuonGenerator();
+	else if(generator==dcelastic)
+		fEvtGen=new DCElasticEventGenerator();
+	else if(generator==dcbreakup)
+		fEvtGen=new DCBreakupEventGenerator();
+	else if(generator==dcelastictime)
+		fEvtGen=new DCElasticTimeDependentGenerator();
+	if(!fEvtGen)
+		G4Exception("FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction","",FatalException,"Event generator pointer is null");
 	G4AutoLock lock(&FileWriterMutex);
 	if(!fgFileWriter){
 			fgFileWriter=new FileWriter(fileName,nEvents);
