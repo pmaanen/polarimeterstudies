@@ -1,3 +1,3 @@
 /analysis/setFileName sim/homogenity-muon/muons_{zPos}.root
-/gun/position 0 0 {zPos}
+/gun/position 0 15 {zPos} mm
 /run/beamOn 5000

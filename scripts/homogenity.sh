@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 #!/bin/bash
 N="4"
 if [ $# -eq 1 ]
