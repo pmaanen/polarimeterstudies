@@ -12,21 +12,11 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 CathodeSensitiveDetector::CathodeSensitiveDetector(G4String name)
-: G4VSensitiveDetector(name), savetime(true), saveposition(false), saveenergy(false)
+: G4VSensitiveDetector(name), savetime(true), saveposition(false), saveenergy(false),photonCollection(NULL)
 {
 	G4String HCname;
 	collectionName.insert(HCname="pmtCollection");
-
-	Analysis* an=Analysis::Instance();
 	runInitialized=false;
-	if(an->isEnabled()){
-		myTupleId.push_back(an->CreateNtuple(name,name));
-		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
-		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
-		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"nphot"));
-		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
-		an->FinishNtuple(myTupleId[0]);
-	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -43,6 +33,18 @@ void CathodeSensitiveDetector::Initialize(G4HCofThisEvent* HCE)
 	if(HCID<0)
 	{ HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]); }
 	HCE->AddHitsCollection( HCID, photonCollection );
+
+	Analysis* an=Analysis::Instance();
+
+	if(an->isEnabled() and !runInitialized){
+		myTupleId.push_back(an->CreateNtuple(SensitiveDetectorName,collectionName[0]));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"event"));
+		myTupleId.push_back(an->CreateNtupleIColumn(myTupleId[0],"detid"));
+		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"nphot"));
+		myTupleId.push_back(an->CreateNtupleFColumn(myTupleId[0],"time"));
+		an->FinishNtuple(myTupleId[0]);
+		runInitialized=true;
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

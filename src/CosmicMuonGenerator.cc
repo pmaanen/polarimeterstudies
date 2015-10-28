@@ -102,7 +102,7 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 void CosmicMuonGenerator::Initialize() {
 	fTupleId.clear();
 	Analysis* an=Analysis::Instance();
-	if(an->isEnabled()){
+	if(an->isEnabled() and !fRunInitialized){
 		fTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
 		fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
 		fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
