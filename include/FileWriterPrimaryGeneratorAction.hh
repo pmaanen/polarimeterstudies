@@ -133,7 +133,7 @@ public:
 	};
 
 
-	FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName);
+	FileWriterPrimaryGeneratorAction(G4int nEvents,G4String generator,G4String fileName);
 	virtual ~FileWriterPrimaryGeneratorAction();
 	virtual void GeneratePrimaries(G4Event* E);
 	private:

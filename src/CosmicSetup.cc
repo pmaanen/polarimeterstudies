@@ -39,14 +39,24 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 	auto detectorLength=(wrappingThickness+fCrystalLength+greaseThickness+windowThickness+cathodeThickness);
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
+<<<<<<< HEAD
 	auto physiDetector=new G4PVPlacement (rot, G4ThreeVector(0,0,detectorLength/2-cathodeThickness-windowThickness-greaseThickness), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+=======
+	new G4PVPlacement (rot, G4ThreeVector(0,0,0), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+>>>>>>> master
 	if(fTriggerThickness>0 and fTriggerLength>0 and fTriggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
 		if(fUpperTrigger)
+<<<<<<< HEAD
 			new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
 		if(fLowerTrigger)
 			new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerLength/2+fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
+=======
+		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
+		if(fLowerTrigger)
+		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
+>>>>>>> master
 	}
 	//World to Wrapping Surface
 	G4LogicalBorderSurface* world2WrapSurface = 0;
