@@ -87,12 +87,11 @@ public:
 		auto oldName=fScintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 		if(!newMat){
-			//G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
-			G4cerr<<"Material not found"<<G4endl;
+			G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
 			return;
 		}
 		fScintillatorMaterial=newMat;
-		fCaloSDVolumes["CaloCrystal"]->SetMaterial(fScintillatorMaterial);
+		fScintillatorMaterialName=scintillatorMaterialName;
 		G4cout<<"Changing Material from "<<oldName<<" to "<<fScintillatorMaterial->GetName()<<G4endl;
 		return;
 	}

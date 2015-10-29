@@ -9,7 +9,7 @@
 #
 /vis/scene/create
 /vis/open OGLS
-/vis/viewer/set/style solid
+/vis/viewer/set/style s
 /vis/viewer/set/viewpointThetaPhi 90 0
 /vis/drawVolume 
 /vis/scene/add/axes 0 0 0 3 cm
@@ -38,6 +38,10 @@
 =======
 >>>>>>> master
 ################################
+/gun/particle deuteron
+/gun/energy 270 MeV
+/gun/direction 0 0 1
+################################
 /tracking/storeTrajectory 1
-/vis/scene/endOfEventAction accumulate 1
+/vis/scene/endOfEventAction accumulate 100
 /vis/viewer/flush

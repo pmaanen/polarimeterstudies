@@ -60,7 +60,6 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	  airprop->AddProperty("RINDEX", energies, vacrindices, numentries);
 	  Air->SetMaterialPropertiesTable(airprop);
 
-
 	fWorldSizeXY=2*CLHEP::m;
 	fWorldSizeZ=10*CLHEP::m;
 	try{
@@ -97,8 +96,8 @@ JediPolarimeter::~JediPolarimeter() {
 }
 
 void JediPolarimeter::ComputeParameters() {
-	//crystalWidth+=2*CLHEP::mm;
-	DetectorZ = (fBeampipeRadius+5*CLHEP::mm) / tan( fThetaMin );
+
+	DetectorZ = (fBeampipeRadius) / tan( fThetaMin );
 
 	fInnerDetectorRadius=DetectorZ*tan( fThetaMin );
 	fOuterDetectorRadius=DetectorZ*tan( fThetaMax );
