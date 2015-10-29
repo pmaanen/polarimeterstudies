@@ -34,7 +34,7 @@ void initializeConfiguration(int argc,char** argv){
 			("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions")
 			("detector.beampipeRadius", po::value<double>()->default_value(50),"beampipe radius in mm")
 			("detector.beampipeThickness", po::value<double>()->default_value(2),"beampipe thickness in mm")
-			("detector.scintillatorMaterial", po::value<std::string>()->default_value("G4_LYSO_SCINT"),"scintillator material name")
+			("detector.scintillatorMaterial", po::value<std::string>()->default_value("LYSO"),"scintillator material name")
 			("detector.crystalLength", po::value<double>()->default_value(100),"crystal length(z) in mm")
 			("detector.crystalWidth", po::value<double>()->default_value(30),"crystal width(x,y)  in mm")
 			("detector.thetamin", po::value<double>()->default_value(5),"theta min in deg")
