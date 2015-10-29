@@ -27,6 +27,7 @@ void initializeConfiguration(int argc,char** argv){
 			("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
 			("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
 			("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
+			("general.seed,s", po::value<int>(), "random seed")
 			("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
 			("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
 			("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
