@@ -50,55 +50,31 @@ G4LogicalVolume* JediSandwichCalorimeter::MakeCaloCrystal() {
 
 G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 	JediPolarimeter::Construct();
-	if(fInfileName!=""){
-		std::ifstream ifile(fInfileName);
-		std::string line;
-		//read until first non-comment line, then break loop
-		while(std::getline(ifile, line)){
-			if(line[0]=='#') continue;
-			else{
-				std::istringstream(line)>>fCrystalWidth>>fCrystalWidth>>fCrystalLength;
-				break;
+		if(fInfileName!=""){
+			std::ifstream ifile(fInfileName);
+			std::string line;
+			double placementX,placementY,placementZ,x,y,z;
+			G4String name="",matName;
+			int copyNo=0;
+			while(std::getline(ifile, line)){
+				if(line[0]=='#') continue;
+				std::istringstream(line)>>copyNo>>name>>matName>>x>>y>>z>>placementX>>placementY>>placementZ;
+				if(!fCaloSDVolumes[name]){
+					fCaloSDVolumes[name]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);;
+				}
+				new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fCaloSDVolumes[name] , name, fLogicWorld, false, copyNo, false);
 			}
+			return fPhysiWorld;
 		}
-		G4LogicalVolume* aCrystal=MakeCaloCrystal();
-		double placementX,placementY,placementZ;
-		int copyNo=0;
-		while(std::getline(ifile, line)){
-			if(line[0]=='#') continue;
-			std::istringstream(line)>>copyNo>>placementX>>placementY>>placementZ;
-			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm), aCrystal, "Crystal", fLogicWorld, false, copyNo, false);
-		}
+
+		fGeomCache.clear();
+		auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
+		aCrystal->SetVisAttributes(new G4VisAttributes(green));
+		fCaloSDVolumes["Calorimeter"]=aCrystal;
+		auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
+		aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
+		fCaloSDVolumes["DeltaE"]=aDeltaETile;
+		PlaceCalorimeter(aCrystal);
+		PlaceHodoscope(aDeltaETile);
 		return fPhysiWorld;
-	}
-
-	int ii=0;
-	fGeomCache.clear();
-	std::stringstream buf;
-	buf<<fCrystalWidth<<" "<<fCrystalWidth<<" "<<" "<<fCrystalLength;
-	fGeomCache.push_back(buf.str());
-	buf.clear();
-	buf.str(std::string());
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-	G4LogicalVolume* aDeltaETile=MakeDeltaECrystal();
-	for(int iCrystalX=-fMaxCrystal-20; iCrystalX<fMaxCrystal+20;iCrystalX++){
-		for(int iCrystalY=-fMaxCrystal-20; iCrystalY<fMaxCrystal+20;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
-			auto dePlacement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ-0.5*fDeltaELength);
-			if((placement.perp()-fCrystalWidth/CLHEP::mm/sqrt(2))<fInnerDetectorRadius or (placement.perp()-fCrystalWidth/CLHEP::mm/sqrt(2))>fOuterDetectorRadius)
-				continue;
-			G4double phi=placement.phi();
-			if(phi<0)
-				phi+=360*CLHEP::deg;
-
-			G4int copyNo=100*(iCrystalX+20)+iCrystalY+20;
-			new G4PVPlacement (0, placement, aCrystal, "Crystal", fLogicWorld, false, copyNo, false);
-			buf<<copyNo<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
-			fGeomCache.push_back(buf.str());
-			buf.clear();
-			buf.str(std::string());
-			new G4PVPlacement (0, dePlacement, aDeltaETile, "Tile", fLogicWorld, false, copyNo, false);
-		}
-	}
-	return fPhysiWorld;
 }

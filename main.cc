@@ -32,8 +32,10 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
-#include <signal.h>
 #include "G4StateManager.hh"
+
+#include <signal.h>
+#include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
@@ -60,9 +62,13 @@ int main(int argc,char** argv) {
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
-	if(argc>2){
-		theEngine->setSeed(strtol(argv[2], NULL, 10));
+	if(gConfig.count("general.seed")){
+		theEngine->setSeed(gConfig["general.seed"].as<int>());
 	}
+	else{
+		theEngine->setSeed(std::time(0));
+	}
+
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
@@ -109,24 +115,8 @@ int main(int argc,char** argv) {
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);
-	if(gConfig.count("detector.positions")){
-		auto positions=gConfig["detector.positions"].as<std::vector<double> >();
-		if(positions.size()%3){
-			G4cout<<"Error: positions vector not valid."<<G4endl;
-			for(auto i:positions){
-				G4cout<<i<<" ";
-			}
-			G4cout<<G4endl;
-			return 0;
-		}
-		for(size_t iPos=0; iPos<size_t(positions.size()/3);iPos+=3){
-			G4cout<<"Position="<<positions[iPos]<<" "<<positions[iPos+1]<<" "<<positions[iPos+2]<<G4endl;
-		}
-		return 0;
-	}
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
-	Analysis::Instance();
 #ifdef G4VIS_USE
 	// Visualization manager
 	//

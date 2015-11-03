@@ -28,6 +28,10 @@
 /vis/filtering/trajectories/particleFilter-0/add neutron
 /vis/filtering/trajectories/particleFilter-0/invert true
 ################################
+/gun/particle deuteron
+/gun/energy 270 MeV
+/gun/direction 0 0 1
+################################
 /tracking/storeTrajectory 1
-/vis/scene/endOfEventAction accumulate 1
+/vis/scene/endOfEventAction accumulate 100
 /vis/viewer/flush
