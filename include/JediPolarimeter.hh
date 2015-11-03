@@ -141,6 +141,7 @@ protected:
 	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
 	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
 	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
+	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
 
 	//Input file if constructed from file
 	std::string fInfileName;

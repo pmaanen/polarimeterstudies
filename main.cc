@@ -22,18 +22,19 @@
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
-#include <JediSandwichCalorimeter.hh>
+#include "SingleSandwichModule.hh"
+#include "JediSandwichCalorimeter.hh"
 #include "CosmicSetup.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
 #include <FTFP_BERT.hh>
+#include <G4EmParameters.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
 #include "G4StateManager.hh"
-
 #include <signal.h>
 #include <ctime>
 namespace CLHEP {}
@@ -86,6 +87,7 @@ int main(int argc,char** argv) {
 	std::string single("single:");
 	std::string sandwich("sandwich:");
 	std::string cosmic("cosmic:");
+	std::string singlesandwich("singlesandwich:");
 	G4VUserDetectorConstruction* jedi=0;
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		jedi=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
@@ -105,6 +107,9 @@ int main(int argc,char** argv) {
 	if(!geometry.compare(0,cosmic.size(),cosmic)){
 		jedi= new CosmicSetup();
 	}
+	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
+		jedi= new SingleSandwichModule();
+	}
 
 	if(!jedi)
 		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
@@ -115,6 +120,33 @@ int main(int argc,char** argv) {
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);
+
+	//	G4EmParameters::Instance()->SetVerbose(1);
+	//	G4EmParameters::Instance()->SetMscStepLimitType(fUseDistanceToBoundary);
+	//	G4EmParameters::Instance()->SetMscRangeFactor(0.02);
+	//	G4EmParameters::Instance()->SetMinEnergy(100*eV);
+	//	G4EmParameters::Instance()->SetMaxEnergy(5*GeV);
+	//	G4EmParameters::Instance()->SetNumberOfBins(400);
+	//	G4EmParameters::Instance()->SetSpline(true);
+
+
+	//	G4EmProcessOptions opt ;
+	//	opt.SetVerbose(1) ;
+	//	// Multiple Coulomb scattering
+	//	//
+	//	opt.SetMscStepLimitation(fUseDistanceToBoundary) ;
+	//	opt.SetMscRangeFactor(0.02) ;
+	//	// Physics tables
+	//	//
+	//	opt.SetMinEnergy(1000*eV) ; // default 100*eV
+	//	opt.SetMaxEnergy(5*GeV) ; // default 100*TeV
+	//	opt.SetDEDXBinning(400) ; // default 12*7
+	//	opt.SetLambdaBinning(250) ; // default 12*7
+	//	opt.SetSplineFlag(true) ; // default true
+	//	// Ionization
+	//	//
+	//	opt.SetSubCutoff(true) ; // default false
+	//	// ..
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
@@ -131,8 +163,6 @@ int main(int argc,char** argv) {
 	// Get the pointer to the User Interface manager
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
-
-
 
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{

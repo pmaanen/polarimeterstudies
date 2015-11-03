@@ -6,10 +6,6 @@ from math import acos,atan2,sqrt,hypot
 import sys
 
 
-class Gaus:
-   def __call__( self, x, p ):
-       p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
-
 class hit:
     def __init__(self,hit):
         self.detid=hit.detid
@@ -39,50 +35,28 @@ def getOneEvent(EventIndex,EventList):
     return result
     
 def doFile(filename):
-    edep=ROOT.TH1F("edep","edep after trigger",300,0,300)
-    edep.GetYaxis().SetTitle("dN/dE_{dep} / 1/MeV")
-    edep.GetXaxis().SetTitle("E_{dep} / MeV")
+    #edep=ROOT.TH1F("dedx","dE/dx",300,0,300)
+    #edep.GetYaxis().SetTitle("dE/dx / 1/MeV")
+    #edep.GetXaxis().SetTitle("E_{dep} / MeV")
+
+    edep_vs_etot=ROOT.TH1F("edepvsetot","E_{dep} vs E_{kin}",300,0,300,300,0,300)
+    edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
+    edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
+
+    etot_vs_z=ROOT.TH1F("ekin","E_{kin} vs z",500,0,500,300,0,300)
+    etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
+    etot_vs_z.GetXaxis().SetTitle("z / mm")
     infile=ROOT.TFile(filename,"UPDATE")
     calorimeter=infile.Get("Calorimeter")
-    trigger=infile.Get("Trigger")
     
     calorhits=[]
-    triggerhits=[]
-    for ihit in calorimeter:
-        calorhits.append(hit(ihit))
-    for ihit in trigger:
-        triggerhits.append(hit(ihit))
-    calorhits.sort(key=lambda hit: hit.event)
-    triggerhits.sort(key=lambda hit: hit.event)
-
-        
-    thisEventCalor=[]
-    thisEventDe=[]
-    while True:
-        iEvent=calorhits[-1].event
-        thisEventCalor=getOneEvent(iEvent,calorhits)
-        thisEventDe=getOneEvent(iEvent,triggerhits)
-        doEvent(thisEventCalor,thisEventDe,edep)
-        if len(calorhits)==0 or len(triggerhits)==0:
-            break
-    edep.Write()
-    #fitfunc = ROOT.TF1('fitfunc','gaus(0)',0,300)
-    #edep.Fit(fitfunc)
-    #result=0
-    #return fitfunc.GetParameter(1)
-    return edep.GetMean()
+    for event in calorimeter:
+       edep_vs_etot.Fill(event.etot,event.edep)
+       etot_vs_z.Fill(event.z,event.etot)
+    edep_vs_etot.Write()
+    etot_vs_z.Write()
+    return
 def main():
-    edep_mean=[]
-    Leff=range(30,70,5)
-    for iLeff in Leff:
-        filename="deuterons_"+str(iLeff)+".root"
-        print "analysing "+str(filename)
-        edep_mean.append(doFile(filename))
-    for i in range(len(Leff)):
-        Leff[i]=float(Leff[i])*1.0
-    myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
-    myGraph.Print()
-    c1=ROOT.TCanvas("c1","c1",800,600)
-    myGraph.Draw("AP")
-    c1.Print("c1.root")
+   for filename in sys.argv[1:]:
+      doFile(filename)
 main()

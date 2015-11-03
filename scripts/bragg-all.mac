@@ -1,0 +1,5 @@
+/control/execute scripts/bragg-alu.mac
+/control/execute scripts/bragg-iron.mac
+/control/execute scripts/bragg-lead.mac
+/control/execute scripts/bragg-plastic.mac
+/control/execute scripts/bragg-lyso.mac
