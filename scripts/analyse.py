@@ -39,11 +39,11 @@ def doFile(filename):
     #edep.GetYaxis().SetTitle("dE/dx / 1/MeV")
     #edep.GetXaxis().SetTitle("E_{dep} / MeV")
 
-    edep_vs_etot=ROOT.TH1F("edepvsetot","E_{dep} vs E_{kin}",300,0,300,300,0,300)
+    edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",300,0,300,300,0,300)
     edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
     edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
 
-    etot_vs_z=ROOT.TH1F("ekin","E_{kin} vs z",500,0,500,300,0,300)
+    etot_vs_z=ROOT.TH2F("ekin","E_{kin} vs z",500,0,500,300,0,300)
     etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
     etot_vs_z.GetXaxis().SetTitle("z / mm")
     infile=ROOT.TFile(filename,"UPDATE")
@@ -51,8 +51,13 @@ def doFile(filename):
     
     calorhits=[]
     for event in calorimeter:
-       edep_vs_etot.Fill(event.etot,event.edep)
-       etot_vs_z.Fill(event.z,event.etot)
+        if event.trackId==1:
+            edep_vs_etot.Fill(event.etot,event.edep)
+            etot_vs_z.Fill(event.z,event.etot)
+    temp=etot_vs_z.Clone()
+    temp.RebinX(10)
+    profile=temp.ProfileX()
+    profile.Write()
     edep_vs_etot.Write()
     etot_vs_z.Write()
     return

@@ -118,6 +118,7 @@ int main(int argc,char** argv) {
 	// set physics list
 	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);
+	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	runManager->SetUserInitialization(the_physics);
 
