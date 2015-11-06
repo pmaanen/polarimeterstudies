@@ -28,7 +28,7 @@ public:
 	function_helper* fFunctions;
 	TF1* fAngle,*fMomentumAmp;
 	G4ThreeVector fPosition, fSpotsize;
-
+	G4double fThetaMax;
 
 	G4GenericMessenger* fMessenger;
 };

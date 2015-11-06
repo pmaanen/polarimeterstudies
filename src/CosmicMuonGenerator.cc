@@ -15,7 +15,7 @@
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
 namespace { G4Mutex MuonGeneratorMutex = G4MUTEX_INITIALIZER; }
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
+CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0),fThetaMax(90*CLHEP::deg) {
 
 	fFunctions=new function_helper;
 	fAngle=new TF1("cos_squared",fFunctions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
@@ -25,6 +25,8 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
 
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
+
+	fMessenger->DeclarePropertyWithUnit("thetamax","deg", fThetaMax, "max angle of muon");
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {
@@ -72,8 +74,8 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	G4ParticleDefinition* part=0;
 	while(yMom>0){
 		while(1){
-			theta=G4UniformRand()*CLHEP::pi/2;
-			if(fAngle->Eval(theta)>fAngle->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
+			theta=G4UniformRand()*fThetaMax;
+			if(fAngle->Eval(theta)>fAngle->GetMaximum(0,fThetaMax)*G4UniformRand())
 				break;
 		}
 		phi=G4UniformRand()*2*CLHEP::pi;

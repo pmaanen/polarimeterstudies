@@ -94,6 +94,9 @@ void CosmicSetup::DefineCommands() {
 			&CosmicSetup::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 
+	fMessenger->DeclareProperty("upper",CosmicSetup::fUpperTrigger,"build upper trigger?");
+	fMessenger->DeclareProperty("lower",CosmicSetup::fLowerTrigger,"build lower trigger?");
+
 
 }
 
