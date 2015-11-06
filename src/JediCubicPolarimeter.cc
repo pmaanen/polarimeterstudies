@@ -72,7 +72,7 @@ blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
-JediCubicPolarimeter::JediCubicPolarimeter(std::string infile):JediPolarimeter(infile) {
+JediCubicPolarimeter::JediCubicPolarimeter(std::string infile):JediPolarimeter(infile),fHodoscopeShape("pizza") {
 	DefineCommands();
 }
 
@@ -121,11 +121,28 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
 	aCrystal->SetVisAttributes(new G4VisAttributes(green));
 	fCaloSDVolumes["Calorimeter"]=aCrystal;
-	auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
-	aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
-	fCaloSDVolumes["DeltaE"]=aDeltaETile;
+
+	if(fHodoscopeShape=="pizza"){
+		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength,0,10*CLHEP::deg);
+		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"deltaE");
+		aDetectorElement->SetVisAttributes(new G4VisAttributes(cyan));
+		auto rot=new G4RotationMatrix();
+		auto placement=G4ThreeVector(0,0,DetectorZ-0.5*fDeltaELength);
+		for(int iSlice=0;iSlice<36;iSlice++){
+		  auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength,iSlice*10*CLHEP::deg,10*CLHEP::deg);
+		  auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"deltaE");
+		  new G4PVPlacement (0, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice, false);
+		}
+	}
+	else if(fHodoscopeShape=="square"){
+		auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
+		aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
+		fCaloSDVolumes["DeltaE"]=aDeltaETile;
+		PlaceHodoscope(aDeltaETile);
+	}
+
 	PlaceCalorimeter(aCrystal);
-	PlaceHodoscope(aDeltaETile);
+
 	return fPhysiWorld;
 }
 
