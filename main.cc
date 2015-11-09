@@ -35,6 +35,7 @@
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
 #include "G4StateManager.hh"
+#include <G4StepLimiterPhysics.hh>
 #include <signal.h>
 #include <ctime>
 namespace CLHEP {}
