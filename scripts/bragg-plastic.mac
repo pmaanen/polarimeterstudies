@@ -1,7 +1,7 @@
 /analysis/Enable
-/analysis/setFileName sim/bragg-plastic.root
+/analysis/setFileName sim/bragg/bragg-plastic.root
 /PolarimeterStudies/detector/calolength 50 cm
-/PolarimeterStudies/detector/calowidth 10 cm
+/PolarimeterStudies/detector/calowidth 20 cm
 /PolarimeterStudies/detector/material G4_PLASTIC_SC_VINYLTOLUENE
 /PolarimeterStudies/detector/update
 /control/execute scripts/bragg.mac

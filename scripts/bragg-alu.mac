@@ -1,7 +1,7 @@
 /analysis/Enable
-/analysis/setFileName sim/bragg-alu.root
+/analysis/setFileName sim/bragg/bragg-alu.root
 /PolarimeterStudies/detector/calolength 50 cm
-/PolarimeterStudies/detector/calowidth 10 cm
+/PolarimeterStudies/detector/calowidth 20 cm
 /PolarimeterStudies/detector/material G4_Al
 /PolarimeterStudies/detector/update
 /control/execute scripts/bragg.mac

@@ -3,4 +3,4 @@
 /gun/direction 0 0 1
 /gun/particle deuteron
 /gun/energy 270 MeV
-/run/beamOn 10000
+/run/beamOn 1000
