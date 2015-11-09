@@ -80,42 +80,8 @@ int main(int argc,char** argv) {
 #endif
 
 	// set mandatory initialization classes
-	//DetectorConstruction* detector = new DetectorConstruction;
-	auto geometry=gConfig["detector.geometry"].as<std::string>();
-	std::string cubic("cubic:");
-	std::string hexagonal("hexagonal:");
-	std::string gdml("gdml:");
-	std::string single("single:");
-	std::string sandwich("sandwich:");
-	std::string cosmic("cosmic:");
-	std::string singlesandwich("singlesandwich:");
-	G4VUserDetectorConstruction* jedi=0;
-	if(!geometry.compare(0,cubic.size(),cubic)){
-		jedi=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
-	}
-	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
-		jedi=new JediHexagonalPolarimeter;
-	}
-	if(!geometry.compare(0,gdml.size(),gdml)){
-		jedi= new DetectorConstruction();
-	}
-	if(!geometry.compare(0,single.size(),single)){
-		jedi= new SingleCrystal();
-	}
-	if(!geometry.compare(0,sandwich.size(),sandwich)){
-		jedi= new JediSandwichCalorimeter();
-	}
-	if(!geometry.compare(0,cosmic.size(),cosmic)){
-		jedi= new CosmicSetup();
-	}
-	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
-		jedi= new SingleSandwichModule();
-	}
-
-	if(!jedi)
-		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
-	runManager->SetUserInitialization(jedi);
-
+	DetectorConstruction* detector = new DetectorConstruction;
+	runManager->SetUserInitialization(detector);
 	// set physics list
 	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);

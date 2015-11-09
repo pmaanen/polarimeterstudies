@@ -13,63 +13,49 @@
 
 
 #include "DetectorConstruction.hh"
-
-//***** include basic geometry classes
-#include "G4Box.hh"
-#include "G4Tubs.hh"
-#include "G4Cons.hh"
-#include "G4Para.hh"
-#include "G4Trd.hh"
-#include "G4Sphere.hh"
-#include "G4Orb.hh"
-#include "G4CutTubs.hh"
-#include "G4Torus.hh"
-#include "G4Polyhedra.hh"
-//***** End of include basic geometry classes
-
-#include "G4Polycone.hh"
-#include "G4SubtractionSolid.hh"
-#include "G4RunManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4PVReplica.hh"
-#include "G4PVParameterised.hh"
-
-#include "G4GeometryManager.hh"
-#include "G4PhysicalVolumeStore.hh"
-#include "G4LogicalVolumeStore.hh"
-#include "G4SolidStore.hh"
-
-
-#include "G4VisAttributes.hh"
-#include "G4Colour.hh"
-#include "G4ios.hh"
-#include "G4NistManager.hh"
-#include "G4OpticalSurface.hh"
-#include "G4LogicalBorderSurface.hh"
-#include "G4OpBoundaryProcess.hh"
-#include "G4SDManager.hh"
-#include "CaloSensitiveDetector.hh"
-#include "G4VPrimitiveScorer.hh"
-#include "G4PSEnergyDeposit.hh"
-
-#include "TrackerSensitiveDetector.hh"
-#include "G4GDMLParser.hh"
-#include "TNtuple.h"
-#include "Analysis.hh"
-#include "G4GenericMessenger.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "JediCubicPolarimeter.hh"
+#include "JediHexagonalPolarimeter.hh"
+#include "SingleCrystal.hh"
+#include "JediSandwichCalorimeter.hh"
+#include "CosmicSetup.hh"
 #include "global.hh"
 #include <map>
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-DetectorConstruction::DetectorConstruction()
-:fPhysiWorld(0),fParser(G4GDMLParser()),fGeomFile("")
+DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeometry(nullptr)
 {
-	DefineCommands();
-	if(gConfig.count("detector.geometry"))
-		this->fGeomFile=gConfig["detector.geometry"].as<std::string>().c_str();
+	auto geometry=gConfig["detector.geometry"].as<std::string>();
+	std::string cubic("cubic:");
+	std::string hexagonal("hexagonal:");
+	std::string gdml("gdml:");
+	std::string single("single:");
+	std::string sandwich("sandwich:");
+	std::string cosmic("cosmic:");
+	std::string singlesandwich("singlesandwich:");
+	if(!geometry.compare(0,cubic.size(),cubic)){
+		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
+	}
+	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
+		fGeometry=new JediHexagonalPolarimeter;
+	}
+//	if(!geometry.compare(0,gdml.size(),gdml)){
+//		jedi= new DetectorConstruction();
+//	}
+	if(!geometry.compare(0,single.size(),single)){
+		fGeometry= new SingleCrystal();
+	}
+	if(!geometry.compare(0,sandwich.size(),sandwich)){
+		fGeometry= new JediSandwichCalorimeter();
+	}
+	if(!geometry.compare(0,cosmic.size(),cosmic)){
+		fGeometry= new CosmicSetup();
+	}
+	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
+		jedi= new SingleSandwichModule();
+	}
+	if(!fGeometry)
+		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
 }
 
 
@@ -78,134 +64,5 @@ DetectorConstruction::DetectorConstruction()
 
 DetectorConstruction::~DetectorConstruction()
 {
-	// 	delete TargetMaterial;
-}
-
-void DetectorConstruction::UpdateGeometry()
-{
-	G4cout <<"Updating Geometry...";
-	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
-	G4RunManager::GetRunManager()->GeometryHasBeenModified();
-	G4cout<<"done!"<<G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4VPhysicalVolume* DetectorConstruction::Construct()
-{
-
-	//Clean Up the Old Geometry
-
-	G4GeometryManager::GetInstance()->OpenGeometry();
-	G4PhysicalVolumeStore::GetInstance()->Clean();
-	G4LogicalVolumeStore::GetInstance()->Clean();
-	G4SolidStore::GetInstance()->Clean();
-	// World
-	if(fGeomFile==""){
-		/*
-		G4double z[]={0,150*mm};
-		G4double rInner={0*mm,0*mm};
-		G4double rOuter[]={60*mm,60*mm};
-		G4Polyhedra* solidCrystal= new G4Polyhedra("Crystal",0*deg,360*deg,6,z,rInner,rOuter);
-		 */
-
-		G4Box* solidWorld=new G4Box("World",1*m,1*m,1*m);
-		G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
-		logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
-		fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"World",0,0,0,0);
-
-		/*
-		G4LogicalVolume* logicCrystal=parser.GetVolume("CrystalLV");
-		G4cout<<logicCrystal->GetName()<<G4endl;
-		new G4PVPlacement(0,G4ThreeVector(0,0,0),logicCrystal,"Crystal",logicWorld,0,0,0);
-		G4ThreeVector pos(0,2*mm,0);
-		for(G4int ii=1;ii<7;ii++){
-			pos.rotateZ(60*deg);
-			new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicWorld,0,ii,0);
-		}
-		 */
-	}
-	else{
-		fParser.Read(fGeomFile);
-		fPhysiWorld=fParser.GetWorldVolume();
-	}
-
-	return fPhysiWorld;
-}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void DetectorConstruction::WriteWorldToFile(G4String filename) {
-	if(!fPhysiWorld){
-		std::stringstream o;
-		o<<"physiWorld pointer is NULL.";
-		G4Exception("DetectorConstruction::WriteWorldToFile()","PointerError",JustWarning,o.str().c_str());
-		return;
-	}
-	fParser.Write(filename,fPhysiWorld);
-}
-
-void DetectorConstruction::ConstructSDandField() {
-	//------------------------------------------------
-	// Sensitive detectors
-	//------------------------------------------------
-
-	const G4GDMLAuxMapType* auxmap = fParser.GetAuxMap();
-	G4SDManager* SDman=G4SDManager::GetSDMpointer();
-	for(G4GDMLAuxMapType::const_iterator iter=auxmap->begin();
-			iter!=auxmap->end(); iter++)
-	{
-		G4String SDtype="";
-		G4String SDname="";
-		for (G4GDMLAuxListType::const_iterator vit=(*iter).second.begin();
-				vit!=(*iter).second.end();vit++)
-		{
-			G4cout<<(*vit).type<<" "<<(*vit).value<<G4endl;
-			if ((*vit).type=="SensDetType")
-			{
-				SDtype=(*vit).value;
-			}
-			if ((*vit).type=="SensDetName")
-			{
-				SDname=(*vit).value;
-			}
-
-		}
-		if(SDtype=="Tracker"){
-			G4VSensitiveDetector* mydet = SDman->FindSensitiveDetector(SDname);
-			if(!mydet){
-				mydet = new TrackerSensitiveDetector(SDname,SDname+"Collection");
-			}
-			G4LogicalVolume* myvol = (*iter).first;
-			G4cout<<"Attaching sensitive detector at "<<mydet<<" to detector "<<myvol->GetName()<<G4endl;
-			SetSensitiveDetector(myvol,mydet);
-		}
-		else if(SDtype=="Calo"){
-			G4LogicalVolume* myvol = (*iter).first;
-			CaloSensitiveDetector* mymfd = new CaloSensitiveDetector(SDname);
-			G4cout<<"Creating Sensitive Detector "<<SDname<<G4endl;
-			SetSensitiveDetector(myvol,mymfd);
-		}
-	}
-}
-
-void DetectorConstruction::DefineCommands(){
-
-	// Define /PolarimeterStudies/detector command directory using generic messenger class
-	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/detector/",
-			"Detector control");
-
-	G4GenericMessenger::Command& updateCmd
-	= fMessenger->DeclareMethod("update",
-			&DetectorConstruction::UpdateGeometry,
-			"Update geometry");
-
-	G4GenericMessenger::Command& writeCmd=
-			fMessenger->DeclareMethod("write",
-					&DetectorConstruction::WriteWorldToFile,
-					"Write geometry to file.");
-	writeCmd.SetGuidance("Write geometry to gdml file.");
-	writeCmd.SetParameterName("filename",false);
-	writeCmd.SetStates(G4State_PreInit,G4State_Idle);
-	return;
+	delete fGeometry;
 }
