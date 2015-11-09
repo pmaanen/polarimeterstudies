@@ -1,5 +1,5 @@
 /analysis/Enable
-/analysis/setFileName bragg-lyso.root
+/analysis/setFileName lyso/bragg-lyso.root
 /PolarimeterStudies/detector/calolength 50 cm
 /PolarimeterStudies/detector/calowidth 10 cm
 /PolarimeterStudies/detector/material LYSO
