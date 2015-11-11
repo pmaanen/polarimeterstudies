@@ -1,7 +1,6 @@
-/analysis/Enable
-/analysis/setFileName sim/bragg/bragg-lyso.root
 /PolarimeterStudies/detector/calolength 50 cm
 /PolarimeterStudies/detector/calowidth 20 cm
 /PolarimeterStudies/detector/material LYSO
 /PolarimeterStudies/detector/update
+/control/alias mat lyso
 /control/execute scripts/bragg.mac

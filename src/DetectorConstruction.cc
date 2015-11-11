@@ -17,6 +17,7 @@
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
+#include "SingleSandwichModule.hh"
 #include "CosmicSetup.hh"
 #include "global.hh"
 #include <map>
@@ -52,7 +53,7 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 		fGeometry= new CosmicSetup();
 	}
 	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
-		jedi= new SingleSandwichModule();
+		fGeometry= new SingleSandwichModule();
 	}
 	if(!fGeometry)
 		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
