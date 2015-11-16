@@ -39,7 +39,7 @@ void initializeConfiguration(int argc,char** argv){
 			("detector.crystalLength", po::value<double>()->default_value(100),"crystal length(z) in mm")
 			("detector.crystalWidth", po::value<double>()->default_value(30),"crystal width(x,y)  in mm")
 			("detector.thetamin", po::value<double>()->default_value(5),"theta min in deg")
-			("detector.thetamax", po::value<double>()->default_value(20),"theta max in deg");
+			("detector.thetamax", po::value<double>()->default_value(19.5),"theta max in deg");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), gConfig);

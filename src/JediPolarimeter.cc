@@ -49,7 +49,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	fTargetChamberThickness=2*CLHEP::mm;
 
 	fWrappingThickness=100*CLHEP::um;
-
+	fSafetyDistance=1*CLHEP::cm;
 	fTargetThickness=1*CLHEP::cm;
 	fTargetWidth=1*CLHEP::cm;
 	fChangedParameters=true;
@@ -64,10 +64,10 @@ JediPolarimeter::~JediPolarimeter() {
 
 void JediPolarimeter::ComputeParameters() {
 
-	DetectorZ = (fBeampipeRadius) / tan( fThetaMin );
+	DetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
 
 	fInnerDetectorRadius=DetectorZ*tan( fThetaMin );
-	fOuterDetectorRadius=DetectorZ*tan( fThetaMax );
+	fOuterDetectorRadius=(DetectorZ+fCrystalLength)*tan( fThetaMax );
 
 	fMaxCrystal=ceil(fOuterDetectorRadius/fCrystalWidth);
 	fMinCrystal=ceil(fInnerDetectorRadius/fCrystalWidth);

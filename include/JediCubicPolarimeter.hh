@@ -42,6 +42,8 @@ protected:
 
 	void PlaceCalorimeter(G4LogicalVolume* aDetectorElement);
 	void PlaceHodoscope(G4LogicalVolume* aDetectorElement);
+
+	G4String fHodoscopeShape;
 };
 
 
