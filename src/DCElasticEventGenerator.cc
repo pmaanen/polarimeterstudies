@@ -28,7 +28,7 @@ using namespace CLHEP;
 
 static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fCrossSection(0),fTiltX(0),fTiltY(0),fXPrime(0),fYPrime(0),fBeamspot(0,0,0),fSpotsize(0,0,0){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fCrossSection(0){
 	fBeamEnergy=235.*CLHEP::MeV;
 	fBeamPolarization=Double_t(2./3.);
 	fInitialized=false;
@@ -88,16 +88,17 @@ void DCElasticEventGenerator::Initialize() {
 	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pol"));
 	an->FinishNtuple(fTupleId[0]);
 
-	VertexGeneratorO::GetInstance()->setBeamposition(0,0,0);
-	VertexGeneratorO::GetInstance()->setBeamsize(1*CLHEP::mm,1*CLHEP::mm,1*CLHEP::mm);
-	VertexGeneratorU::GetInstance()->setBeamsize(0,0,5*CLHEP::mm);
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX(),fBeamspot.getY(),fBeamspot.getZ());
+	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX(),fSpotsize.getY(),fSpotsize.getZ());
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ());
 	fInitialized=true;
 }
 
 void DCElasticEventGenerator::DefineCommands()
 {
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCelastic/", "elastic event generator control");
-
+	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dcelastic/", "elastic event generator control");
+	fMessenger->DeclarePropertyWithUnit("beamspot","mm",PhaseSpaceGenerator::fBeamspot,"position of beam centroid.");
+	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
 	fMessenger->DeclareMethod("polarization", &DCElasticEventGenerator::setBeamPolarization, "beam polarization");
 	fMessenger->DeclareMethod("energy", &DCElasticEventGenerator::setBeamEnergy, "beam energy");
 }
@@ -110,30 +111,6 @@ TF2* DCElasticEventGenerator::BuildFunction() {
 	fCrossSection->SetParName(1,"Momentum");
 	fCrossSection->SetParName(2,"Polarization");
 	return fCrossSection;
-}
-
-void DCElasticEventGenerator::Generate(G4Event* E) {
-
-
-	auto event=PrimaryEvent(Generate());
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
-	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		fParticleGun->GeneratePrimaryVertex(E);
-		Analysis* an=Analysis::Instance();
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iPart->id);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[3],iPart->px);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iPart->py);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iPart->pz);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[9],fParticleGun->GetParticleTime()/CLHEP::s);
-		an->AddNtupleRow(fTupleId[0]);
-	}
-	return;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -26,11 +26,7 @@ public:
 	DCElasticEventGenerator(G4ParticleGun* pgun=0);
 	virtual ~DCElasticEventGenerator();
 	virtual void Initialize();
-	//For use by file writer
 	virtual PrimaryEvent Generate();
-	//For use by geant
-	virtual void Generate(G4Event* E);
-	virtual void beginOfRun(){};
 	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);
 	if(fCrossSection)
 		fCrossSection->SetParameter(2,fBeamPolarization);
@@ -38,10 +34,7 @@ public:
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
-	G4GenericMessenger* fMessenger;
 	elastic_scattering_model* fScatteringModel;
-	G4double fXPrime,fYPrime,fTiltX,fTiltY;
-	G4ThreeVector fBeamspot, fSpotsize;
 	TF2* fCrossSection;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
