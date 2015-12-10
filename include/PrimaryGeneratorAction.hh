@@ -21,8 +21,6 @@ class G4ParticleGun;
 #include "FileReader.hh"
 	class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	public:
-	enum GeneratorMode {GUN=1,INPUTFILE=2,GENERATE=3,DCELASTIC=4,DCBREAKUP=5,MUON=6,DCELASTICWITHTIME=7};
-
 	~PrimaryGeneratorAction();
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
@@ -30,14 +28,11 @@ class G4ParticleGun;
 	void generateEventFromGun(G4Event* E);
 	void generateEventFromPhaseSpace(G4Event* E);
 	void illuminateAngle(G4Event* E);
-	G4int getMode() const{return fEMode;}
-	void setMode(G4int mode);
 	void setInfile(G4String);
 	G4ParticleGun* getPGun() const{return fParticleGun;};
 	private:
 	void DefineCommands();
 	G4ParticleGun			*fParticleGun ;
-	GeneratorMode			fEMode;
 	G4GenericMessenger*		fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;
@@ -49,7 +44,7 @@ class G4ParticleGun;
 	G4String fGeneratorName;
 
 	protected:
-	  void listModes(){for (auto iGen:fEvtGenerators){G4cout<<iGen.first;}};
+	  void listModes(){G4cout<<"gun "; G4cout<<"file ";for (auto iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
 
 } ;
 

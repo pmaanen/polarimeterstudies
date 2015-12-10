@@ -50,7 +50,6 @@ namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 
 FileReader* PrimaryGeneratorAction::fgFileReader = 0;
 PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),fInfileName(""),fInstream("",std::ifstream::in) {
-	fEMode=GUN;
 	G4int Nparticle = 1 ;
 	fParticleGun = new G4ParticleGun(Nparticle);
 	fIlluminationAngle=-1;
@@ -89,6 +88,11 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 		G4AutoLock lock(&PrimaryGeneratorMutex);
 		evt = fgFileReader->GetEvent();
 	}
+	else{
+		G4AutoLock lock(&PrimaryGeneratorMutex);
+		fgFileReader=new FileReader(fInfileName);
+		evt = fgFileReader->GetEvent();
+	}
 
 	for(auto ipart : evt){
 		auto part=G4ParticleTable::GetParticleTable()->FindParticle(ipart.id);
@@ -121,48 +125,15 @@ void PrimaryGeneratorAction::generateEventFromGun(G4Event *E)
 	fParticleGun->GeneratePrimaryVertex(E) ;
 }
 
-void PrimaryGeneratorAction::setMode(G4int mode)
-{
-	auto oldmode=this->fEMode;
-	this->fEMode = static_cast<GeneratorMode>(mode);
-	if(!(fEMode==GUN or fEMode==INPUTFILE or fEMode==GENERATE)){
-		std::stringstream o;
-		o<<"Mode not recognized. Mode: "<<fEMode<<G4endl;
-		G4Exception("EventGenerator::SetMode()", "ArgumentError", JustWarning,
-				o.str().c_str());
-		this->fEMode=oldmode;
-	}
-	if(fEMode==INPUTFILE){
-		if(fInfileName==""){
-			G4Exception("[EventGenerator]", "setMode", JustWarning,
-					" ERROR: Set input file before switching mode. Command ignored");
-			this->fEMode=oldmode;
-		}
-		else{
-			G4AutoLock lock(&PrimaryGeneratorMutex);
-			if(!fgFileReader)
-				fgFileReader = new FileReader(fInfileName);
-		}
-	}
-}
-
-
 void PrimaryGeneratorAction::setInfile(G4String string)
 {
 	fInfileName=string;
-	//check if input file is open
-	if(!fInstream){
-		//if not, try to open
-		fInstream.open(fInfileName.c_str());
-		//if not opened, file is not found, throw
-		if(!fInstream){
-			/*
-			G4cerr<<"EventGenerator: Error. Input file not found "<<G4endl;
-			G4Exception("[EventGenerator]", "setInfile", FatalException,
-					" ERROR: Input file not found.");
-			 */
-		}
-	}
+	G4AutoLock lock(&PrimaryGeneratorMutex);
+	if(!fgFileReader)
+		fgFileReader = new FileReader(fInfileName);
+	else
+		delete fgFileReader;
+		fgFileReader=new FileReader(fInfileName);
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
@@ -170,22 +141,21 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		illuminateAngle(E);
 		return;
 	}
-	switch(fEMode){
-	case GUN:
+	if(fGeneratorName=="gun"){
 		generateEventFromGun(E);
-		break;
-	case INPUTFILE:
-		generateEventFromInput(E);
-		break;
-	case GENERATE:
-		generateEventFromPhaseSpace(E);
-		break;
-	default:
-		std::stringstream o;
-		o<<"Mode not recognized. Mode: "<<fEMode<<G4endl;
-		G4Exception("EventGenerator::SetMode()", "ModeError", FatalException,
-				o.str().c_str());
+		return;
 	}
+	else if(fGeneratorName=="file"){
+		if(fInfileName==""){
+			G4Exception("[EventGenerator]", "GeneratePrimaries", RunMustBeAborted,
+					" ERROR: Must set input file before first beamOn.");
+		}
+		generateEventFromInput(E);
+		return;
+	}
+	else
+		generateEventFromPhaseSpace(E);
+	return;
 }
 
 void PrimaryGeneratorAction::illuminateAngle(G4Event* E) {
@@ -214,19 +184,11 @@ void PrimaryGeneratorAction::DefineCommands()
 			"/PolarimeterStudies/generator/",
 			"Generator control");
 
-	G4GenericMessenger::Command& modeCmd
-	= fMessenger->DeclareMethod("Mode",
-			&PrimaryGeneratorAction::setMode,
-			"Set mode of generator.");
-	modeCmd.SetParameterName("mode", true);
-	//	modeCmd.SetRange("mode>=1. && mode<=2.");
-	modeCmd.SetDefaultValue("1");
-
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
 
-	generator.SetGuidance("Possible values are: muon, dcelastic, dcbreakup, dcelastictime.");
-	
+	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime.");
+
 	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
 	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
 	fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
