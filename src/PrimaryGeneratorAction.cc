@@ -125,9 +125,9 @@ void PrimaryGeneratorAction::generateEventFromGun(G4Event *E)
 	fParticleGun->GeneratePrimaryVertex(E) ;
 }
 
-void PrimaryGeneratorAction::setInfile(G4String string)
+void PrimaryGeneratorAction::setInfile(G4String fileName)
 {
-	fInfileName=string;
+	fInfileName=fileName;
 	G4AutoLock lock(&PrimaryGeneratorMutex);
 	if(!fgFileReader)
 		fgFileReader = new FileReader(fInfileName);
@@ -189,7 +189,7 @@ void PrimaryGeneratorAction::DefineCommands()
 
 	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime.");
 
-	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
+	fMessenger->DeclareMethod("setFileName",&PrimaryGeneratorAction::setInfile,"Set input file name");
 	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
 	fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
 }
