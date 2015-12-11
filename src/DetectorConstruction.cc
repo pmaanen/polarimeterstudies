@@ -18,6 +18,7 @@
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
 #include "CosmicSetup.hh"
+#include "ClusterSetup.hh"
 #include "global.hh"
 #include <map>
 using namespace CLHEP;
@@ -32,6 +33,7 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	std::string single("single:");
 	std::string sandwich("sandwich:");
 	std::string cosmic("cosmic:");
+	std::string cluster("cluster:");
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}
@@ -49,6 +51,9 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	}
 	if(!geometry.compare(0,cosmic.size(),cosmic)){
 		fGeometry= new CosmicSetup();
+	}
+	if(!geometry.compare(0,cluster.size(),cluster)){
+		fGeometry= new ClusterSetup();
 	}
 	if(!fGeometry)
 		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");

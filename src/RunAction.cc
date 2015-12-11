@@ -128,5 +128,4 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	if (fSaveRndm == 1)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
-
 }
