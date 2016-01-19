@@ -2,7 +2,6 @@
 /gun/position 0 0 -10 cm
 /gun/direction 0 0 1
 /gun/particle deuteron
-/gun/energy 270 MeV
-/control/macroPath scripts/
+/gun/energy {Ekin} MeV
 /control/add Leff 30 0
-/control/foreach de-dx-by-angle-singlerun.mac angle "90. 121.003 131.410 138.190 143.130 146.944 150. 152.514 154.623 156.422 157.976 159.333 160.529 161.592 162.542"
+/control/foreach scripts/de-dx-by-angle-singlerun.mac angle "90. 121.003 131.410 138.190 143.130 146.944 150. 152.514 154.623 156.422 157.976 159.333 160.529 161.592 162.542"
