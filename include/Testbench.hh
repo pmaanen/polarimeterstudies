@@ -48,7 +48,6 @@ public:
 protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
-	virtual void ConstructSDandField();
 	G4Cache<CaloSensitiveDetector*> fTriggerSD;
 	G4LogicalVolume* fLogicTrigger;
 	std::vector<int> fMyTupleId;

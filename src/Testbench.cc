@@ -42,12 +42,8 @@ G4VPhysicalVolume* Testbench::Construct() {
 			G4int iTrig=0;
 			auto rot=new G4RotationMatrix();
 			rot->rotateX(90*CLHEP::deg);
-			for(auto iX=-1;iX<2;iX++)
-				for(auto iY=-1;iY<2;iY++){
-					new G4PVPlacement(rot,G4ThreeVector(fCrystalWidth*iX,fCrystalWidth*iY,fTriggerOffsetZ+25.5*CLHEP::cm),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,0,iTrig++,0);
-				}
+			new G4PVPlacement(rot,G4ThreeVector(0,0,fTriggerOffsetZ+25.5*CLHEP::cm),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,0,0,0);
 		}
-
 	}
 	return fPhysiWorld;
 }
@@ -55,7 +51,6 @@ G4VPhysicalVolume* Testbench::Construct() {
 void Testbench::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
-	G4cout<<"CosmicSetup::DefineCommands() called"<<G4endl;
 	G4GenericMessenger::Command& triggerLengthCmd
 	= fMessenger->DeclareMethodWithUnit("triggerlength","mm",
 			&Testbench::setTriggerLength,
@@ -90,23 +85,4 @@ void Testbench::DefineCommands() {
 			"trigger offset in z dir. (mm)");
 
 
-}
-
-void Testbench::ConstructSDandField() {
-
-	if (fCaloSD["Calorimeter"].Get()==0 and fCaloSDVolumes["Calorimeter"]){
-		fCaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
-	}
-
-	if (fCaloSD["Trigger"].Get()==0 and fCaloSDVolumes["Trigger"]){
-		fCaloSD["Trigger"].Put(new CaloSensitiveDetector("Trigger"));
-	}
-
-	if(fCaloSDVolumes["Calorimeter"])
-		SetSensitiveDetector(fCaloSDVolumes["Calorimeter"],fCaloSD["Calorimeter"].Get());
-
-	if(fCaloSDVolumes["Trigger"])
-		SetSensitiveDetector(fCaloSDVolumes["Trigger"],fCaloSD["Trigger"].Get());
-
-	return;
 }

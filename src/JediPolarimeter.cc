@@ -280,6 +280,7 @@ void JediPolarimeter::UpdateGeometry(){
 
 void JediPolarimeter::ConstructSDandField() {
 	for(auto iVol: fCaloSDVolumes){
+		G4cout<<"Adding "<<iVol.first<<" with name "<<iVol.second->GetName()<<" to list of sensitive detectors."<<G4endl;
 		if (fCaloSD[iVol.first].Get()==0)
 			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
 		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
