@@ -23,7 +23,7 @@
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include <JediSandwichCalorimeter.hh>
-#include "CosmicSetup.hh"
+#include <Testbench.hh>
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
