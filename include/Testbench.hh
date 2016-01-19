@@ -5,15 +5,15 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_COSMICSETUP_HH_
-#define INCLUDE_COSMICSETUP_HH_
+#ifndef INCLUDE_TESTBENCH_HH_
+#define INCLUDE_TESTBENCH_HH_
 
 #include <SingleCrystal.hh>
 
-class CosmicSetup: public SingleCrystal {
+class Testbench: public SingleCrystal {
 public:
-	CosmicSetup();
-	virtual ~CosmicSetup();
+	Testbench();
+	virtual ~Testbench();
 
 	void setTriggerLength(G4double triggerLength) {
 		this->fTriggerLength = triggerLength;
@@ -53,7 +53,7 @@ protected:
 	G4LogicalVolume* fLogicTrigger;
 	std::vector<int> fMyTupleId;
 	G4double fTriggerLength,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
-	G4bool fUpperTrigger,fLowerTrigger;
+	G4bool fTrigger;
 };
 
-#endif /* INCLUDE_COSMICSETUP_HH_ */
+#endif /* INCLUDE_TESTBENCH_HH_ */
