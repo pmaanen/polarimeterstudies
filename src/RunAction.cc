@@ -30,7 +30,7 @@ RunAction::RunAction()
 	fNEvents=0;
 
 	Analysis* analysisManager = Analysis::Instance();
-	analysisManager->SetVerboseLevel(1);
+	analysisManager->SetVerboseLevel(0);
 	analysisManager->SetFirstHistoId(1);
 
 	// Creating histograms
