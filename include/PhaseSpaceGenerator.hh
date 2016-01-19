@@ -54,11 +54,17 @@ protected:
 	std::vector<G4ParticleDefinition*> fParticles;
 
 	G4GenericMessenger* fMessenger;
+	G4double fXPrime,fYPrime,fTiltX,fTiltY;
+	G4ThreeVector fBeamspot, fSpotsize;
 
+
+	virtual void Generate(G4Event* E);
+	virtual PrimaryEvent Generate()=0;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 	virtual TF2* BuildFunction()=0;
 	virtual void Initialize()=0;
+
 
 };
 

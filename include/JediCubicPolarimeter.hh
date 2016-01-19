@@ -31,7 +31,6 @@ class JediCubicPolarimeter: public JediPolarimeter {
 public:
 	JediCubicPolarimeter(std::string infile="");
 	virtual G4VPhysicalVolume* Construct();
-	virtual void ConstructSDandField();
 protected:
 
 	void DefineCommands();
@@ -40,6 +39,11 @@ protected:
 	virtual G4LogicalVolume* MakeDeltaECrystal();
 	G4double distanceToEdge(G4double a, G4double b, G4ThreeVector direction);
 	virtual ~JediCubicPolarimeter();
+
+	void PlaceCalorimeter(G4LogicalVolume* aDetectorElement);
+	void PlaceHodoscope(G4LogicalVolume* aDetectorElement);
+
+	G4String fHodoscopeShape;
 };
 
 

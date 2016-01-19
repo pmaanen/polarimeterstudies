@@ -14,7 +14,7 @@ CosmicSetup::CosmicSetup():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),f
 	fTriggerThickness=1*CLHEP::cm;
 	fUpperTrigger=true;
 	fLowerTrigger=false;
-	fScintillatorMaterialName="G4_LYSO_SCINT";
+	fScintillatorMaterialName="LYSO";
 	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 
 	DefineCommands();
