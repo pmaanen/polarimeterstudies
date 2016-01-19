@@ -9,12 +9,13 @@
 #define INCLUDE_FILEREADER_HH_
 class FileReader_impl{
 public:
-	FileReader_impl():iEvent(0){}
+	FileReader_impl():fEventIndex(0),fCacheSize(100){}
 	virtual PrimaryEvent GetEvent()=0;
 	virtual ~FileReader_impl(){};
 protected:
-	G4int iEvent;
-	std::list<PrimaryEvent> evCache;
+	G4int fEventIndex;
+	G4int fCacheSize;
+	std::list<PrimaryEvent> fEvCache;
 };
 class FileReader_ascii: public FileReader_impl{
 public:
@@ -24,12 +25,12 @@ public:
 	virtual ~FileReader_ascii(){fInputFile.close();};
 
 	PrimaryEvent GetEvent(){
-		if( evCache.size() == 0 )
+		if( fEvCache.size() == 0 )
 		{
 			PrimaryEvent thisEvent;
 			PrimaryParticle thisParticle(0,0,0,0);
 			std::string line;
-			for(auto iev=0;iev<100;++iev){
+			for(auto iev=0;iev<fCacheSize;++iev){
 				while(std::getline(fInputFile,line)){
 					G4double px,py,pz,vx,vy,vz,t;
 					G4int ev,id;
@@ -41,11 +42,11 @@ public:
 					thisEvent.vx=vx;
 					thisEvent.vy=vy;
 					thisEvent.vz=vz;
-					if(ev!=iEvent){
-						evCache.push_back(thisEvent);
+					if(ev!=fEventIndex){
+						fEvCache.push_back(thisEvent);
 						thisEvent.particles.clear();
 						thisEvent.particles.push_back(thisParticle);
-						iEvent=ev;
+						fEventIndex=ev;
 						break;
 					}
 					else{
@@ -54,8 +55,8 @@ public:
 				}
 			}
 		}
-		PrimaryEvent ev = evCache.front();
-		evCache.pop_front();
+		PrimaryEvent ev = fEvCache.front();
+		fEvCache.pop_front();
 		return ev;
 	}
 private:
@@ -69,13 +70,12 @@ public:
 		G4cout<<"FileReader_root::FileReader_root("<<fileName<<")"<<G4endl;
 #endif
 		fInputFile=new TFile(fileName,"READ");
-		if(!fInputFile || fInputFile->IsZombie())
-			G4Exception("[FileReader]", "FileReader", RunMustBeAborted,
+		if((!fInputFile) || (fInputFile->IsZombie()))
+			G4Exception("[FileReader]", "FileReader", JustWarning,
 					" ERROR: Input file not found.");
-
 		fInputTree=dynamic_cast<TTree*>(fInputFile->Get("gen"));
 		if(!fInputTree || fInputTree->IsZombie())
-			G4Exception("[FileReader]", "FileReader", RunMustBeAborted,
+			G4Exception("[FileReader]", "FileReader", JustWarning,
 					" ERROR: Input Tree not found.");
 		fCurEntry=0;
 	}
@@ -84,7 +84,14 @@ public:
 #ifdef MYDEBUG
 		G4cout<<"FileReader_root::GetEvent()"<<G4endl;
 #endif
-		if( evCache.size() == 0 )
+
+		if((!fInputFile) || (fInputFile->IsZombie())){
+			G4Exception("[FileReader]", "FileReader", RunMustBeAborted,
+					" ERROR: Input file not found.");
+			PrimaryEvent ev;
+			return ev;
+		}
+		if( fEvCache.size() == 0 )
 		{
 			PrimaryEvent thisEvent;
 			PrimaryParticle thisParticle(0,0,0,0);
@@ -100,7 +107,7 @@ public:
 			fInputTree->SetBranchAddress("vy",&vy);
 			fInputTree->SetBranchAddress("vz",&vz);
 			fInputTree->SetBranchAddress("t",&t);
-			for(auto iev=0;iev<100;++iev){
+			for(auto iev=0;iev<fCacheSize;++iev){
 				while(true){
 					if(fCurEntry>fInputTree->GetEntries())
 						G4Exception("FileReader_root","NoMoreEvents",RunMustBeAborted,"No more events in input file.");
@@ -110,11 +117,11 @@ public:
 					thisEvent.vx=vx;
 					thisEvent.vy=vy;
 					thisEvent.vz=vz;
-					if(ev!=iEvent){
-						evCache.push_back(thisEvent);
+					if(ev!=fEventIndex){
+						fEvCache.push_back(thisEvent);
 						thisEvent.particles.clear();
 						thisEvent.particles.push_back(thisParticle);
-						iEvent=ev;
+						fEventIndex=ev;
 						break;
 					}
 					else{
@@ -123,8 +130,8 @@ public:
 				}
 			}
 		}
-		PrimaryEvent ev = evCache.front();
-		evCache.pop_front();
+		PrimaryEvent ev = fEvCache.front();
+		fEvCache.pop_front();
 #ifdef MYDEBUG
 		for(auto particle : ev){
 			G4cout<<particle<<G4endl;
@@ -145,14 +152,14 @@ private:
 
 class FileReader{
 public:
-	FileReader(G4String fileName):fFileReader(nullptr){
+	FileReader(G4String fileName):fFileReader(nullptr),fFileName(fileName){
 		OpenFile(fileName);
 	}
 	PrimaryEvent GetEvent(){
 		return fFileReader->GetEvent();
 	}
 	virtual ~FileReader(){delete fFileReader;};
-	void setFileName(G4String fileName){if(fileName==fFileName) return; else OpenFile(fileName);};
+	G4String getFileName(){return fFileName;};
 
 private:
 	FileReader_impl* fFileReader;

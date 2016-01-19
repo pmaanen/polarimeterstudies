@@ -131,9 +131,12 @@ void PrimaryGeneratorAction::setInfile(G4String fileName)
 	G4AutoLock lock(&PrimaryGeneratorMutex);
 	if(!fgFileReader)
 		fgFileReader = new FileReader(fInfileName);
-	else
-		delete fgFileReader;
-		fgFileReader=new FileReader(fInfileName);
+	else{
+		if(!(fgFileReader->getFileName()==fileName)){
+			delete fgFileReader;
+			fgFileReader=new FileReader(fInfileName);
+		}
+	}
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
