@@ -25,7 +25,6 @@ class G4ParticleGun;
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
-	void generateEventFromGun(G4Event* E);
 	void generateEventFromPhaseSpace(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
