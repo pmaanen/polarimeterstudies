@@ -1,4 +1,4 @@
 /analysis/setFileName sim/de-dx-by-length/deuterons_{Leff}_{Ekin}.root
 /PolarimeterStudies/detector/calolength {Leff}
 /PolarimeterStudies/detector/update
-/run/beamOn 100000
+/run/beamOn 10000

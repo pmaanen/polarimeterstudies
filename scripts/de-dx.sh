@@ -7,9 +7,9 @@ fi
 echo "N="$N
 mkdir sim
 mkdir sim/de-dx-by-angle
-mkdir sim/de-dx-by-length
-./polarimeterstudies -g cosmic: -m scripts/de-dx.mac -n $N -b 2>/dev/null 1>/dev/null
+#mkdir sim/de-dx-by-length
+./polarimeterstudies -g testbench: -m scripts/de-dx.mac -n $N -b 2>/dev/null 1>/dev/null
 cp ./scripts/analyse.py sim/de-dx-by-angle/.
-cp ./scripts/analyse.py sim/de-dx-by-length/.
-cd sim/de-dx-by-length && ./analyse.py && cd -
+#cp ./scripts/analyse.py sim/de-dx-by-length/.
+#cd sim/de-dx-by-length && ./analyse.py && cd -
 cd sim/de-dx-by-angle  && ./analyse.py && cd -

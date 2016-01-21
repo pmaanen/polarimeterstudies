@@ -74,15 +74,18 @@ def doFile(filename):
 def main():
     edep_mean=[]
     Leff=range(30,70,5)
-    for iLeff in Leff:
-        filename="deuterons_"+str(iLeff)+".root"
-        print "analysing "+str(filename)
-        edep_mean.append(doFile(filename))
     for i in range(len(Leff)):
         Leff[i]=float(Leff[i])*1.0
-    myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
-    myGraph.Print()
-    c1=ROOT.TCanvas("c1","c1",800,600)
-    myGraph.Draw("AP")
-    c1.Print("c1.root")
+    Ekin=range(100,350,50)
+    for iEkin in Ekin: 
+       for iLeff in Leff:
+          filename="deuterons_"+str(iLeff)+"_"+str(iEkin)+".root"
+          print "analysing "+str(filename)
+          edep_mean.append(doFile(filename))
+       myGraph=ROOT.TGraph(len(edep_mean),asarray(Leff),asarray(edep_mean))
+       myGraph.Print()
+       c1=ROOT.TCanvas("c1","c1",800,600)
+       myGraph.Draw("AP")
+       c1.Print(str(Ekin)+".root")
+       c1.Print(str(Ekin)+".pdf")
 main()
