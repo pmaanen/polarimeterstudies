@@ -3,5 +3,5 @@
 /gun/direction 0 0 1
 /gun/particle deuteron
 /gun/energy {Ekin} MeV
-/control/macroPath scripts/
-/control/loop de-dx-by-length-singlerun.mac Leff 30 105 5
+/PolarimeterStudies/detector/calowidth 10 cm
+/control/foreach scripts/de-dx-by-length-singlerun.mac Leff "15 30 45 60 75"

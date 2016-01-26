@@ -9,6 +9,7 @@
 #include <Testbench.hh>
 Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
 	fCrystalLength=10*CLHEP::cm;
+	fCrystalWidth=1.5*CLHEP::cm;
 	fTriggerLength=fCrystalWidth;
 	fTriggerWidth=fCrystalWidth;
 	fTriggerThickness=1*CLHEP::cm;
@@ -42,7 +43,9 @@ G4VPhysicalVolume* Testbench::Construct() {
 			G4int iTrig=0;
 			auto rot=new G4RotationMatrix();
 			rot->rotateX(90*CLHEP::deg);
-			new G4PVPlacement(rot,G4ThreeVector(0,0,fTriggerOffsetZ+25.5*CLHEP::cm),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,0,0,0);
+			for(int iX=-1;iX<2;iX++)
+				for(int iY=-1;iY<2;iY++)
+					new G4PVPlacement(rot,G4ThreeVector(iX*fCrystalWidth,iY*fCrystalWidth,fTriggerOffsetZ+25.5*CLHEP::cm),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,0,iTrig++,0);
 		}
 	}
 	return fPhysiWorld;
