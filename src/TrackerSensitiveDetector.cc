@@ -98,7 +98,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	// energy deposit
 	G4double edep = aStep->GetTotalEnergyDeposit();
 
-	//if (edep==0.) return false;
+	if (edep==0.) return false;
 
 	DetectorHit* newHit = new DetectorHit();
 
