@@ -1,4 +1,3 @@
-/analysis/setFileName bragg_{mat}_{Ekin}.root
 /PolarimeterStudies/generator/setGenerator gun
 /PolarimeterStudies/detector/calolength 1000 cm
 /PolarimeterStudies/detector/calowidth 50 cm
