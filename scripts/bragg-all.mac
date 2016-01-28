@@ -1,5 +1,5 @@
-/control/execute scripts/bragg-alu.mac
-/control/execute scripts/bragg-iron.mac
-/control/execute scripts/bragg-lead.mac
-/control/execute scripts/bragg-plastic.mac
-/control/execute scripts/bragg-lyso.mac
+/control/loop scripts/bragg-alu.mac Ekin 100 300 50
+/control/loop scripts/bragg-iron.mac Ekin 100 300 50
+/control/loop scripts/bragg-lead.mac Ekin 100 300 50
+/control/loop scripts/bragg-plastic.mac Ekin 100 300 50
+/control/loop scripts/bragg-lyso.mac Ekin 100 300 50 
