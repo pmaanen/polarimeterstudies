@@ -4,24 +4,43 @@ from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
-
+range=ROOT.TH1F("Range","range",5000,0,500)
+dedx=ROOT.TH1F("dedx","dE/dx",5000,0,500)
+edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300)
+edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
+edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
+etot_vs_z=ROOT.TH2F("ekin","E_{kin} vs z",5000,0,500,3000,0,300)
+etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
+etot_vs_z.GetXaxis().SetTitle("z / mm")
 
 class hit:
     def __init__(self,hit):
-        self.detid=hit.detid
+        #self.detid=hit.detid
         self.edep=hit.edep
         self.event=hit.event
-
-def doEvent(calo,de,histo):
+        self.trackId=hit.trackId
+        self.x=hit.x
+        self.y=hit.y
+        self.z=hit.z
+        self.time=hit.time
+        self.etot=hit.etot
+def unpack(tree):
+    res=[]
+    for evt in tree:
+        res.append(hit(evt))
+    res.sort(key=lambda evt:evt.event)
+    return res
+def doEvent(calo):
     if len(calo)==0:
         print "no hits, event skipped"
         return
-    
-    if len(calo)!=1 or len(de)!=1 or calo[0].event!=de[0].event:
-    #    print "malformed event, event skipped"
-        return
-    if de[0].edep>5:
-        histo.Fill(calo[0].edep)
+    primaryTrack=sorted(filter(lambda hit:hit.trackId==1,calo),key=lambda hit:hit.time)
+    for hit in primaryTrack:
+        edep_vs_etot.Fill(hit.etot,hit.edep)
+        etot_vs_z.Fill(hit.z,hit.etot)
+        dedx.Fill(hit.z,hit.edep)
+    range.Fill(primaryTrack[-1].z)
+    return
 
 def getOneEvent(EventIndex,EventList):
     result=[]
@@ -33,38 +52,23 @@ def getOneEvent(EventIndex,EventList):
         else:
             break
     return result
-    
-def doFile(filename):
-    #edep=ROOT.TH2F("dedx","dE/dx",300,0,300,5000,0,500)
-    #edep.GetYaxis().SetTitle("dE/dx / 1/MeV")
-    #edep.GetXaxis().SetTitle("z / mm")
-    dedx=ROOT.TH1F("dedx","dE/dx",5000,0,500)
-    edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300)
-    edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
-    edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
 
-    etot_vs_z=ROOT.TH2F("ekin","E_{kin} vs z",5000,0,500,3000,0,300)
-    etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
-    etot_vs_z.GetXaxis().SetTitle("z / mm")
+def doFile(filename):
+    range.Reset()
+    dedx.Reset()
+    edep_vs_etot.Reset()
+    etot_vs_z.Reset()
+    
     infile=ROOT.TFile(filename,"UPDATE")
     calorimeter=infile.Get("Calorimeter")
-    
-    calorhits=[]
-    lasthit=[0,0,0]
-    for event in calorimeter:
-        if event.trackId==1:
-            edep_vs_etot.Fill(event.etot,event.edep)
-            etot_vs_z.Fill(event.z,event.etot)
-            #if(lasthit!=[0,0,0]):
-            #    dx=(lasthit[0]-event.x)
-            #    dy=(lasthit[1]-event.y)
-            #    dz=(lasthit[2]-event.z)
-            #    ds=sqrt(dx**2+dy**2+dz**2)
-            #    if(ds!=0):
-            #        deds=event.edep/ds
-            #        edep.Fill(deds,event.z)
-            #lasthit=[event.x,event.y,event.z]
-            dedx.Fill(event.z,event.edep)
+    events=unpack(calorimeter)
+    while True:
+        iEvent=events[-1].event
+        thisEventCalor=getOneEvent(iEvent,events)
+        doEvent(thisEventCalor)
+        if len(events)==0:
+            break
+        
     temp=etot_vs_z.Clone()
     temp.RebinX(10)
     temp2=edep_vs_etot.Clone()
@@ -76,6 +80,7 @@ def doFile(filename):
     dedx.Write()
     edep_vs_etot.Write()
     etot_vs_z.Write()
+    range.Write()
     return
 def main():
     for filename in sys.argv[1:]:
