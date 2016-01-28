@@ -40,9 +40,9 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
 		fGeometry=new JediHexagonalPolarimeter;
 	}
-//	if(!geometry.compare(0,gdml.size(),gdml)){
-//		jedi= new DetectorConstruction();
-//	}
+	//	if(!geometry.compare(0,gdml.size(),gdml)){
+	//		jedi= new DetectorConstruction();
+	//	}
 	if(!geometry.compare(0,single.size(),single)){
 		fGeometry= new SingleCrystal();
 	}
@@ -55,8 +55,10 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
 		fGeometry= new SingleSandwichModule();
 	}
-	if(!fGeometry)
-		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
+	if(!fGeometry){
+		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
+		fGeometry= new SingleCrystal();
+	}
 }
 
 
