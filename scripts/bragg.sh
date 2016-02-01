@@ -11,5 +11,3 @@ cp ./scripts/analyse-bragg.py sim/bragg/.
 cp ./scripts/CalculateLateral.py sim/bragg/.
 cp ./scripts/CalculateThickness.py sim/bragg/.
 cd sim/bragg  && ./analyse-bragg.py *.root && cd -
-cd sim/bragg  && ./CalculateThickness.py *.root && cd -
-cd sim/bragg  && ./CalculateLateral.py *.root && cd -
