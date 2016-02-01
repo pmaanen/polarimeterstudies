@@ -68,7 +68,7 @@ def doFile(filename):
     etot_vs_z.Reset()
     xhist.Reset()
     yhist.Reset()
-    infile=ROOT.TFile(filename,"UPDATE")
+    infile=ROOT.TFile(filename,"READ")
     calorimeter=infile.Get("Calorimeter")
     events=unpack(calorimeter)
     while True:
@@ -77,7 +77,8 @@ def doFile(filename):
         doEvent(thisEventCalor)
         if len(events)==0:
             break
-        
+    outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
+    outfile.cd()
     temp=etot_vs_z.Clone()
     temp.RebinX(10)
     temp2=edep_vs_etot.Clone()
@@ -92,6 +93,8 @@ def doFile(filename):
     range.Write()
     xhist.Write()
     yhist.Write()
+    outfile.Write()
+    outfile.Close()
     return
 def main():
     for filename in sys.argv[1:]:
