@@ -9,7 +9,7 @@ def doFile(infile):
     return thick
 
 def asfloatarray(vec):
-    return numpy.asarray(map(lambda x:1.0*x,vec))
+    return numpy.asarray(map(lambda x:float(x),vec))
 #def main():
 materials=["iron","lead","alu"]
 Ekin=asfloatarray(range(100,350,50))

@@ -1,9 +1,2 @@
-/PolarimeterStudies/generator/setGenerator gun
-/PolarimeterStudies/detector/calolength 1000 cm
-/PolarimeterStudies/detector/calowidth 50 cm
-/PolarimeterStudies/detector/update
-/gun/position 0 0 -10 cm
-/gun/direction 0 0 1
-/gun/particle deuteron
-/gun/energy {Ekin} MeV
-/run/beamOn 1000
+/control/foreach scripts/bragg-all.mac pname "deuteron proton"
+/control alias nEvents 10000

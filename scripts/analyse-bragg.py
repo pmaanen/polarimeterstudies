@@ -26,6 +26,7 @@ class hit:
         self.z=hit.z
         self.time=hit.time
         self.etot=hit.etot
+        self.particleId=hit.particleId
 def unpack(tree):
     res=[]
     for evt in tree:
@@ -37,13 +38,16 @@ def doEvent(calo):
         print "no hits, event skipped"
         return
     primaryTrack=sorted(filter(lambda hit:hit.trackId==1,calo),key=lambda hit:hit.time)
+    protonTrack=sorted(filter(lambda hit:hit.particleId==2212,calo),key=lambda hit:hit.trackId)
+    
     for hit in primaryTrack:
         edep_vs_etot.Fill(hit.etot,hit.edep)
         etot_vs_z.Fill(hit.z,hit.etot)
         dedx.Fill(hit.z,hit.edep)
-    range.Fill(primaryTrack[-1].z)
-    xhist.Fill(primaryTrack[-1].x)
-    yhist.Fill(primaryTrack[-1].y)
+    if len(protonTrack)==0:
+        range.Fill(primaryTrack[-1].z)
+        xhist.Fill(primaryTrack[-1].x)
+        yhist.Fill(primaryTrack[-1].y)
     return
 
 def getOneEvent(EventIndex,EventList):
@@ -79,13 +83,13 @@ def doFile(filename):
     temp2=edep_vs_etot.Clone()
     temp2.RebinX(10)
     profile=temp.ProfileX()
-    #profile.Write()
+    profile.Write()
     profile2=temp2.ProfileX()
-    #profile2.Write()
-    #dedx.Write()
-    #edep_vs_etot.Write()
-    #etot_vs_z.Write()
-    #range.Write()
+    profile2.Write()
+    dedx.Write()
+    edep_vs_etot.Write()
+    etot_vs_z.Write()
+    range.Write()
     xhist.Write()
     yhist.Write()
     return
