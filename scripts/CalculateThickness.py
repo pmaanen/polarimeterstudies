@@ -12,7 +12,7 @@ def asfloatarray(vec):
     return numpy.asarray(map(lambda x:float(x),vec))
 #def main():
 materials=["iron","lead","alu"]
-Ekin=asfloatarray(range(100,350,50))
+Ekin=asfloatarray(range(50,350,50))
 graphs=[]
 allGraph=ROOT.TMultiGraph()
 iCol=2

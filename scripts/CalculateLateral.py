@@ -12,7 +12,7 @@ class Gaus:
       return par[0]*ROOT.TMath.Gaus(x[0],par[1],par[2])
 size=[]
 size_err=[]
-Ekin=range(100,350,50)
+Ekin=range(50,350,50)
 for iEkin in Ekin:
     infile=ROOT.TFile("bragg-lyso-"+str(iEkin)+".root")
     histo=infile.Get("x")
