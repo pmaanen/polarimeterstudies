@@ -5,6 +5,8 @@ from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
 range=ROOT.TH1F("Range","range",5000,0,500)
+xhist=ROOT.TH1F("x","lateral shower size x",5000,-250,250)
+yhist=ROOT.TH1F("y","lateral shower size y",5000,-250,250)
 dedx=ROOT.TH1F("dedx","dE/dx",5000,0,500)
 edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300)
 edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
@@ -40,6 +42,8 @@ def doEvent(calo):
         etot_vs_z.Fill(hit.z,hit.etot)
         dedx.Fill(hit.z,hit.edep)
     range.Fill(primaryTrack[-1].z)
+    xhist.Fill(primaryTrack[-1].x)
+    yhist.Fill(primaryTrack[-1].y)
     return
 
 def getOneEvent(EventIndex,EventList):
@@ -58,7 +62,8 @@ def doFile(filename):
     dedx.Reset()
     edep_vs_etot.Reset()
     etot_vs_z.Reset()
-    
+    xhist.Reset()
+    yhist.Reset()
     infile=ROOT.TFile(filename,"UPDATE")
     calorimeter=infile.Get("Calorimeter")
     events=unpack(calorimeter)
@@ -74,13 +79,15 @@ def doFile(filename):
     temp2=edep_vs_etot.Clone()
     temp2.RebinX(10)
     profile=temp.ProfileX()
-    profile.Write()
+    #profile.Write()
     profile2=temp2.ProfileX()
-    profile2.Write()
-    dedx.Write()
-    edep_vs_etot.Write()
-    etot_vs_z.Write()
-    range.Write()
+    #profile2.Write()
+    #dedx.Write()
+    #edep_vs_etot.Write()
+    #etot_vs_z.Write()
+    #range.Write()
+    xhist.Write()
+    yhist.Write()
     return
 def main():
     for filename in sys.argv[1:]:
