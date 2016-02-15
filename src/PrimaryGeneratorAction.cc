@@ -58,8 +58,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
 	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
 	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
-	fEvtGen=fEvtGenerators["muon"];
-
+	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 }
 
@@ -133,7 +132,7 @@ void PrimaryGeneratorAction::setInfile(G4String string)
 		fgFileReader = new FileReader(fInfileName);
 	else
 		delete fgFileReader;
-		fgFileReader=new FileReader(fInfileName);
+	fgFileReader=new FileReader(fInfileName);
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
