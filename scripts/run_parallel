@@ -1,0 +1,48 @@
+#!/usr/bin/python
+# executes script ./_run_parallel.sh in parallel
+
+# Run the Script with ./_run_parallel2.py #RUN_NUMBER1 #RUN_NUMBER2  // This will analyze all runs between #RUN_NUMBER1 and #RUNNUMBER2
+
+import sys
+import threading
+import Queue
+import subprocess
+import os.path
+nproc=1
+maxcore=24
+if(len(sys.argv))<3:
+    print "Usage: run_parallel <executable> <arg1> [arg2]...[argN]"
+    print "runs <executable> in parallel with args 1..N"
+    sys.exit()
+if(len(sys.argv[2:]))<maxcore:
+    nproc=len(sys.argv)-2 # number of cores to use (there are total 32 cores, we want to use a maximum of 24)
+else:
+    nproc=maxcore
+q = Queue.Queue(nproc)
+def worker():
+    #print("running worker")
+    while True:
+        item = q.get()
+        #if(os.path.exists("/home/edmsoft/AllRuns/run_"+str(item))):
+        print("running "+str(item))
+        p = subprocess.Popen([sys.argv[1], str(item)], stdout=subprocess.PIPE)
+        out = p.communicate()
+        print "process %s finished" % str(item),
+        q.task_done()
+
+def main(argv):
+    print("running "+str(nproc)+" workers");
+    for i in range(nproc):
+        t = threading.Thread(target=worker)
+        t.daemon = True
+        t.start()
+
+    for arg in argv[2:]:
+      q.put(arg)
+        
+        
+    q.join()
+    
+
+if __name__ == "__main__":
+    main(sys.argv)
