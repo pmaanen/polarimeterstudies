@@ -17,6 +17,7 @@
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
+#include "SingleSandwichModule.hh"
 #include "CosmicSetup.hh"
 #include "global.hh"
 #include <map>
@@ -32,6 +33,7 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	std::string single("single:");
 	std::string sandwich("sandwich:");
 	std::string cosmic("cosmic:");
+	std::string singlesandwich("singlesandwich:");
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}
@@ -49,6 +51,9 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	}
 	if(!geometry.compare(0,cosmic.size(),cosmic)){
 		fGeometry= new CosmicSetup();
+	}
+	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
+		fGeometry= new SingleSandwichModule();
 	}
 	if(!fGeometry){
 		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");

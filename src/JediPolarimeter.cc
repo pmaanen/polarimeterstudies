@@ -284,4 +284,10 @@ void JediPolarimeter::ConstructSDandField() {
 			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
 		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
 	}
+
+	for(auto iVol: fTrackerSDVolumes){
+		if (fTrackerSD[iVol.first].Get()==0)
+			fTrackerSD[iVol.first].Put(new TrackerSensitiveDetector(iVol.first,iVol.first));
+		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
+	}
 }

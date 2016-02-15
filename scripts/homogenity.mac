@@ -1,0 +1,11 @@
+/analysis/Enable
+/PolarimeterStudies/generator/Mode 3
+/PolarimeterStudies/generator/setGenerator muon
+/PolarimeterStudies/detector/calowidth 3 cm
+/PolarimeterStudies/detector/calolength 10 cm
+/PolarimeterStudies/detector/lower 1
+/PolarimeterStudies/detector/triggerlength 1 cm
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/muon/spotsize 30 0 10 mm
+/PolarimeterStudies/muon/thetamax 12 deg
+/control/loop scripts/homogenity-singlerun.mac zPos 5 95 10 

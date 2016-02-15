@@ -1,0 +1,7 @@
+/analysis/Enable
+/PolarimeterStudies/detector/absorberfraction 0.4
+/PolarimeterStudies/detector/material G4_PLASTIC_SC_VINYLTOLUENE
+/PolarimeterStudies/detector/update
+/gun/direction 0 0 -1
+/gun/position 0 0 20 cm
+/control/loop scripts/40_Fe_Plastic-singlerun.mac Ekin 240 300 5
