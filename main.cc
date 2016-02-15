@@ -41,20 +41,7 @@
 namespace CLHEP {}
 using namespace CLHEP; 
 
-
-void    Interrupt(int signum) {
-	auto state=G4StateManager::GetStateManager()->GetCurrentState();
-	if(state==G4ApplicationState::G4State_EventProc
-			or state==G4ApplicationState::G4State_GeomClosed)
-		G4RunManager::GetRunManager()->AbortRun();
-	exit(signum);
-}
-
 int main(int argc,char** argv) {
-
-	signal(SIGTERM,&Interrupt) ;
-	signal(SIGINT ,&Interrupt) ;
-	signal(SIGPIPE,&Interrupt) ;
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -83,10 +70,14 @@ int main(int argc,char** argv) {
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
+	G4VModularPhysicsList* the_physics =new QGSP_BIC(0);
 	the_physics->SetVerboseLevel(0);
+<<<<<<< HEAD
 	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
+=======
+	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+>>>>>>> master
 	runManager->SetUserInitialization(the_physics);
 
 	//	G4EmParameters::Instance()->SetVerbose(1);
@@ -145,6 +136,7 @@ int main(int argc,char** argv) {
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
+		runManager->Initialize();
 		delete ui;
 #endif
 	}

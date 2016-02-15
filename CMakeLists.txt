@@ -47,8 +47,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/scripts/*)
-#MESSAGE("DBG scripts=${scripts}")
-
 
 #----------------------------------------------------------------------------
 #set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
@@ -58,13 +56,6 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS} -std=c++11")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS} -std=c++11 -D MYDEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${DISABLED_WARNINGS} -std=c++11")
 set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DISABLED_WARNINGS} -std=c++11")
-#set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-#${DISABLED_WARNINGS}")
-
-#message("${CMAKE_CXX_FLAGS_DEBUG}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
@@ -102,23 +93,6 @@ foreach(_script ${scripts})
     ${PROJECT_BINARY_DIR}/scripts/${_script}
     COPYONLY
     )
-endforeach()
-
-set(geometry_FILES
-	lysocal.gdml
-	lyso.gdml
-	empty.gdml
-	default.gdml
-	hexagon.gdml
-	CopyNoExtension.xsd
-	quadrat.gdml
-)
-foreach(_script ${geometry_FILES})
-	configure_file(
-	${PROJECT_SOURCE_DIR}/xml/${_script}
-	${PROJECT_BINARY_DIR}/xml/${_script}
-	COPYONLY
-	)
 endforeach()
 
 #----------------------------------------------------------------------------
