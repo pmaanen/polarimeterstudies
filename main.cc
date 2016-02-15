@@ -72,12 +72,8 @@ int main(int argc,char** argv) {
 	// set physics list
 	G4VModularPhysicsList* the_physics =new QGSP_BIC(0);
 	the_physics->SetVerboseLevel(0);
-<<<<<<< HEAD
 	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
-	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
-=======
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
->>>>>>> master
 	runManager->SetUserInitialization(the_physics);
 
 	//	G4EmParameters::Instance()->SetVerbose(1);

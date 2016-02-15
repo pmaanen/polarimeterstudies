@@ -10,4 +10,5 @@ mkdir -p sim/bragg
 cp ./scripts/analyse-bragg.py sim/bragg/.
 cp ./scripts/CalculateLateral.py sim/bragg/.
 cp ./scripts/CalculateThickness.py sim/bragg/.
+cp ./scripts/CalculateRange.py sim/bragg/.
 cd sim/bragg  && ./analyse-bragg.py *.root && cd -

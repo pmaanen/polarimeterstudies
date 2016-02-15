@@ -12,16 +12,20 @@ def asfloatarray(vec):
     return numpy.asarray(map(lambda x:float(x),vec))
 #def main():
 materials=["iron","lead","alu"]
-Ekin=asfloatarray(range(50,350,50))
+Ekin=asfloatarray(range(50,350,50)+[270])
 graphs=[]
 allGraph=ROOT.TMultiGraph()
 iCol=2
 for material in materials:
     res=[]
     for iEkin in Ekin:
-        infile="bragg_"+str(material)+"_"+str(int(iEkin))+".root"
+        infile="deuteron-"+str(material)+"-"+str(int(iEkin))+"-histos.root"
         print "analysing",infile
-        thick=doFile(infile)
+        try:
+            thick=doFile(infile)
+        except:
+            print "Error analysing",infile
+            raise
         res.append(thick)
         print "Optimum thickness for",infile,":",thick,"mm"
     graph=ROOT.TGraph(len(Ekin),Ekin,asfloatarray(res))
