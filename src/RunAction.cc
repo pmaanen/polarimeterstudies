@@ -92,7 +92,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	if(an->isEnabled()){
 		an->Write();
 		an->CloseFile();
-		if(IsMaster()){
+		if(IsMaster() && gConfig["general.merge"].as<bool>()){
 				std::ostringstream hadd;
 				std::ostringstream rm;
 				std::ostringstream mv;
