@@ -26,22 +26,29 @@
 #include "JediSandwichCalorimeter.hh"
 #include "CosmicSetup.hh"
 #include "EventAction.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "Analysis.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
 #include <FTFP_BERT.hh>
 #include <G4EmParameters.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
-#include <PrimaryGeneratorAction.hh>
-#include "Analysis.hh"
-#include "G4StateManager.hh"
+#include <G4StateManager.hh>
 #include <G4StepLimiterPhysics.hh>
+#include <G4HadronicProcessStore.hh>
 #include <signal.h>
 #include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
 int main(int argc,char** argv) {
+#ifdef GIT_BRANCH
+#ifdef GIT_COMMIT_HASH
+	std::cout<<"On branch: "<<'GIT_BRANCH'<<endl;
+	std::cout<<"Commit id: "<<'GIT_COMMIT_HASH'<<std::endl;
+#endif
+#endif
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -65,7 +72,7 @@ int main(int argc,char** argv) {
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
-
+	runManager->SetVerboseLevel (0);
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
@@ -74,6 +81,7 @@ int main(int argc,char** argv) {
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+	G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
 
 	//	G4EmParameters::Instance()->SetVerbose(1);
@@ -107,7 +115,7 @@ int main(int argc,char** argv) {
 #ifdef G4VIS_USE
 	// Visualization manager
 	//
-	G4VisManager* visManager = new G4VisExecutive;
+	G4VisManager* visManager = new G4VisExecutive("quiet");
 	visManager->Initialize();
 #endif
 
@@ -125,14 +133,12 @@ int main(int argc,char** argv) {
 #ifdef G4UI_USE
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
-		G4cout<<"Interactive mode"<<G4endl;
-		G4cout <<gConfig["general.macro_file"].as<std::string>()<<G4endl;
 		std::stringstream o;
+		//UImanager->ApplyCommand("/run/initialize");
 		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
-		runManager->Initialize();
 		delete ui;
 #endif
 	}
@@ -141,6 +147,7 @@ int main(int argc,char** argv) {
 		G4cout<<"Batch mode"<<G4endl;
 		std::stringstream o;
 		if(gConfig.count("general.macro_file")){
+			//UImanager->ApplyCommand("/run/initialize");
 			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
 			UImanager->ApplyCommand(o.str().c_str());
 		}
