@@ -1,6 +1,6 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
 import sys
-import threading
+from multiprocessing import Process
 import Queue
 import os.path
 
@@ -27,26 +27,20 @@ class AnalysisBase:
         self.Terminate(filename)
         return res
     
-    def Worker(self):
-    #print("running worker")                                                                                                
-        while True:
-            item = self.q.get()                                                     
-        print("running "+str(item))
-        p = FileLoop(str(item))
-        print "process %s finished" % str(item),
-        self.q.task_done()
+    def Worker(self,input):
+        for arg in input:
+            print "running", arg                                                                                              
+            FileLoop(str(arg))
+            print "finished", arg
         return
     
     def __call__(self):
-        print("running "+str(self.nproc)+" workers");
-        for i in range(self.nproc):
-            t = threading.Thread(target=self.Worker)
-            t.daemon = True
-            t.start()
+        print("running "+str(self.nproc)+" workers")
         for arg in self.arguments:
             self.q.put(arg)
+        for i in range(self.nproc):
+            Process(target=Worker, args=task_queue).start()
         self.q.join()
-    
 
 class hit:
     def __init__(self,hit):
