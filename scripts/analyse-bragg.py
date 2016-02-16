@@ -1,38 +1,11 @@
 #!/usr/bin/env python
+from AnalysisBase import *
 import ROOT
 from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
-range=ROOT.TH1F("Range","range",5000,0,500)
-xhist=ROOT.TH1F("x","lateral shower size x",5000,-250,250)
-yhist=ROOT.TH1F("y","lateral shower size y",5000,-250,250)
-dedx=ROOT.TH1F("dedx","dE/dx",5000,0,500)
-edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300)
-edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
-edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
-etot_vs_z=ROOT.TH2F("ekin","E_{kin} vs z",5000,0,500,3000,0,300)
-etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
-etot_vs_z.GetXaxis().SetTitle("z / mm")
 
-class hit:
-    def __init__(self,hit):
-        #self.detid=hit.detid
-        self.edep=hit.edep
-        self.event=hit.event
-        self.trackId=hit.trackId
-        self.x=hit.x
-        self.y=hit.y
-        self.z=hit.z
-        self.time=hit.time
-        self.etot=hit.etot
-        self.particleId=hit.particleId
-def unpack(tree):
-    res=[]
-    for evt in tree:
-        res.append(hit(evt))
-    res.sort(key=lambda evt:evt.event)
-    return res
 def doEvent(calo):
     if len(calo)==0:
         print "no hits, event skipped"
@@ -50,54 +23,61 @@ def doEvent(calo):
         yhist.Fill(primaryTrack[-1].y)
     return
 
-def getOneEvent(EventIndex,EventList):
-    result=[]
-    while True:
-        if len(EventList)==0:
-            break
-        if EventList[-1].event==EventIndex:
-           result.append(EventList.pop())
-        else:
-            break
-    return result
-
-def doFile(filename):
-    range.Reset()
-    dedx.Reset()
-    edep_vs_etot.Reset()
-    etot_vs_z.Reset()
-    xhist.Reset()
-    yhist.Reset()
-    infile=ROOT.TFile(filename,"READ")
-    calorimeter=infile.Get("Calorimeter")
-    events=unpack(calorimeter)
-    while True:
-        iEvent=events[-1].event
-        thisEventCalor=getOneEvent(iEvent,events)
-        doEvent(thisEventCalor)
-        if len(events)==0:
-            break
-    outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
-    outfile.cd()
-    temp=etot_vs_z.Clone()
-    temp.RebinX(10)
-    temp2=edep_vs_etot.Clone()
-    temp2.RebinX(10)
-    profile=temp.ProfileX()
-    profile.Write()
-    profile2=temp2.ProfileX()
-    profile2.Write()
-    dedx.Write()
-    edep_vs_etot.Write()
-    etot_vs_z.Write()
-    range.Write()
-    xhist.Write()
-    yhist.Write()
-    outfile.Write()
-    outfile.Close()
-    return
+class braggAnalysis(AnalysisBase):
+    def Init(self):
+        self.range=ROOT.TH1F("Range","range",5000,0,500)
+        self.xhist=ROOT.TH1F("x","lateral shower size x",5000,-250,250)
+        self.yhist=ROOT.TH1F("y","lateral shower size y",5000,-250,250)
+        self.dedx=ROOT.TH1F("dedx","dE/dx",5000,0,500)
+        self.edep_vs_etot=ROOT.TH2F("edepvsetot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300)
+        self.edep_vs_etot.GetYaxis().SetTitle("E_{dep} / MeV")
+        self.edep_vs_etot.GetXaxis().SetTitle("E_{kin} / MeV")
+        self.etot_vs_z=ROOT.TH2F("ekin","E_{kin} vs z",5000,0,500,3000,0,300)
+        self.etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
+        self.etot_vs_z.GetXaxis().SetTitle("z / mm")
+        return
+    
+    def Process(self,filename):
+        infile=ROOT.TFile(filename,"READ")
+        calorimeter=infile.Get("Calorimeter")
+        events=unpack(calorimeter)
+        while True:
+            iEvent=events[-1].event
+            thisEventCalor=getOneEvent(iEvent,events)
+            doEvent(thisEventCalor)
+            if len(events)==0:
+                break
+        return
+    def Terminate(self,filename):
+        outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
+        outfile.cd()
+        temp=etot_vs_z.Clone()
+        temp.RebinX(10)
+        temp2=edep_vs_etot.Clone()
+        temp2.RebinX(10)
+        profile=temp.ProfileX()
+        profile.Write()
+        profile2=temp2.ProfileX()
+        profile2.Write()
+        self.dedx.Write()
+        self.edep_vs_etot.Write()
+        self.etot_vs_z.Write()
+        self.range.Write()
+        self.xhist.Write()
+        self.yhist.Write()
+        outfile.Write()
+        outfile.Close()
+        range.Reset()
+        dedx.Reset()
+        edep_vs_etot.Reset()
+        etot_vs_z.Reset()
+        xhist.Reset()
+        yhist.Reset()
+        return
+    
 def main():
+    bragg=myAnalysis()
     for filename in sys.argv[1:]:
-        print "analysing:",filename
-        doFile(filename)
+        bragg.arguments.append(filename)
+    bragg()
 main()
