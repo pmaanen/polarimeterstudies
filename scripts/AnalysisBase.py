@@ -1,46 +1,84 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
-from ROOT import TPySelector, gROOT, TH1F, TFile, TH1
-from numpy.random import randint
-class MyPySelector(TPySelector):
+import sys
+import threading
+import Queue
+import os.path
+from ROOT import *
+class AnalysisBase:
     def __init__(self):
-        print "Ran __init__()"
+        self.nproc=1
+        maxcore=24
+        if True:
+            self.nproc=4 # number of cores to use (there are total 32 cores, we want to use a maximum of 24)               
+        else:
+            self.nproc=maxcore
+        self.q=Queue.Queue(nproc)
+        self.arguments=[]
+        return 
+    
 
-    def Begin(self):
-        print 'Ran Begin()'
-        #self.xhist=TH1F("random","random",50,-0.5,49.5)
-        #self.outlist=self.GetOutputList()
-        #self.outlist.Add(self.xhist)
-    def SlaveBegin(self, tree):
-        print 'py: slave beginning'
-        self.xhist=TH1F("random","random",100,50,50)
-        self.outlist=self.GetOutputList()
-        self.outlist.Add(self.xhist)
-        try:
-            print self.fChain.GetFile().GetName()
-        except StandardError as error:
-            print str(error)
+    def Init(self):
+        pass
+    def Begin(self,filename):
+        pass
+    def Terminate(self,filename):
+        pass
+    def Process(self,filename):
+        pass
+    
+    def FileLoop(self,filename):
+        self.Begin(filename)
+        res=self.Process(filename)
+        self.Terminate(filename)
+        return res
+    
+    def Worker(self):
+    #print("running worker")                                                                                                
+        while True:
+            item = q.get()                                                     
+        print("running "+str(item))
+        p = FileLoop(str(item))
+        print "process %s finished" % str(item),
+        q.task_done()
+        return
+    
+    def __call__(self):
+        print("running "+str(nproc)+" workers");
+    for i in range(nproc):
+        t = threading.Thread(target=worker)
+        t.daemon = True
+        t.start()
+    for arg in self.arguments:
+      q.put(arg)
+    q.join()
+    
 
-    def Process(self, entry):
-        self.fChain.GetEntry( entry )
-        #print self.fChain.x
-        try:
-            self.xhist.Fill(self.fChain.x)
-        except (StandardError) as error:
-            print "Exception occured in event loop!"
-            print str(error)
-            raise
-        return 1
+class hit:
+    def __init__(self,hit):
+        #self.detid=hit.detid
+        self.edep=hit.edep
+        self.event=hit.event
+        self.trackId=hit.trackId
+        self.x=hit.x
+        self.y=hit.y
+        self.z=hit.z
+        self.time=hit.time
+        self.etot=hit.etot
+        self.particleId=hit.particleId
+def unpack(tree):
+    res=[]
+    for evt in tree:
+        res.append(hit(evt))
+    res.sort(key=lambda evt:evt.event)
+    return res
 
-    def SlaveTerminate(self):
-        print 'py: slave terminating'
-
-    def Terminate(self):
-        print 'py: terminating'
-        out=TFile("histos.root","RECREATE")
-        for h in self.GetOutputList():
-            if isinstance(h,TH1): h.Write()
-        
-
-    def Init(self, tree):
-        print 'py: initializing'
-
+def getOneEvent(EventIndex,EventList):
+    result=[]
+    while True:
+        if len(EventList)==0:
+            break
+        if EventList[-1].event==EventIndex:
+           result.append(EventList.pop())
+        else:
+            break
+    return result
