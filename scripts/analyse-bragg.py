@@ -6,23 +6,6 @@ from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
 
-def doEvent(calo):
-    if len(calo)==0:
-        print "no hits, event skipped"
-        return
-    primaryTrack=sorted(filter(lambda hit:hit.trackId==1,calo),key=lambda hit:hit.time)
-    protonTrack=sorted(filter(lambda hit:hit.particleId==2212,calo),key=lambda hit:hit.trackId)
-    
-    for hit in primaryTrack:
-        edep_vs_etot.Fill(hit.etot,hit.edep)
-        etot_vs_z.Fill(hit.z,hit.etot)
-        dedx.Fill(hit.z,hit.edep)
-    if len(protonTrack)==0:
-        range.Fill(primaryTrack[-1].z)
-        xhist.Fill(primaryTrack[-1].x)
-        yhist.Fill(primaryTrack[-1].y)
-    return
-
 class braggAnalysis(AnalysisBase):
     def Init(self):
         self.range=ROOT.TH1F("Range","range",5000,0,500)
@@ -44,10 +27,11 @@ class braggAnalysis(AnalysisBase):
         while True:
             iEvent=events[-1].event
             thisEventCalor=getOneEvent(iEvent,events)
-            doEvent(thisEventCalor)
+            self.doEvent(thisEventCalor)
             if len(events)==0:
                 break
         return
+    
     def Terminate(self,filename):
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         outfile.cd()
@@ -74,9 +58,23 @@ class braggAnalysis(AnalysisBase):
         xhist.Reset()
         yhist.Reset()
         return
-    
+    def doEvent(self,calo):
+        if len(calo)==0:
+            print "no hits, event skipped"
+            return
+        primaryTrack=sorted(filter(lambda hit:hit.trackId==1,calo),key=lambda hit:hit.time)
+        protonTrack=sorted(filter(lambda hit:hit.particleId==2212,calo),key=lambda hit:hit.trackId)
+        for hit in primaryTrack:
+             self.edep_vs_etot.Fill(hit.etot,hit.edep)
+             self.etot_vs_z.Fill(hit.z,hit.etot)
+             self.dedx.Fill(hit.z,hit.edep)
+             if len(protonTrack)==0:
+                 self.range.Fill(primaryTrack[-1].z)
+                 self.xhist.Fill(primaryTrack[-1].x)
+                 self.yhist.Fill(primaryTrack[-1].y)
+        return
 def main():
-    bragg=myAnalysis()
+    bragg=braggAnalysis(24)
     for filename in sys.argv[1:]:
         bragg.arguments.append(filename)
     bragg()

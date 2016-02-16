@@ -3,16 +3,11 @@ import sys
 import threading
 import Queue
 import os.path
-from ROOT import *
+
 class AnalysisBase:
-    def __init__(self):
-        self.nproc=1
-        maxcore=24
-        if True:
-            self.nproc=4 # number of cores to use (there are total 32 cores, we want to use a maximum of 24)               
-        else:
-            self.nproc=maxcore
-        self.q=Queue.Queue(nproc)
+    def __init__(self,nworkers):
+        self.nproc=nworkers
+        self.q=Queue.Queue(self.nproc)
         self.arguments=[]
         return 
     
@@ -35,22 +30,22 @@ class AnalysisBase:
     def Worker(self):
     #print("running worker")                                                                                                
         while True:
-            item = q.get()                                                     
+            item = self.q.get()                                                     
         print("running "+str(item))
         p = FileLoop(str(item))
         print "process %s finished" % str(item),
-        q.task_done()
+        self.q.task_done()
         return
     
     def __call__(self):
-        print("running "+str(nproc)+" workers");
-    for i in range(nproc):
-        t = threading.Thread(target=worker)
-        t.daemon = True
-        t.start()
-    for arg in self.arguments:
-      q.put(arg)
-    q.join()
+        print("running "+str(self.nproc)+" workers");
+        for i in range(self.nproc):
+            t = threading.Thread(target=self.Worker)
+            t.daemon = True
+            t.start()
+        for arg in self.arguments:
+            self.q.put(arg)
+        self.q.join()
     
 
 class hit:
