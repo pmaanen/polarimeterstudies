@@ -35,7 +35,6 @@ class G4ParticleGun;
 	G4GenericMessenger*		fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;
-	EventGenerator* fEvtGen;
 	std::vector<G4int> fTupleId;
 	G4double fIlluminationAngle;
 	static FileReader* fgFileReader;

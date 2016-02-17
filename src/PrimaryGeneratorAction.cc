@@ -58,10 +58,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
 	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
 	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
-<<<<<<< HEAD
-	fEvtGen=fEvtGenerators["muon"];
-=======
->>>>>>> master
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 }

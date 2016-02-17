@@ -12,17 +12,13 @@
 
 
 
-#include <Testbench.hh>
+#include "Testbench.hh"
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
-<<<<<<< HEAD
-=======
 #include "SingleSandwichModule.hh"
-#include "CosmicSetup.hh"
->>>>>>> master
 #include "global.hh"
 #include <map>
 using namespace CLHEP;
@@ -36,12 +32,8 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	std::string gdml("gdml:");
 	std::string single("single:");
 	std::string sandwich("sandwich:");
-<<<<<<< HEAD
 	std::string testbench("testbench:");
-=======
-	std::string cosmic("cosmic:");
 	std::string singlesandwich("singlesandwich:");
->>>>>>> master
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}

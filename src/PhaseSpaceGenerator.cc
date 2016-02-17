@@ -9,7 +9,7 @@
 #include "G4ParticleGun.hh"
 #include <PhaseSpaceGenerator.hh>
 
-PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun):fTiltX(0),fTiltY(0),fXPrime(0),fYPrime(0),fBeamspot(0,0,0),fSpotsize(0,0,0) {
+PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamspot(0,0,0),fSpotsize(0,0,0) {
 
 	fBeamEnergy=235.*CLHEP::MeV;
 	fInitialized=false;

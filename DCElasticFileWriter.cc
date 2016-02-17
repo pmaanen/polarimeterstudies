@@ -31,22 +31,19 @@
 namespace CLHEP {}
 using namespace CLHEP;
 
-
-void Interrupt(int signum) { (G4RunManager::GetRunManager())->AbortRun() ; exit(1);}
-
 class FileWriterActionInitialization: public G4VUserActionInitialization {
 public:
-	FileWriterActionInitialization(G4int nEvents,G4String generator="",G4String filename=""){this->nEvents=nEvents;this->filename=filename;this->generator=generator;};
+	FileWriterActionInitialization(G4int nEvents,G4String generator="",G4String filename=""){this->fNEvents=nEvents;this->fFilename=filename;this->fGenerator=generator;};
 	virtual void Build() const{
-		SetUserAction(new FileWriterPrimaryGeneratorAction(nEvents,generator,filename));
+		SetUserAction(new FileWriterPrimaryGeneratorAction(fNEvents,fGenerator,fFilename));
 	};
 	virtual void BuildForMaster() const{
 	};
 
 private:
-	G4int nEvents;
-	G4String filename;
-	G4String generator;
+	G4int fNEvents;
+	G4String fFilename;
+	G4String fGenerator;
 };
 
 class DummyDetectorConstruction : public G4VUserDetectorConstruction
@@ -60,11 +57,6 @@ public:
 };
 
 int main(int argc,char** argv) {
-	signal(SIGTERM,&Interrupt) ;
-	signal(SIGINT ,&Interrupt) ;
-	signal(SIGPIPE,&Interrupt) ;
-
-
 	namespace po = boost::program_options;
 	po::options_description description("Usage");
 	description.add_options()
