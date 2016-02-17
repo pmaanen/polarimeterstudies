@@ -68,7 +68,6 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
-
 	return fPhysiWorld;
 }
 

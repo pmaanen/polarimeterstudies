@@ -1,4 +1,5 @@
 #include "RunAction.hh"
+#include "global.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"
@@ -30,7 +31,7 @@ RunAction::RunAction()
 	fNEvents=0;
 
 	Analysis* analysisManager = Analysis::Instance();
-	analysisManager->SetVerboseLevel(1);
+	analysisManager->SetVerboseLevel(0);
 	analysisManager->SetFirstHistoId(1);
 
 	// Creating histograms
@@ -92,10 +93,11 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	if(an->isEnabled()){
 		an->Write();
 		an->CloseFile();
-		if(IsMaster()){
+		if(IsMaster() && gConfig["general.merge"].as<bool>()){
 				std::ostringstream hadd;
 				std::ostringstream rm;
 				std::ostringstream mv;
+				std::ostringstream command;
 				G4String extension;
 				auto name=Analysis::Instance()->GetFileName();
 				if ( name.find(".") != std::string::npos ) {
@@ -112,9 +114,8 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 					hadd<<name<<"_t"<<ii<<extension<<" ";
 					rm<<name<<"_t"<<ii<<extension<<" ";
 				}
-				system(hadd.str().c_str());
-				system(rm.str().c_str());
-				system(mv.str().c_str());
+				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<"; "<<mv.str()<<"; return; }; merge &";
+				system(command.str().c_str());
 		}
 	}
 	if (!IsMaster())

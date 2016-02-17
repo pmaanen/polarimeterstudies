@@ -107,7 +107,7 @@ public:
 	}
 
 	 void checkGeometry(){
-		auto check=fPhysiWorld->CheckOverlaps(2000);
+		fPhysiWorld->CheckOverlaps(2000);
 	}
 
 protected:

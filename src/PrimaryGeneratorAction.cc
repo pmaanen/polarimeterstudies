@@ -119,11 +119,6 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 
 }
 
-void PrimaryGeneratorAction::generateEventFromGun(G4Event *E)
-{
-	fParticleGun->GeneratePrimaryVertex(E) ;
-}
-
 void PrimaryGeneratorAction::setInfile(G4String string)
 {
 	fInfileName=string;
@@ -141,7 +136,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		return;
 	}
 	if(fGeneratorName=="gun"){
-		generateEventFromGun(E);
+		fParticleGun->GeneratePrimaryVertex(E) ;
 		return;
 	}
 	else if(fGeneratorName=="file"){
