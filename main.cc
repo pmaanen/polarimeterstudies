@@ -23,20 +23,13 @@
 #include <G4UIExecutive.hh>
 #endif
 
-<<<<<<< HEAD
-#include <QGSP_INCLXX.hh>
-#include <QGSP_BIC.hh>
-#include <FTFP_BERT.hh>
-#include <G4OpticalPhysics.hh>
-#include <G4RadioactiveDecayPhysics.hh>
-=======
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "SingleSandwichModule.hh"
 #include "JediSandwichCalorimeter.hh"
-#include "CosmicSetup.hh"
+#include "TestBench.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
@@ -49,16 +42,11 @@
 #include "G4StateManager.hh"
 #include <G4StepLimiterPhysics.hh>
 #include <signal.h>
->>>>>>> master
 #include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
 int main(int argc,char** argv) {
-<<<<<<< HEAD
-
-=======
->>>>>>> master
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -85,13 +73,7 @@ int main(int argc,char** argv) {
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-<<<<<<< HEAD
-	G4VModularPhysicsList* the_physics =new FTFP_BERT(0);//new QGSP_BIC(0);//new QGSP_INCLXX();//new FTFP_BERT(0);
-=======
-	G4VModularPhysicsList* the_physics =new QGSP_BIC(0);
-	the_physics->SetVerboseLevel(0);
-	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
->>>>>>> master
+    auto the_physics=new QGSP_BIC();
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
 	runManager->SetUserInitialization(the_physics);
 
@@ -133,13 +115,10 @@ int main(int argc,char** argv) {
 	// Get the pointer to the User Interface manager
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
-<<<<<<< HEAD
 	UImanager->SetVerboseLevel(0);
 	// Initialize G4 kernel
 	//
 	//runManager->Initialize();
-=======
->>>>>>> master
 
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
