@@ -19,7 +19,13 @@ class braggAnalysis(AnalysisBase):
         self.etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
         self.etot_vs_z.GetXaxis().SetTitle("z / mm")
         return
-    
+    def Begin(self,filename):
+       self.range.Reset()
+       self.dedx.Reset()
+       self.edep_vs_etot.Reset()
+       self.etot_vs_z.Reset()
+       self.xhist.Reset()
+       self.yhist.Reset()
     def Process(self,filename):
         infile=ROOT.TFile(filename,"READ")
         calorimeter=infile.Get("Calorimeter")
@@ -51,12 +57,6 @@ class braggAnalysis(AnalysisBase):
         self.yhist.Write()
         outfile.Write()
         outfile.Close()
-        range.Reset()
-        dedx.Reset()
-        edep_vs_etot.Reset()
-        etot_vs_z.Reset()
-        xhist.Reset()
-        yhist.Reset()
         return
     def doEvent(self,calo):
         if len(calo)==0:
