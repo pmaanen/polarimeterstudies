@@ -120,7 +120,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	fGeomCache.clear();
 	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
 	aCrystal->SetVisAttributes(new G4VisAttributes(green));
-	fCaloSDVolumes["Calorimeter"]=aCrystal;
+	fTrackerSDVolumes["Calorimeter"]=aCrystal;
 
 	if(fHodoscopeShape=="pizza"){
 		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength,0,10*CLHEP::deg);
