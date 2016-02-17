@@ -23,17 +23,42 @@
 #include <G4UIExecutive.hh>
 #endif
 
+<<<<<<< HEAD
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
 #include <FTFP_BERT.hh>
 #include <G4OpticalPhysics.hh>
 #include <G4RadioactiveDecayPhysics.hh>
+=======
+#include "DetectorConstruction.hh"
+#include "JediCubicPolarimeter.hh"
+#include "JediHexagonalPolarimeter.hh"
+#include "SingleCrystal.hh"
+#include "SingleSandwichModule.hh"
+#include "JediSandwichCalorimeter.hh"
+#include "CosmicSetup.hh"
+#include "EventAction.hh"
+#include <QGSP_INCLXX.hh>
+#include <QGSP_BIC.hh>
+#include <FTFP_BERT.hh>
+#include <G4EmParameters.hh>
+#include "G4OpticalPhysics.hh"
+#include <G4RadioactiveDecayPhysics.hh>
+#include <PrimaryGeneratorAction.hh>
+#include "Analysis.hh"
+#include "G4StateManager.hh"
+#include <G4StepLimiterPhysics.hh>
+#include <signal.h>
+>>>>>>> master
 #include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
 int main(int argc,char** argv) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -59,11 +84,43 @@ int main(int argc,char** argv) {
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
-
 	// set physics list
+<<<<<<< HEAD
 	G4VModularPhysicsList* the_physics =new FTFP_BERT(0);//new QGSP_BIC(0);//new QGSP_INCLXX();//new FTFP_BERT(0);
+=======
+	G4VModularPhysicsList* the_physics =new QGSP_BIC(0);
+	the_physics->SetVerboseLevel(0);
+	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
+>>>>>>> master
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
 	runManager->SetUserInitialization(the_physics);
+
+	//	G4EmParameters::Instance()->SetVerbose(1);
+	//	G4EmParameters::Instance()->SetMscStepLimitType(fUseDistanceToBoundary);
+	//	G4EmParameters::Instance()->SetMscRangeFactor(0.02);
+	//	G4EmParameters::Instance()->SetMinEnergy(100*eV);
+	//	G4EmParameters::Instance()->SetMaxEnergy(5*GeV);
+	//	G4EmParameters::Instance()->SetNumberOfBins(400);
+	//	G4EmParameters::Instance()->SetSpline(true);
+
+
+	//	G4EmProcessOptions opt ;
+	//	opt.SetVerbose(1) ;
+	//	// Multiple Coulomb scattering
+	//	//
+	//	opt.SetMscStepLimitation(fUseDistanceToBoundary) ;
+	//	opt.SetMscRangeFactor(0.02) ;
+	//	// Physics tables
+	//	//
+	//	opt.SetMinEnergy(1000*eV) ; // default 100*eV
+	//	opt.SetMaxEnergy(5*GeV) ; // default 100*TeV
+	//	opt.SetDEDXBinning(400) ; // default 12*7
+	//	opt.SetLambdaBinning(250) ; // default 12*7
+	//	opt.SetSplineFlag(true) ; // default true
+	//	// Ionization
+	//	//
+	//	opt.SetSubCutoff(true) ; // default false
+	//	// ..
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
@@ -76,10 +133,13 @@ int main(int argc,char** argv) {
 	// Get the pointer to the User Interface manager
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
+<<<<<<< HEAD
 	UImanager->SetVerboseLevel(0);
 	// Initialize G4 kernel
 	//
 	//runManager->Initialize();
+=======
+>>>>>>> master
 
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
@@ -93,6 +153,7 @@ int main(int argc,char** argv) {
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
+		runManager->Initialize();
 		delete ui;
 #endif
 	}

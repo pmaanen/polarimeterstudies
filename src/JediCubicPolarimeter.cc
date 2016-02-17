@@ -182,7 +182,8 @@ G4double JediCubicPolarimeter::distanceToEdge(G4double a, G4double b,
 	auto alpha=direction2d.angle(G4TwoVector(1,0))*CLHEP::rad;
 	while(alpha>45*CLHEP::deg)
 		alpha-=90*CLHEP::deg;
-	return a/2/cos(alpha);
+	return a/cos(alpha)/2.;
+
 }
 
 void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
