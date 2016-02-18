@@ -1,58 +1,68 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
 import sys
-import threading
-import Queue
+from multiprocessing import Process
+from multiprocessing import JoinableQueue as Queue
 import os.path
-from ROOT import *
+from time import sleep
+
 class AnalysisBase:
-    def __init__(self):
-        self.nproc=1
-        maxcore=24
-        if True:
-            self.nproc=4 # number of cores to use (there are total 32 cores, we want to use a maximum of 24)               
-        else:
-            self.nproc=maxcore
-        self.q=Queue.Queue(nproc)
+    def __init__(self,nworkers):
+        self.nproc=nworkers
+        self.task_queue=Queue()
+        self.done_queue=Queue()
         self.arguments=[]
         return 
     
-
-    def Init(self):
-        pass
-    def Begin(self,filename):
-        pass
-    def Terminate(self,filename):
-        pass
-    def Process(self,filename):
-        pass
+    def AddFiles(self,files):
+        if str(files)==files:
+            self.arguments.append(files)
+        else:
+            for file in files:
+                self.arguments.append(file)
+                  
+    def Init(self): pass
+    def Begin(self): pass
+    def BeginWorker(self,filename): pass
+    def Terminate(self): pass
+    def TerminateWorker(self,filename): pass
+    def Process(self,filename): pass
     
     def FileLoop(self,filename):
-        self.Begin(filename)
+        self.BeginWorker(filename)
         res=self.Process(filename)
-        self.Terminate(filename)
+        self.TerminateWorker(filename)
         return res
     
     def Worker(self):
-    #print("running worker")                                                                                                
-        while True:
-            item = q.get()                                                     
-        print("running "+str(item))
-        p = FileLoop(str(item))
-        print "process %s finished" % str(item),
-        q.task_done()
+        while not self.task_queue.empty():
+            item=self.task_queue.get()
+            self.FileLoop(item)
+            self.task_queue.task_done()
         return
     
     def __call__(self):
-        print("running "+str(nproc)+" workers");
-    for i in range(nproc):
-        t = threading.Thread(target=worker)
-        t.daemon = True
-        t.start()
-    for arg in self.arguments:
-      q.put(arg)
-    q.join()
-    
-
+        self.Init()
+        for arg in self.arguments:
+            self.task_queue.put(arg)
+        nfiles=len(self.arguments)
+        for i in range(self.nproc):
+            Process(target=self.Worker).start()
+        
+        try:    
+            while not nfiles==self.done_queue.qsize():
+                done=self.done_queue.qsize()
+                self.statusBar(done,nfiles)
+            self.task_queue.join()
+        except NotImplementedError:
+            self.task_queue.join()
+        self.Terminate()
+       
+    def statusBar(self,done,total):
+        sys.stdout.write('\r')
+        sys.stdout.write("[%-20s] %d%%" % ('='*i, 5*i))
+        sys.stdout.flush()
+        sleep(0.25)
+        
 class hit:
     def __init__(self,hit):
         #self.detid=hit.detid
