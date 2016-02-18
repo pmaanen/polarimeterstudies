@@ -8,8 +8,9 @@ echo "N="$N
 mkdir sim
 mkdir sim/de-dx-by-angle
 mkdir sim/de-dx-by-length
-./polarimeterstudies -g testbench: -m scripts/de-dx.mac -n $N -b 2>/dev/null 1>/dev/null
+./polarimeterstudies -g cosmic: -m scripts/de-dx-by-angle.mac -n $N -b 2>/dev/null 1>/dev/null
+./polarimeterstudies -g cosmic: -m scripts/de-dx-by-length.mac -n $N -b 2>/dev/null 1>/dev/null
 cp ./scripts/analyse.py sim/de-dx-by-angle/.
 cp ./scripts/analyse.py sim/de-dx-by-length/.
-cd sim/de-dx-by-length && ./analyse.py 15 30 45 60 75 && cd -
-cd sim/de-dx-by-angle  && ./analyse.py $(seq 30 5 100) && cd -
+cd sim/de-dx-by-length && ./analyse.py && cd -
+cd sim/de-dx-by-angle  && ./analyse.py && cd -
