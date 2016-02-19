@@ -1,3 +1,5 @@
 /analysis/setFileName deuterons_{Ekin}_{Leff}.root
-/run/beamOn 100
-/vis/ogl/printEPS
+/PolarimeterStudies/detector/theta {theta} deg
+/PolarimeterStudies/detector/update
+/run/beamOn 1000000
+/control/add Leff {Leff} 5

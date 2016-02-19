@@ -1,24 +1,13 @@
 /gun/energy {Ekin} MeV
 /control/alias Leff 15
 /PolarimeterStudies/detector/calowidth 1.5 cm
-/PolarimeterStudies/detector/theta 90 deg
-/PolarimeterStudies/detector/update
-/control/add Leff {Leff} 5
-/control/execute scripts/de-dx-singlerun.mac
+/control/foreach scripts/de-dx-singlerun.mac theta "90. 131.4 143.1"
 
-/PolarimeterStudies/detector/calowidth	1.5 cm
-/PolarimeterStudies/detector/theta 90 deg
-/PolarimeterStudies/detector/update
-/control/add Leff {Leff} 5
-/control/execute scripts/de-dx-singlerun.mac 
+/PolarimeterStudies/detector/calowidth 3.0 cm
+/control/foreach scripts/de-dx-singlerun.mac theta "90. 121.0 131.4"
 
-/PolarimeterStudies/detector/theta 131.4 deg
-/PolarimeterStudies/detector/update
-/control/add Leff {Leff} 5
-/control/execute scripts/de-dx-singlerun.mac 
+/PolarimeterStudies/detector/calowidth 4.5 cm
+/control/foreach scripts/de-dx-singlerun.mac theta "90. 115.8 125.1"
 
-/PolarimeterStudies/detector/theta 143.1 deg
-/PolarimeterStudies/detector/update
-/control/add Leff {Leff} 5
-/control/execute scripts/de-dx-singlerun.mac
-
+/PolarimeterStudies/detector/calowidth 6 cm
+/control/foreach scripts/de-dx-singlerun.mac theta "90. 112.6 121.0 126.9 131.4 135.1 138.2 140.8 143.1"
