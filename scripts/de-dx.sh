@@ -4,13 +4,15 @@ if [ $# -eq 1 ]
   then
     N="$1"
 fi
-echo "N="$N
-mkdir sim
-mkdir sim/de-dx-by-angle
-mkdir sim/de-dx-by-length
-./polarimeterstudies -g cosmic: -m scripts/de-dx-by-angle.mac -n $N -b 2>/dev/null 1>/dev/null
-./polarimeterstudies -g cosmic: -m scripts/de-dx-by-length.mac -n $N -b 2>/dev/null 1>/dev/null
-cp ./scripts/analyse.py sim/de-dx-by-angle/.
-cp ./scripts/analyse.py sim/de-dx-by-length/.
-cd sim/de-dx-by-length && ./analyse.py && cd -
-cd sim/de-dx-by-angle  && ./analyse.py && cd -
+export PYTHONPATH+=$(pwd)/scripts
+mkdir -p ~/sim/de-dx-by-angle
+mkdir -p ~/sim/de-dx-by-length
+mkdir -p sim/de-dx-by-angle
+mkdir -p sim/de-dx-by-length
+./polarimeterstudies -g cosmic: -m scripts/de-dx.mac -n $N -b
+mv sim/de-dx-by-angle ~/sim/
+mv sim/de-dx-by-length ~/sim/
+cp ./scripts/analyse-de-dx.py ~/sim/de-dx-by-angle/.
+cp ./scripts/analyse-de-dx.py ~/sim/de-dx-by-length/.
+cd ~/sim/de-dx-by-length && ./analyse-de-dx.py && cd -
+cd ~/sim/de-dx-by-angle  && ./analyse-de-dx.py && cd -

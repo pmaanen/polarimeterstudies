@@ -63,7 +63,7 @@ class AnalysisBase:
         sys.stdout.flush()
         sleep(0.25)
         
-class hit:
+class TrackerHit:
     def __init__(self,hit):
         #self.detid=hit.detid
         self.edep=hit.edep
@@ -75,10 +75,18 @@ class hit:
         self.time=hit.time
         self.etot=hit.etot
         self.particleId=hit.particleId
-def unpack(tree):
+        
+        
+class CaloHit:
+    def __init__(self,hit):
+        self.detid=hit.detid
+        self.edep=hit.edep
+        self.event=hit.event
+    
+def unpack(tree,HitClass):
     res=[]
     for evt in tree:
-        res.append(hit(evt))
+        res.append(HitClass(evt))
     res.sort(key=lambda evt:evt.event)
     return res
 
