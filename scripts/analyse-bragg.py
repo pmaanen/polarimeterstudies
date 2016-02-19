@@ -8,9 +8,10 @@ import sys
 
 class braggAnalysis(AnalysisBase):
     def Init(self):
-        outfile=ROOT.TFile(argv[1]+"-histos.root","RECREATE")
+        self.outfile=ROOT.TFile(self.args.output,"RECREATE")
         return
     def BeginWorker(self,filename):
+        self.histos=[]
         try:
             self.range.Reset()
             self.dedx.Reset()
@@ -48,17 +49,6 @@ class braggAnalysis(AnalysisBase):
         profile=temp.ProfileX()           
         profile2=temp2.ProfileX()           
         self.done_queue.put((filename[:-5],[self.range,self.dedx,self.edep_vs_etot,self.etot_vs_z,self.xhist,self.yhist,profile,profile2]))
-        return 
-    def TerminateWorker(self,filename):       
-        self.outfile.cd()
-        while not self.done_queue.empty():
-            item=self.done_queue.get()
-            dir=self.outfile.mkdir(item[0])
-            dir.cd()    
-            for elm in item[1]:
-                elm.Write()
-        self.outfile.Write()
-        self.outfile.Close()
         return
     def doEvent(self,calo):
         if len(calo)==0:
@@ -75,9 +65,7 @@ class braggAnalysis(AnalysisBase):
                  self.xhist.Fill(primaryTrack[-1].x)
                  self.yhist.Fill(primaryTrack[-1].y)
         return
-    
 def main():
-    bragg=braggAnalysis(24)
-    bragg.AddFiles(sys.argv[2:])
+    bragg=braggAnalysis()
     bragg()
 main()

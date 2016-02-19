@@ -6,25 +6,26 @@ import sys
           
 class exampleAnalysis(AnalysisBase):
     def Init(self):
-        self.outfile=ROOT.TFile(sys.argv[1],"RECREATE")
+        self.outfile=ROOT.TFile(self.args.output,"RECREATE")
         return
     def BeginWorker(self,filename):
         try:
             self.result.Reset()
         except:
-            self.result=ROOT.TH1F("pt","pt",100,-10,10)
+            self.result=ROOT.TH1F("pt","pt",300,-15,15)
 
             
     def Process(self,filename):
         mean=randint(12)-6
-        sigma=randint(100)/float(100)+0.1
-        for i in range(100000):
+        sigma=float(randint(999))/float(100)+0.001
+        for i in range(randint(100000)):
             self.result.Fill(normal(mean,sigma))
         return
     
     def TerminateWorker(self,filename):
         self.done_queue.put((filename[:-5],[self.result]))
         return 
+    
     def Terminate(self):
         self.outfile.cd()
         while not self.done_queue.empty():
@@ -39,8 +40,7 @@ class exampleAnalysis(AnalysisBase):
         
 
 def main():
-    myAnalysis=exampleAnalysis(3)
-    myAnalysis.AddFiles(sys.argv[2:])
+    myAnalysis=exampleAnalysis()
     myAnalysis()
     
 if __name__=="__main__":

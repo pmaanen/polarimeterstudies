@@ -2,11 +2,14 @@
 from AnalysisBase import *
 from ROOT import TH1F
 import sys
-class AnalysisAbsorber(AnalysisBase):
+class absorberAnalysis(AnalysisBase):
     def Init(self):
+        self.outfile=ROOT.TFile(self.args.output,"RECREATE")
         return
-    def Begin(self,filename):
-        if not hasattribute(self,'einit'):
+    def BeginWorker(self,filename):
+        try:
+            self.einit.Reset()
+        except:
             self.einit=TH1F("einit","initial kinetic energy",300,0,300)
             self.einit.GetXaxis.SetTitle("T_{d,init} [MeV]")
             self.einit.GetYaxis().SetTitle("#")
@@ -21,12 +24,9 @@ class AnalysisAbsorber(AnalysisBase):
             if len(events)==0:
                 break
         return
-    def Terminate(self,filename):
-        outfile=TFile(filename[:-5]+"-histos.root","RECREATE")
-        outfile.cd()
-        self.einit.Write()
-        outfile.Write()
-        outfile.Close()
+    def TerminateWorker(self,filename):
+        self.done_queue.put((filename[:-5],[self.einit]))
+        return
     def doEvent(self,calo):
         if len(calo)==0:
             return
@@ -35,8 +35,8 @@ class AnalysisAbsorber(AnalysisBase):
         return
 
 def main():
-    myAnalysis=AnalysisAbsorber(4)
-    for filename in sys.argv[1:]:
-        myAnalysis.arguments.append(filename)
+    myAnalysis=absorberAnalysis()
     myAnalysis()
-main()
+    
+if __name__=="__main__":
+    main()
