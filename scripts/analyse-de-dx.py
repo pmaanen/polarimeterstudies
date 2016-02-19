@@ -30,8 +30,10 @@ main()
 from AnalysisBase import *
 import ROOT
 import sys
+
+
           
-class exampleAnalysis(AnalysisBase):
+class dedxAnalysis(AnalysisBase):
     def Init(self):
         self.outfile=ROOT.TFile(sys.argv[1],"RECREATE")
         return
@@ -80,9 +82,17 @@ class exampleAnalysis(AnalysisBase):
         self.outfile.Write()
         self.outfile.Close()
         
+    def doEvent(self,calo,de):
+        if len(calo)==0:
+            return
+        if len(calo)!=1 or len(de)!=1 or calo[0].event!=de[0].event:
+    #    print "malformed event, event skipped"
+            return
+        if de[0].edep>5:
+            self.edep.Fill(calo[0].edep)
 
 def main():
-    myAnalysis=exampleAnalysis(3)
+    myAnalysis=dedxAnalysis(3)
     myAnalysis.AddFiles(sys.argv[2:])
     myAnalysis()
     
