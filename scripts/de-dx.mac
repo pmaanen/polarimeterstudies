@@ -1,3 +1,9 @@
+/vis/ogl/set/printMode
 /analysis/Enable
-/control/foreach scripts/de-dx-by-angle.mac Ekin "100 150 200 250 270"
-/control/foreach scripts/de-dx-by-length.mac Ekin "100 150 200 250 270"
+/gun/particle deuteron
+/PolarimeterStudies/generator/setGenerator beam
+/PolarimeterStudies/beam/position 0 0 -20 cm
+/PolarimeterStudies/beam/spotsize 2 2 0 mm
+/PolarimeterStudies/beam/xp 10 mrad
+/PolarimeterStudies/beam/yp 10 mrad
+/control/foreach scripts/de-dx-length.mac Ekin "100 150 200 250 270"

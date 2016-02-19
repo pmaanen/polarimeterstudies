@@ -1,0 +1,3 @@
+/analysis/setFileName deuterons_{Ekin}_{Leff}.root
+/run/beamOn 100
+/vis/ogl/printEPS
