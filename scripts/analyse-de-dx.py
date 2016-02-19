@@ -44,8 +44,7 @@ class dedxAnalysis(AnalysisBase):
             self.edep=ROOT.TH1F("edep","edep after trigger",300,0,300)
             self.edep.GetYaxis().SetTitle("dN/dE_{dep} / 1/MeV")
             self.edep.GetXaxis().SetTitle("E_{dep} / MeV")
-
-            
+      
     def Process(self,filename):
         infile=ROOT.TFile(filename,"UPDATE")
         calorimeter=infile.Get("Calorimeter")
@@ -61,7 +60,7 @@ class dedxAnalysis(AnalysisBase):
             iEvent=calorhits[-1].event
             thisEventCalor=getOneEvent(iEvent,calorhits)
             thisEventDe=getOneEvent(iEvent,triggerhits)
-            self.doEvent(thisEventCalor,thisEventDe,edep)
+            self.doEvent(thisEventCalor,thisEventDe)
             if len(calorhits)==0 or len(triggerhits)==0:
                 break
         return
@@ -72,16 +71,14 @@ class dedxAnalysis(AnalysisBase):
       
     def doEvent(self,calo,de):
         if len(calo)==0:
+            print "malformed event, event skipped" 
             return
-        if len(calo)!=1 or len(de)!=1 or calo[0].event!=de[0].event:
-    #    print "malformed event, event skipped"
-            return
-        if de[0].edep>5:
+        if len(filter(lambda x: x.edep>0.5,de))==4 or True:
             self.edep.Fill(calo[0].edep)
+        return
 
 def main():
-    myAnalysis=dedxAnalysis(3)
-    myAnalysis.AddFiles(sys.argv[2:])
+    myAnalysis=dedxAnalysis()
     myAnalysis()
     
 if __name__=="__main__":

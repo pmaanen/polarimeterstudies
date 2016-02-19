@@ -17,6 +17,8 @@ class AnalysisBase:
         self.task_queue=Queue()
         self.done_queue=Queue()
         self.input=[]
+        if self.args.output in self.args.input:
+            self.args.input.remove(self.args.output)
         self.AddFiles(self.args.input)
         return 
     
