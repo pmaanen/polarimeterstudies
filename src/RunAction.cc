@@ -114,7 +114,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 					hadd<<name<<"_t"<<ii<<extension<<" ";
 					rm<<name<<"_t"<<ii<<extension<<" ";
 				}
-				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<"; "<<mv.str()<<"; return; }; merge &";
+				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<"; "<<mv.str()<<"; return; } ; merge() &";
 				system(command.str().c_str());
 		}
 	}
