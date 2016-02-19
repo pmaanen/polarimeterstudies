@@ -7,6 +7,7 @@
 #include "DCBreakupEventGenerator.hh"
 #include "DCElasticTimeDependentGenerator.hh"
 #include "CosmicMuonGenerator.hh"
+#include "BeamGenerator.hh"
 //Geant headers
 #include <G4ParticleTable.hh>
 #include <G4IonTable.hh>
@@ -58,6 +59,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
 	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
 	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
+	fEvtGenerators["beam"]=new BeamGenerator(fParticleGun);
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 }
@@ -181,7 +183,7 @@ void PrimaryGeneratorAction::DefineCommands()
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
 
-	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime.");
+	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime, beam");
 
 	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
 	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
