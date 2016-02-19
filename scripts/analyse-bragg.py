@@ -30,10 +30,9 @@ class braggAnalysis(AnalysisBase):
             self.etot_vs_z.GetYaxis().SetTitle("E_{kin} / MeV")
             self.etot_vs_z.GetXaxis().SetTitle("z / mm")
     def Process(self,filename):
-        sleep()
         infile=ROOT.TFile(filename,"READ")
         calorimeter=infile.Get("Calorimeter")
-        events=unpack(calorimeter)
+        events=unpack(calorimeter,CaloHit)
         while True:
             iEvent=events[-1].event
             thisEventCalor=getOneEvent(iEvent,events)
