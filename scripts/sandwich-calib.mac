@@ -1,0 +1,9 @@
+/gun/position 0 0 11 cm
+/gun/direction 0 0 -1
+/gun/particle deuteron
+/analysis/Enable
+/PolarimeterStudies/detector/absorber G4_Fe
+/PolarimeterStudies/detector/calolength 10 cm
+/PolarimeterStudies/detector/absorberfraction .4
+/PolarimeterStudies/detector/update
+/control/loop scripts/sandwich-calib-singlerun.mac Ekin 50 350 1
