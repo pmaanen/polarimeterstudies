@@ -35,7 +35,7 @@ import sys
           
 class dedxAnalysis(AnalysisBase):
     def Init(self):
-        self.outfile=ROOT.TFile(sys.argv[1],"RECREATE")
+        self.outfile=ROOT.TFile(self.args.output,"RECREATE")
         return
     def BeginWorker(self,filename):
         try:
@@ -69,19 +69,7 @@ class dedxAnalysis(AnalysisBase):
     def TerminateWorker(self,filename):
         self.done_queue.put((filename[:-5],[self.edep]))
         return 
-    
-    def Terminate(self):
-        self.outfile.cd()
-        while not self.done_queue.empty():
-            item=self.done_queue.get()
-            dir=self.outfile.mkdir(item[0])
-            dir.cd()    
-            for elm in item[1]:
-                elm.Write()
-        #elm.Write()
-        self.outfile.Write()
-        self.outfile.Close()
-        
+      
     def doEvent(self,calo,de):
         if len(calo)==0:
             return

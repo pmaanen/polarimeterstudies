@@ -4,28 +4,47 @@ from multiprocessing import Process
 from multiprocessing import JoinableQueue as Queue
 import os.path
 from time import sleep
+import argparse
 
 class AnalysisBase:
-    def __init__(self,nworkers):
-        self.nproc=nworkers
+    def __init__(self,nworkers=1):
+        parser = argparse.ArgumentParser(description='Analysis')
+        parser.add_argument('-n','--ncores', type=int, help='number of worker processes')
+        parser.add_argument('-o','--output', type=str, help='output file')
+        parser.add_argument("input", type=str, nargs='+',help="input files")
+        self.args = parser.parse_args()
+        self.nproc=self.args.ncores
         self.task_queue=Queue()
         self.done_queue=Queue()
-        self.arguments=[]
+        self.input=[]
+        self.AddFiles(self.args.input)
         return 
     
     def AddFiles(self,files):
         if str(files)==files:
-            self.arguments.append(files)
+            self.input.append(files)
         else:
             for file in files:
-                self.arguments.append(file)
+                self.input.append(file)
                   
     def Init(self): pass
     def Begin(self): pass
     def BeginWorker(self,filename): pass
-    def Terminate(self): pass
     def TerminateWorker(self,filename): pass
     def Process(self,filename): pass
+    def Terminate(self):
+        try:
+            self.outfile.cd()
+            while not self.done_queue.empty():
+                item=self.done_queue.get()
+                dir=self.outfile.mkdir(item[0])
+                dir.cd()    
+                for elm in item[1]:
+                    elm.Write()
+            self.outfile.Write()
+            self.outfile.Close()
+        except:
+            pass
     
     def FileLoop(self,filename):
         self.BeginWorker(filename)
@@ -42,27 +61,14 @@ class AnalysisBase:
     
     def __call__(self):
         self.Init()
-        for arg in self.arguments:
+        for arg in self.input:
             self.task_queue.put(arg)
-        nfiles=len(self.arguments)
+        nfiles=len(self.input)
         for i in range(self.nproc):
             Process(target=self.Worker).start()
-        
-        try:    
-            while not nfiles==self.done_queue.qsize():
-                done=self.done_queue.qsize()
-                self.statusBar(done,nfiles)
-            self.task_queue.join()
-        except NotImplementedError:
-            self.task_queue.join()
+        self.task_queue.join()
         self.Terminate()
-       
-    def statusBar(self,done,total):
-        sys.stdout.write('\r')
-        sys.stdout.write("[%-20s] %d%%" % ('='*i, 5*i))
-        sys.stdout.flush()
-        sleep(0.25)
-        
+
 class TrackerHit:
     def __init__(self,hit):
         #self.detid=hit.detid
