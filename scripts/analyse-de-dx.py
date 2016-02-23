@@ -52,17 +52,21 @@ class dedxAnalysis(AnalysisBase):
     
         calorhits=[]
         triggerhits=[]
-        calorhits=unpack(calorimeter,CaloHit)
-        triggerhits=unpack(trigger,CaloHit)
-        thisEventCalor=[]
-        thisEventDe=[]
-        while True:
-            iEvent=calorhits[-1].event
-            thisEventCalor=getOneEvent(iEvent,calorhits)
-            thisEventDe=getOneEvent(iEvent,triggerhits)
-            self.doEvent(thisEventCalor,thisEventDe)
-            if len(calorhits)==0 or len(triggerhits)==0:
-                break
+        try:
+            calorhits=unpack(calorimeter,CaloHit)
+            triggerhits=unpack(trigger,CaloHit)
+            thisEventCalor=[]
+            thisEventDe=[]
+            while True:
+                iEvent=calorhits[-1].event
+                thisEventCalor=getOneEvent(iEvent,calorhits)
+                thisEventDe=getOneEvent(iEvent,triggerhits)
+                self.doEvent(thisEventCalor,thisEventDe)
+                if len(calorhits)==0 or len(triggerhits)==0:
+                    break
+        except:
+            print "Problem in file:",filename
+            return
         return
     
     def TerminateWorker(self,filename):
