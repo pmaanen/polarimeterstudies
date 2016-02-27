@@ -1,20 +1,19 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
 import sys
-from multiprocessing import Process
-from multiprocessing import JoinableQueue as Queue
+from multiprocessing import Process,JoinableQueue,Queue
 import os.path
-from time import sleep
+from time import sleep,time
 import argparse
 
 class AnalysisBase:
-    def __init__(self,nworkers=1):
+    def __init__(self):
         parser = argparse.ArgumentParser(description='Analysis')
         parser.add_argument('-n','--ncores', type=int, help='number of worker processes')
         parser.add_argument('-o','--output', type=str, help='output file')
         parser.add_argument("input", type=str, nargs='+',help="input files")
         self.args = parser.parse_args()
         self.nproc=self.args.ncores
-        self.task_queue=Queue()
+        self.task_queue=JoinableQueue()
         self.done_queue=Queue()
         self.input=[]
         if self.args.output in self.args.input:
@@ -35,40 +34,49 @@ class AnalysisBase:
     def TerminateWorker(self,filename): pass
     def Process(self,filename): pass
     def Terminate(self):
-        try:
-            self.outfile.cd()
-            while not self.done_queue.empty():
-                item=self.done_queue.get()
-                dir=self.outfile.mkdir(item[0])
-                dir.cd()    
-                for elm in item[1]:
-                    elm.Write()
+        nfiles=len(self.input)
+        while nfiles:
+            item=self.done_queue.get()
+            dir=self.outfile.mkdir(item[0])
+            dir.cd()    
+            for elm in item[1]:
+                elm.Write()
             self.outfile.Write()
             self.outfile.Close()
-        except:
-            pass
     
     def FileLoop(self,filename):
         self.BeginWorker(filename)
-        res=self.Process(filename)
+        self.Process(filename)
         self.TerminateWorker(filename)
-        return res
+        return
     
     def Worker(self):
-        while not self.task_queue.empty():
+        nfiles=0
+        while True:
             item=self.task_queue.get()
+            if item == None:
+                print "Worker exiting after",nfiles,"files"
+                self.task_queue.task_done()
+                break
             self.FileLoop(item)
             self.task_queue.task_done()
+            nfiles+=1
         return
     
     def __call__(self):
-        self.Init()
+        procs=[]
+        nfiles=len(self.input)
         for arg in self.input:
             self.task_queue.put(arg)
-        nfiles=len(self.input)
-        for i in range(self.nproc):
-            Process(target=self.Worker).start()
+        for _ in range(self.nproc):
+            self.task_queue.put(None)
+            procs.append(Process(target=self.Worker))
+        print "Processing",nfiles,"files"
+        for p in procs:
+            p.start()
+        print "Waiting to join..."
         self.task_queue.join()
+        print "Terminating"
         self.Terminate()
 
 class TrackerHit:

@@ -4,8 +4,8 @@ from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
-
-
+from numpy.random import randint
+from time import sleep
 class Gaus:
    def __call__( self, x, p ):
        p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
@@ -46,6 +46,8 @@ class dedxAnalysis(AnalysisBase):
             self.edep.GetXaxis().SetTitle("E_{dep} / MeV")
       
     def Process(self,filename):
+        sleep(randint(20))
+        return
         infile=ROOT.TFile(filename,"UPDATE")
         calorimeter=infile.Get("Calorimeter")
         trigger=infile.Get("Trigger")
@@ -83,6 +85,7 @@ class dedxAnalysis(AnalysisBase):
 
 def main():
     myAnalysis=dedxAnalysis()
+    myAnalysis.Init()
     myAnalysis()
     
 if __name__=="__main__":

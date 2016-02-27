@@ -113,8 +113,10 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 					hadd<<name<<"_t"<<ii<<extension<<" ";
 					rm<<"rm "<<name<<"_t"<<ii<<extension<<";";
 				}
-				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<" } ; merge";
+				command<<hadd.str()<<"; "<<rm.str();
+				//G4cout<<command.str()<<G4endl;
 				system(command.str().c_str());
+			     
 		}
 	}
 	if (!IsMaster())
