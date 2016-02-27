@@ -64,14 +64,13 @@ class AnalysisBase:
         return
     
     def __call__(self):
-        procs=[]
         nfiles=len(self.input)
         for arg in self.input:
             self.task_queue.put(arg)
-        for _ in range(self.nproc):
+        procs=[Process(target=Worker) for _ in range(self.nproc)]
+        for proc in procs:
             self.task_queue.put(None)
-            procs.append(Process(target=self.Worker))
-        print "Processing",nfiles,"files"
+        print "Processing",nfiles,"files:",str(self.input)
         for p in procs:
             p.start()
         print "Waiting to join..."
