@@ -147,14 +147,18 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 					extension = ".";
 					extension.append(Analysis::Instance()->GetFileType());
 				}
-				rm<<"rm ";
 				hadd<<"hadd -f "<<Analysis::Instance()->GetFileName()<<" ";
 				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
 					hadd<<name<<"_t"<<ii<<extension<<" ";
-					rm<<name<<"_t"<<ii<<extension<<" ";
+					rm<<"rm "<<name<<"_t"<<ii<<extension<<";";
 				}
-				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<"; "<<mv.str()<<"; return; } ; merge() &";
+				command<<hadd.str()<<"; "<<rm.str();
+				//G4cout<<command.str()<<G4endl;
 				system(command.str().c_str());
+<<<<<<< HEAD
+>>>>>>> master
+=======
+			     
 >>>>>>> master
 		}
 	}

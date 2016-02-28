@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-import ROOT
 from numpy import genfromtxt,asarray
 from array import array
 from math import acos,atan2,sqrt,hypot
 import sys
-
-
+from numpy.random import randint
+from time import sleep
 class Gaus:
    def __call__( self, x, p ):
        p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
@@ -28,61 +27,69 @@ def main():
 main()
 """
 from AnalysisBase import *
+
 import ROOT
 import sys
 
+def analyse(filename,myWorker):
+   outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
+   dir=outfile.mkdir(filename[:-5])
+   dir.cd()
+   edep=ROOT.TH1F("edep","edep after trigger",600,0,300)
+   edep.GetYaxis().SetTitle("dN/dE_{dep} / .5/MeV")
+   edep.GetXaxis().SetTitle("E_{dep} [MeV]")
+   edep_raw=ROOT.TH1F("edep_raw","edep before trigger",600,0,300)
+   edep_raw.GetYaxis().SetTitle("dN/dE_{dep} / 0.5/MeV")
+   edep_raw.GetXaxis().SetTitle("E_{dep} [MeV]")
+   infile=ROOT.TFile(filename,"UPDATE")
+   calorimeter=infile.Get("Calorimeter")
+   trigger=infile.Get("Trigger")
+   calorhits=[]
+   triggerhits=[]
+   try:
+      calorhits=unpack(calorimeter,CaloHit)
+      triggerhits=unpack(trigger,CaloHit)
+      thisEventCalor=[]
+      thisEventDe=[]
+      while True:
+         iEvent=calorhits[-1].event
+         thisEventCalor=getOneEvent(iEvent,calorhits)
+         thisEventDe=getOneEvent(iEvent,triggerhits)
+         doEvent(thisEventCalor,thisEventDe,edep,edep_raw)
+         if len(calorhits)==0 or len(triggerhits)==0:
+            break
+   except:
+      print "Problem in file:",filename
+      raise
+      #return None
+   edep.Write()
+   edep_raw.Write()
+   outfile.Write()
+   outfile.Close()
+   return (filename[:-5])
 
-          
+def doEvent(calo,de,edep,edep_raw):
+   if len(calo)==0:
+      print "malformed event, event skipped" 
+      return
+   edep_raw.Fill(calo[0].edep)
+   #print len(de)
+   #for hit in calo:
+   #   print str(hit)
+   #for hit in de:
+   #   print str(hit)
+   #print len(filter(lambda x: x.edep>0.5,de))
+   if len(filter(lambda x: x.edep>0.5,de))==4:
+      edep.Fill(calo[0].edep)
+   return
+
 class dedxAnalysis(AnalysisBase):
-    def Init(self):
-        self.outfile=ROOT.TFile(self.args.output,"RECREATE")
-        return
-    def BeginWorker(self,filename):
-        try:
-            self.edep.Reset()
-        except:
-            self.edep=ROOT.TH1F("edep","edep after trigger",300,0,300)
-            self.edep.GetYaxis().SetTitle("dN/dE_{dep} / 1/MeV")
-            self.edep.GetXaxis().SetTitle("E_{dep} / MeV")
-
-            
-    def Process(self,filename):
-        infile=ROOT.TFile(filename,"UPDATE")
-        calorimeter=infile.Get("Calorimeter")
-        trigger=infile.Get("Trigger")
-    
-        calorhits=[]
-        triggerhits=[]
-        calorhits=unpack(calorimeter,CaloHit)
-        triggerhits=unpack(trigger,CaloHit)
-        thisEventCalor=[]
-        thisEventDe=[]
-        while True:
-            iEvent=calorhits[-1].event
-            thisEventCalor=getOneEvent(iEvent,calorhits)
-            thisEventDe=getOneEvent(iEvent,triggerhits)
-            self.doEvent(thisEventCalor,thisEventDe,edep)
-            if len(calorhits)==0 or len(triggerhits)==0:
-                break
-        return
-    
-    def TerminateWorker(self,filename):
-        self.done_queue.put((filename[:-5],[self.edep]))
-        return 
-      
-    def doEvent(self,calo,de):
-        if len(calo)==0:
-            return
-        if len(calo)!=1 or len(de)!=1 or calo[0].event!=de[0].event:
-    #    print "malformed event, event skipped"
-            return
-        if de[0].edep>5:
-            self.edep.Fill(calo[0].edep)
-
-def main():
-    myAnalysis=dedxAnalysis(3)
-    myAnalysis.AddFiles(sys.argv[2:])
-    myAnalysis()
+   def Init(self):
+      return
     
 if __name__=="__main__":
-    main()
+   myAnalysis=dedxAnalysis()
+   myAnalysis.Init()
+   leftToDo=myAnalysis(analyse)
+   while len(leftToDo):
+      myAnalysis(analyse)

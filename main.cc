@@ -29,7 +29,7 @@
 #include "SingleCrystal.hh"
 #include "SingleSandwichModule.hh"
 #include "JediSandwichCalorimeter.hh"
-#include "TestBench.hh"
+#include "Testbench.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>

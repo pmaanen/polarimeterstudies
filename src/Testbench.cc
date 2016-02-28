@@ -9,10 +9,10 @@
 #include <Testbench.hh>
 Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
 	fCrystalLength=10*CLHEP::cm;
-	fCrystalWidth=1.5*CLHEP::cm;
-	fTriggerLength=fCrystalWidth;
-	fTriggerWidth=fCrystalWidth;
-	fTriggerThickness=1*CLHEP::cm;
+	fCrystalWidth=3*CLHEP::cm;
+	fTriggerLength=2.5*CLHEP::cm;
+	fTriggerWidth=1.5*CLHEP::cm;
+	fTriggerThickness=.5*CLHEP::cm;
 	fTrigger=true;
 	fScintillatorMaterialName="LYSO";
 	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
@@ -38,15 +38,17 @@ G4VPhysicalVolume* Testbench::Construct() {
 	new G4PVPlacement (rot, G4ThreeVector(0,0,0), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	if(fTriggerThickness>0 and fTriggerLength>0 and fTriggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
+		auto triggerRot=new G4RotationMatrix();
+		triggerRot->rotateX(90*CLHEP::deg);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
-		if(fTrigger){
-			G4int iTrig=0;
-			auto rot=new G4RotationMatrix();
-			rot->rotateX(90*CLHEP::deg);
-			for(int iX=-1;iX<2;iX++)
-				for(int iY=-1;iY<2;iY++)
-					new G4PVPlacement(rot,G4ThreeVector(iX*fCrystalWidth,iY*fCrystalWidth,fTriggerOffsetZ+25.5*CLHEP::cm),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,0,iTrig++,0);
-		}
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 0, false);
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-7.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 1, false);
+
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,7.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 2, false);
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 3, false);
+
+
+
 	}
 	return fPhysiWorld;
 }
