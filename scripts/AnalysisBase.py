@@ -72,10 +72,11 @@ class AnalysisBase:
         nfiles=len(self.input)
         noprob=0
         filesToMerge=[]
-        nfiles=self.done_queue.qsize()
-        print "Terminating:",self.done_queue.qsize(),"items in queue"
-        while nfiles:
-            item=self.done_queue.get()
+        while True:
+            try:
+                item=self.done_queue.get(timeout=1)
+            except:
+                break
             nfiles-=1
             if item is not None:
                 if isinstance(item, Exception):
@@ -117,10 +118,11 @@ class AnalysisBase:
                     _break=False
             if _break:
                 break
-        left=self.task_queue.qsize()
-        print "Waiting for join,",left,"tasks left!"
-        for _ in range(left):
-            print str(self.task_queue.get())
+        while True:
+            try:
+                print str(self.task_queue.get(timeout=1))
+            except:
+                break
         #self.task_queue.join()
         print "Terminating"
         return self.Terminate()
@@ -137,6 +139,9 @@ class TrackerHit:
         self.time=hit.time
         self.etot=hit.etot
         self.particleId=hit.particleId
+
+    def __str__(self):
+        return str([self.edep,self.event,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
         
         
 class CaloHit:
@@ -144,7 +149,8 @@ class CaloHit:
         self.detid=hit.detid
         self.edep=hit.edep
         self.event=hit.event
-    
+    def __str__(self):
+        return str([self.event,self.detid,self.edep])
 def unpack(tree,HitClass):
     res=[]
     for evt in tree:
@@ -153,12 +159,7 @@ def unpack(tree,HitClass):
     return res
 
 def getOneEvent(EventIndex,EventList):
-    result=[]
-    while True:
-        if len(EventList)==0:
-            break
-        if EventList[-1].event==EventIndex:
-           result.append(EventList.pop())
-        else:
-            break
+    result=filter(lambda hit:hit.event==EventIndex,EventList)
+    for hit in result:
+        EventList.remove(hit)
     return result

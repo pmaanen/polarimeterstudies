@@ -60,7 +60,8 @@ def analyse(filename,myWorker):
             break
    except:
       print "Problem in file:",filename
-      return None
+      raise
+      #return None
    edep.Write()
    edep_raw.Write()
    outfile.Write()
@@ -72,6 +73,12 @@ def doEvent(calo,de,edep,edep_raw):
       print "malformed event, event skipped" 
       return
    edep_raw.Fill(calo[0].edep)
+   #print len(de)
+   #for hit in calo:
+   #   print str(hit)
+   #for hit in de:
+   #   print str(hit)
+   #print len(filter(lambda x: x.edep>0.5,de))
    if len(filter(lambda x: x.edep>0.5,de))==4:
       edep.Fill(calo[0].edep)
    return
@@ -83,4 +90,6 @@ class dedxAnalysis(AnalysisBase):
 if __name__=="__main__":
    myAnalysis=dedxAnalysis()
    myAnalysis.Init()
-   myAnalysis(analyse)
+   leftToDo=myAnalysis(analyse)
+   while len(leftToDo):
+      myAnalysis(analyse)
