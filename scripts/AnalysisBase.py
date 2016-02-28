@@ -1,22 +1,62 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
 import sys
-from multiprocessing import Process
-from multiprocessing import JoinableQueue as Queue
+from multiprocessing import Process,JoinableQueue,Queue
 import os.path
-from time import sleep
+from os import system
+from time import sleep,time
 import argparse
+import subprocess
+class ConsumerBase(Process):
+    def __init__(self, task_queue, result_queue):
+        Process.__init__(self)
+        self.task_queue = task_queue
+        self.result_queue = result_queue
+
+    def run(self):
+        proc_name = self.name
+        while True:
+            try:
+                next_task = self.task_queue.get()
+                if next_task=="STOP":
+                    # Poison pill means shutdown
+                    #print '%s: Exiting' % proc_name
+                    self.task_queue.task_done()
+                    return
+                #print '%s: Running %s' % (proc_name,next_task.filename)
+                answer = next_task(self)
+                #print '%s: Finished %s' % (proc_name,next_task.filename)
+                self.task_queue.task_done()
+                self.result_queue.put(answer)
+            except Exception as e:
+                self.result_queue.put(e)
+        return
+
+class Task(object):
+    def __init__(self,filename,function):
+        self.filename=filename
+        self.function=function
+    def __call__(self,myWorker):
+        if self.function:
+            return self.function(self.filename,myWorker)
+        else:
+            return None
+    def __str__(self):
+        return self.filename
 
 class AnalysisBase:
-    def __init__(self,nworkers=1):
+    def __init__(self):
         parser = argparse.ArgumentParser(description='Analysis')
         parser.add_argument('-n','--ncores', type=int, help='number of worker processes')
         parser.add_argument('-o','--output', type=str, help='output file')
         parser.add_argument("input", type=str, nargs='+',help="input files")
         self.args = parser.parse_args()
         self.nproc=self.args.ncores
-        self.task_queue=Queue()
+        self.task_queue=JoinableQueue()
         self.done_queue=Queue()
         self.input=[]
+        self.Consumer=ConsumerBase
+        if self.args.output in self.args.input:
+            self.args.input.remove(self.args.output)
         self.AddFiles(self.args.input)
         return 
     
@@ -28,46 +68,64 @@ class AnalysisBase:
                 self.input.append(file)
                   
     def Init(self): pass
-    def Begin(self): pass
-    def BeginWorker(self,filename): pass
-    def TerminateWorker(self,filename): pass
-    def Process(self,filename): pass
     def Terminate(self):
-        try:
-            self.outfile.cd()
-            while not self.done_queue.empty():
-                item=self.done_queue.get()
-                dir=self.outfile.mkdir(item[0])
-                dir.cd()    
-                for elm in item[1]:
-                    elm.Write()
-            self.outfile.Write()
-            self.outfile.Close()
-        except:
-            pass
-    
-    def FileLoop(self,filename):
-        self.BeginWorker(filename)
-        res=self.Process(filename)
-        self.TerminateWorker(filename)
-        return res
-    
-    def Worker(self):
-        while not self.task_queue.empty():
-            item=self.task_queue.get()
-            self.FileLoop(item)
-            self.task_queue.task_done()
-        return
-    
-    def __call__(self):
-        self.Init()
-        for arg in self.input:
-            self.task_queue.put(arg)
         nfiles=len(self.input)
-        for i in range(self.nproc):
-            Process(target=self.Worker).start()
-        self.task_queue.join()
-        self.Terminate()
+        noprob=0
+        filesToMerge=[]
+        while True:
+            try:
+                item=self.done_queue.get(timeout=1)
+            except:
+                break
+            nfiles-=1
+            if item is not None:
+                if isinstance(item, Exception):
+                    print str(item)
+                    continue
+                filesToMerge.append(item+"-histos.root")
+                try:
+                    self.input.remove(item+".root")
+                except ValueError:
+                    print "Problem",item
+                    continue
+        if len(self.input)==0:
+            hadd="hadd "+str(self.args.output)
+            for f in filesToMerge:
+                hadd+=" "+f
+            with open(os.devnull, 'wb') as devnull:
+                system(hadd)
+                #subprocess.call(["hadd",hadd])
+            with open(os.devnull, 'wb') as devnull:
+                for f in filesToMerge:
+                    subprocess.call(['rm', f])
+        return self.input
+    
+    def __call__(self,function,**kwargs):
+        nfiles=len(self.input)
+        procs=[self.Consumer(self.task_queue,self.done_queue) for i in range(self.nproc)]
+        for arg in self.input:
+            self.task_queue.put(Task(arg,function,**kwargs))
+        for proc in procs:
+            self.task_queue.put("STOP")
+        print "Processing",nfiles,"files"
+        print "Using",len(procs),"workers"
+        for p in procs:
+            p.start()
+        while True:
+            _break=True
+            for p in procs:
+                if p.is_alive():
+                    _break=False
+            if _break:
+                break
+        while True:
+            try:
+                print str(self.task_queue.get(timeout=1))
+            except:
+                break
+        #self.task_queue.join()
+        print "Terminating"
+        return self.Terminate()
 
 class TrackerHit:
     def __init__(self,hit):
@@ -81,6 +139,9 @@ class TrackerHit:
         self.time=hit.time
         self.etot=hit.etot
         self.particleId=hit.particleId
+
+    def __str__(self):
+        return str([self.edep,self.event,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
         
         
 class CaloHit:
@@ -88,7 +149,8 @@ class CaloHit:
         self.detid=hit.detid
         self.edep=hit.edep
         self.event=hit.event
-    
+    def __str__(self):
+        return str([self.event,self.detid,self.edep])
 def unpack(tree,HitClass):
     res=[]
     for evt in tree:
@@ -97,12 +159,7 @@ def unpack(tree,HitClass):
     return res
 
 def getOneEvent(EventIndex,EventList):
-    result=[]
-    while True:
-        if len(EventList)==0:
-            break
-        if EventList[-1].event==EventIndex:
-           result.append(EventList.pop())
-        else:
-            break
+    result=filter(lambda hit:hit.event==EventIndex,EventList)
+    for hit in result:
+        EventList.remove(hit)
     return result
