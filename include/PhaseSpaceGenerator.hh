@@ -40,27 +40,31 @@ public:
 	PhaseSpaceGenerator(G4ParticleGun* gun=0);
 	virtual ~PhaseSpaceGenerator();
 
-	G4double getBeamEnergy() const {return beamEnergy;}
-	void setBeamEnergy(G4double xBeamEnergy) {beamEnergy = xBeamEnergy;Initialized=false;}
+	G4double getBeamEnergy() const {return fBeamEnergy;}
+	void setBeamEnergy(G4double xBeamEnergy) {fBeamEnergy = xBeamEnergy;fInitialized=false;}
 
 protected:
-	G4double beamEnergy,MaxY,thetaMin,thetaMax;
-	G4bool Initialized;
-	TGenPhaseSpace ps;
+	G4double fBeamEnergy,fMaxY,fThetaMin,fThetaMax;
+	G4bool fInitialized;
+	TGenPhaseSpace fPhaseSpace;
 
-	TLorentzVector cms,beam,target;
+	TLorentzVector fCms,fBeam,fTarget;
 
 	//Definition of particles. particles[0] carries the kinetic energy.
-	std::vector<G4ParticleDefinition*> particles;
+	std::vector<G4ParticleDefinition*> fParticles;
 
 	G4GenericMessenger* fMessenger;
+	G4double fXPrime,fYPrime,fTiltX,fTiltY;
+	G4ThreeVector fBeamspot, fSpotsize;
 
+
+	virtual void Generate(G4Event* E);
+	virtual PrimaryEvent Generate()=0;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 	virtual TF2* BuildFunction()=0;
 	virtual void Initialize()=0;
-	std::vector<G4int> myTupleId;
-	G4ParticleGun* pGun;
+
 
 };
 

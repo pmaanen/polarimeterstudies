@@ -5,9 +5,12 @@
  *      Author: pmaanen
  */
 
-#include <EventGenerator.hh>
+#include "EventGenerator.hh"
 #include "G4ParticleGun.hh"
-EventGenerator::EventGenerator(G4ParticleGun* pgun):pGun(pgun),runInitialized(false) {}
+#include <G4GenericMessenger.hh>
+EventGenerator::EventGenerator(G4ParticleGun* pgun):fParticleGun(pgun),fRunInitialized(false),fMessenger(0) {}
 
-EventGenerator::~EventGenerator() {}
+EventGenerator::~EventGenerator() {
+	delete fMessenger;
+}
 

@@ -46,22 +46,16 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/scripts/*)
 
 #----------------------------------------------------------------------------
 #set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
 
 #Get rid of warning messages introduced by boost
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS} -std=c++11")
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS} -std=c++11")
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS} -std=c++11 -D MYDEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${DISABLED_WARNINGS} -std=c++11")
 set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DISABLED_WARNINGS} -std=c++11")
-#set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-#${DISABLED_WARNINGS}")
-
-#message("${CMAKE_CXX_FLAGS_DEBUG}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
@@ -93,43 +87,12 @@ target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${B
 # build gammagamma. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(polarimeter_SCRIPTS
-	vis_T0.mac
-	T1.mac
-	vis_T1.mac
-	test_dp.mac
-	test_gun.mac
-	matscan.py
-	test_dC.mac
-	material_loop.mac
-	particle_loop.mac
-	singlerun.mac
-	test_cosmic.mac
-) 
-
-foreach(_script ${polarimeter_SCRIPTS})
+foreach(_script ${scripts})
   configure_file(
-    ${PROJECT_SOURCE_DIR}/scripts/${_script}
+    ${PROJECT_SOURCE_DIR}/scripts/${_script}	
     ${PROJECT_BINARY_DIR}/scripts/${_script}
     COPYONLY
     )
-endforeach()
-
-set(geometry_FILES
-	lysocal.gdml
-	lyso.gdml
-	empty.gdml
-	default.gdml
-	hexagon.gdml
-	CopyNoExtension.xsd
-	quadrat.gdml
-)
-foreach(_script ${geometry_FILES})
-	configure_file(
-	${PROJECT_SOURCE_DIR}/xml/${_script}
-	${PROJECT_BINARY_DIR}/xml/${_script}
-	COPYONLY
-	)
 endforeach()
 
 #----------------------------------------------------------------------------

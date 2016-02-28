@@ -15,18 +15,18 @@ public:
 	SingleCrystal();
 	virtual ~SingleCrystal();
 	void setPhi(G4double phi) {
-		this->phi = phi;
-		changedParameters=true;
+		this->fPhi = phi;
+		fChangedParameters=true;
 	}
 
 	void setPsi(G4double psi) {
-		this->psi = psi;
-		changedParameters=true;
+		this->fPsi = psi;
+		fChangedParameters=true;
 	}
 
 	void setTheta(G4double theta) {
-		this->theta = theta;
-		changedParameters=true;
+		this->fTheta = theta;
+		fChangedParameters=true;
 	}
 protected:
 <<<<<<< HEAD
@@ -37,7 +37,11 @@ protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
+<<<<<<< HEAD
 	G4double theta,phi,psi;
+>>>>>>> master
+=======
+	G4double fTheta,fPhi,fPsi;
 >>>>>>> master
 };
 #endif

@@ -1,56 +1,52 @@
 
 #define MAIN
 #include "global.hh"
+#include "Analysis.hh"
+#include "DetectorConstruction.hh"
+#include "PrimaryGeneratorAction.hh"
 #ifdef G4MULTITHREADED
-#include "G4MTRunManager.hh"
+#include <G4MTRunManager.hh>
 #else
-#include "G4RunManager.hh"
+#include <G4RunManager.hh>
 #endif
-#include "G4UImanager.hh"
-#include "G4UIterminal.hh"
-#include "G4UItcsh.hh"
-#include "UserActionInitialization.hh"
+
+#include <G4UImanager.hh>
+#include <G4UIterminal.hh>
+#include <G4UItcsh.hh>
+#include <UserActionInitialization.hh>
+
 #ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
+#include <G4VisExecutive.hh>
 #endif
 
 #ifdef G4UI_USE
-#include "G4UIExecutive.hh"
+#include <G4UIExecutive.hh>
 #endif
 
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
-#include <JediSandwichCalorimeter.hh>
-#include "CosmicSetup.hh"
+#include "SingleSandwichModule.hh"
+#include "JediSandwichCalorimeter.hh"
+#include "TestBench.hh"
 #include "EventAction.hh"
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
 #include <FTFP_BERT.hh>
+#include <G4EmParameters.hh>
 #include "G4OpticalPhysics.hh"
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
-#include <signal.h>
 #include "G4StateManager.hh"
+#include <G4StepLimiterPhysics.hh>
+#include <signal.h>
+#include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
-
-void    Interrupt(int signum) {
-	auto state=G4StateManager::GetStateManager()->GetCurrentState();
-	if(state==G4ApplicationState::G4State_EventProc
-			or state==G4ApplicationState::G4State_GeomClosed)
-		G4RunManager::GetRunManager()->AbortRun();
-	exit(signum);
-}
-
 int main(int argc,char** argv) {
-
-	signal(SIGTERM,&Interrupt) ;
-	signal(SIGINT ,&Interrupt) ;
-	signal(SIGPIPE,&Interrupt) ;
 	try{
 		initializeConfiguration(argc,argv);
 	}
@@ -60,89 +56,69 @@ int main(int argc,char** argv) {
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
-	if(argc>2){
-		theEngine->setSeed(strtol(argv[2], NULL, 10));
-	}
+	if(gConfig.count("general.seed"))
+		theEngine->setSeed(gConfig["general.seed"].as<int>());
+	else
+		theEngine->setSeed(std::time(0));
+
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
-	G4MTRunManager* runManager = new G4MTRunManager;
+	G4MTRunManager* runManager = new G4MTRunManager();
 	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else
-	G4RunManager* runManager = new G4RunManager;
+	G4RunManager* runManager = new G4RunManager();
 #endif
-
+	runManager->SetVerboseLevel(0);
 	// set mandatory initialization classes
-	//DetectorConstruction* detector = new DetectorConstruction;
-	auto geometry=gConfig["detector.geometry"].as<std::string>();
-	std::string cubic("cubic:");
-	std::string hexagonal("hexagonal:");
-	std::string gdml("gdml:");
-	std::string single("single:");
-	std::string sandwich("sandwich:");
-	std::string cosmic("cosmic:");
-	G4VUserDetectorConstruction* jedi=0;
-	if(!geometry.compare(0,cubic.size(),cubic)){
-		jedi=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
-	}
-	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
-		jedi=new JediHexagonalPolarimeter;
-	}
-	if(!geometry.compare(0,gdml.size(),gdml)){
-		jedi= new DetectorConstruction();
-	}
-	if(!geometry.compare(0,single.size(),single)){
-		jedi= new SingleCrystal();
-	}
-	if(!geometry.compare(0,sandwich.size(),sandwich)){
-		jedi= new JediSandwichCalorimeter();
-	}
-	if(!geometry.compare(0,cosmic.size(),cosmic)){
-		jedi= new CosmicSetup();
-	}
-
-	if(!jedi)
-		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
-	runManager->SetUserInitialization(jedi);
-
+	DetectorConstruction* detector = new DetectorConstruction;
+	runManager->SetUserInitialization(detector);
 	// set physics list
-	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
-	the_physics->SetVerboseLevel(0);
-	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
+    auto the_physics=new QGSP_BIC();
+	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
 	runManager->SetUserInitialization(the_physics);
-	if(gConfig.count("detector.positions")){
-		auto positions=gConfig["detector.positions"].as<std::vector<double> >();
-		if(positions.size()%3){
-			G4cout<<"Error: positions vector not valid."<<G4endl;
-			for(auto i:positions){
-				G4cout<<i<<" ";
-			}
-			G4cout<<G4endl;
-			return 0;
-		}
-		for(size_t iPos=0; iPos<size_t(positions.size()/3);iPos+=3){
-			G4cout<<"Position="<<positions[iPos]<<" "<<positions[iPos+1]<<" "<<positions[iPos+2]<<G4endl;
-		}
-		return 0;
-	}
+
+	//	G4EmParameters::Instance()->SetVerbose(1);
+	//	G4EmParameters::Instance()->SetMscStepLimitType(fUseDistanceToBoundary);
+	//	G4EmParameters::Instance()->SetMscRangeFactor(0.02);
+	//	G4EmParameters::Instance()->SetMinEnergy(100*eV);
+	//	G4EmParameters::Instance()->SetMaxEnergy(5*GeV);
+	//	G4EmParameters::Instance()->SetNumberOfBins(400);
+	//	G4EmParameters::Instance()->SetSpline(true);
+
+
+	//	G4EmProcessOptions opt ;
+	//	opt.SetVerbose(1) ;
+	//	// Multiple Coulomb scattering
+	//	//
+	//	opt.SetMscStepLimitation(fUseDistanceToBoundary) ;
+	//	opt.SetMscRangeFactor(0.02) ;
+	//	// Physics tables
+	//	//
+	//	opt.SetMinEnergy(1000*eV) ; // default 100*eV
+	//	opt.SetMaxEnergy(5*GeV) ; // default 100*TeV
+	//	opt.SetDEDXBinning(400) ; // default 12*7
+	//	opt.SetLambdaBinning(250) ; // default 12*7
+	//	opt.SetSplineFlag(true) ; // default true
+	//	// Ionization
+	//	//
+	//	opt.SetSubCutoff(true) ; // default false
+	//	// ..
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
-	Analysis::Instance();
 #ifdef G4VIS_USE
 	// Visualization manager
 	//
-	G4VisManager* visManager = new G4VisExecutive;
+	G4VisManager* visManager = new G4VisExecutive("quiet");
 	visManager->Initialize();
 #endif
-
-	// Initialize G4 kernel
-	//
-	runManager->Initialize();
 
 	// Get the pointer to the User Interface manager
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
-
-
+	UImanager->SetVerboseLevel(0);
+	// Initialize G4 kernel
+	//
+	//runManager->Initialize();
 
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
@@ -150,19 +126,19 @@ int main(int argc,char** argv) {
 #ifdef G4UI_USE
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
-		G4cout<<"Interactive mode"<<G4endl;
-		G4cout <<gConfig["general.macro_file"].as<std::string>()<<G4endl;
+		UImanager->ApplyCommand("/run/initialize");
 		std::stringstream o;
 		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
+		runManager->Initialize();
 		delete ui;
 #endif
 	}
 	else           // Batch mode
 	{
-		G4cout<<"Batch mode"<<G4endl;
+		UImanager->ApplyCommand("/run/initialize");
 		std::stringstream o;
 		if(gConfig.count("general.macro_file")){
 			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
@@ -170,18 +146,10 @@ int main(int argc,char** argv) {
 		}
 	}
 
-	// Job termination
-	// Free the store: user actions, physics_list and detector_description are
-	//                 owned and deleted by the run manager, so they should not
-	//                 be deleted in the main() program !
-
 #ifdef G4VIS_USE
 	delete visManager;
 #endif
 	delete runManager;
-
-
-
 	return 0;
 }
 

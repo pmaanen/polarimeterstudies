@@ -16,6 +16,7 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
 #include "global.hh"
+#include "JediPolarimeter.hh"
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
@@ -36,19 +37,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
 	DetectorConstruction();
-	~DetectorConstruction();
+	virtual ~DetectorConstruction();
 
-	G4VPhysicalVolume* Construct();
-	void ConstructSDandField();
-
-	void WriteWorldToFile(G4String filename);
-	void UpdateGeometry();
+	virtual G4VPhysicalVolume* Construct(){return fGeometry->Construct();};
+	virtual void ConstructSDandField(){fGeometry->ConstructSDandField();};
 private:
-	void DefineCommands();
-	G4GDMLParser parser;
-	G4VPhysicalVolume* physiWorld;
-	G4GenericMessenger* fMessenger;
-	G4String geomfile;
+	JediPolarimeter* fGeometry;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

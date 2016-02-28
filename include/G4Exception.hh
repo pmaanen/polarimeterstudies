@@ -20,18 +20,18 @@ public:
 	virtual ~myG4Exception() throw(){};
 
 	virtual const char * what() const throw()
-	        		{return _s.c_str();}
+	        		{return fWhat.c_str();}
 
 
-	std::string getOriginOfException() const {return this->_originOfException;};
-	std::string getExceptionCode() const {return this->_exceptionCode;};
-	std::string getDescription() const {return this->_description;};
-	G4ExceptionSeverity getSeverity() const {return this->_severity;};
+	std::string getOriginOfException() const {return this->fOriginOfException;};
+	std::string getExceptionCode() const {return this->fExceptionCode;};
+	std::string getDescription() const {return this->fDescription;};
+	G4ExceptionSeverity getSeverity() const {return this->fSeverity;};
 
 private:
-	std::string _s;
-	std::string _originOfException,_exceptionCode,_description;
-	G4ExceptionSeverity _severity;
+	std::string fWhat;
+	std::string fOriginOfException,fExceptionCode,fDescription;
+	G4ExceptionSeverity fSeverity;
 };
 
 #endif /* G4EXCEPTION_HH_ */

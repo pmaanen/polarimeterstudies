@@ -74,41 +74,40 @@ public:
 	void WriteWorldToFile(G4String filename="");
 	virtual void ConstructSDandField();
 	//Setters for properties
-	void setBeampipeRadius(G4double beampipeRadius) {this->beampipeRadius = beampipeRadius;	changedParameters=true;	}
-	void setCrystalLength(G4double crystalLength) {	this->crystalLength = crystalLength;changedParameters=true;	}
-	void setCrystalWidth(G4double crystalWidth) {this->crystalWidth = crystalWidth;changedParameters=true;}
-	void setThetaMax(G4double thetaMax) {this->thetaMax = thetaMax; changedParameters=true;}
-	void setThetaMin(G4double thetaMin) {this->thetaMin = thetaMin;changedParameters=true;}
-	void setDeltaElength(G4double deltaElength){this->deltaELength = deltaElength;changedParameters=true;}
-	void setDeltaEwidth(G4double deltaEwidth){this->deltaEWidth = deltaEwidth;changedParameters=true;}
+	void setBeampipeRadius(G4double beampipeRadius) {this->fBeampipeRadius = beampipeRadius;	fChangedParameters=true;	}
+	void setCrystalLength(G4double crystalLength) {	this->fCrystalLength = crystalLength;fChangedParameters=true;	}
+	void setCrystalWidth(G4double crystalWidth) {this->fCrystalWidth = crystalWidth;fChangedParameters=true;}
+	void setThetaMax(G4double thetaMax) {this->fThetaMax = thetaMax; fChangedParameters=true;}
+	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
+	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
+	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
-		auto oldName=scintillatorMaterial->GetName();
+		auto oldName=fScintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 		if(!newMat){
-			//G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
-			G4cerr<<"Material not found"<<G4endl;
+			G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
 			return;
 		}
-		scintillatorMaterial=newMat;
-		caloSDVolumes["CaloCrystal"]->SetMaterial(scintillatorMaterial);
-		G4cout<<"Changing Material from "<<oldName<<" to "<<scintillatorMaterial->GetName()<<G4endl;
+		fScintillatorMaterial=newMat;
+		fScintillatorMaterialName=scintillatorMaterialName;
+		G4cout<<"Changing Material from "<<oldName<<" to "<<fScintillatorMaterial->GetName()<<G4endl;
 		return;
 	}
 
-	void setInfile(const std::string& infile) {this->infile = infile;}
+	void setInfile(const std::string& infile) {this->fInfileName = infile;}
 
 	void setTargetThickness(G4double targetThickness) {
-		this->targetThickness = targetThickness;
-		changedParameters=true;
+		this->fTargetThickness = targetThickness;
+		fChangedParameters=true;
 	}
 
 	void setTargetWidth(G4double targetWidth) {
-		this->targetWidth = targetWidth;
-		changedParameters=true;
+		this->fTargetWidth = targetWidth;
+		fChangedParameters=true;
 	}
 
 	 void checkGeometry(){
-		auto check=physiWorld->CheckOverlaps(2000);
+		fPhysiWorld->CheckOverlaps(2000);
 	}
 
 protected:
@@ -117,31 +116,35 @@ protected:
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
 
 
-	G4LogicalVolume* logicWorld;
-	G4VPhysicalVolume* physiWorld;
+	G4LogicalVolume* fLogicWorld;
+	G4VPhysicalVolume* fPhysiWorld;
 	G4GenericMessenger* fMessenger;
 
-	G4double thetaMin, thetaMax;
-	G4double beampipeRadius, beampipeThickness, crystalLength, crystalWidth,
-	innerDetectorRadius, outerDetectorRadius,detectorZ,wrappingThickness, targetChamberThickness, targetChamberZ1, targetChamberZ2,
-	worldSizeXY,worldSizeZ,deltaELength,deltaEWidth,deltaEZ,targetThickness,targetWidth;
-	G4String scintillatorMaterialName;
-	G4Material* scintillatorMaterial;
+	//Geometry parameters
+	G4double fThetaMin, fThetaMax;
+	G4double fBeampipeRadius, fBeampipeThickness, fCrystalLength, fCrystalWidth,
+	fInnerDetectorRadius, fOuterDetectorRadius,DetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
+	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
+	G4String fScintillatorMaterialName;
+	G4Material* fScintillatorMaterial;
 
-	G4bool changedParameters;
-	G4int MinCrystal,MaxCrystal;
+	G4bool fChangedParameters;
+	G4int fMinCrystal,fMaxCrystal;
 
 	virtual void DefineCommands();
 	virtual void ComputeParameters();
 	virtual void UpdateGeometry();
 
-	std::vector<std::string> geomCache;
+	std::vector<std::string> fGeomCache;
 
-	std::map<G4String,G4Cache<CaloSensitiveDetector*> > CaloSD;
-	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >TrackerSD;
-	std::map<G4String,G4LogicalVolume*> caloSDVolumes;
+	//Sensitive detectors
+	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
+	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
+	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
+	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
 
-	std::string infile;
+	//Input file if constructed from file
+	std::string fInfileName;
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

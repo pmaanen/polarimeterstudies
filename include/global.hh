@@ -27,6 +27,8 @@ void initializeConfiguration(int argc,char** argv){
 			("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
 			("general.macro_file,m", po::value<std::string>()->default_value("scripts/vis_T0.mac"), "macro file")
 			("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
+			("general.seed,s", po::value<int>(), "random seed")
+			("general.merge,o", po::bool_switch()->default_value(false), "merge output files")
 			("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
 			("generator.beam_particle,p", po::value<int>()->default_value(0), "PDG id of beam")
 			("generator.target_particle,t", po::value<int>()->default_value(0), "PDG id of target")
@@ -34,11 +36,11 @@ void initializeConfiguration(int argc,char** argv){
 			("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions")
 			("detector.beampipeRadius", po::value<double>()->default_value(50),"beampipe radius in mm")
 			("detector.beampipeThickness", po::value<double>()->default_value(2),"beampipe thickness in mm")
-			("detector.scintillatorMaterial", po::value<std::string>()->default_value("G4_LYSO_SCINT"),"scintillator material name")
+			("detector.scintillatorMaterial", po::value<std::string>()->default_value("LYSO"),"scintillator material name")
 			("detector.crystalLength", po::value<double>()->default_value(100),"crystal length(z) in mm")
 			("detector.crystalWidth", po::value<double>()->default_value(30),"crystal width(x,y)  in mm")
 			("detector.thetamin", po::value<double>()->default_value(5),"theta min in deg")
-			("detector.thetamax", po::value<double>()->default_value(20),"theta max in deg");
+			("detector.thetamax", po::value<double>()->default_value(19.5),"theta max in deg");
 
 	std::ifstream cfg;
 	po::store(po::parse_command_line(argc, argv, description), gConfig);

@@ -24,11 +24,9 @@ public:
 
 private:
 
-	Analysis* ana;
-	G4UIcmdWithAString* dirCmd;
-	G4UIcmdWithAString* fileCmd;
-	G4UIcommand* enableCmd;
-	G4UIcommand* disableCmd;
+	Analysis* fAnalysis;
+	G4UIcommand* fEnableCmd;
+	G4UIcommand* fDisableCmd;
 
 };
 

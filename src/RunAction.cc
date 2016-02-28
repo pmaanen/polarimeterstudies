@@ -1,10 +1,15 @@
 #include "RunAction.hh"
+#include "global.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
 #include "Analysis.hh"
+#ifdef G4MULTITHREADED
+#include "G4MTRunManager.hh"
+#else
 #include "G4RunManager.hh"
+#endif
 #include "Randomize.hh"
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
@@ -13,7 +18,6 @@
 
 namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
 
-std::vector<G4String>* RunAction::filenames=0;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 RunAction::RunAction()
 {
@@ -21,13 +25,13 @@ RunAction::RunAction()
 
 
 
-	seed = -1;      // RANLUX seed
-	luxury = 3;     // RANLUX luxury level (3 is default)
-	saveRndm = 1;
+	fSeed = -1;      // RANLUX seed
+	fLuxury = 3;     // RANLUX luxury level (3 is default)
+	fSaveRndm = 0;
 	fNEvents=0;
 
 	Analysis* analysisManager = Analysis::Instance();
-	analysisManager->SetVerboseLevel(1);
+	analysisManager->SetVerboseLevel(0);
 	analysisManager->SetFirstHistoId(1);
 
 	// Creating histograms
@@ -37,10 +41,6 @@ RunAction::RunAction()
 RunAction::~RunAction()
 {
 	G4AutoLock lock(&RunActionMutex);
-	if(filenames){
-		delete filenames;
-		filenames=0;
-	}
 	delete Analysis::Instance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -52,9 +52,16 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
+<<<<<<< HEAD
 	//Analysis::Instance()->PrepareNewRun(aRun);
 	Analysis::Instance()->OpenFile();
 	PushBackFileName(Analysis::Instance()->GetFileName());
+=======
+	auto an=Analysis::Instance();
+	if(an->isEnabled()){
+		Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
+	}
+>>>>>>> master
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
@@ -64,15 +71,15 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 
 	//Master or sequential
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
-	if (seed<0) //not initialized by anybody else
+	if (fSeed<0) //not initialized by anybody else
 	{
 
-		seed=time(0);
-		G4Random::setTheSeed(seed,luxury);
+		fSeed=time(0);
+		G4Random::setTheSeed(fSeed,fLuxury);
 	}
 
 	// save Rndm status
-	if (saveRndm > 0)
+	if (fSaveRndm > 0)
 		G4Random::saveEngineStatus("beginOfRun.rndm");
 
 	return;
@@ -88,6 +95,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	G4cout <<"Run Number:" <<aRun->GetRunID()<<" ended\n";
+<<<<<<< HEAD
 
 	Analysis::Instance()->Write();
 	Analysis::Instance()->CloseFile();
@@ -119,8 +127,36 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 			system(rm.str().c_str());
 			G4cout<<mv<<G4endl;
 			system(mv.str().c_str());
+=======
+	auto an=Analysis::Instance();
+	if(an->isEnabled()){
+		an->Write();
+		an->CloseFile();
+		if(IsMaster() && gConfig["general.merge"].as<bool>()){
+				std::ostringstream hadd;
+				std::ostringstream rm;
+				std::ostringstream mv;
+				std::ostringstream command;
+				G4String extension;
+				auto name=Analysis::Instance()->GetFileName();
+				if ( name.find(".") != std::string::npos ) {
+					extension = name.substr(name.find("."));
+					name = name.substr(0, name.find("."));
+				}
+				else {
+					extension = ".";
+					extension.append(Analysis::Instance()->GetFileType());
+				}
+				rm<<"rm ";
+				hadd<<"hadd -f "<<Analysis::Instance()->GetFileName()<<" ";
+				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
+					hadd<<name<<"_t"<<ii<<extension<<" ";
+					rm<<name<<"_t"<<ii<<extension<<" ";
+				}
+				command<<"function merge() { "<<hadd.str()<<"; "<<rm.str()<<"; "<<mv.str()<<"; return; } ; merge() &";
+				system(command.str().c_str());
+>>>>>>> master
 		}
-		ClearFileNames();
 	}
 	if (!IsMaster())
 	{
@@ -130,7 +166,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	// save Rndm status
-	if (saveRndm == 1)
+	if (fSaveRndm == 1)
 		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
