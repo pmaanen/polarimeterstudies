@@ -59,7 +59,6 @@ def analyse(filename,myWorker):
     except:
         print "Problem in file:",filename
         return None
-    print "Finished",filename
     return (filename[:-5])
 
 class dedxAnalysis(AnalysisBase):

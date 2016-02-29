@@ -1,48 +1,5 @@
 ### selector module (AnalysisBase.py, name has to match as per in main.py)
 import sys
-<<<<<<< HEAD
-from multiprocessing import Process
-import Queue
-import os.path
-
-class AnalysisBase:
-    def __init__(self,nworkers):
-        self.nproc=nworkers
-        self.q=Queue.Queue(self.nproc)
-        self.arguments=[]
-        return 
-    
-
-    def Init(self):
-        pass
-    def Begin(self,filename):
-        pass
-    def Terminate(self,filename):
-        pass
-    def Process(self,filename):
-        pass
-    
-    def FileLoop(self,filename):
-        self.Begin(filename)
-        res=self.Process(filename)
-        self.Terminate(filename)
-        return res
-    
-    def Worker(self,input):
-        for arg in input:
-            print "running", arg                                                                                              
-            FileLoop(str(arg))
-            print "finished", arg
-        return
-    
-    def __call__(self):
-        print("running "+str(self.nproc)+" workers")
-        for arg in self.arguments:
-            self.q.put(arg)
-        for i in range(self.nproc):
-            Process(target=Worker, args=task_queue).start()
-        self.q.join()
-=======
 from multiprocessing import Process,JoinableQueue,Queue
 import os.path
 from os import system
@@ -168,23 +125,22 @@ class AnalysisBase:
         #self.task_queue.join()
         print "Terminating"
         return self.Terminate()
->>>>>>> master
 
 class TrackerHit:
     def __init__(self,hit):
         #self.detid=hit.detid
         self.edep=hit.edep
-        self.event=hit.event
-        self.trackId=hit.trackId
+#        self.event=hit.event
+        self.trackId=hit.trid
         self.x=hit.x
         self.y=hit.y
         self.z=hit.z
-        self.time=hit.time
-        self.etot=hit.etot
-        self.particleId=hit.particleId
+        self.time=hit.tof
+        self.etot=hit.ekin
+        self.particleId=hit.pid
 
     def __str__(self):
-        return str([self.edep,self.event,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
+        return str([self.edep,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
         
         
 class CaloHit:
