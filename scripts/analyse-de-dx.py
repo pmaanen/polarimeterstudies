@@ -51,7 +51,7 @@ def analyse(filename,myWorker):
             if len(triggerhits)==4:
                 for hit in event.Calorimeter:
                     edep.Fill(hit.edep)
-
+                    
         edep.Write()
         edep_raw.Write()
         outfile.Write()
@@ -59,12 +59,14 @@ def analyse(filename,myWorker):
     except:
         print "Problem in file:",filename
         return None
+    print "Finished",filename
     return (filename[:-5])
 
 class dedxAnalysis(AnalysisBase):
    def Init(self):
       return
-    
+   def __init__self(self):
+      AnalysisBase.__init__(self)
 if __name__=="__main__":
     ROOT.gSystem.Load("libAnalysis")
     myAnalysis=dedxAnalysis()
