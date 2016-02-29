@@ -82,6 +82,7 @@ int main(int argc,char** argv) {
 	// set physics list
     auto the_physics=new QGSP_BIC();
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+	the_physics->RegisterPhysics(new G4StepLimiterPhysics);
 	//G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
 
