@@ -19,12 +19,9 @@ class calorhit_t: public TObject {
 class trackerhit_t : public TObject {
 public:
 	trackerhit_t(){;};
-	Double_t x,y,z,tx,ty,tz;
-	Double_t edep;
-	Double_t pid;
-	Double_t trid;
-	Double_t tof;
-	ClassDef(trackerhit_t,2)
+	Double_t x,y,z,tx,ty,tz,edep,tof,ekin;
+	Int_t pid,trid;
+	ClassDef(trackerhit_t,3)
 };
 
 class myEvent: public TObject {
