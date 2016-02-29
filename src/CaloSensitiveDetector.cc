@@ -64,24 +64,6 @@ void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
 		G4TouchableHistory* history) {
-	/*
-	auto touchable=step->GetPreStepPoint()->GetTouchableHandle();
-	if(touchable){
-		auto physVol=touchable->GetVolume();
-		G4VisAttributes attribs(G4Colour(1.,0.,0.));
-		attribs.SetForceSolid(true);
-		G4RotationMatrix rot;
-		if(physVol){
-			physVol->GetLogicalVolume();
-			this->
-			if(physVol->GetRotation())//If a rotation is defined use it
-				rot=*(physVol->GetRotation());
-			G4Transform3D trans(rot,physVol->GetTranslation());//Create transform
-			G4VisManager::GetConcreteInstance()->Draw(*physVol,attribs,trans);//Draw it
-			G4cout<<"Drawing..."<<physVol->GetName()<<G4endl;
-		}
-	}
-	 */
 	return G4MultiFunctionalDetector::ProcessHits(step,history);
 }
 

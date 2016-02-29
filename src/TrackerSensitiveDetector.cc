@@ -41,6 +41,11 @@
 #include "EventAction.hh"
 #include "TNtuple.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+
+#include "G4AutoLock.hh"
+namespace { G4Mutex TrackerSDMutex = G4MUTEX_INITIALIZER; }
+
+
 using namespace CLHEP;
 
 #define NDEBUG
@@ -52,6 +57,9 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
   fHitsCollection(NULL)
 {
 	collectionName.insert(name);
+
+	Analysis::Instance()->RegisterTrackerSD(this);
+	vect=new std::vector<trackerhit_t>;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -71,7 +79,6 @@ void TrackerSensitiveDetector::Initialize(G4HCofThisEvent* hce)
 	G4int hcID
 	= G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	hce->AddHitsCollection( hcID, fHitsCollection );
-	Analysis* an=Analysis::Instance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -113,6 +120,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
+	G4AutoLock lock(&TrackerSDMutex);
 	Analysis* an=Analysis::Instance();
 	if(true){
 		static G4int HCID = -1;
@@ -124,6 +132,16 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 		G4int nHits=fHitsCollection->entries();
 
 		for(const auto &iHit : *(fHitsCollection->GetVector())){
+			trackerhit_t hit;
+			hit.edep=iHit->GetEdep()/CLHEP::MeV;
+			hit.x=iHit->GetPos().getX();
+			hit.y=iHit->GetPos().getY();
+			hit.z=iHit->GetPos().getZ();
+			hit.tof=iHit->GetTof();
+			hit.pid=iHit->GetParticleId();
+			hit.trid=iHit->GetTrackID();
+			vect->push_back(hit);
+
 		}
 	}
 	/*
@@ -134,4 +152,13 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 	return;
 }
 
+void TrackerSensitiveDetector::BeginOfRun() {
+	G4AutoLock lock(&TrackerSDMutex);
+	auto myTree=Analysis::Instance()->GetTree();
+	myTree->Branch(this->GetName(),"std::vector<trackerhit_t>",&vect);
+}
+
+
+void TrackerSensitiveDetector::EndOfRun() {
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
