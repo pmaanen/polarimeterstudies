@@ -93,7 +93,7 @@ ROOT_GENERATE_DICTIONARY(${Analysis_DICT} ${Analysis_HEADERS} LINKDEF ${Analysis
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(polarimeterstudies main.cc ${sources} ${headers})
+add_executable(polarimeterstudies main.cc ${Analysis_DICT} ${sources} ${headers})
 target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES} Analysis)
 
 add_executable(dceventgenerator DCElasticFileWriter.cc ${sources} ${headers})
