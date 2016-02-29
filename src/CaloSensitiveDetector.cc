@@ -53,7 +53,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 				}
 			}
 		}
-		tree->Fill();
 	}
 }
 
@@ -88,8 +87,8 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
 
 void CaloSensitiveDetector::BeginOfRun() {
 	G4AutoLock lock(&CaloSDMutex);
-	tree=Analysis::Instance()->MakeTree(fName);
-	tree->Branch("Calorimeter","std::vector<calorhit_t>",&vect);
+	auto myTree=Analysis::Instance()->GetTree();
+	myTree->Branch(fName,"std::vector<calorhit_t>",&vect);
 }
 
 void CaloSensitiveDetector::EndOfRun() {}

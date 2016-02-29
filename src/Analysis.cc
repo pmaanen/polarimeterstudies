@@ -40,7 +40,7 @@ namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 Analysis* Analysis::fgMasterInstance = 0;
 G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(0),fMyWorkerId(-1)
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fTreeFilled(false),fOutFile(0),fMyWorkerId(-1)
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
@@ -60,10 +60,8 @@ Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(0),fMyWorkerId(-1)
 	fAnalysisMessenger->DeclareMethod("Disable",&Analysis::disable,"disable analysis");
 }
 
-TTree* Analysis::MakeTree(G4String name, G4String desc) {
-	auto res=new TTree(name,desc);
-	fOutTrees.push_back(res);
-	return res;
+TTree* Analysis::GetTree() {
+	return fOutTree;
 }
 
 void Analysis::BeginOfRun() {
@@ -84,20 +82,23 @@ void Analysis::BeginOfRun() {
 		G4cout<<"fOutFile already set!"<<G4endl;
 		return;
 	}
+
+	fOutTree=new TTree("sim","simulated events");
+
 	for(auto iSD:fCaloSD){
 		iSD->BeginOfRun();
 	}
 	for(auto iSD:fTrackerSD){
 		iSD->BeginOfRun();
 	}
+
+
 }
 
 void Analysis::EndOfRun() {
 	G4AutoLock lock(&AnalysisMutex);
 
-	for(auto iTree: fOutTrees){
-		//iTree->Write();
-	}
+	fOutTree->Write();
 	fOutFile->Write();
 	fOutFile->Close();
 	for(auto iSD:fCaloSD){
@@ -106,7 +107,10 @@ void Analysis::EndOfRun() {
 	for(auto iSD:fTrackerSD){
 		iSD->EndOfRun();
 	}
-	//delete fOutFile;
+	if(fOutFile!=0){
+		delete fOutFile;
+		fOutFile=0;
+	}
 }
 
 void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
@@ -117,4 +121,17 @@ void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
 void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
 	fCaloSD.push_back(sd);
 	return;
+}
+
+void Analysis::BeginOfEvent() {
+	G4AutoLock lock(&AnalysisMutex);
+	fTreeFilled=false;
+}
+
+void Analysis::EndOfEvent() {
+	if(!fTreeFilled){
+		G4AutoLock lock(&AnalysisMutex);
+		fOutTree->Fill();
+		fTreeFilled=true;
+	}
 }

@@ -58,10 +58,14 @@ public:
 		fFileName = fileName;
 	}
 
-	TTree* MakeTree(G4String name,G4String desc="");
+	TTree* GetTree();
 	void BeginOfRun();
 	void EndOfRun();
 
+	void BeginOfEvent();
+	void EndOfEvent();
+
+	void FillTree(){};
 	void RegisterTrackerSD(TrackerSensitiveDetector*);
 	void RegisterCaloSD(CaloSensitiveDetector*);
 
@@ -75,12 +79,13 @@ private:
 	G4GenericMessenger* fAnalysisMessenger;
 
 	bool fEnabled;
+	bool fTreeFilled;
 	G4int fMyWorkerId;
 	G4String fFileName;
 	TFile* fOutFile;
-	std::vector<TTree*> fOutTrees;
-	std::vector<std::pair<G4String,G4String> > fTreeDescriptions;
+	TTree* fOutTree;
 
+	std::vector<std::pair<G4String,G4String> > fTreeDescriptions;
 	std::vector<CaloSensitiveDetector*> fCaloSD;
 	std::vector<TrackerSensitiveDetector*> fTrackerSD;
 
