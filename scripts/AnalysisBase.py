@@ -11,7 +11,6 @@ class ConsumerBase(Process):
         Process.__init__(self)
         self.task_queue = task_queue
         self.result_queue = result_queue
-
     def run(self):
         proc_name = self.name
         while True:
@@ -58,6 +57,7 @@ class AnalysisBase:
         if self.args.output in self.args.input:
             self.args.input.remove(self.args.output)
         self.AddFiles(self.args.input)
+        self.filesToMerge=[]
         return 
     
     def AddFiles(self,files):
@@ -71,7 +71,6 @@ class AnalysisBase:
     def Terminate(self):
         nfiles=len(self.input)
         noprob=0
-        filesToMerge=[]
         while True:
             try:
                 item=self.done_queue.get(timeout=1)
@@ -82,7 +81,7 @@ class AnalysisBase:
                 if isinstance(item, Exception):
                     print str(item)
                     continue
-                filesToMerge.append(item+"-histos.root")
+                self.filesToMerge.append(item+"-histos.root")
                 try:
                     self.input.remove(item+".root")
                 except ValueError:
@@ -90,13 +89,13 @@ class AnalysisBase:
                     continue
         if len(self.input)==0:
             hadd="hadd "+str(self.args.output)
-            for f in filesToMerge:
+            for f in self.filesToMerge:
                 hadd+=" "+f
             with open(os.devnull, 'wb') as devnull:
                 system(hadd)
                 #subprocess.call(["hadd",hadd])
             with open(os.devnull, 'wb') as devnull:
-                for f in filesToMerge:
+                for f in self.filesToMerge:
                     subprocess.call(['rm', f])
         return self.input
     
