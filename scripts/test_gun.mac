@@ -1,9 +1,26 @@
 /analysis/Enable
-/analysis/setFileName test_gun.root
-/PolarimeterStudies/detector/material G4_LYSO_SCINT
 /PolarimeterStudies/detector/update
 /gun/position 0 0 20 cm
 /gun/direction 0 0 -1
 /gun/particle deuteron
 /gun/momentumAmp 970 MeV
-/run/beamOn 10000
+/analysis/setFileName test_gun_1.root
+/run/beamOn 100
+/analysis/setFileName test_gun_2.root
+/run/beamOn 100
+/analysis/setFileName test_gun_3.root
+/run/beamOn 100
+/analysis/setFileName test_gun_4.root
+/run/beamOn 100
+/analysis/setFileName test_gun_5.root
+/run/beamOn 100
+/analysis/setFileName test_gun_6.root
+/run/beamOn 100
+/analysis/setFileName test_gun_7.root
+/run/beamOn 100
+/analysis/setFileName test_gun_8.root
+/run/beamOn 100
+/analysis/setFileName test_gun_9.root
+/run/beamOn 100
+/analysis/setFileName test_gun_10.root
+/run/beamOn 100
