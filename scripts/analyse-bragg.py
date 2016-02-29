@@ -18,7 +18,7 @@ def analyse(filename,myWorker):
         histos.append(ROOT.TH1F("x","lateral range x",5000,-250,250))
         histos.append(ROOT.TH1F("y","lateral range y",5000,-250,250))
         histos.append(ROOT.TH1F("dedx","dE/dx",5000,0,500))
-        histos.append(ROOT.TH2F("edep_vs_etot","E_{dep} vs E_{kin}",3000,0,300,3000,0,300))
+        histos.append(ROOT.TH2F("edep_vs_etot","E_{dep} vs E_{kin}",300,0,30,3000,0,300))
         histos.append(ROOT.TH2F("etot_vs_z","E_{kin} vs z",5000,0,500,3000,0,300))
         histomap={}
         for h in histos:
