@@ -1,36 +1,34 @@
-"""Start of the analysis"""
-
-# ROOT interfers with argv -> import it later
-# see: http://root.cern.ch/phpBB3/viewtopic.php?t=8501
-import argparse
-import pickle
-import time
-from os.path import dirname, abspath
+#!/usr/bin/env python
+from AnalysisBase import *
+import ROOT
+from numpy.random import randint,normal
 import sys
-
-parser = argparse.ArgumentParser()
-tmpargv = sys.argv[:]    # [:] for a copy, not reference
-sys.argv = []
-
-from ROOT import TProof, TFileCollection, TChain
-sys.argv = tmpargv
-
-proof = TProof.Open('')
-
-# giving some name to collection to shut up warning
-fc = TFileCollection('analysis_files')
-
-chain = TChain("Calorimeter")
-for filename in sys.argv[1:]:
-    fc.Add(filename)
-    chain.AddFile(filename)
-chain.SetProof()    
-
-# add the current folder to the python path of root (or something)
-proof.Exec('TPython::Exec("%s");' %
-        ("import sys; sys.path.insert(0,'"+dirname(abspath("AnalysisBase.py"))+"')"))
-
-time.sleep(1)  # needed for GUI to settle
-
-proof.Process(fc, 'TPySelector', 'AnalysisBase')
-#chain.Process('TPySelector', 'AnalysisBase')
+from copy import deepcopy
+class exampleAnalysis(AnalysisBase):
+    def Init(self):
+        return
+        
+def analysis(filename,myWorker):
+    histogram=ROOT.TH1F("analysis","analysis",100,0,100)
+    outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
+    dir=outfile.mkdir(filename[:-5])
+    dir.cd()
+    for _ in range(1000):
+        histogram.Fill(randint(100))
+    histogram.Write()
+    outfile.Write()
+    outfile.Close()
+    try:
+        if randint(10) %2 == 0 or True:
+            return (filename[:-5])
+        else:
+            raise
+    except:
+        print myWorker.name,"did not finish",filename
+        return None
+if __name__=="__main__":
+    myAnalysis=exampleAnalysis()
+    myAnalysis.Init()
+    todo=myAnalysis(function=analysis)
+    while len(todo):
+        todo=myAnalysis(function=analysis)

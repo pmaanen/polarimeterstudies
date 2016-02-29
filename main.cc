@@ -1,21 +1,26 @@
 
 #define MAIN
 #include "global.hh"
+#include "Analysis.hh"
+#include "DetectorConstruction.hh"
+#include "PrimaryGeneratorAction.hh"
 #ifdef G4MULTITHREADED
-#include "G4MTRunManager.hh"
+#include <G4MTRunManager.hh>
 #else
-#include "G4RunManager.hh"
+#include <G4RunManager.hh>
 #endif
-#include "G4UImanager.hh"
-#include "G4UIterminal.hh"
-#include "G4UItcsh.hh"
-#include "UserActionInitialization.hh"
+
+#include <G4UImanager.hh>
+#include <G4UIterminal.hh>
+#include <G4UItcsh.hh>
+#include <UserActionInitialization.hh>
+
 #ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
+#include <G4VisExecutive.hh>
 #endif
 
 #ifdef G4UI_USE
-#include "G4UIExecutive.hh"
+#include <G4UIExecutive.hh>
 #endif
 
 #include "DetectorConstruction.hh"
@@ -24,7 +29,7 @@
 #include "SingleCrystal.hh"
 #include "SingleSandwichModule.hh"
 #include "JediSandwichCalorimeter.hh"
-#include "CosmicSetup.hh"
+#include "Testbench.hh"
 #include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "Analysis.hh"
@@ -58,28 +63,28 @@ int main(int argc,char** argv) {
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
-	if(gConfig.count("general.seed")){
+	if(gConfig.count("general.seed"))
 		theEngine->setSeed(gConfig["general.seed"].as<int>());
-	}
-	else{
+	else
 		theEngine->setSeed(std::time(0));
-	}
 
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
-	G4MTRunManager* runManager = new G4MTRunManager;
+	G4MTRunManager* runManager = new G4MTRunManager();
 	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else
-	G4RunManager* runManager = new G4RunManager;
+	G4RunManager* runManager = new G4RunManager();
 #endif
+<<<<<<< HEAD
 	runManager->SetVerboseLevel (0);
+=======
+	runManager->SetVerboseLevel(0);
+>>>>>>> master
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-	G4VModularPhysicsList* the_physics =new QGSP_BIC(0);
-	the_physics->SetVerboseLevel(0);
-	the_physics->RegisterPhysics(new G4StepLimiterPhysics());
+    auto the_physics=new QGSP_BIC();
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
 	G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
@@ -119,13 +124,13 @@ int main(int argc,char** argv) {
 	visManager->Initialize();
 #endif
 
-	// Initialize G4 kernel
-	//
-	runManager->Initialize();
-
 	// Get the pointer to the User Interface manager
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
+	UImanager->SetVerboseLevel(0);
+	// Initialize G4 kernel
+	//
+	//runManager->Initialize();
 
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
@@ -133,6 +138,10 @@ int main(int argc,char** argv) {
 #ifdef G4UI_USE
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
+<<<<<<< HEAD
+=======
+		UImanager->ApplyCommand("/run/initialize");
+>>>>>>> master
 		std::stringstream o;
 		//UImanager->ApplyCommand("/run/initialize");
 		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
@@ -144,7 +153,7 @@ int main(int argc,char** argv) {
 	}
 	else           // Batch mode
 	{
-		G4cout<<"Batch mode"<<G4endl;
+		UImanager->ApplyCommand("/run/initialize");
 		std::stringstream o;
 		if(gConfig.count("general.macro_file")){
 			//UImanager->ApplyCommand("/run/initialize");
@@ -153,18 +162,10 @@ int main(int argc,char** argv) {
 		}
 	}
 
-	// Job termination
-	// Free the store: user actions, physics_list and detector_description are
-	//                 owned and deleted by the run manager, so they should not
-	//                 be deleted in the main() program !
-
 #ifdef G4VIS_USE
 	delete visManager;
 #endif
 	delete runManager;
-
-
-
 	return 0;
 }
 

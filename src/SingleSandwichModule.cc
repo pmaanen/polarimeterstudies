@@ -39,7 +39,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	auto solidCrystal= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 	auto logicCrystal=new G4LogicalVolume(solidCrystal,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Crystal");
 
-	for(size_t iLayer=0;iLayer<fNumLayers;iLayer++){
+	for(G4int iLayer=0;iLayer<fNumLayers;iLayer++){
 		new G4PVPlacement(0,G4ThreeVector(0,0,-fCrystalLength/2+detectorLength/2+iLayer*fCrystalLength/fNumLayers),logicDetector,"Detector",logicCrystal,false,iLayer,false);
 		new G4PVPlacement(0,G4ThreeVector(0,0,-fCrystalLength/2+detectorLength+absorberLength/2+iLayer*fCrystalLength/fNumLayers),logicAbsorber,"Absorber",logicCrystal,false,iLayer,false);
 	}

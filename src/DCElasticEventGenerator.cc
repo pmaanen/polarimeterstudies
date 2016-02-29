@@ -8,6 +8,7 @@
 #include "DCElasticEventGenerator.hh"
 #include "G4ParticleDefinition.hh"
 #include <G4Deuteron.hh>
+#include <G4Event.hh>
 #include "G4IonTable.hh"
 #include "G4ios.hh"
 #include "TCanvas.h"
@@ -75,19 +76,6 @@ void DCElasticEventGenerator::Initialize() {
 	fCrossSection->SetParameter(2,fBeamPolarization);
 	fMaxY=fCrossSection->GetMaximum();
 	Analysis* an=Analysis::Instance();
-	fTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"t"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pol"));
-	an->FinishNtuple(fTupleId[0]);
-
 	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX(),fBeamspot.getY(),fBeamspot.getZ());
 	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX(),fSpotsize.getY(),fSpotsize.getZ());
 	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ());

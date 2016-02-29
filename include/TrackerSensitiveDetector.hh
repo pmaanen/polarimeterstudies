@@ -62,10 +62,10 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
     virtual void   Initialize(G4HCofThisEvent* hitCollection);
     virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
     virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
+    void BeginOfRun(){};
+    void EndOfRun(){};
   private:
     DetectorHitsCollection* fHitsCollection;
-    std::vector<G4int> fTupleId;
-    G4bool fRunInitialized;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
