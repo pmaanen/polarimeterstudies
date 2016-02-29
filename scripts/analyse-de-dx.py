@@ -32,64 +32,43 @@ import ROOT
 import sys
 
 def analyse(filename,myWorker):
-   outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
-   dir=outfile.mkdir(filename[:-5])
-   dir.cd()
-   edep=ROOT.TH1F("edep","edep after trigger",600,0,300)
-   edep.GetYaxis().SetTitle("dN/dE_{dep} / .5/MeV")
-   edep.GetXaxis().SetTitle("E_{dep} [MeV]")
-   edep_raw=ROOT.TH1F("edep_raw","edep before trigger",600,0,300)
-   edep_raw.GetYaxis().SetTitle("dN/dE_{dep} / 0.5/MeV")
-   edep_raw.GetXaxis().SetTitle("E_{dep} [MeV]")
-   infile=ROOT.TFile(filename,"UPDATE")
-   calorimeter=infile.Get("Calorimeter")
-   trigger=infile.Get("Trigger")
-   calorhits=[]
-   triggerhits=[]
-   try:
-      calorhits=unpack(calorimeter,CaloHit)
-      triggerhits=unpack(trigger,CaloHit)
-      thisEventCalor=[]
-      thisEventDe=[]
-      while True:
-         iEvent=calorhits[-1].event
-         thisEventCalor=getOneEvent(iEvent,calorhits)
-         thisEventDe=getOneEvent(iEvent,triggerhits)
-         doEvent(thisEventCalor,thisEventDe,edep,edep_raw)
-         if len(calorhits)==0 or len(triggerhits)==0:
-            break
-   except:
-      print "Problem in file:",filename
-      raise
-      #return None
-   edep.Write()
-   edep_raw.Write()
-   outfile.Write()
-   outfile.Close()
-   return (filename[:-5])
+    try:
+        edep=ROOT.TH1F("edep","edep after trigger",600,0,300)
+        edep.GetYaxis().SetTitle("dN/dE_{dep} / .5/MeV")
+        edep.GetXaxis().SetTitle("E_{dep} [MeV]")
+        edep_raw=ROOT.TH1F("edep_raw","edep before trigger",600,0,300)
+        edep_raw.GetYaxis().SetTitle("dN/dE_{dep} / 0.5/MeV")
+        edep_raw.GetXaxis().SetTitle("E_{dep} [MeV]")
+        infile=ROOT.TFile(filename)
+        data=infile.Get("sim")
+        outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
+        dir=outfile.mkdir(filename[:-5])
+        dir.cd()
+        for event in data:
+            triggerhits=filter(lambda hit:hit.edep>.5,event.Trigger)
+            for hit in event.Calorimeter:
+                edep_raw.Fill(hit.edep)
+            if len(triggerhits)==4:
+                for hit in event.Calorimeter:
+                    edep.Fill(hit.edep)
 
-def doEvent(calo,de,edep,edep_raw):
-   if len(calo)==0:
-      print "malformed event, event skipped" 
-      return
-   edep_raw.Fill(calo[0].edep)
-   #print len(de)
-   #for hit in calo:
-   #   print str(hit)
-   #for hit in de:
-   #   print str(hit)
-   #print len(filter(lambda x: x.edep>0.5,de))
-   if len(filter(lambda x: x.edep>0.5,de))==4:
-      edep.Fill(calo[0].edep)
-   return
+        edep.Write()
+        edep_raw.Write()
+        outfile.Write()
+        outfile.Close()
+    except:
+        print "Problem in file:",filename
+        return None
+    return (filename[:-5])
 
 class dedxAnalysis(AnalysisBase):
    def Init(self):
       return
     
 if __name__=="__main__":
-   myAnalysis=dedxAnalysis()
-   myAnalysis.Init()
-   leftToDo=myAnalysis(analyse)
-   while len(leftToDo):
+    ROOT.gSystem.Load("libAnalysis")
+    myAnalysis=dedxAnalysis()
+    myAnalysis.Init()
+    leftToDo=myAnalysis(analyse)
+    while len(leftToDo):
       myAnalysis(analyse)
