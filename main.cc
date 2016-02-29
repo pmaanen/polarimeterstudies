@@ -75,18 +75,14 @@ int main(int argc,char** argv) {
 #else
 	G4RunManager* runManager = new G4RunManager();
 #endif
-<<<<<<< HEAD
-	runManager->SetVerboseLevel (0);
-=======
 	runManager->SetVerboseLevel(0);
->>>>>>> master
 	// set mandatory initialization classes
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
     auto the_physics=new QGSP_BIC();
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
-	G4HadronicProcessStore::Instance()->SetVerbose(0);
+	//G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
 
 	//	G4EmParameters::Instance()->SetVerbose(1);
@@ -138,10 +134,7 @@ int main(int argc,char** argv) {
 #ifdef G4UI_USE
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
-<<<<<<< HEAD
-=======
 		UImanager->ApplyCommand("/run/initialize");
->>>>>>> master
 		std::stringstream o;
 		//UImanager->ApplyCommand("/run/initialize");
 		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();

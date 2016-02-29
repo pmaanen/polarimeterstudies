@@ -47,7 +47,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
 	logicCrystal->SetVisAttributes(G4VisAttributes::Invisible);
 
-	this->fCaloSDVolumes["Calorimeter"]=logicDetector;
+	this->fTrackerSDVolumes["Calorimeter"]=logicDetector;
 	this->fCaloSDVolumes["Absorber"]=logicAbsorber;
 
 	return logicCrystal;
