@@ -29,12 +29,6 @@ RunAction::RunAction()
 	fLuxury = 3;     // RANLUX luxury level (3 is default)
 	fSaveRndm = 0;
 	fNEvents=0;
-
-	Analysis* analysisManager = Analysis::Instance();
-	analysisManager->SetVerboseLevel(0);
-	analysisManager->SetFirstHistoId(1);
-
-	// Creating histograms
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -52,22 +46,18 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-<<<<<<< HEAD
-	//Analysis::Instance()->PrepareNewRun(aRun);
-	Analysis::Instance()->OpenFile();
-	PushBackFileName(Analysis::Instance()->GetFileName());
-=======
+	//Analysis::Instance()->OpenFile();
+	//PushBackFileName(Analysis::Instance()->GetFileName());
 	auto an=Analysis::Instance();
-	if(an->isEnabled()){
-		Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
+	if(true){
+		//Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
 	}
->>>>>>> master
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
+		an->BeginOfRun();
 	}
-	else{
-	}
+	else{}
 
 	//Master or sequential
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
@@ -94,60 +84,27 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //*********************************************************************************
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
-	G4cout <<"Run Number:" <<aRun->GetRunID()<<" ended\n";
-<<<<<<< HEAD
-
-	Analysis::Instance()->Write();
-	Analysis::Instance()->CloseFile();
-	if(IsMaster()){
-			std::ostringstream hadd;
-			std::ostringstream rm;
-			std::ostringstream mv;
-			G4String extension;
-			auto name=Analysis::Instance()->GetFileName();
-			if ( name.last(".") != std::string::npos ) {
-				extension = name.substr(name.last("."));
-				name = name.substr(0, name.last("."));
-			}
-			else {
-				extension = ".";
-				extension.append(Analysis::Instance()->GetFileType());
-			}
-			rm<<"rm ";
-			mv<<"mv "<<name<<"_merged.root "<<name<<".root ";
-			hadd<<"hadd "<<name<<"_merged.root "<<name<<".root ";
-			for(size_t ii=0; ii<G4Threading::G4GetNumberOfCores(); ii++){
-				hadd<<name<<"_t"<<ii<<".root ";
-				rm<<iName<<" ";
-			}
-
-			G4cout<<hadd<<G4endl;
-			system(hadd.str().c_str());
-			G4cout<<rm<<G4endl;
-			system(rm.str().c_str());
-			G4cout<<mv<<G4endl;
-			system(mv.str().c_str());
-=======
 	auto an=Analysis::Instance();
-	if(an->isEnabled()){
-		an->Write();
-		an->CloseFile();
-		if(IsMaster() && gConfig["general.merge"].as<bool>()){
+	if(!IsMaster()){
+		an->EndOfRun();
+	}
+	if(true){
+		if(IsMaster()){
 				std::ostringstream hadd;
 				std::ostringstream rm;
 				std::ostringstream mv;
 				std::ostringstream command;
 				G4String extension;
-				auto name=Analysis::Instance()->GetFileName();
+				auto name=Analysis::Instance()->getFileName();
 				if ( name.find(".") != std::string::npos ) {
 					extension = name.substr(name.find("."));
 					name = name.substr(0, name.find("."));
 				}
 				else {
 					extension = ".";
-					extension.append(Analysis::Instance()->GetFileType());
+					extension.append("root");
 				}
-				hadd<<"hadd -f "<<Analysis::Instance()->GetFileName()<<" ";
+				hadd<<"hadd -v 0 -f "<<Analysis::Instance()->getFileName()<<" ";
 				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
 					hadd<<name<<"_t"<<ii<<extension<<" ";
 					rm<<"rm "<<name<<"_t"<<ii<<extension<<";";
@@ -155,11 +112,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 				command<<hadd.str()<<"; "<<rm.str();
 				//G4cout<<command.str()<<G4endl;
 				system(command.str().c_str());
-<<<<<<< HEAD
->>>>>>> master
-=======
-			     
->>>>>>> master
 		}
 	}
 	if (!IsMaster())
@@ -169,9 +121,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	}
 	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
-	// save Rndm status
-	if (fSaveRndm == 1)
-		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
 }

@@ -29,19 +29,9 @@ public:
 		fChangedParameters=true;
 	}
 protected:
-<<<<<<< HEAD
-  virtual void ConstructSDandField();
-  virtual G4LogicalVolume* MakeCaloCrystal();
-  virtual G4VPhysicalVolume* Construct();
-=======
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
-<<<<<<< HEAD
-	G4double theta,phi,psi;
->>>>>>> master
-=======
 	G4double fTheta,fPhi,fPsi;
->>>>>>> master
 };
 #endif

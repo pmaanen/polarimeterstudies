@@ -30,16 +30,6 @@ SingleCrystal::~SingleCrystal() {
 	// TODO Auto-generated destructor stub
 }
 
-
-void SingleCrystal::ConstructSDandField() {
-	for(auto iVol: caloSDVolumes){
-		if (CaloSD[iVol.first].Get()==0)
-			CaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
-		SetSensitiveDetector(iVol.second,CaloSD[iVol.first].Get());
-	}
-}
-
-
 G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	/*
 	G4Box* solidWrapping= new G4Box("Wrapping",crystalWidth/2,crystalWidth/2,crystalLength/2);

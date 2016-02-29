@@ -1,5 +1,4 @@
 #include "Analysis.hh"
-#if 0
 #include "G4UnitsTable.hh"
 #include "G4SDManager.hh"
 #include "DetectorHit.hh"
@@ -29,12 +28,19 @@
 #include <algorithm>
 #include "hit.hh"
 //
+#include <G4Threading.hh>
+#include "TrackerSensitiveDetector.hh"
+#include "CaloSensitiveDetector.hh"
+#include "G4AutoLock.hh"
+namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
+
+
 
 
 Analysis* Analysis::fgMasterInstance = 0;
 G4ThreadLocal Analysis* Analysis::fgInstance = 0;
 
-Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),fEnabled(false)
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(0),fMyWorkerId(-1)
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
@@ -46,7 +52,69 @@ Analysis::Analysis(G4bool isMaster):G4RootAnalysisManager(isMaster),fEnabled(fal
 				"Analysis_F001", FatalException, description);
 	}
 	if ( isMaster ) fgMasterInstance = this;
+	fMyWorkerId=G4Threading::G4GetThreadId();
 	fgInstance = this;
-	fAnalysisMessenger=new AnalysisMessenger(this);
+	fAnalysisMessenger=new G4GenericMessenger(this,"/analysis/","analysis control");
+	fAnalysisMessenger->DeclareProperty("setFileName",Analysis::fFileName,"set file name");
+	fAnalysisMessenger->DeclareMethod("Enable",&Analysis::enable,"enable analysis");
+	fAnalysisMessenger->DeclareMethod("Disable",&Analysis::disable,"disable analysis");
 }
-#endif
+
+TTree* Analysis::MakeTree(G4String name, G4String desc) {
+	auto res=new TTree(name,desc);
+	fOutTrees.push_back(res);
+	return res;
+}
+
+void Analysis::BeginOfRun() {
+
+	G4AutoLock lock(&AnalysisMutex);
+	std::ostringstream name;
+	G4String base;
+	G4String extension;
+	if ( fFileName.find(".") != std::string::npos ) {
+		extension = fFileName.substr(fFileName.find("."));
+		base = fFileName.substr(0, fFileName.find("."));
+	}
+	name<<base<<"_t"<<G4Threading::G4GetThreadId()<<extension;
+	if(fOutFile==0){
+		fOutFile=new TFile(name.str().c_str(),"RECREATE");
+	}
+	else{
+		G4cout<<"fOutFile already set!"<<G4endl;
+		return;
+	}
+	for(auto iSD:fCaloSD){
+		iSD->BeginOfRun();
+	}
+	for(auto iSD:fTrackerSD){
+		iSD->BeginOfRun();
+	}
+}
+
+void Analysis::EndOfRun() {
+	G4AutoLock lock(&AnalysisMutex);
+
+	for(auto iTree: fOutTrees){
+		//iTree->Write();
+	}
+	fOutFile->Write();
+	fOutFile->Close();
+	for(auto iSD:fCaloSD){
+		iSD->EndOfRun();
+	}
+	for(auto iSD:fTrackerSD){
+		iSD->EndOfRun();
+	}
+	//delete fOutFile;
+}
+
+void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
+	fTrackerSD.push_back(sd);
+	return;
+}
+
+void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
+	fCaloSD.push_back(sd);
+	return;
+}
