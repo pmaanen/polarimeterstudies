@@ -59,7 +59,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 	collectionName.insert(name);
 
 	Analysis::Instance()->RegisterTrackerSD(this);
-	vect=new std::vector<trackerhit_t>;
+	fHitVector=new std::vector<trackerhit_t>;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -102,7 +102,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 
 	newHit->SetDetId(theTouchable->GetCopyNumber());
-	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::s);
+	newHit->SetTof(preStepPoint->GetGlobalTime());
 	G4ThreeVector worldPosition = preStepPoint->GetPosition();
 
 	newHit->SetPos(worldPosition);
@@ -121,7 +121,6 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
 	G4AutoLock lock(&TrackerSDMutex);
-	Analysis* an=Analysis::Instance();
 	if(true){
 		static G4int HCID = -1;
 		if(HCID<0)
@@ -129,18 +128,18 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 			HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 		}
 		HCE->AddHitsCollection(HCID,fHitsCollection);
-		G4int nHits=fHitsCollection->entries();
-
+		fHitVector->clear();
 		for(const auto &iHit : *(fHitsCollection->GetVector())){
 			trackerhit_t hit;
 			hit.edep=iHit->GetEdep()/CLHEP::MeV;
 			hit.x=iHit->GetPos().getX();
 			hit.y=iHit->GetPos().getY();
 			hit.z=iHit->GetPos().getZ();
-			hit.tof=iHit->GetTof();
+			hit.tof=iHit->GetTof()/CLHEP::ns;
 			hit.pid=iHit->GetParticleId();
 			hit.trid=iHit->GetTrackID();
-			vect->push_back(hit);
+			hit.ekin=iHit->GetEtot();
+			fHitVector->push_back(hit);
 
 		}
 	}
@@ -155,7 +154,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 void TrackerSensitiveDetector::BeginOfRun() {
 	G4AutoLock lock(&TrackerSDMutex);
 	auto myTree=Analysis::Instance()->GetTree();
-	myTree->Branch(this->GetName(),"std::vector<trackerhit_t>",&vect);
+	myTree->Branch(this->GetName(),"std::vector<trackerhit_t>",&fHitVector);
 }
 
 

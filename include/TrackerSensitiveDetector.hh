@@ -69,8 +69,7 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
     void EndOfRun();
   private:
     DetectorHitsCollection* fHitsCollection;
-	TTree* tree;
-	std::vector<trackerhit_t> * vect;
+	std::vector<trackerhit_t> * fHitVector;
 
 };
 

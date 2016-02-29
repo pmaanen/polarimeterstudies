@@ -27,7 +27,7 @@ CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiF
 	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",depth);
 	this->RegisterPrimitive(scorer);
 	Analysis::Instance()->RegisterCaloSD(this);
-	vect=new std::vector<calorhit_t>;
+	fHitVector=new std::vector<calorhit_t>;
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
@@ -36,7 +36,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	Analysis* an=Analysis::Instance();
 	G4AutoLock lock(&CaloSDMutex);
 	if(an->isEnabled()){
-		vect->clear();
+		fHitVector->clear();
 		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
 			G4int collID=this->GetCollectionID(iPrim);
 			auto evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
@@ -45,7 +45,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 					calorhit_t hit;
 					hit.detid=iHit.first;
 					hit.edep=*(iHit.second)/CLHEP::MeV;
-					vect->push_back(hit);
+					fHitVector->push_back(hit);
 				}
 				catch(myG4Exception& exc){
 					G4cout <<exc.getExceptionCode()<<" caught in hit loop"<<G4endl;
@@ -58,8 +58,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::Initialize(HC);
-
-	Analysis* an=Analysis::Instance();
 }
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
@@ -70,7 +68,7 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
 void CaloSensitiveDetector::BeginOfRun() {
 	G4AutoLock lock(&CaloSDMutex);
 	auto myTree=Analysis::Instance()->GetTree();
-	myTree->Branch(fName,"std::vector<calorhit_t>",&vect);
+	myTree->Branch(fName,"std::vector<calorhit_t>",&fHitVector);
 }
 
 void CaloSensitiveDetector::EndOfRun() {}

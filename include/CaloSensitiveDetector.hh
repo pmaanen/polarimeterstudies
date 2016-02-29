@@ -23,8 +23,8 @@ public:
 	std::vector<calorhit_t> * GetHitVector();
 private:
 	G4String fName;
-	TTree* tree;
-	std::vector<calorhit_t> * vect;
+	TTree* fOutTree;
+	std::vector<calorhit_t> * fHitVector;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */
