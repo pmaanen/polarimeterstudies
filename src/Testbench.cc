@@ -41,11 +41,12 @@ G4VPhysicalVolume* Testbench::Construct() {
 		auto triggerRot=new G4RotationMatrix();
 		triggerRot->rotateX(90*CLHEP::deg);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 0, false);
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-7.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 1, false);
+		fCaloSDVolumes["Trigger"]->SetVisAttributes(new G4VisAttributes(G4Colour(1.,0.,0.)));
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 0, false);
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-10*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 1, false);
 
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,7.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 2, false);
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 3, false);
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 2, false);
+		//new G4PVPlacement (triggerRot, G4ThreeVector(0,0,12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 3, false);
 
 
 

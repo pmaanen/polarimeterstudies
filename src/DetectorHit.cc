@@ -101,9 +101,10 @@ void DetectorHit::Draw()
 	if(pVVisManager)
 	{
 		G4Circle circle(fTruePos);
-		circle.SetScreenSize(10.);
+		circle.SetScreenSize(this->fEdep/CLHEP::MeV);
 		circle.SetFillStyle(G4Circle::filled);
-		G4Colour colour(1.,0.,0.);
+
+		G4Colour colour(1,0,0.);
 		G4VisAttributes attribs(colour);
 		circle.SetVisAttributes(attribs);
 		pVVisManager->Draw(circle);
