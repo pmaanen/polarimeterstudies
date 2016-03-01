@@ -12,6 +12,7 @@
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"
 #include "Analysis.hh"
+#include "G4Event.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
@@ -40,16 +41,6 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
 
 	Analysis* an=Analysis::Instance();
-	an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
-	an->FillNtupleIColumn(fTupleId[0],fTupleId[2],muon.id);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[3],momentum.getX());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[4],momentum.getY());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[5],momentum.getZ());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
-	an->AddNtupleRow(fTupleId[0]);
-
 	fParticleGun->SetParticleMomentum(momentum) ;
 	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
 	fParticleGun->GeneratePrimaryVertex(E);
@@ -95,15 +86,5 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 void CosmicMuonGenerator::Initialize() {
 	fTupleId.clear();
 	Analysis* an=Analysis::Instance();
-	fTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
-	an->FinishNtuple(fTupleId[0]);
 	fRunInitialized=true;
 }
