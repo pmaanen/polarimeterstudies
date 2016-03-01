@@ -58,7 +58,7 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	 *	evt = fileReader->GetEvent();
 	 *}
 	 */
-	G4int cacheSize=10000;
+	G4int cacheSize=1000;
 	std::vector<PrimaryEvent> evtCache;
 	G4bool doMore=true;
 	while(doMore){

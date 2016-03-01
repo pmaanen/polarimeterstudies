@@ -52,12 +52,10 @@ protected:
 class elastic_scattering_model{
 public:
 	Double_t sigma(Double_t *x, Double_t *par);
+	Double_t sigma0(Double_t *x, Double_t *par);
 	elastic_scattering_model();
 private:
-	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
-	//quick conversion for theta_cm to momentum transfer
-	Double_t q(Double_t theta, Double_t mom);
-
+	Double_t SigmaUnpol(Double_t, Double_t);
 	//Parameters for ds/dOmega. x is ln(E)
 	double a1(Double_t x);
 	double a2(Double_t x);

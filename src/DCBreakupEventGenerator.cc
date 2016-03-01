@@ -18,8 +18,8 @@ DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceG
 	fBeamEnergy=235.*CLHEP::MeV;
 	fInitialized=false;
 
-	fThetaMin=5*CLHEP::deg;
-	fThetaMax=20*CLHEP::deg;
+	fThetaMin=3*CLHEP::deg;
+	fThetaMax=30*CLHEP::deg;
 	DefineCommands();
 }
 
@@ -44,13 +44,13 @@ void DCBreakupEventGenerator::Initialize() {
 		if(!(*ipart))
 			throw;//G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",0,"beam particle not found.");
 	}
-	Double_t m_target = G4IonTable::GetIonTable()->GetIon(6,12)->GetPDGMass()/CLHEP::GeV;
+	Double_t m_target = fParticles[2]->GetPDGMass()/CLHEP::GeV;
 	Double_t m_beam = G4Deuteron::DeuteronDefinition()->GetPDGMass()/CLHEP::GeV;
 	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
-	Double_t masses[3] = {fParticles[0]->GetPDGMass()/CLHEP::GeV,fParticles[1]->GetPDGMass()/CLHEP::GeV,fParticles[2]->GetPDGMass()/CLHEP::GeV} ;
+	Double_t masses[3] = {fParticles[0]->GetPDGMass()/CLHEP::GeV,fParticles[1]->GetPDGMass()/CLHEP::GeV,fParticles[2]->GetPDGMass()/CLHEP::GeV};
 	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
 	fCms = fBeam + fTarget;
-	fPhaseSpace.SetDecay(fCms, 3, masses); //first decay into p+13C
+	fPhaseSpace.SetDecay(fCms, 3, masses);
 	if(!fCrossSection)
 		BuildFunction();
 	TLorentzVector temp=fBeam;
@@ -75,6 +75,12 @@ void DCBreakupEventGenerator::Initialize() {
 	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"Ex"));
 	an->FinishNtuple(fTupleId[0]);
 	fInitialized=true;
+	//G4cout<<"Cross Section Data START: "<<fBeamEnergy/CLHEP::GeV<<" GeV"<<G4endl;
+	//for(int i=0;i<100;i++){
+	//	G4double Ex=i*CLHEP::MeV;
+	//	G4cout<<Ex<<" "<<fCrossSection->Eval(18.,0,Ex/CLHEP::MeV)<<G4endl;
+	//}
+	//G4cout<<"Cross Section Data END"<<G4endl;
 }
 
 void DCBreakupEventGenerator::Generate(G4Event* E) {
@@ -118,17 +124,8 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 		//L-vector of recoil particle in lab-frame
 		TLorentzVector carbon_4 = *fPhaseSpace.GetDecay(2) ;
 
-		//spatial parts of generated L-vectors
-		G4ThreeVector proton_3(proton_4.Vect().X()*CLHEP::GeV,proton_4.Vect().Y()*CLHEP::GeV,proton_4.Vect().Z()*CLHEP::GeV);
-		G4ThreeVector neutron_3(neutron_4.Vect().X()*CLHEP::GeV,neutron_4.Vect().Y()*CLHEP::GeV,neutron_4.Vect().Z()*CLHEP::GeV);
-		G4ThreeVector carbon_3(carbon_4.Vect().X()*CLHEP::GeV,carbon_4.Vect().Y()*CLHEP::GeV,carbon_4.Vect().Z()*CLHEP::GeV);
-		//Magnitude of spatial vectors
-		//G4double momentum_recoil  = precoil_3.mag();
-		//G4double momentum_scattered  = pscattered_3.mag();
-
-
-		//Polar angle for deuteron in lab-frame (degrees)
-		G4double th_scattered  = proton_3.getTheta()*CLHEP::rad;
+		//Polar angle for proton in lab-frame (degrees)
+		G4double th_scattered  = proton_4.Vect().Theta()*CLHEP::rad;
 		//Polar angle for proton in lab-frame (degrees)
 		//G4double th_recoil  = precoil_3.getTheta();
 
@@ -136,34 +133,41 @@ PrimaryEvent DCBreakupEventGenerator::Generate() {
 		if(phi_scattered<0)
 			phi_scattered+=360*CLHEP::deg;
 
-		//G4double phi_recoil = precoil_3.getPhi();
 
+		G4double Ex=0;
+		//auto bound=neutron_4+carbon_4;
+		Ex=(fBeam.Energy()-fBeam.M()-(proton_4.Energy()-proton_4.M()))*CLHEP::GeV;
+		G4cout<<"all:"<<Ex/CLHEP::MeV<<" "<<th_scattered/CLHEP::deg<<G4endl;
 		//Set angular cut in lab-frame
 		if(th_scattered>fThetaMin and th_scattered<fThetaMax){
-
-			//Boost momentum of deuteron from lab-sytem to cm-system.
-			TVector3 CMv = fCms.BoostVector();     // in case beam simulation
-
-			proton_4.Boost(-CMv);          // in case beam simulation
-			//retrieve polar scattering angle for proton in cm-frame
-
-			G4double Ex=(fBeam.Energy()+fTarget.Energy()-proton_4.Energy()-carbon_4.Energy()-neutron_4.Energy())*CLHEP::GeV-2.22*CLHEP::MeV;
 			if(Ex<0)
 				continue;
-			G4double acc=fMaxY*G4UniformRand();
-
-			if(fCrossSection->Eval(th_scattered/CLHEP::deg,phi_scattered/CLHEP::deg,Ex)<acc) continue;
-			PrimaryEvent res;
-			res.particles.push_back(PrimaryParticle(fParticles[0]->GetPDGEncoding(),proton_3.getX(),proton_3.getY(),proton_3.getZ()));
-			res.particles.push_back(PrimaryParticle(fParticles[1]->GetPDGEncoding(),neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
-			res.particles.push_back(PrimaryParticle(fParticles[2]->GetPDGEncoding(),carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
-			return res;
+			G4double acc=100*G4UniformRand();
+			auto p3=proton_4.Vect();
+			auto c3=carbon_4.Vect();
+			auto n3=neutron_4.Vect();
+			G4ThreeVector proton_3(p3.X()*CLHEP::GeV,p3.Y()*CLHEP::GeV,p3.Z()*CLHEP::GeV);
+			G4ThreeVector carbon_3(c3.X()*CLHEP::GeV,c3.Y()*CLHEP::GeV,c3.Z()*CLHEP::GeV);
+			G4ThreeVector neutron_3(n3.X()*CLHEP::GeV,n3.Y()*CLHEP::GeV,n3.Z()*CLHEP::GeV);
+			if(fCrossSection->Eval(th_scattered/CLHEP::deg,0,Ex/CLHEP::MeV)<acc){
+				//G4cout<<"rejected:"<<acc<<" "<<fCrossSection->Eval(th_scattered/CLHEP::deg,0,Ex/CLHEP::MeV)<<" "<<Ex/CLHEP::MeV<<G4endl;
+				continue;
+			}
+			else{
+				G4cout<<"accepted:"<<Ex/CLHEP::MeV<<" "<<th_scattered/CLHEP::deg<<G4endl;
+				//G4cout<<"accepted:"<<acc<<" "<<fCrossSection->Eval(th_scattered/CLHEP::deg,0,Ex/CLHEP::MeV)<<" "<<Ex/CLHEP::MeV<<G4endl;
+				PrimaryEvent res;
+				res.particles.push_back(PrimaryParticle(fParticles[0]->GetPDGEncoding(),proton_3.getX(),proton_3.getY(),proton_3.getZ()));
+				res.particles.push_back(PrimaryParticle(fParticles[1]->GetPDGEncoding(),neutron_3.getX(),neutron_3.getY(),neutron_3.getZ()));
+				res.particles.push_back(PrimaryParticle(fParticles[2]->GetPDGEncoding(),carbon_3.getX(),carbon_3.getY(),carbon_3.getZ()));
+				return res;
+			}
 		}
 	}
 }
 deuteron_breakup_model::deuteron_breakup_model(){}
 Double_t deuteron_breakup_model::sigma(Double_t* x, Double_t* par) {
-	return SigmaUnpol(par[0],x[0],x[2])*(1+par[1]*Ay(par[0],x[0],x[2])*cos(x[1]*DegToRad));
+	return SigmaUnpol(par[0],x[0],x[2]);//*(1+par[1]*Ay(par[0],x[0],x[2])*cos(x[1]*DegToRad));
 }
 
 Double_t deuteron_breakup_model::SigmaUnpol(Double_t E, Double_t theta,
@@ -171,7 +175,7 @@ Double_t deuteron_breakup_model::SigmaUnpol(Double_t E, Double_t theta,
 	if(Ex>(c2(theta,E)-c3(theta)*c4(theta)))
 		return c1(theta,E)*exp(-pow(Ex-c2(theta,E),2)/(2*c3(theta)*c3(theta)));
 	else
-		return c1(theta,E)*exp(-c4(theta)*c4(theta)/2.)*exp(-(c5(theta)*(c2(theta,E-c4(theta)*c3(theta)-Ex)))/c3(theta));
+		return c1(theta,E)*exp(-c4(theta)*c4(theta)/2.)*exp(-(c5(theta)*(c2(theta,E)-c4(theta)*c3(theta)-Ex))/c3(theta));
 
 }
 

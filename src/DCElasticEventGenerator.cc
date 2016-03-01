@@ -33,8 +33,8 @@ DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpace
 	fBeamPolarization=Double_t(2./3.);
 	fInitialized=false;
 
-	fThetaMin=5*CLHEP::deg;
-	fThetaMax=20*CLHEP::deg;
+	fThetaMin=3*CLHEP::deg;
+	fThetaMax=30*CLHEP::deg;
 	DefineCommands();
 }
 
@@ -60,6 +60,7 @@ void DCElasticEventGenerator::Initialize() {
 	}
 	Double_t m_target = fParticles[1]->GetPDGMass()/GeV;
 	Double_t m_beam = fParticles[0]->GetPDGMass()/GeV;
+	G4cout<<m_beam<<" "<<m_target<<G4endl;
 	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
 	Double_t masses[2] = {m_beam, m_target} ;
 	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
@@ -71,9 +72,9 @@ void DCElasticEventGenerator::Initialize() {
 	if(!fCrossSection)
 		BuildFunction();
 	fCrossSection->SetParameter(0,fBeamEnergy/CLHEP::MeV);
-	fCrossSection->SetParameter(1,fMomentumCMS);
-	fCrossSection->SetParameter(2,fBeamPolarization);
-	fMaxY=fCrossSection->GetMaximum();
+	fCrossSection->SetParameter(1,fBeamPolarization);
+	G4cout<<fBeamEnergy/CLHEP::MeV<<G4endl;
+	fMaxY=fCrossSection->Eval(0,0);//4600;//fCrossSection->Eval(0,0);
 	Analysis* an=Analysis::Instance();
 	fTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
 	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
@@ -106,10 +107,9 @@ void DCElasticEventGenerator::DefineCommands()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 TF2* DCElasticEventGenerator::BuildFunction() {
 	fScatteringModel=new elastic_scattering_model;
-	fCrossSection=new TF2("xsec",fScatteringModel,&elastic_scattering_model::sigma,3.,30.,0.,360.,3,"MyFunction","sigma");
+	fCrossSection=new TF2("xsec",fScatteringModel,&elastic_scattering_model::sigma,3.,30.,0.,360.,2,"MyFunction","sigma");
 	fCrossSection->SetParName(0,"Energy");
-	fCrossSection->SetParName(1,"Momentum");
-	fCrossSection->SetParName(2,"Polarization");
+	fCrossSection->SetParName(1,"Polarization");
 	return fCrossSection;
 }
 
@@ -120,8 +120,8 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	while (1) {
-		fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
-		fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
+		//fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
+		//fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
 
 		//Sample an event assuming constant cross-section in cm-system
 		fPhaseSpace.Generate();
@@ -155,16 +155,29 @@ PrimaryEvent DCElasticEventGenerator::Generate() {
 		if(th_scattered>fThetaMin and th_scattered<fThetaMax){
 
 			//Boost momentum of deuteron from lab-sytem to cm-system.
-			TVector3 CMv = fCms.BoostVector();     // in case beam simulation
+			//TVector3 CMv = fCms.BoostVector();     // in case beam simulation
 
-			pscattered_4.Boost(-CMv);          // in case beam simulation
+			//pscattered_4.Boost(-CMv);          // in case beam simulation
 			//retrieve polar scattering angle for deuteron in cm-frame
-			G4double CM_theta_scattered = pscattered_4.Theta()*CLHEP::rad;
-			G4double acc=fMaxY*G4UniformRand();
-			if(fCrossSection->Eval(CM_theta_scattered/CLHEP::deg,phi_scattered/CLHEP::deg)<acc){
+			//G4double CM_theta_scattered = pscattered_4.Theta()*CLHEP::rad;
+			//auto x=G4UniformRand()*(fThetaMax-fThetaMin)+fThetaMin;
+
+			//G4double acc=(2*2372.402057)*exp(-(x-fThetaMin)/((fThetaMax-fThetaMin)/log(2372.402057)));
+			auto acc=fMaxY*G4UniformRand();
+			auto q_4=pscattered_4-fBeam;
+			auto q=sqrt(-q_4*q_4)*CLHEP::GeV;
+			//G4cout<<"q "<<q<<" "<<CM_theta_scattered/CLHEP::deg<<G4endl;
+			std::stringstream s;
+			//s<<"energy="<<fCrossSection->GetParameter(0)<< " xsec="<<fCrossSection->Eval(q/CLHEP::GeV,0)<<" acc="<<acc<<" q=" <<q/CLHEP::GeV<<" "<<th_scattered/CLHEP::deg<<std::endl;
+			//s.clear();
+			s<<q/CLHEP::GeV<<" "<<th_scattered/CLHEP::deg<<std::endl;
+			if(fCrossSection->Eval(q/CLHEP::GeV,phi_scattered/CLHEP::deg)<acc){
+
+				G4cout<<"rejected:"<<s.str();
 				continue;
 			}
 			else {
+				G4cout<<"passed:"<<s.str();
 				PrimaryEvent res;
 				res.vx=pos.getX();
 				res.vy=pos.getY();
@@ -188,18 +201,17 @@ elastic_scattering_model::elastic_scattering_model(){
 	 */
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 Double_t elastic_scattering_model::sigma(Double_t* x, Double_t* par) {
-	return SigmaUnpol(par[0],x[0],par[1])*(1+par[2]*Ay(par[0],x[0])*cos(x[1]*DegToRad));
+	return SigmaUnpol(par[0],x[0]);//*(1+par[1]*Ay(par[0],x[0])*cos(x[1]*DegToRad));
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-Double_t elastic_scattering_model::q(Double_t theta, Double_t mom) {
-	return 2*mom*sin(theta/2*DegToRad);
+Double_t elastic_scattering_model::sigma0(Double_t* x, Double_t* par) {
+	return SigmaUnpol(par[0],x[0]);
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-double elastic_scattering_model::SigmaUnpol(Double_t E,Double_t theta_cm, Double_t mom) {
+double elastic_scattering_model::SigmaUnpol(Double_t E,Double_t q1) {
 	double w=log(E);
-	double q1=q(theta_cm, mom);
 	return pow(10,a1(w)+a2(w)*q1+(1+a5(w)*q1)*(a3(w)*sin(a6(w)*q1)+a4(w)*cos(a6(w)*q1)));
 }
 
