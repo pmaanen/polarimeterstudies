@@ -63,17 +63,6 @@ void DCBreakupEventGenerator::Initialize() {
 	fMaxY=fCrossSection->GetMaximum();
 
 	Analysis* an=Analysis::Instance();
-	fTupleId.push_back(an->CreateNtuple("MCTruth","MCTruth"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"Ex"));
-	an->FinishNtuple(fTupleId[0]);
 	fInitialized=true;
 	//G4cout<<"Cross Section Data START: "<<fBeamEnergy/CLHEP::GeV<<" GeV"<<G4endl;
 	//for(int i=0;i<100;i++){
@@ -90,17 +79,6 @@ void DCBreakupEventGenerator::Generate(G4Event* E) {
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		fParticleGun->GeneratePrimaryVertex(E);
 		Analysis* an=Analysis::Instance();
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iPart->id);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[3],iPart->px);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iPart->py);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iPart->pz);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[9],fParticleGun->GetParticleTime()/CLHEP::s);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[10],this->fBeamPolarization);
-		an->AddNtupleRow(fTupleId[0]);
 	}
 	return;
 }
