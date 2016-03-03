@@ -64,10 +64,8 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
     virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
   private:
     DetectorHitsCollection* fHitsCollection;
-    std::vector<G4int> myTupleId;
-    G4bool runInitialized;
-    std::map<G4String,G4int> secondaries;
-
+    std::vector<G4int> fTupleId;
+    G4bool fRunInitialized;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

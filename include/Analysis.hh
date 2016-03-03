@@ -41,71 +41,8 @@ public:
 		}
 	}
 	virtual ~Analysis() {};
-	//! Should be called at the beginning of an event, hooks into UserEventAction
-	void PrepareNewEvent(const G4Event* anEvent);
-	//! Should be called at the end of an event, hooks into UserEventAction
-	void EndOfEvent(const G4Event* anEvent);
-	//! Should be called at the beginning of a run, hooks into UserRunAction
-	void PrepareNewRun(const G4Run* aRun);
-	//! Should be called at the end of a run, hooks into UserRunAction
-	//Automatically resets trees and histos at end of run.
-	void EndOfRun(const G4Run* aRun);
-	//!Enables or disables analysis module. If disabled, all functions return after calling. Used by messenger.
-	void Enable(bool xenable){_enable=xenable;};
-
-	void setFilename(G4String xfilename){this->_basename= xfilename;}
-	void setPath(G4String xpath){this->_path = xpath;}
-	virtual G4bool OpenFile(const G4String &fileName);
-	virtual G4bool Write();
-	virtual G4bool CloseFile();
-	void AddAuxiliary(G4String name, G4String value);
-
-	const std::string& getFilename() const {
-		return _filename;
-	}
-
-	//Create a root object and return its adress.
-	//Stored objects must inherit from TObject to ensure it has a GetName() and Write() method, throws otherwise
-	template<typename T, typename ... Args>
-	T* BookObject(const Args& ... args){
-		std::stringstream o;
-		o<<"Should not be used "<<G4endl;
-		G4Exception("Analysis::BookObject()", "TypeError", FatalException,
-				o.str().c_str());
-		T* t=new T(args ...);
-		TObject* retval=dynamic_cast<TObject*>(t);
-		if(!retval){
-			o<<"Object "<<" not typed correctly "<<G4endl;
-			G4Exception("Analysis::BookObject()", "TypeError", FatalException,
-					o.str().c_str());
-		}
-		_objects[t->GetName()]= t;
-		return (T*)_objects[t->GetName()];
-	}
-
-
-	//Get an object from storage.
-	//Throws if object is not typed correctly or does not exist.
-	template<typename T>
-	T* GetObject(G4String name){
-		std::stringstream o;
-		o<<"Should not be used "<<G4endl;
-		G4Exception("Analysis::GetObject()", "TypeError", FatalException,
-				o.str().c_str());
-
-		if(!_objects[name]){
-			o<<"Object "<<name<<" not found "<<G4endl;
-			throw myG4Exception("Analysis::GetObject()", "ObjectNotFound", FatalException,
-					o.str().c_str());
-		}
-		T* retval=dynamic_cast< T* >(_objects[name]);
-		if(!retval){
-			o<<"Object "<<name<<" not typed correctly "<<G4endl;
-			G4Exception("Analysis::GetObject()", "TypeError", FatalException,
-					o.str().c_str());
-		}
-		return retval;
-	}
+	void setEnabled(bool xenable){fEnabled=xenable;};
+	G4bool isEnabled() const {return fEnabled;};
 
 private:
 	//! Private constructor: part of singleton pattern
@@ -113,10 +50,8 @@ private:
 	//! Singleton static instance
 	static Analysis* fgMasterInstance;
 	static G4ThreadLocal Analysis* fgInstance;
-	bool _enable;
-	std::string _path,_basename,_filename,_oldname;
-	AnalysisMessenger* _analysisMessenger;
-	std::map<G4String,TObject*> _objects;
+	bool fEnabled;
+	AnalysisMessenger* fAnalysisMessenger;
 };
 
 

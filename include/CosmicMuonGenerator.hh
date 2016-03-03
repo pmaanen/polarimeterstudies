@@ -25,17 +25,17 @@ public:
 	virtual PrimaryEvent Generate();
 	virtual void Initialize();
 
-	function_helper* functions;
-	TF1* angle,*momentumAmp;
-	G4ThreeVector position, spotsize;
+	function_helper* fFunctions;
+	TF1* fAngle,*fMomentumAmp;
+	G4ThreeVector fPosition, fSpotsize;
 
 
 	G4GenericMessenger* fMessenger;
 };
 class function_helper{
 	public:
-		Double_t angle(Double_t *x, Double_t *par){return cos(x[0])*cos(x[0]);};
-		Double_t energy(Double_t *x, Double_t *par){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
+		Double_t angle(Double_t *x, Double_t *){return cos(x[0])*cos(x[0]);};
+		Double_t energy(Double_t *x, Double_t *){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
 	};
 
 #endif /* INCLUDE_COSMICMUONGENERATOR_HH_ */

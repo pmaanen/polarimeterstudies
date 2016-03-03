@@ -32,8 +32,10 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <PrimaryGeneratorAction.hh>
 #include "Analysis.hh"
-#include <signal.h>
 #include "G4StateManager.hh"
+
+#include <signal.h>
+#include <ctime>
 namespace CLHEP {}
 using namespace CLHEP; 
 
@@ -60,9 +62,13 @@ int main(int argc,char** argv) {
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
-	if(argc>2){
-		theEngine->setSeed(strtol(argv[2], NULL, 10));
+	if(gConfig.count("general.seed")){
+		theEngine->setSeed(gConfig["general.seed"].as<int>());
 	}
+	else{
+		theEngine->setSeed(std::time(0));
+	}
+
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
 	G4MTRunManager* runManager = new G4MTRunManager;
@@ -72,37 +78,8 @@ int main(int argc,char** argv) {
 #endif
 
 	// set mandatory initialization classes
-	//DetectorConstruction* detector = new DetectorConstruction;
-	auto geometry=gConfig["detector.geometry"].as<std::string>();
-	std::string cubic("cubic:");
-	std::string hexagonal("hexagonal:");
-	std::string gdml("gdml:");
-	std::string single("single:");
-	std::string sandwich("sandwich:");
-	std::string cosmic("cosmic:");
-	G4VUserDetectorConstruction* jedi=0;
-	if(!geometry.compare(0,cubic.size(),cubic)){
-		jedi=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
-	}
-	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
-		jedi=new JediHexagonalPolarimeter;
-	}
-	if(!geometry.compare(0,gdml.size(),gdml)){
-		jedi= new DetectorConstruction();
-	}
-	if(!geometry.compare(0,single.size(),single)){
-		jedi= new SingleCrystal();
-	}
-	if(!geometry.compare(0,sandwich.size(),sandwich)){
-		jedi= new JediSandwichCalorimeter();
-	}
-	if(!geometry.compare(0,cosmic.size(),cosmic)){
-		jedi= new CosmicSetup();
-	}
-
-	if(!jedi)
-		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
-	runManager->SetUserInitialization(jedi);
+	DetectorConstruction* detector = new DetectorConstruction;
+	runManager->SetUserInitialization(detector);
 
 	// set physics list
 	G4VModularPhysicsList* the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
@@ -110,24 +87,8 @@ int main(int argc,char** argv) {
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
 	the_physics->RegisterPhysics(new G4OpticalPhysics);
 	runManager->SetUserInitialization(the_physics);
-	if(gConfig.count("detector.positions")){
-		auto positions=gConfig["detector.positions"].as<std::vector<double> >();
-		if(positions.size()%3){
-			G4cout<<"Error: positions vector not valid."<<G4endl;
-			for(auto i:positions){
-				G4cout<<i<<" ";
-			}
-			G4cout<<G4endl;
-			return 0;
-		}
-		for(size_t iPos=0; iPos<size_t(positions.size()/3);iPos+=3){
-			G4cout<<"Position="<<positions[iPos]<<" "<<positions[iPos+1]<<" "<<positions[iPos+2]<<G4endl;
-		}
-		return 0;
-	}
 	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
-	Analysis::Instance();
 #ifdef G4VIS_USE
 	// Visualization manager
 	//

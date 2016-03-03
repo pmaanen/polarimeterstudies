@@ -14,19 +14,33 @@
 
 namespace { G4Mutex FileWriterMutex = G4MUTEX_INITIALIZER; }
 
-FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fileWriter = 0;
+FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fgFileWriter = nullptr;
 
-FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents,G4String fileName=""):G4VUserPrimaryGeneratorAction(),evtGen(new DCElasticTimeDependentGenerator){
+FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents, G4String generator, G4String fileName=""):G4VUserPrimaryGeneratorAction(),fEvtGen(nullptr){
+	G4String muon("muon");
+	G4String dcelastic("dcelastic");
+	G4String dcbreakup("dcbreakup");
+	G4String dcelastictime("dcelastictime");
+	if(generator==muon)
+		fEvtGen=new CosmicMuonGenerator();
+	else if(generator==dcelastic)
+		fEvtGen=new DCElasticEventGenerator();
+	else if(generator==dcbreakup)
+		fEvtGen=new DCBreakupEventGenerator();
+	else if(generator==dcelastictime)
+		fEvtGen=new DCElasticTimeDependentGenerator();
+	if(!fEvtGen)
+		G4Exception("FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction","",FatalException,"Event generator pointer is null");
 	G4AutoLock lock(&FileWriterMutex);
-	if(!fileWriter){
-			fileWriter=new FileWriter(fileName,nEvents);
+	if(!fgFileWriter){
+			fgFileWriter=new FileWriter(fileName,nEvents);
 	}
 }
 
-void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
+void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	/*
 	 * I hijacked the fct to implement my event generation. This should only be called once per thread.
-	 * TODO: Implement like following
+	 * Implement like following:
 	 * 1) Write events to internal cache
 	 * 2) obtain lock
 	 * 3) Send events to FileWriter
@@ -49,11 +63,11 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
 	G4bool doMore=true;
 	while(doMore){
 		for(G4int ii=0;ii<cacheSize;ii++){
-			evtCache.push_back(evtGen->Generate());
+			evtCache.push_back(fEvtGen->Generate());
 		}
-		if(fileWriter){
+		if(fgFileWriter){
 			G4AutoLock lock(&FileWriterMutex);
-			doMore=fileWriter->WriteEventsToFile(evtCache);
+			doMore=fgFileWriter->WriteEventsToFile(evtCache);
 			evtCache.clear();
 		}
 		else{
@@ -68,10 +82,10 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event* E){
 }
 
 FileWriterPrimaryGeneratorAction::~FileWriterPrimaryGeneratorAction() {
-	delete evtGen;
+	delete fEvtGen;
 	G4AutoLock lock(&FileWriterMutex);
-		if(fileWriter){
-				delete fileWriter;
-				fileWriter=0;
+		if(fgFileWriter){
+				delete fgFileWriter;
+				fgFileWriter=0;
 		}
 }

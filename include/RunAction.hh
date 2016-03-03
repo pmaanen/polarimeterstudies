@@ -31,14 +31,9 @@ public:
 	inline G4int GetNEvents() { return fNEvents; };
 
 private:
-	G4int saveRndm;
-	G4int luxury;
-	G4int seed;
-
-	static std::vector<G4String>* filenames;
-	void ClearFileNames();
-	void PushBackFileName(G4String filename);
-
+	G4int fSaveRndm;
+	G4int fLuxury;
+	G4int fSeed;
 
 };
 

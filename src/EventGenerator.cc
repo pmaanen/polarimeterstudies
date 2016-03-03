@@ -7,7 +7,7 @@
 
 #include <EventGenerator.hh>
 #include "G4ParticleGun.hh"
-EventGenerator::EventGenerator(G4ParticleGun* pgun):pGun(pgun),runInitialized(false) {}
+EventGenerator::EventGenerator(G4ParticleGun* pgun):fParticleGun(pgun),fRunInitialized(false) {}
 
 EventGenerator::~EventGenerator() {}
 

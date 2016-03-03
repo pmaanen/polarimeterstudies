@@ -55,12 +55,12 @@ public:
 	virtual void Initialize()=0;
 
 protected:
-	std::vector<G4int> myTupleId;
-	std::vector<G4int> myHistoId;
+	std::vector<G4int> fTupleId;
+	std::vector<G4int> fHistoId;
 
 
-	G4ParticleGun* pGun;
-	G4bool runInitialized;
+	G4ParticleGun* fParticleGun;
+	G4bool fRunInitialized;
 
 	G4GenericMessenger* fMessenger;
 };

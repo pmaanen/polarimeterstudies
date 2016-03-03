@@ -14,48 +14,29 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include "G4FileMessenger.hh"
-AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),ana(Ana)
+AnalysisMessenger::AnalysisMessenger(Analysis *Ana):G4AnalysisMessenger(Ana),fAnalysis(Ana)
 {
-	dirCmd=new G4UIcmdWithAString("/analysis/SetPath",this);
-	dirCmd->SetGuidance("Set output directory");
-	dirCmd->SetParameterName("dir",false);
+	fEnableCmd=new G4UIcommand("/analysis/Enable",this);
+	fEnableCmd->SetGuidance("Enable Output");
 
-	enableCmd=new G4UIcommand("/analysis/Enable",this);
-	enableCmd->SetGuidance("Enable Output");
-
-	disableCmd=new G4UIcommand("/analysis/Disable",this);
-	disableCmd->SetGuidance("Disable Output");
-
-/*
-	fileCmd=new G4UIcmdWithAString("/analysis/SetFileName",this);
-	fileCmd->SetGuidance("Set output file name");
-	fileCmd->SetParameterName("file",false);
-
-*/
+	fDisableCmd=new G4UIcommand("/analysis/Disable",this);
+	fDisableCmd->SetGuidance("Disable Output");
 
 }
 
 AnalysisMessenger::~AnalysisMessenger() {
-	delete dirCmd;
-	delete enableCmd;
-	delete disableCmd;
-	delete fileCmd;
+	delete fEnableCmd;
+	delete fDisableCmd;
 }
 
 void AnalysisMessenger::SetNewValue(G4UIcommand *cmd, G4String value)
 {
 	G4AnalysisMessenger::SetNewValue(cmd,value);
-	if( cmd== dirCmd){
-		ana->setPath(value);
+	if( cmd== fEnableCmd){
+		fAnalysis->setEnabled(true);
 	}
-	if( cmd== fileCmd){
-		ana->setFilename(value);
-	}
-	if( cmd== enableCmd){
-		ana->Enable(true);
-	}
-	if( cmd== disableCmd){
-		ana->Enable(false);
+	if( cmd== fDisableCmd){
+		fAnalysis->setEnabled(false);
 	}
 }
 
