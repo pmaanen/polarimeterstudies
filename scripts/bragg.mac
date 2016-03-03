@@ -1,2 +1,2 @@
-/control/alias nEvents 1000
+/control/alias nEvents 5000
 /control/foreach scripts/bragg-all.mac pname "deuteron proton"

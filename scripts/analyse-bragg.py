@@ -12,35 +12,47 @@ def analyse(filename,myWorker):
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
         histos=[]
-        histos.append(ROOT.TH1F("tof","tof",1000,0,10))
+        histos.append(ROOT.TH1F("tof","tof",1000,0,5))
         histos.append(ROOT.TH1F("range","range",5000,0,500))
         histos.append(ROOT.TH1F("pathlength","pathlength",5000,0,500))
-        histos.append(ROOT.TH1F("x","lateral range x",5000,-250,250))
-        histos.append(ROOT.TH1F("y","lateral range y",5000,-250,250))
-        histos.append(ROOT.TH1F("dedx","dE/dx",5000,0,500))
-        histos.append(ROOT.TH2F("edep_vs_etot","E_{dep} vs E_{kin}",300,0,30,3000,0,300))
-        histos.append(ROOT.TH2F("etot_vs_z","E_{kin} vs z",5000,0,500,3000,0,300))
+        histos.append(ROOT.TH1F("x","lateral range x",100,-50,50))
+        histos.append(ROOT.TH1F("y","lateral range y",100,-50,50))
+        histos.append(ROOT.TH2F("dedx","dedx",5000,0,500,2000,0,200))
+        histos.append(ROOT.TH2F("edep_vs_ekin","E_{dep} vs E_{kin}",300,0,300,2000,0,200))
+        histos.append(ROOT.TH2F("ekin_vs_z","E_{kin} vs z",5000,0,500,300,0,300))
         histomap={}
         for h in histos:
             histomap.update({h.GetName():h})
-        histomap["edep_vs_etot"].GetYaxis().SetTitle("E_{dep} / MeV")
-        histomap["edep_vs_etot"].GetXaxis().SetTitle("E_{kin} / MeV")
-        histomap["etot_vs_z"].GetYaxis().SetTitle("E_{kin} / MeV")
-        histomap["etot_vs_z"].GetXaxis().SetTitle("z / mm")
+        histomap["edep_vs_ekin"].GetYaxis().SetTitle("E_{dep} / MeV")
+        histomap["edep_vs_ekin"].GetXaxis().SetTitle("E_{kin} / MeV")
+        histomap["ekin_vs_z"].GetYaxis().SetTitle("E_{kin} / MeV")
+        histomap["ekin_vs_z"].GetXaxis().SetTitle("z / mm")
         infile=ROOT.TFile(filename,"READ")
         data=infile.Get("sim")
         for entry in data:
             hits=[TrackerHit(h) for h in entry.Calorimeter]
             doEvent(hits,histomap)
-        temp=histomap["etot_vs_z"].Clone()
+        temp=histomap["ekin_vs_z"].Clone()
         temp.RebinX(10)
-        temp2=histomap["edep_vs_etot"].Clone()
+        temp2=histomap["edep_vs_ekin"].Clone()
         temp2.RebinX(10)
         dir.cd()
         profile=temp.ProfileX()
+        profile.SetName("ekin_vs_z_pfx")
+        profile.SetTitle("E_{kin} vs z")
         profile.Write()
         profile2=temp2.ProfileX()
-        profile2.Write()
+        profile2.SetTitle("E_{dep} vs E_{kin}")
+        profile2.Write()       
+        temp3=histomap["dedx"].Clone()
+        temp3.SetMinimum(2)
+        temp3.RebinX(10)
+        profile3=temp3.ProfileX()
+        profile3.SetName("dEdz")
+        profile3.SetTitle("dE/dz")
+        profile3.Write()
+        profile4=histomap["dedx"].ProfileX()
+        profile4.Write()
         for h in histos:
             h.Write()
         #outfile.Write()
@@ -59,12 +71,14 @@ def doEvent(hits,histomap):
     for i in range(len(primaryTrack)):
         hit=primaryTrack[i]
         lastHit=primaryTrack[i-1]
+        ds=0              
         if i>0:
-            pathlength+=hypot(lastHit.x-hit.x,hypot(lastHit.y-hit.y,lastHit.z-hit.z))
-        histomap["edep_vs_etot"].Fill(hit.etot,hit.edep)
-        histomap["etot_vs_z"].Fill(hit.z,hit.etot)
-        histomap["dedx"].Fill(hit.z,hit.edep)
-        histomap["tof"].Fill(hit.time)
+            ds=hypot(lastHit.x-hit.x,hypot(lastHit.y-hit.y,lastHit.z-hit.z))
+        if ds!=0:
+            pathlength+=ds
+            histomap["edep_vs_ekin"].Fill(hit.etot,hit.edep/ds)
+            histomap["ekin_vs_z"].Fill(hit.z,hit.etot)
+            histomap["dedx"].Fill(hit.z,hit.edep/ds)
 #Check if last hit is near minimum kinetic energy cut=>no particle conversion took place
     if primaryTrack[-1].etot<.15:
         histomap["pathlength"].Fill(pathlength)

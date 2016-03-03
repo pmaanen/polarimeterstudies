@@ -63,7 +63,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
 	//		auto worldRegion = new G4Region("calorimeter");
 	//		worldRegion->AddRootLogicalVolume(aCrystal);
-	aCrystal->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0.1*CLHEP::MeV,0));
+	aCrystal->SetUserLimits(new G4UserLimits(10.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0.1*CLHEP::MeV,0));
 	//aCrystal->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
