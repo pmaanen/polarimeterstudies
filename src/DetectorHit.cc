@@ -48,7 +48,8 @@ DetectorHit::DetectorHit()
   fId(-1),
   fEdep(0.),
   fPos(G4ThreeVector()),
-  fTof(0)
+  fTof(0),
+  fEtot(0)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -66,6 +67,7 @@ DetectorHit::DetectorHit(const DetectorHit& right)
 	fPos       = right.fPos;
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
+	fEtot=right.fEtot;
 
 }
 
@@ -79,6 +81,7 @@ const DetectorHit& DetectorHit::operator=(const DetectorHit& right)
 	fPos       = right.fPos;
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
+	fEtot=right.fEtot;
 
 	return *this;
 }
@@ -98,9 +101,10 @@ void DetectorHit::Draw()
 	if(pVVisManager)
 	{
 		G4Circle circle(fTruePos);
-		circle.SetScreenSize(10.);
+		circle.SetScreenSize(this->fEdep/CLHEP::MeV);
 		circle.SetFillStyle(G4Circle::filled);
-		G4Colour colour(1.,0.,0.);
+
+		G4Colour colour(1,0,0.);
 		G4VisAttributes attribs(colour);
 		circle.SetVisAttributes(attribs);
 		pVVisManager->Draw(circle);

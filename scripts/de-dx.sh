@@ -4,13 +4,11 @@ if [ $# -eq 1 ]
   then
     N="$1"
 fi
-echo "N="$N
-mkdir sim
-mkdir sim/de-dx-by-angle
-mkdir sim/de-dx-by-length
-./polarimeterstudies -g cosmic: -m scripts/de-dx-by-angle.mac -n $N -b 2>/dev/null 1>/dev/null
-./polarimeterstudies -g cosmic: -m scripts/de-dx-by-length.mac -n $N -b 2>/dev/null 1>/dev/null
-cp ./scripts/analyse.py sim/de-dx-by-angle/.
-cp ./scripts/analyse.py sim/de-dx-by-length/.
-cd sim/de-dx-by-length && ./analyse.py && cd -
-cd sim/de-dx-by-angle  && ./analyse.py && cd -
+export PYTHONPATH+=$(pwd)/scripts
+mkdir -p ~/sim/de-dx
+./polarimeterstudies -g testbench: -m scripts/de-dx.mac -n $N -b -o
+find ./ -name "*root" -type f -d 1 -exec {} mv ~/sim/de-dx \;
+cp ./scripts/analyse-de-dx.py ~/sim/de-dx/.
+cp ./scripts/AnalysisBase.py ~/sim/de-dx/.
+cp ./libAnalysis* ~/sim/de-dx/.
+cd ~/sim/de-dx && ./analyse-de-dx.py -n $N -o dedx.root *root && cd -

@@ -6,6 +6,7 @@
  */
 
 #include <DCElasticTimeDependentGenerator.hh>
+#include <G4Event.hh>
 #include "G4ParticleGun.hh"
 #include "TF1.h"
 #include "Analysis.hh"
@@ -53,17 +54,6 @@ void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		fParticleGun->GeneratePrimaryVertex(E);
 		Analysis* an=Analysis::Instance();
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
-		an->FillNtupleIColumn(fTupleId[0],fTupleId[2],iPart->id);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[3],iPart->px);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[4],iPart->py);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[5],iPart->pz);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[9],fParticleGun->GetParticleTime()/CLHEP::s);
-		an->FillNtupleFColumn(fTupleId[0],fTupleId[10],this->fBeamPolarization);
-		an->AddNtupleRow(fTupleId[0]);
 	}
 	return;
 }

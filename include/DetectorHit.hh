@@ -76,7 +76,18 @@ public:
 	G4ThreeVector GetPos() const { return fPos; };
 	G4ThreeVector GetTruePos() const { return fTruePos; };
 	G4int GetParticleId() const      { return fParticleId; };
-	G4double GetTof() const {return fTof;};
+	G4double GetTof() const {
+		return fTof;
+	}
+	G4double GetEtot() const {
+		return fEtot;
+	}
+
+	void SetEtot(G4double etot) {
+		fEtot = etot;
+	}
+
+	;
 private:
 
 	G4int         fTrackID;
@@ -86,6 +97,7 @@ private:
 	G4ThreeVector fPos;
 	G4ThreeVector fTruePos;
 	G4double      fTof;
+	G4double	fEtot;
 
 };
 

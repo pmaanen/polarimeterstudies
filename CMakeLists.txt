@@ -47,32 +47,23 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/scripts/*)
-#MESSAGE("DBG scripts=${scripts}")
-
 
 #----------------------------------------------------------------------------
 #set(DISABLED_WARNINGS "-Wno-shadow -Wno-c++11-extensions")
 
 #Get rid of warning messages introduced by boost
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DISABLED_WARNINGS} -std=c++11")
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS} -std=c++11")
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DISABLED_WARNINGS} -std=c++11 -D MYDEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${DISABLED_WARNINGS} -std=c++11")
 set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DISABLED_WARNINGS} -std=c++11")
-#set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  ${DISABLED_WARNINGS}")
-#set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-#${DISABLED_WARNINGS}")
-
-#message("${CMAKE_CXX_FLAGS_DEBUG}")
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
-#set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh ${PROJECT_SOURCE_DIR}/include/DetId.hh)
-#set(Analysis_LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh )
-#set(Analysis_DICT ${CMAKE_BINARY_DIR}/AnalysisDict)
+set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh)
+set(Analysis_LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh )
+set(Analysis_DICT ${CMAKE_BINARY_DIR}/AnalysisDict)
 
-#ROOT_GENERATE_DICTIONARY(${Analysis_DICT} ${Analysis_HEADERS} LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh)
+ROOT_GENERATE_DICTIONARY(${Analysis_DICT} ${Analysis_HEADERS} LINKDEF ${Analysis_LINKDEF})
 # add the dictionary to the list of source files
 #SET(sources ${sources} ${Analysis_DICT})
 #SET(Analysis_SRCS ${Analysis_DICT})
@@ -81,16 +72,15 @@ set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DISABLE
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(polarimeterstudies main.cc ${sources} ${headers})
-target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES} Analysis)
 
 add_executable(dceventgenerator DCElasticFileWriter.cc ${sources} ${headers})
-target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES} Analysis)
 
+add_library(Analysis SHARED ${Analysis_DICT})
+target_link_libraries(Analysis ${ROOT_LIBRARIES})
 
-#add_library(Analysis SHARED ${Analysis_DICT} ${PROJECT_SOURCE_DIR}/src/DetId.cc)
-#target_link_libraries(Analysis ${ROOT_LIBRARIES})
-
-#add_dependencies(polarimeterstudies Analysis)
+add_dependencies(polarimeterstudies Analysis)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build gammagamma. This is so that we can run the executable directly because it
@@ -102,23 +92,6 @@ foreach(_script ${scripts})
     ${PROJECT_BINARY_DIR}/scripts/${_script}
     COPYONLY
     )
-endforeach()
-
-set(geometry_FILES
-	lysocal.gdml
-	lyso.gdml
-	empty.gdml
-	default.gdml
-	hexagon.gdml
-	CopyNoExtension.xsd
-	quadrat.gdml
-)
-foreach(_script ${geometry_FILES})
-	configure_file(
-	${PROJECT_SOURCE_DIR}/xml/${_script}
-	${PROJECT_BINARY_DIR}/xml/${_script}
-	COPYONLY
-	)
 endforeach()
 
 #----------------------------------------------------------------------------

@@ -12,12 +12,13 @@
 
 
 
+#include "Testbench.hh"
 #include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
-#include "CosmicSetup.hh"
+#include "SingleSandwichModule.hh"
 #include "global.hh"
 #include <map>
 using namespace CLHEP;
@@ -31,27 +32,33 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	std::string gdml("gdml:");
 	std::string single("single:");
 	std::string sandwich("sandwich:");
-	std::string cosmic("cosmic:");
+	std::string testbench("testbench:");
+	std::string singlesandwich("singlesandwich:");
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}
 	if(!geometry.compare(0,hexagonal.size(),hexagonal)){
 		fGeometry=new JediHexagonalPolarimeter;
 	}
-//	if(!geometry.compare(0,gdml.size(),gdml)){
-//		jedi= new DetectorConstruction();
-//	}
+	//	if(!geometry.compare(0,gdml.size(),gdml)){
+	//		jedi= new DetectorConstruction();
+	//	}
 	if(!geometry.compare(0,single.size(),single)){
 		fGeometry= new SingleCrystal();
 	}
 	if(!geometry.compare(0,sandwich.size(),sandwich)){
 		fGeometry= new JediSandwichCalorimeter();
 	}
-	if(!geometry.compare(0,cosmic.size(),cosmic)){
-		fGeometry= new CosmicSetup();
+	if(!geometry.compare(0,testbench.size(),testbench)){
+		fGeometry= new Testbench();
 	}
-	if(!fGeometry)
-		G4Exception("main","Geom001",FatalException,"No geometry chosen and no default geometry.");
+	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
+		fGeometry= new SingleSandwichModule();
+	}
+	if(!fGeometry){
+		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
+		fGeometry= new SingleCrystal();
+	}
 }
 
 
