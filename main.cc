@@ -41,6 +41,7 @@
 #include "Analysis.hh"
 #include "G4StateManager.hh"
 #include <G4StepLimiterPhysics.hh>
+#include <G4HadronicProcessStore.hh>
 #include <signal.h>
 #include <ctime>
 namespace CLHEP {}
@@ -73,9 +74,11 @@ int main(int argc,char** argv) {
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-    auto the_physics=new QGSP_BIC();
+    auto the_physics=new QGSP_BIC(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+	G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
+
 
 	//	G4EmParameters::Instance()->SetVerbose(1);
 	//	G4EmParameters::Instance()->SetMscStepLimitType(fUseDistanceToBoundary);
