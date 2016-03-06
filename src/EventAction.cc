@@ -46,9 +46,9 @@ void EventAction::BeginOfEventAction(const G4Event* /*evt*/)
 //*********************************************************************************
 //******************  End Of Event Action                 ***********************
 //*********************************************************************************
-void EventAction::EndOfEventAction(const G4Event* /*evt*/)
+void EventAction::EndOfEventAction(const G4Event* evt)
 {
-	Analysis::Instance()->EndOfEvent();
+	Analysis::Instance()->EndOfEvent(evt);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

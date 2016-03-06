@@ -13,7 +13,7 @@
 #include "Randomize.hh"
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
-
+#include "JediRun.hh"
 #include "G4AutoLock.hh"
 
 namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
@@ -39,6 +39,11 @@ RunAction::~RunAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
+
+
+G4Run* RunAction::GenerateRun()
+{ return new JediRun; }
 //*********************************************************************************
 //******************  Begin Of Run Action                   ***********************
 //*********************************************************************************
@@ -46,20 +51,15 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-	//Analysis::Instance()->OpenFile();
-	//PushBackFileName(Analysis::Instance()->GetFileName());
 	auto an=Analysis::Instance();
-	if(true){
-		//Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
-	}
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
-		an->BeginOfRun();
+		return;
 	}
-	else{}
 
 	//Master or sequential
+	an->BeginOfRun();
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (fSeed<0) //not initialized by anybody else
 	{
@@ -84,11 +84,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //*********************************************************************************
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
-	auto an=Analysis::Instance();
-	if(!IsMaster()){
-		an->EndOfRun();
-	}
 	if(true){
+		/*
 		if(IsMaster()){
 				std::ostringstream hadd;
 				std::ostringstream rm;
@@ -113,11 +110,16 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 				//G4cout<<command.str()<<G4endl;
 				system(command.str().c_str());
 		}
+		 */
 	}
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
 		return;
+	}
+	auto an=Analysis::Instance();
+	if (an->isEnabled()){
+		an->EndOfRun(aRun);
 	}
 	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;

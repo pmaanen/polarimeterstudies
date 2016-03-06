@@ -34,8 +34,8 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::EndOfEvent(HC);
 	G4int nPrim = primitives.size();
 	Analysis* an=Analysis::Instance();
-	G4AutoLock lock(&CaloSDMutex);
 	if(an->isEnabled()){
+		G4AutoLock lock(&CaloSDMutex);
 		vect->clear();
 		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
 			G4int collID=this->GetCollectionID(iPrim);
@@ -58,8 +58,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
 	G4MultiFunctionalDetector::Initialize(HC);
-
-	Analysis* an=Analysis::Instance();
 }
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
@@ -67,10 +65,6 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
 	return G4MultiFunctionalDetector::ProcessHits(step,history);
 }
 
-void CaloSensitiveDetector::BeginOfRun() {
-	G4AutoLock lock(&CaloSDMutex);
-	auto myTree=Analysis::Instance()->GetTree();
-	myTree->Branch(fName,"std::vector<calorhit_t>",&vect);
-}
+void CaloSensitiveDetector::BeginOfRun() {}
 
 void CaloSensitiveDetector::EndOfRun() {}

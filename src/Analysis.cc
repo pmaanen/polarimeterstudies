@@ -28,19 +28,17 @@
 #include <algorithm>
 #include "hit.hh"
 //
+#include "JediRun.hh"
 #include <G4Threading.hh>
+#include <G4MTRunManager.hh>
 #include "TrackerSensitiveDetector.hh"
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"
 namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 
-
-
-
-Analysis* Analysis::fgMasterInstance = 0;
-G4ThreadLocal Analysis* Analysis::fgInstance = 0;
-
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fTreeFilled(false),fOutFile(0),fMyWorkerId(-1)
+Analysis* Analysis::fgMasterInstance = nullptr;
+G4ThreadLocal Analysis* Analysis::fgInstance = nullptr;
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(nullptr),fOutTree(nullptr)
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
@@ -52,7 +50,6 @@ Analysis::Analysis(G4bool isMaster):fEnabled(false),fTreeFilled(false),fOutFile(
 				"Analysis_F001", FatalException, description);
 	}
 	if ( isMaster ) fgMasterInstance = this;
-	fMyWorkerId=G4Threading::G4GetThreadId();
 	fgInstance = this;
 	fAnalysisMessenger=new G4GenericMessenger(this,"/analysis/","analysis control");
 	fAnalysisMessenger->DeclareProperty("setFileName",Analysis::fFileName,"set file name");
@@ -65,51 +62,70 @@ TTree* Analysis::GetTree() {
 }
 
 void Analysis::BeginOfRun() {
+	return;
+	if(!fEnabled) return;
 
-	G4AutoLock lock(&AnalysisMutex);
-	std::ostringstream name;
-	G4String base;
-	G4String extension;
-	if ( fFileName.find(".") != std::string::npos ) {
-		extension = fFileName.substr(fFileName.find("."));
-		base = fFileName.substr(0, fFileName.find("."));
-	}
-	name<<base<<"_t"<<G4Threading::G4GetThreadId()<<extension;
-	if(fOutFile==0){
-		fOutFile=new TFile(name.str().c_str(),"RECREATE");
-	}
-	else{
-		G4cout<<"fOutFile already set!"<<G4endl;
-		return;
-	}
+	if(!G4Threading::IsWorkerThread()){
+		G4AutoLock lock(&AnalysisMutex);
+		G4cout<<"Creating file and trees..."<<G4endl;
+		fOutFile=new TFile(fFileName,"RECREATE");
+		fOutTree=new TTree("sim","simulated events");
 
-	fOutTree=new TTree("sim","simulated events");
-
-	for(auto iSD:fCaloSD){
-		iSD->BeginOfRun();
 	}
-	for(auto iSD:fTrackerSD){
-		iSD->BeginOfRun();
-	}
-
-
 }
+void Analysis::EndOfRun(const G4Run* run) {
+	if(!fEnabled) return;
+	if(!G4Threading::IsWorkerThread()){
+		G4cout<<"Creating file and trees..."<<G4endl;
+		fOutFile=new TFile(fFileName,"RECREATE");
+		fOutTree=new TTree("sim","simulated events");
 
-void Analysis::EndOfRun() {
-	G4AutoLock lock(&AnalysisMutex);
+		auto myRun=static_cast<const JediRun*> (run);
+		auto events=myRun->getEvents();
+		auto first=events[0];
 
-	fOutTree->Write();
-	fOutFile->Write();
-	fOutFile->Close();
-	for(auto iSD:fCaloSD){
-		iSD->EndOfRun();
-	}
-	for(auto iSD:fTrackerSD){
-		iSD->EndOfRun();
-	}
-	if(fOutFile!=0){
-		delete fOutFile;
-		fOutFile=0;
+		for(auto detector : first.calorimeter){
+
+			if ( std::find(fCaloSDNames.begin(),fCaloSDNames.end(),G4String(detector.first)) == fCaloSDNames.end()){
+				G4cout<<"Creating branch for "<<detector.first<<G4endl;
+				fCaloHits[detector.first]=nullptr;
+				fCaloSDNames.push_back(detector.first);
+				fOutBranches[detector.first]=fOutTree->Branch(detector.first.c_str(),"std::vector<calorhit_t>",&fCaloHits[detector.first]);
+			}
+		}
+		for(auto detector : first.tracker){
+			if ( std::find(fTrackerSDNames.begin(),fTrackerSDNames.end(),G4String(detector.first)) == fTrackerSDNames.end()){
+				G4cout<<"Creating branch for "<<detector.first<<G4endl;
+				fTrackerHits[detector.first]=nullptr;
+				fTrackerSDNames.push_back(detector.first);
+				fOutBranches[detector.first]=fOutTree->Branch(detector.first.c_str(),"std::vector<trackerhit_t>",&fTrackerHits[detector.first]);
+			}
+		}
+		for(auto evt : events){
+			for(auto detector : evt.calorimeter){
+				fCaloHits[detector.first]=new std::vector<calorhit_t>(detector.second);
+			}
+			for(auto detector : evt.tracker){
+				fTrackerHits[detector.first]=new std::vector<trackerhit_t>(detector.second);
+			}
+			fOutTree->Fill();
+			for(auto pointer : fCaloHits){
+				delete pointer.second;
+				pointer.second=nullptr;
+			}
+			for(auto pointer : fTrackerHits){
+				delete pointer.second;
+				pointer.second=nullptr;
+			}
+		}
+		G4cout<<"Writing Tree to file..."<<G4endl;
+		fOutFile->Write();
+		fOutFile->Close();
+
+		if(fOutFile!=nullptr){
+			delete fOutFile;
+			fOutFile=nullptr;
+		}
 	}
 }
 
@@ -123,15 +139,16 @@ void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
 	return;
 }
 
-void Analysis::BeginOfEvent() {
-	G4AutoLock lock(&AnalysisMutex);
-	fTreeFilled=false;
-}
+void Analysis::BeginOfEvent() {}
 
-void Analysis::EndOfEvent() {
-	if(!fTreeFilled){
-		G4AutoLock lock(&AnalysisMutex);
-		fOutTree->Fill();
-		fTreeFilled=true;
+void Analysis::EndOfEvent(const G4Event* evt) {
+	event_t thisEvent;
+	thisEvent.eventid=evt->GetEventID();
+	for(auto iSD:fCaloSD){
+		thisEvent.calorimeter[iSD->GetName()]=*iSD->getVect();
 	}
+	for(auto iSD:fTrackerSD){
+		thisEvent.tracker[iSD->GetName()]=*iSD->getVect();
+	}
+	fEvents.push_back(thisEvent);
 }

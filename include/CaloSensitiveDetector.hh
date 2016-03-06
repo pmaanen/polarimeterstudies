@@ -20,10 +20,13 @@ public:
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	void BeginOfRun();
 	void EndOfRun();
-	std::vector<calorhit_t> * GetHitVector();
+
+	std::vector<calorhit_t>* getVect() {
+		return vect;
+	}
+
 private:
 	G4String fName;
-	TTree* tree;
 	std::vector<calorhit_t> * vect;
 };
 

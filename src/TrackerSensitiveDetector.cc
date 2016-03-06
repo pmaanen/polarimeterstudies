@@ -86,10 +86,13 @@ void TrackerSensitiveDetector::Initialize(G4HCofThisEvent* hce)
 G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep, 
 		G4TouchableHistory*)
 {  
+	if(!Analysis::Instance()->isEnabled())
+		return false;
 	// energy deposit
 	G4double edep = aStep->GetTotalEnergyDeposit();
 
-	if (edep==0.) return false;
+	if (edep==0.)
+		return false;
 
 	DetectorHit* newHit = new DetectorHit();
 
@@ -122,14 +125,14 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
 	G4AutoLock lock(&TrackerSDMutex);
 	Analysis* an=Analysis::Instance();
-	if(true){
+	if(an->isEnabled()){
 		static G4int HCID = -1;
 		if(HCID<0)
 		{
 			HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 		}
 		HCE->AddHitsCollection(HCID,fHitsCollection);
-		G4int nHits=fHitsCollection->entries();
+		//G4int nHits=fHitsCollection->entries();
 
 		for(const auto &iHit : *(fHitsCollection->GetVector())){
 			trackerhit_t hit;
@@ -143,22 +146,17 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 			vect->push_back(hit);
 
 		}
-	}
-	/*
+		/*
 	for(auto iPart=particleNames.begin();iPart!=particleNames.end();++iPart){
 		G4cout<<iPart->first<<"(s) found in event. "<<G4endl;
 	}
-	 */
+		 */
+	}
 	return;
 }
 
-void TrackerSensitiveDetector::BeginOfRun() {
-	G4AutoLock lock(&TrackerSDMutex);
-	auto myTree=Analysis::Instance()->GetTree();
-	myTree->Branch(this->GetName(),"std::vector<trackerhit_t>",&vect);
-}
+void TrackerSensitiveDetector::BeginOfRun() {}
 
 
-void TrackerSensitiveDetector::EndOfRun() {
-}
+void TrackerSensitiveDetector::EndOfRun() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
