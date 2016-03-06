@@ -62,6 +62,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["beam"]=new BeamGenerator(fParticleGun);
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
+	fParticleGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition());
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {

@@ -2,8 +2,10 @@
 /PolarimeterStudies/detector/calolength 10 cm
 /PolarimeterStudies/detector/calowidth 3 cm
 /PolarimeterStudies/detector/update
+/gun/particle deuteron
+/gun/energy 270 MeV
 /gun/direction 0 0 1
-/gun/position 0 0 0
+/gun/position 0 0 -10 cm
 /control/alias 100 5.9
 /control/alias 150 16.0
 /control/alias 200 29.7
