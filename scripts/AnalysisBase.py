@@ -130,17 +130,17 @@ class TrackerHit:
     def __init__(self,hit):
         #self.detid=hit.detid
         self.edep=hit.edep
-        self.event=hit.event
-        self.trackId=hit.trackId
+#        self.event=hit.event
+        self.trackId=hit.trid
         self.x=hit.x
         self.y=hit.y
         self.z=hit.z
-        self.time=hit.time
-        self.etot=hit.etot
-        self.particleId=hit.particleId
+        self.time=hit.tof
+        self.etot=hit.ekin
+        self.particleId=hit.pid
 
     def __str__(self):
-        return str([self.edep,self.event,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
+        return str([self.edep,self.trackId,self.x,self.y,self.z,self.time,self.etot,self.particleId])
         
         
 class CaloHit:

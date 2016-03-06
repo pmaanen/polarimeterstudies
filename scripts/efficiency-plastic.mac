@@ -6,9 +6,9 @@
 /gun/energy 270 MeV
 /gun/direction 0 0 1
 /gun/position 0 0 -10 cm
-/control/alias 100 5.9
-/control/alias 150 16.0
-/control/alias 200 29.7
-/control/alias 250 46.6
-/control/alias 270 53.6
+/control/alias 100 6.
+/control/alias 150 15.
+/control/alias 200 26.
+/control/alias 250 40.
+/control/alias 270 46.
 /control/foreach scripts/efficiency-plastic-singlerun.mac Ekin "100 150 200 250 270"
