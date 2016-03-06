@@ -1,0 +1,3 @@
+/analysis/setFileName lyso-{Ekin}.root
+/gun/energy {Ekin} MeV
+/run/beamOn 10000

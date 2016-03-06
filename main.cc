@@ -77,6 +77,7 @@ int main(int argc,char** argv) {
 	auto the_physics =new QGSP_BIC;//new QGSP_INCLXX();//new FTFP_BERT(0);
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics);
+	runManager->SetUserInitialization(the_physics);
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
 	// Visualization manager

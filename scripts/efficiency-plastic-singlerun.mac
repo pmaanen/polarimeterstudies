@@ -1,0 +1,5 @@
+/analysis/setFileName plastic-{Ekin}.root
+/PolarimeterStudies/detector/absorberlength {{Ekin}} mm
+/PolarimeterStudies/detector/update
+/gun/energy {Ekin} MeV
+/run/beamOn 10000
