@@ -8,6 +8,8 @@
 #define HIT_HH_
 #include <TObject.h>
 #include <vector>
+#include <map>
+#include <string>
 class calorhit_t: public TObject {
   public:
   calorhit_t(){;};
@@ -27,14 +29,14 @@ public:
 	ClassDef(trackerhit_t,2)
 };
 
-class myEvent: public TObject {
+class event_t: public TObject {
 public:
-  myEvent(){;};
+  event_t(){;};
   Int_t eventid;
   Int_t time;
-  std::vector<calorhit_t> calorimeter;
-  std::vector<calorhit_t> trigger;
-  ClassDef(myEvent,1)
+  std::map<std::string,std::vector<calorhit_t> > calorimeter;
+  std::map<std::string, std::vector<trackerhit_t> > tracker;
+  ClassDef(event_t,2)
 };
 
 /*

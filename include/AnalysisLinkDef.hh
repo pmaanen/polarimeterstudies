@@ -16,7 +16,9 @@
 #pragma link C++ class trackerhit_t+;
 #pragma link C++ class std::vector <trackerhit_t>+;
 #pragma link C++ class std::vector <calorhit_t>+;
-#pragma link C++ class myEvent+;
+#pragma link C++ class std::map<std::string,std::vector<calorhit_t> > +;
+#pragma link C++ class std::map<std::string, std::vector<trackerhit_t> > +;
+#pragma link C++ class event_t+;
 #endif
 /*
 #ifdef __CINT__
