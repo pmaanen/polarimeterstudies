@@ -7,4 +7,4 @@
 #include "hit.hh"
 ClassImp(calorhit_t)
 ClassImp(trackerhit_t)
-ClassImp(myEvent)
+ClassImp(event_t)
