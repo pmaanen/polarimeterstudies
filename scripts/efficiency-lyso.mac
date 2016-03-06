@@ -1,0 +1,7 @@
+/analysis/Enable
+/gun/position 0 0 0
+/gun/direction 0 0 1
+/PolarimeterStudies/detector/calolength 10 cm
+/PolarimeterStudies/detector/calowidth 3 cm
+/PolarimeterStudies/detector/update
+/control/foreach scripts/efficiency-lyso-singlerun.mac Ekin "100 150 200 250 270"

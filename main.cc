@@ -74,39 +74,10 @@ int main(int argc,char** argv) {
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-    auto the_physics=new QGSP_BIC(0);
+	auto the_physics=new QGSP_BIC(0);
 	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
 	G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
-
-
-	//	G4EmParameters::Instance()->SetVerbose(1);
-	//	G4EmParameters::Instance()->SetMscStepLimitType(fUseDistanceToBoundary);
-	//	G4EmParameters::Instance()->SetMscRangeFactor(0.02);
-	//	G4EmParameters::Instance()->SetMinEnergy(100*eV);
-	//	G4EmParameters::Instance()->SetMaxEnergy(5*GeV);
-	//	G4EmParameters::Instance()->SetNumberOfBins(400);
-	//	G4EmParameters::Instance()->SetSpline(true);
-
-
-	//	G4EmProcessOptions opt ;
-	//	opt.SetVerbose(1) ;
-	//	// Multiple Coulomb scattering
-	//	//
-	//	opt.SetMscStepLimitation(fUseDistanceToBoundary) ;
-	//	opt.SetMscRangeFactor(0.02) ;
-	//	// Physics tables
-	//	//
-	//	opt.SetMinEnergy(1000*eV) ; // default 100*eV
-	//	opt.SetMaxEnergy(5*GeV) ; // default 100*TeV
-	//	opt.SetDEDXBinning(400) ; // default 12*7
-	//	opt.SetLambdaBinning(250) ; // default 12*7
-	//	opt.SetSplineFlag(true) ; // default true
-	//	// Ionization
-	//	//
-	//	opt.SetSubCutoff(true) ; // default false
-	//	// ..
-	//User action initialization
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
 	// Visualization manager

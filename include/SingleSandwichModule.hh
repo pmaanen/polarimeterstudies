@@ -33,8 +33,12 @@ public:
 		fChangedParameters=true;
 	}
 
-	void setAbsorberFraction(G4double absorberFraction) {
-		fAbsorberFraction = absorberFraction;
+	G4double getAbsorberLength() const {
+		return fAbsorberLength;
+	}
+
+	void setAbsorberLength(G4double absorberLength) {
+		fAbsorberLength = absorberLength;
 		fChangedParameters=true;
 	}
 
@@ -43,7 +47,7 @@ protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
 	G4int fNumLayers;
-	G4double fAbsorberFraction;
+	G4double fAbsorberLength;
 	G4Material* fAbsorberMaterial;
 	G4String fAbsorberMaterialName;
 };
