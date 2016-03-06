@@ -123,7 +123,6 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
-	G4AutoLock lock(&TrackerSDMutex);
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled()){
 		static G4int HCID = -1;

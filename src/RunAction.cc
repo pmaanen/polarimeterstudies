@@ -33,10 +33,7 @@ RunAction::RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{
-	G4AutoLock lock(&RunActionMutex);
-	delete Analysis::Instance();}
-
+{}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 
@@ -52,6 +49,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	auto an=Analysis::Instance();
+	an->BeginOfRun();
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
@@ -59,7 +57,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	}
 
 	//Master or sequential
-	an->BeginOfRun();
+
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (fSeed<0) //not initialized by anybody else
 	{
@@ -84,34 +82,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //*********************************************************************************
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
-	if(true){
-		/*
-		if(IsMaster()){
-				std::ostringstream hadd;
-				std::ostringstream rm;
-				std::ostringstream mv;
-				std::ostringstream command;
-				G4String extension;
-				auto name=Analysis::Instance()->getFileName();
-				if ( name.find(".") != std::string::npos ) {
-					extension = name.substr(name.find("."));
-					name = name.substr(0, name.find("."));
-				}
-				else {
-					extension = ".";
-					extension.append("root");
-				}
-				hadd<<"hadd -v 0 -f "<<Analysis::Instance()->getFileName()<<" ";
-				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
-					hadd<<name<<"_t"<<ii<<extension<<" ";
-					rm<<"rm "<<name<<"_t"<<ii<<extension<<";";
-				}
-				command<<hadd.str()<<"; "<<rm.str();
-				//G4cout<<command.str()<<G4endl;
-				system(command.str().c_str());
-		}
-		 */
-	}
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;

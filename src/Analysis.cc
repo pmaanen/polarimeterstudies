@@ -38,7 +38,7 @@ namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 
 Analysis* Analysis::fgMasterInstance = nullptr;
 G4ThreadLocal Analysis* Analysis::fgInstance = nullptr;
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(nullptr),fOutTree(nullptr)
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fOutFile(nullptr),fOutTree(nullptr),fFileName("")
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;
@@ -61,23 +61,18 @@ TTree* Analysis::GetTree() {
 	return fOutTree;
 }
 
-void Analysis::BeginOfRun() {
-	return;
-	if(!fEnabled) return;
-
-	if(!G4Threading::IsWorkerThread()){
-		G4AutoLock lock(&AnalysisMutex);
-		G4cout<<"Creating file and trees..."<<G4endl;
-		fOutFile=new TFile(fFileName,"RECREATE");
-		fOutTree=new TTree("sim","simulated events");
-
-	}
-}
+void Analysis::BeginOfRun() {fEvents.clear();}
 void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
 	if(!G4Threading::IsWorkerThread()){
 		G4cout<<"Creating file and trees..."<<G4endl;
-		fOutFile=new TFile(fFileName,"RECREATE");
+		if(fFileName==""){
+			std::stringstream fname;
+			fname<<"run_"<<run->GetRunID()<<".root";
+			fOutFile=new TFile(fname.str().c_str(),"RECREATE");
+		}else{
+			fOutFile=new TFile(fFileName,"RECREATE");
+		}
 		fOutTree=new TTree("sim","simulated events");
 
 		auto myRun=static_cast<const JediRun*> (run);
@@ -126,7 +121,10 @@ void Analysis::EndOfRun(const G4Run* run) {
 			delete fOutFile;
 			fOutFile=nullptr;
 		}
+		fOutBranches.clear();
+		fCaloSDNames.clear();
 	}
+
 }
 
 void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {

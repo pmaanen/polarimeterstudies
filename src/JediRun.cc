@@ -9,12 +9,11 @@
 #include "Analysis.hh"
 #include <G4Threading.hh>
 JediRun::JediRun() {
-	// TODO Auto-generated constructor stub
-
+	G4cout<<"JediRun::JediRun(): "<<fEvents.size()<<" events."<<G4endl;
 }
 
 JediRun::~JediRun() {
-	// TODO Auto-generated destructor stub
+
 }
 
 void JediRun::RecordEvent(const G4Event* evt) {
@@ -24,6 +23,7 @@ void JediRun::RecordEvent(const G4Event* evt) {
 void JediRun::Merge(const G4Run* aRun) {
 	auto an=Analysis::Instance();
 	auto events=an->getEvents();
+	G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events.size()<<" events.";
 	for(auto iEvent : events){
 		fEvents.push_back(iEvent);
 	}

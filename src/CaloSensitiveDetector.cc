@@ -35,7 +35,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	G4int nPrim = primitives.size();
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled()){
-		G4AutoLock lock(&CaloSDMutex);
 		vect->clear();
 		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
 			G4int collID=this->GetCollectionID(iPrim);
