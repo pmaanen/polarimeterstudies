@@ -69,7 +69,7 @@ class TrackerSensitiveDetector : public G4VSensitiveDetector
     void EndOfRun();
 	std::vector<trackerhit_t>* getVect() {		return vect;	}
 
-  private:
+  protected:
     DetectorHitsCollection* fHitsCollection;
 	std::vector<trackerhit_t> * vect;
 
