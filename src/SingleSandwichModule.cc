@@ -30,25 +30,27 @@ SingleSandwichModule::~SingleSandwichModule() {}
 G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 
 	auto motherLength=fNumLayers*(fCrystalLength+fAbsorberLength);
-	auto solidDetector= new G4Box("Scintillator",(fCrystalWidth)/2,(fCrystalWidth)/2,fCrystalLength/2);
-	auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/2);
-	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Scintillator");
-	auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
 
+	auto solidDetector= new G4Box("Scintillator",(fCrystalWidth)/2,(fCrystalWidth)/2,fCrystalLength/2);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Scintillator");
+	
 	auto solidMother= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,motherLength/2);
 	auto logicMother=new G4LogicalVolume(solidMother,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Crystal");
-
-	for(G4int iLayer=0;iLayer<fNumLayers;iLayer++){
-		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,iLayer,false);
-		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,iLayer,false);
+	if(fAbsorberLength>1e-3*CLHEP::mm){		 
+	  auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/2);
+	  auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber"); 
+	  logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
+	  this->fCaloSDVolumes["Absorber"]=logicAbsorber;
+	  for(G4int iLayer=0;iLayer<fNumLayers;iLayer++)
+	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,iLayer,false);	
 	}
+	 for(G4int iLayer=0;iLayer<fNumLayers;iLayer++)
+	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength+fCrystalLength/2),logicDetector,"Absorber",logicMother,false,iLayer,false);	
+
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
-	logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
-
+	
 	this->fCaloSDVolumes["Calorimeter"]=logicDetector;
-	this->fCaloSDVolumes["Absorber"]=logicAbsorber;
-
 	return logicMother;
 }
 
