@@ -12,7 +12,7 @@
 #include <string>
 class calorhit_t: public TObject {
   public:
-  calorhit_t(){;};
+  calorhit_t():edep(0),detid(0){;};
   Double_t edep;
   Int_t detid;
   ClassDef(calorhit_t,1)  //Event structure
@@ -20,18 +20,14 @@ class calorhit_t: public TObject {
 
 class trackerhit_t : public TObject {
 public:
-	trackerhit_t(){;};
-	Double_t x,y,z,tx,ty,tz;
-	Double_t edep;
-	Double_t pid;
-	Double_t trid;
-	Double_t tof;
-	ClassDef(trackerhit_t,2)
+	trackerhit_t():x(0),y(0),z(0),px(0),py(0),pz(0),edep(0),pid(0),trid(0),tof(0){;};
+	Double_t x,y,z,px,py,pz,edep,pid,trid,tof;
+	ClassDef(trackerhit_t,3)
 };
 
 class event_t: public TObject {
 public:
-  event_t(){;};
+  event_t():eventid(0),time(0){;};
   Int_t eventid;
   Int_t time;
   std::map<std::string,std::vector<calorhit_t> > calorimeter;
