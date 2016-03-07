@@ -42,7 +42,7 @@ public:
 	virtual G4VPhysicalVolume* Construct(){return fGeometry->Construct();};
 	virtual void ConstructSDandField(){fGeometry->ConstructSDandField();};
 private:
-	JediPolarimeter* fGeometry;
+	G4VUserDetectorConstruction* fGeometry;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

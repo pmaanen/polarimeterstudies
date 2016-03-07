@@ -87,6 +87,14 @@ public:
 		fEtot = etot;
 	}
 
+	const G4ThreeVector& getMom() const {
+		return fMom;
+	}
+
+	void setMom(const G4ThreeVector& mom) {
+		fMom = mom;
+	}
+
 	;
 private:
 
@@ -96,6 +104,7 @@ private:
 	G4double      fEdep;
 	G4ThreeVector fPos;
 	G4ThreeVector fTruePos;
+	G4ThreeVector fMom;
 	G4double      fTof;
 	G4double	fEtot;
 

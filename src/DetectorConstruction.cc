@@ -19,6 +19,7 @@
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
 #include "SingleSandwichModule.hh"
+#include "EddaDetectorConstruction.hh"
 #include "global.hh"
 #include <map>
 using namespace CLHEP;
@@ -34,6 +35,7 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	std::string sandwich("sandwich:");
 	std::string testbench("testbench:");
 	std::string singlesandwich("singlesandwich:");
+	std::string edda("edda:");
 	if(!geometry.compare(0,cubic.size(),cubic)){
 		fGeometry=new JediCubicPolarimeter(geometry.substr(cubic.size(),geometry.size()));
 	}
@@ -54,6 +56,9 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 	}
 	if(!geometry.compare(0,singlesandwich.size(),singlesandwich)){
 		fGeometry= new SingleSandwichModule();
+	}
+	if(!geometry.compare(0,edda.size(),edda)){
+		fGeometry= new EddaDetectorConstruction();
 	}
 	if(!fGeometry){
 		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
