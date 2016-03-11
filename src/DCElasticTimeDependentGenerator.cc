@@ -27,7 +27,7 @@ DCElasticTimeDependentGenerator::~DCElasticTimeDependentGenerator() {
 	delete fIntensityTimeDependence;
 }
 
-PrimaryEvent DCElasticTimeDependentGenerator::Generate() {
+genevent_t DCElasticTimeDependentGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
 
@@ -41,14 +41,14 @@ PrimaryEvent DCElasticTimeDependentGenerator::Generate() {
 	}
 	//t_cur+=delta_t;
 	setBeamPolarization(fPolarizationTimeDependence->Eval(fTCur));
-	auto event=PrimaryEvent(DCElasticEventGenerator::Generate());
-	event.t=fTCur;
+	auto event=genevent_t(DCElasticEventGenerator::Generate());
+	event.time=fTCur;
 	return event;
 }
 
 void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
-	auto event=PrimaryEvent(Generate());
-	fParticleGun->SetParticleTime(event.t*CLHEP::s);
+	auto event=genevent_t(Generate());
+	fParticleGun->SetParticleTime(event.time*CLHEP::s);
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));

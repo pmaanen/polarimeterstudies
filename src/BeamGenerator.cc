@@ -28,13 +28,13 @@ BeamGenerator::~BeamGenerator() {
 
 void BeamGenerator::Generate(G4Event* E) {
 	auto event=Generate();
-	fGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	fGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 	auto part=event.particles[0];
 	fGun->SetParticleMomentumDirection(G4ThreeVector(part.px,part.py,part.pz));
 	fGun->GeneratePrimaryVertex(E);
 }
 
-PrimaryEvent BeamGenerator::Generate() {
+genevent_t BeamGenerator::Generate() {
 	G4double x=fPosition.x(),y=fPosition.y(),z=fPosition.z();
 	if(fSpotsize.x()>0)
 		x+=G4RandGauss::shoot(0,fSpotsize.x());
@@ -49,8 +49,8 @@ PrimaryEvent BeamGenerator::Generate() {
 		direction.rotateY(G4RandGauss::shoot(0,fYPrime));
 
 
-	PrimaryEvent res(0,x,y,z);
-	res.particles.push_back(PrimaryParticle(0,direction.getX(),direction.getY(),direction.getZ()));
+	genevent_t res(0,0,x,y,z);
+	res.particles.push_back(particle_t(0,direction.getX(),direction.getY(),direction.getZ(),0));
 	return res;
 
 }

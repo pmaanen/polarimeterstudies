@@ -61,7 +61,7 @@ public:
 		fFileName = fileName;
 	}
 
-	TTree* GetTree();
+	TTree* getOutTree();
 	void BeginOfRun();
 	void EndOfRun(const G4Run* run);
 
@@ -72,16 +72,16 @@ public:
 	void RegisterTrackerSD(TrackerSensitiveDetector*);
 	void RegisterCaloSD(CaloSensitiveDetector*);
 
-	const std::vector<G4String>& getCaloSdNames() const {
-		return fCaloSDNames;
+	const std::vector<simevent_t>* getSimEvents() const {
+		return fSimEvents;
 	}
 
-	const std::vector<G4String>& getTrackerSdNames() const {
-		return fTrackerSDNames;
+	const std::vector<genevent_t>* getGenEvents() const {
+		return fGenEvents;
 	}
 
-	const std::vector<event_t>& getEvents() const {
-		return fEvents;
+	const std::map<G4String, std::vector<trackerhit_t> *>& getTrackerHits() const {
+		return fTrackerHits;
 	}
 
 private:
@@ -96,8 +96,11 @@ private:
 	bool fEnabled;
 
 	G4String fFileName;
+	static G4String fGeneratorName;
 	TFile* fOutFile;
-	TTree* fOutTree;
+	TTree* fSimTree;
+	TTree* fInfoTree;
+	TTree* fGenTree;
 	std::map<G4String,TBranch*> fOutBranches;
 
 	std::vector<CaloSensitiveDetector*> fCaloSD;
@@ -105,11 +108,12 @@ private:
 
 	std::vector<G4String> fCaloSDNames;
 	std::vector<G4String> fTrackerSDNames;
+	std::vector<G4String> fGeneratorNames;
 
+	std::vector<genevent_t>* fGenEvents;
+	std::vector<simevent_t>* fSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;
 	std::map<G4String, std::vector<trackerhit_t>* > fTrackerHits;
-
-	std::vector<event_t> fEvents;
 
 
 };

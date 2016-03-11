@@ -28,8 +28,8 @@ void PhaseSpaceGenerator::DefineCommands() {}
 void PhaseSpaceGenerator::Generate(G4Event* E) {
 
 
-	auto event=PrimaryEvent(Generate());
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	auto event=genevent_t(Generate());
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
 		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));

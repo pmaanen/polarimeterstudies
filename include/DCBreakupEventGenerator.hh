@@ -16,32 +16,44 @@ public:
 	virtual ~DCBreakupEventGenerator();
 
 protected:
-	virtual TF2* BuildFunction();
 	virtual void Initialize();
-	virtual PrimaryEvent Generate();
+	virtual genevent_t Generate();
 	virtual void Generate(G4Event* E);
 	virtual void BeginOfRun(){};
 
 	virtual void DefineCommands();
 	Double_t fMomentum_cms,fBeamPolarization;
-	deuteron_breakup_model* fScattering_model;
-	TF2* fCrossSection;
-	TGenPhaseSpace fIntermediate;
-	Double_t fIntermediateMasses[2];
-	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);
-	if(fCrossSection)
-		fCrossSection->SetParameter(2,fBeamPolarization);
-	}
-};
+	deuteron_breakup_model* fScatteringModel;
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization); fInitialized=false;};
 
+};
 
 class deuteron_breakup_model{
 public:
-	Double_t sigma(Double_t *x, Double_t *par);
-	deuteron_breakup_model();
+	Double_t sigma(Double_t theta, Double_t phi, Double_t Ex);
+	deuteron_breakup_model(Double_t beamEnergy, Double_t beamPolarization):fBeamEnergy(beamEnergy),fBeamPolarization(beamPolarization){
+		for(int theta=1;theta<30;theta++){
+			for(int iEkin=1;iEkin<11;iEkin++){
+				//G4cout<<"sigma("<<theta<<"°,"<<iEkin*10<<"MeV)="<<SigmaUnpol(beamEnergy,theta,iEkin*10)<<G4endl;
+			}
+
+		}
+
+
+	};
+
+	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
+
+	void setBeamEnergy(Double_t beamEnergy) {
+		fBeamEnergy = beamEnergy;
+	}
+
+	void setBeamPolarization(Double_t beamPolarization) {
+		fBeamPolarization = beamPolarization;
+	}
 
 private:
-	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
+	Double_t fBeamEnergy,fBeamPolarization;
 	Double_t c1(Double_t theta, Double_t E);
 	Double_t c2(Double_t theta, Double_t E);
 	Double_t c3(Double_t theta);

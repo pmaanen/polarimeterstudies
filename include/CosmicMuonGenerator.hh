@@ -12,6 +12,7 @@
 #include "TF1.h"
 #include "EventGenerator.hh"
 #include <cmath>
+#include "hit.hh"
 #include "G4ThreeVector.hh"
 class G4GenericMessenger;
 class function_helper;
@@ -22,7 +23,7 @@ public:
 
 
 	virtual void Generate(G4Event* E);
-	virtual PrimaryEvent Generate();
+	virtual genevent_t Generate();
 	virtual void Initialize();
 
 	function_helper* fFunctions;

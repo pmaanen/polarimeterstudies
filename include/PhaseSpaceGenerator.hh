@@ -41,7 +41,7 @@ public:
 	virtual ~PhaseSpaceGenerator();
 
 	G4double getBeamEnergy() const {return fBeamEnergy;}
-	void setBeamEnergy(G4double xBeamEnergy) {fBeamEnergy = xBeamEnergy;fInitialized=false;}
+	void setBeamEnergy(G4double xBeamEnergy) {fBeamEnergy = xBeamEnergy; fInitialized=false;}
 
 protected:
 	G4double fBeamEnergy,fMaxY,fThetaMin,fThetaMax;
@@ -59,10 +59,9 @@ protected:
 
 
 	virtual void Generate(G4Event* E);
-	virtual PrimaryEvent Generate()=0;
+	virtual genevent_t Generate()=0;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
-	virtual TF2* BuildFunction()=0;
 	virtual void Initialize()=0;
 
 

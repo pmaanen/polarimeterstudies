@@ -22,7 +22,7 @@ public:
 	class FileWriter_impl{
 	public:
 		FileWriter_impl(G4int nEvents):fCurrentEventId(0),fNEvents(nEvents){};
-		virtual bool WriteEventsToFile(const std::vector<PrimaryEvent> &someEvents)=0;
+		virtual bool WriteEventsToFile(const std::vector<genevent_t> &someEvents)=0;
 		virtual ~FileWriter_impl(){};
 
 	protected:
@@ -43,13 +43,13 @@ public:
 
 		virtual ~FileWriter_ascii(){if(fOutFile.is_open())fOutFile.close();delete fOut;};
 
-		virtual bool WriteEventsToFile(const std::vector<PrimaryEvent> &someEvents){
+		virtual bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
 			for(auto iEvent:someEvents){
 				if(fCurrentEventId==fNEvents)
 					return false;
 				//Write one event to file, then check if goal is reached. If yes, return false. Otherwise continue until vector is empty
-				for(auto iParticle:iEvent){
-					*fOut<<fCurrentEventId<<" "<<iParticle<<" "<<iEvent.t<<" "<<iEvent.vx<<" "<<iEvent.vy<<" "<<iEvent.vz<<std::endl;
+				for(auto iParticle:iEvent.particles){
+					//*fOut<<fCurrentEventId<<" "<<iParticle<<" "<<iEvent.time<<" "<<iEvent.x<<" "<<iEvent.y<<" "<<iEvent.z<<std::endl;
 				}
 				fCurrentEventId++;
 			}
@@ -64,7 +64,7 @@ public:
 
 	class FileWriter_root:public FileWriter_impl{
 	public:
-		FileWriter_root(G4String fileName, G4int nEvents):FileWriter_impl(nEvents),fOutFile(0),fOutTree(0){
+		FileWriter_root(G4String fileName, G4int nEvents):FileWriter_impl(nEvents),fOutFile(0),fOutTree(0),fGenEvent(nullptr){
 			if(fileName!=""){
 				fOutFile=new TFile(fileName.data(),"RECREATE");
 			}
@@ -72,47 +72,24 @@ public:
 				fOutFile=new TFile("generator.root","RECREATE");
 			}
 			fOutTree = new TTree("gen","Generated Events");
-			fOutTree->Branch("evt",&fEvt,"evt/I");
-			fOutTree->Branch("pid",&fPid,"pid/I");
-			fOutTree->Branch("px",&fPx,"px/F");
-			fOutTree->Branch("py",&fPy,"py/F");
-			fOutTree->Branch("pz",&fPz,"pz/F");
-			fOutTree->Branch("vx",&fVx,"vx/F");
-			fOutTree->Branch("vy",&fVy,"vy/F");
-			fOutTree->Branch("vz",&fVz,"vz/F");
-			fOutTree->Branch("t",&fT,"t/F");
+			fOutTree->Branch("events","genevent_t",&fGenEvent);
 
-		}
+		};
 
-		bool WriteEventsToFile(const std::vector<PrimaryEvent> &someEvents){
+		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
 			for(auto iEvent:someEvents){
-				if(fCurrentEventId==fNEvents)
+				fGenEvent=new genevent_t(iEvent);
+				fOutTree->Fill();
+				if(fGenEvent->eventid==fNEvents)
 					return false;
-				//Write one event to file, then check if goal is reached. If yes, return false. Otherwise continue until vector is empty
-				for(auto iParticle:iEvent){
-					fEvt=fCurrentEventId;
-					fPid=Int_t(iParticle.id);
-					fPx=Float_t(iParticle.px/CLHEP::GeV);
-					fPy=Float_t(iParticle.py/CLHEP::GeV);
-					fPz=Float_t(iParticle.pz/CLHEP::GeV);
-					fVx=Float_t(iEvent.vx/CLHEP::mm);
-					fVy=Float_t(iEvent.vy/CLHEP::mm);
-					fVz=Float_t(iEvent.vz/CLHEP::mm);
-
-					fT=Float_t(iEvent.t);
-					fOutTree->Fill();
-				}
-				fCurrentEventId++;
 			}
 			return true;
-
 		};
 		virtual ~FileWriter_root(){fOutTree->Write();fOutFile->Write(); delete fOutTree; fOutFile->Close(); delete fOutFile;};
 	private:
 		TFile* fOutFile;
 		TTree* fOutTree;
-		Int_t fEvt,fPid;
-		Float_t fPx,fPy,fPz,fVx,fVy,fVz,fT;
+		genevent_t* fGenEvent;
 	};
 	class FileWriter{
 	public:
@@ -123,7 +100,7 @@ public:
 			else
 				myFileWriter=new FileWriter_ascii(fileName,nEvents);
 		}
-		bool WriteEventsToFile(const std::vector<PrimaryEvent> &someEvents){
+		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
 			return myFileWriter->WriteEventsToFile(someEvents);
 		}
 		virtual ~FileWriter(){delete myFileWriter;};

@@ -26,19 +26,15 @@ public:
 	DCElasticEventGenerator(G4ParticleGun* pgun=0);
 	virtual ~DCElasticEventGenerator();
 	virtual void Initialize();
-	virtual PrimaryEvent Generate();
-	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);
-	if(fCrossSection)
-		fCrossSection->SetParameter(2,fBeamPolarization);
-	}
+	virtual genevent_t Generate();
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fInitialized=false;};
+
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
 	elastic_scattering_model* fScatteringModel;
-	TF2* fCrossSection;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
-	virtual TF2* BuildFunction();
 };
 
 
@@ -51,12 +47,23 @@ protected:
 
 class elastic_scattering_model{
 public:
-	Double_t sigma(Double_t *x, Double_t *par);
-	elastic_scattering_model();
+	elastic_scattering_model(Double_t,Double_t);
+	Double_t sigma(TLorentzVector,TLorentzVector);
+	Double_t SigmaUnpol(Double_t, Double_t);
+	elastic_scattering_model() :
+		fBeamEnergy(0), fBeamPolarization(0) {
+	}
+	void setBeamEnergy(Double_t beamEnergy) {
+		fBeamEnergy = beamEnergy;
+	}
+
+	void setBeamPolarization(Double_t beamPolarization) {
+		fBeamPolarization = beamPolarization;
+	}
+
 private:
-	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
-	//quick conversion for theta_cm to momentum transfer
-	Double_t q(Double_t theta, Double_t mom);
+
+	Double_t fBeamEnergy,fBeamPolarization;
 
 	//Parameters for ds/dOmega. x is ln(E)
 	double a1(Double_t x);

@@ -10,11 +10,11 @@
 class FileReader_impl{
 public:
 	FileReader_impl():iEvent(0){}
-	virtual PrimaryEvent GetEvent()=0;
+	virtual genevent_t GetEvent()=0;
 	virtual ~FileReader_impl(){};
 protected:
 	G4int iEvent;
-	std::list<PrimaryEvent> evCache;
+	std::list<genevent_t> evCache;
 };
 class FileReader_ascii: public FileReader_impl{
 public:
@@ -23,24 +23,24 @@ public:
 	}
 	virtual ~FileReader_ascii(){fInputFile.close();};
 
-	PrimaryEvent GetEvent(){
+	genevent_t GetEvent(){
 		if( evCache.size() == 0 )
 		{
-			PrimaryEvent thisEvent;
-			PrimaryParticle thisParticle(0,0,0,0);
+			genevent_t thisEvent;
+			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
 			for(auto iev=0;iev<100;++iev){
 				while(std::getline(fInputFile,line)){
-					G4double px,py,pz,vx,vy,vz,t;
+					G4double px,py,pz,vx,vy,vz,t,E;
 					G4int ev,id;
 					std::istringstream iss(line);
-					iss>>ev>>id>>px>>py>>pz>>vx>>vy>>vz>>t;
+					iss>>ev>>id>>px>>py>>pz>>E>>vx>>vy>>vz>>t;
 					px*=CLHEP::GeV,py*=CLHEP::GeV,pz*=CLHEP::GeV;
-					thisParticle=PrimaryParticle(id,px,py,pz);
-					thisEvent.t=t;
-					thisEvent.vx=vx;
-					thisEvent.vy=vy;
-					thisEvent.vz=vz;
+					thisParticle=particle_t(id,px,py,pz,E);
+					thisEvent.time=t;
+					thisEvent.x=vx;
+					thisEvent.y=vy;
+					thisEvent.z=vz;
 					if(ev!=iEvent){
 						evCache.push_back(thisEvent);
 						thisEvent.particles.clear();
@@ -54,7 +54,7 @@ public:
 				}
 			}
 		}
-		PrimaryEvent ev = evCache.front();
+		genevent_t ev = evCache.front();
 		evCache.pop_front();
 		return ev;
 	}
@@ -79,51 +79,28 @@ public:
 					" ERROR: Input Tree not found.");
 		fCurEntry=0;
 	}
-	PrimaryEvent GetEvent(){
+	genevent_t GetEvent(){
 
 #ifdef MYDEBUG
 		G4cout<<"FileReader_root::GetEvent()"<<G4endl;
 #endif
 		if( evCache.size() == 0 )
 		{
-			PrimaryEvent thisEvent;
-			PrimaryParticle thisParticle(0,0,0,0);
+			genevent_t* curEvent=nullptr;
+			fInputTree->SetBranchAddress("gen",&curEvent);
+			genevent_t thisEvent;
+			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
-			Float_t px,py,pz,vx,vy,vz,t;
 			Int_t ev,id;
-			fInputTree->SetBranchAddress("evt",&ev);
-			fInputTree->SetBranchAddress("pid",&id);
-			fInputTree->SetBranchAddress("px",&px);
-			fInputTree->SetBranchAddress("py",&py);
-			fInputTree->SetBranchAddress("pz",&pz);
-			fInputTree->SetBranchAddress("vx",&vx);
-			fInputTree->SetBranchAddress("vy",&vy);
-			fInputTree->SetBranchAddress("vz",&vz);
-			fInputTree->SetBranchAddress("t",&t);
 			for(auto iev=0;iev<100;++iev){
-				while(true){
 					if(fCurEntry>fInputTree->GetEntries())
 						G4Exception("FileReader_root","NoMoreEvents",RunMustBeAborted,"No more events in input file.");
 					fInputTree->GetEvent(fCurEntry++);
-					thisParticle=PrimaryParticle(id,G4double(px*CLHEP::GeV),G4double(py*CLHEP::GeV),G4double(pz*CLHEP::GeV));
-					thisEvent.t=t;
-					thisEvent.vx=vx;
-					thisEvent.vy=vy;
-					thisEvent.vz=vz;
-					if(ev!=iEvent){
-						evCache.push_back(thisEvent);
-						thisEvent.particles.clear();
-						thisEvent.particles.push_back(thisParticle);
-						iEvent=ev;
-						break;
-					}
-					else{
-						thisEvent.particles.push_back(thisParticle);
-					}
-				}
+					evCache.push_back(*curEvent);
+
 			}
 		}
-		PrimaryEvent ev = evCache.front();
+		genevent_t ev = evCache.front();
 		evCache.pop_front();
 #ifdef MYDEBUG
 		for(auto particle : ev){
@@ -148,7 +125,7 @@ public:
 	FileReader(G4String fileName):fFileReader(nullptr){
 		OpenFile(fileName);
 	}
-	PrimaryEvent GetEvent(){
+	genevent_t GetEvent(){
 		return fFileReader->GetEvent();
 	}
 	virtual ~FileReader(){delete fFileReader;};

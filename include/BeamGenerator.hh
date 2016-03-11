@@ -17,7 +17,7 @@ public:
 	virtual ~BeamGenerator();
 
 	virtual void Generate(G4Event*);
-	virtual PrimaryEvent Generate();
+	virtual genevent_t Generate();
 	virtual void Initialize(){};
 
 private:

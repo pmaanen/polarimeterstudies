@@ -22,10 +22,14 @@ void JediRun::RecordEvent(const G4Event* evt) {
 
 void JediRun::Merge(const G4Run* aRun) {
 	auto an=Analysis::Instance();
-	auto events=an->getEvents();
-	G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events.size()<<" events.";
-	for(auto iEvent : events){
+	auto events=an->getSimEvents();
+	auto genevents=an->getGenEvents();
+	G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events->size()<<" events.";
+	for(auto iEvent : *events){
 		fEvents.push_back(iEvent);
+	}
+	for(auto iEvent : *genevents){
+		fGenEvents.push_back(iEvent);
 	}
 	G4Run::Merge(aRun);
 }

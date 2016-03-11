@@ -17,15 +17,15 @@ public:
 
 	void setAbsorberMaterialName(const G4String& absorberMaterialName) {
 		auto oldName=fAbsorberMaterial->GetName();
-			auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(absorberMaterialName);
-			if(!newMat){
-				G4Exception("JediPolarimeter::setAbsorberMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
-				return;
-			}
-			fAbsorberMaterial=newMat;
-			fAbsorberMaterialName=absorberMaterialName;
-			G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
+		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(absorberMaterialName);
+		if(!newMat){
+			G4Exception("JediPolarimeter::setAbsorberMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
 			return;
+		}
+		fAbsorberMaterial=newMat;
+		fAbsorberMaterialName=absorberMaterialName;
+		G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
+		return;
 	}
 
 	void setNumLayers(G4double numLayers) {

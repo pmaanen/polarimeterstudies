@@ -19,8 +19,9 @@ class G4GenericMessenger;
 class G4Event;
 class G4ParticleGun;
 #include "FileReader.hh"
-	class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
-	public:
+#include "hit.hh"
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+public:
 	~PrimaryGeneratorAction();
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
@@ -28,8 +29,20 @@ class G4ParticleGun;
 	void generateEventFromPhaseSpace(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
-	G4ParticleGun* getPGun() const{return fParticleGun;};
-	private:
+	G4ParticleGun* getPGun() const {
+		return fParticleGun;
+	}
+
+	const genevent_t& getGenEvent() const {
+		return fGenEvent;
+	}
+
+	const G4String& getGeneratorName() const {
+		return fGeneratorName;
+	}
+
+	;
+private:
 	void DefineCommands();
 	G4ParticleGun			*fParticleGun ;
 	G4GenericMessenger*		fMessenger;
@@ -40,9 +53,9 @@ class G4ParticleGun;
 	static FileReader* fgFileReader;
 	std::map<G4String,EventGenerator*> fEvtGenerators;
 	G4String fGeneratorName;
-
-	protected:
-	  void listModes(){G4cout<<"gun "; G4cout<<"file ";for (auto iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
+	genevent_t fGenEvent;
+protected:
+	void listModes(){G4cout<<"gun "; G4cout<<"file ";for (auto iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
 
 } ;
 

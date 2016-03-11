@@ -21,11 +21,16 @@ public:
 	virtual void RecordEvent(const G4Event*);
 	void Merge(const G4Run*);
 
-	const std::vector<event_t>& getEvents() const {
+	const std::vector<simevent_t>& getEvents() const {
 		return fEvents;
 	}
 
-	std::vector<event_t> fEvents;
+	const std::vector<genevent_t>& getGenEvents() const {
+		return fGenEvents;
+	}
+
+	std::vector<simevent_t> fEvents;
+	std::vector<genevent_t> fGenEvents;
 };
 
 #endif /* JEDIRUN_HH_ */

@@ -5,6 +5,8 @@
  *      Author: pmaanen
  */
 #include "hit.hh"
-ClassImp(calorhit_t)
-ClassImp(trackerhit_t)
-ClassImp(event_t)
+ClassImp(calorhit_t);
+ClassImp(trackerhit_t);
+ClassImp(simevent_t);
+ClassImp(particle_t);
+ClassImp(genevent_t);

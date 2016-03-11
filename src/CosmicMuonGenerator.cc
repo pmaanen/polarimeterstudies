@@ -15,6 +15,7 @@
 #include "G4Event.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
+#include "hit.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fFunctions=new function_helper;
@@ -38,7 +39,7 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 	auto muon=event.particles[0];
 	auto momentum=G4ThreeVector(muon.px,muon.py,muon.pz);
 
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 
 	Analysis* an=Analysis::Instance();
 	fParticleGun->SetParticleMomentum(momentum) ;
@@ -47,7 +48,7 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 
 }
 
-PrimaryEvent CosmicMuonGenerator::Generate() {
+genevent_t CosmicMuonGenerator::Generate() {
 	G4double yMom=1;
 	G4double mom=0;
 	G4ThreeVector momentum;
@@ -78,8 +79,10 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	auto vx=fPosition.getX()+fSpotsize.getX()*(G4UniformRand()-0.5);
 	auto vy=fPosition.getY()+fSpotsize.getY()*(G4UniformRand()-0.5);
 	auto vz=fPosition.getZ()+fSpotsize.getZ()*(G4UniformRand()-0.5);
-	PrimaryEvent res(0,vx,vy,vz);
-	res.particles.push_back(PrimaryParticle(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ()));
+	genevent_t res(0,0,vx,vy,vz);
+	Double_t mass=part->GetPDGMass()/CLHEP::GeV;
+	Double_t e=sqrt(mom*mom+mass*mass);
+	res.particles.push_back(particle_t(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ(),e));
 	return res;
 }
 
