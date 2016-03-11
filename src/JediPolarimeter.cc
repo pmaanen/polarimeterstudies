@@ -120,7 +120,6 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(fTargetChamberZ2-fTargetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(fTargetChamberZ2-fTargetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	fCaloSDVolumes["logicExitWindow"]=logicTargetChamber;
 	return logicTargetChamber;
 }
 

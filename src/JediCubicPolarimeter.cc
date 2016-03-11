@@ -126,6 +126,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
 		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
 		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
+		fCaloSDVolumes["Hodoscope"]=aDetectorElement;
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot1=new G4RotationMatrix();
 			rot1->rotateZ(iSlice*10*CLHEP::deg);
@@ -153,7 +154,6 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	}
 
 	PlaceCalorimeter(aCrystal);
-
 	return fPhysiWorld;
 }
 
