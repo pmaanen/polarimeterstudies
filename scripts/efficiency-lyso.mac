@@ -1,8 +1,6 @@
 /analysis/Enable
 /gun/particle deuteron
-/gun/direction 0 0 1
-/gun/position 0 0 -50 cm
 /PolarimeterStudies/detector/calolength 10 cm
 /PolarimeterStudies/detector/calowidth 3 cm
 /PolarimeterStudies/detector/update
-/control/foreach scripts/efficiency-lyso-singlerun.mac Ekin "100 150 200 250 270"
+/control/foreach scripts/efficiency-lyso-singlerun.mac generator "dcelastic dcbreakup"

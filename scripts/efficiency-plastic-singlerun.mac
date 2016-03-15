@@ -1,5 +1,3 @@
-/analysis/setFileName plastic-{Ekin}.root
-/PolarimeterStudies/detector/absorberlength {{Ekin}} mm
-/PolarimeterStudies/detector/update
-/gun/energy {Ekin} MeV
+/analysis/setFileName plastic-{generator}.root
+/PolarimeterStudies/generator/setGenerator {generator}
 /run/beamOn 100000
