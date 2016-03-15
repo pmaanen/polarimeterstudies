@@ -81,6 +81,7 @@ public:
 	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
 	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
 	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
+	virtual void UpdateGeometry();
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=fScintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
@@ -133,7 +134,6 @@ protected:
 
 	virtual void DefineCommands();
 	virtual void ComputeParameters();
-	virtual void UpdateGeometry();
 
 	std::vector<std::string> fGeomCache;
 
