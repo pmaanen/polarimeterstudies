@@ -178,12 +178,32 @@ void JediCubicPolarimeter::DefineCommands() {
 
 G4double JediCubicPolarimeter::distanceToEdge(G4double a, G4double b,
 		G4ThreeVector direction) {
+
+
+
+	/*
 	auto direction2d=G4TwoVector(-direction.getX(),-direction.getY());
 	auto alpha=direction2d.angle(G4TwoVector(1,0))*CLHEP::rad;
 	while(alpha>45*CLHEP::deg)
 		alpha-=90*CLHEP::deg;
 	return a/cos(alpha)/2.;
 
+
+	 */
+	G4double magnitude=0;
+	auto angle=direction.getPhi();
+	float abs_cos_angle= fabs(cos(angle));
+	float abs_sin_angle= fabs(sin(angle));
+	if (a/2*abs_sin_angle <= b/2*abs_cos_angle)
+	{
+		magnitude= a/2/abs_cos_angle;
+	}
+	else
+	{
+		magnitude= b/2/abs_sin_angle;
+	}
+
+	return magnitude;
 }
 
 void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
