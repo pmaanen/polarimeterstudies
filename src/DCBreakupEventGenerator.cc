@@ -20,8 +20,8 @@ DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceG
 	fBeamEnergy=270.*CLHEP::MeV;
 	fInitialized=false;
 
-	fThetaMin=5*CLHEP::deg;
-	fThetaMax=20*CLHEP::deg;
+	fThetaMin=5.0*CLHEP::deg;
+	fThetaMax=20.*CLHEP::deg;
 	DefineCommands();
 }
 
@@ -107,8 +107,17 @@ genevent_t DCBreakupEventGenerator::Generate() {
 		G4double Ex=0;
 		auto bound=neutron_4+carbon_4;
 
-		//Ex=(fBeam.Energy()fBeam.M()-(proton_4.Energy()-proton_4.M()))*CLHEP::GeV;
-		Ex=(fBeam.Energy()-fBeam.M()-(proton_4.Energy()-proton_4.M()))*CLHEP::GeV;
+		//Ex=(fBeam.Energy()-fBeam.M()-(proton_4.Energy()-proton_4.M()))*CLHEP::GeV;
+
+
+
+		auto beamCMS=fBeam;
+		beamCMS.Boost(-fCms.BoostVector());
+		auto protonCMS=proton_4;
+		proton_4.Boost(-fCms.BoostVector());
+		auto carbonCMS=carbon_4;
+		Ex=(fBeam.Energy()+fTarget.Energy()-proton_4.Energy()-bound.Energy())*CLHEP::GeV;
+		//Ex=((proton_4-fBeam).Energy())*CLHEP::GeV;//(fBeam.Energy()-fBeam.M()-(proton_4.Energy()-proton_4.M()))*CLHEP::GeV;
 		//G4cout<<"Ex="<<Ex/CLHEP::MeV<<G4endl;
 		//Set angular cut in lab-frame
 		if(th_scattered>fThetaMin and th_scattered<fThetaMax){

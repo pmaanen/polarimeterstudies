@@ -20,7 +20,6 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
-
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
@@ -49,7 +48,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	fTargetChamberThickness=2*CLHEP::mm;
 
 	fWrappingThickness=100*CLHEP::um;
-	fSafetyDistance=1*CLHEP::cm;
+	fSafetyDistance=.1*CLHEP::cm;
 	fTargetThickness=1*CLHEP::cm;
 	fTargetWidth=1*CLHEP::cm;
 	fChangedParameters=true;
@@ -124,9 +123,10 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 }
 
 void JediPolarimeter::DefineCommands() {
+
 	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/detector/",
-			"detector control");
+				"/PolarimeterStudies/detector/",
+				"detector control");
 
 	G4GenericMessenger::Command& thetaMinCmd
 	= fMessenger->DeclareMethodWithUnit("thetamin","deg",
@@ -269,7 +269,17 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 }
 
 void JediPolarimeter::UpdateGeometry(){
+	/*
+	for(auto iVol: fCaloSDVolumes){
+		if (!fCaloSD[iVol.first].Get()==0)
+			delete fCaloSD[iVol.first].Pop();
+	}
 
+	for(auto iVol: fTrackerSDVolumes){
+		if (!fTrackerSD[iVol.first].Get()==0)
+			delete fTrackerSD[iVol.first].Pop();
+	}
+*/
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);

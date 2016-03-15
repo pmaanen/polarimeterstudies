@@ -29,10 +29,8 @@ SingleSandwichModule::~SingleSandwichModule() {}
 
 G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 
-	auto motherLength=fCrystalLength;
-
-	auto detectorLength=(fCrystalLength-fAbsorberLength)/fNumLayers;
-	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,detectorLength/2);
+	auto motherLength=fCrystalLength+fAbsorberLength;
+	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Scintillator");
 	
 	auto solidMother= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,motherLength/2);
@@ -46,7 +44,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,iLayer,false);	
 	}
 	 for(G4int iLayer=0;iLayer<fNumLayers;iLayer++)
-	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength+detectorLength/2),logicDetector,"Absorber",logicMother,false,iLayer,false);
+	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength+fCrystalLength/2),logicDetector,"Absorber",logicMother,false,iLayer,false);
 
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
@@ -69,7 +67,7 @@ G4VPhysicalVolume* SingleSandwichModule::Construct() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,fNumLayers/2.*(fCrystalLength+fAbsorberLength)), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength)/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 
 	return fPhysiWorld;
 }
