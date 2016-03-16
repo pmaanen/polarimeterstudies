@@ -30,10 +30,10 @@ G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) 
 		return false;
 	// energy deposit
 	G4double edep = aStep->GetTotalEnergyDeposit();
-
+/*
 	if (edep==0.)
 		return false;
-
+*/
 	DetectorHit* newHit = new DetectorHit();
 
 	newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());

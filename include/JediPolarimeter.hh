@@ -47,6 +47,7 @@
 #include "G4OpBoundaryProcess.hh"
 #include "G4SDManager.hh"
 #include "CaloSensitiveDetector.hh"
+#include "PerfectDetector.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 
@@ -140,8 +141,10 @@ protected:
 	//Sensitive detectors
 	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
 	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
+	std::map<G4String,G4Cache<PerfectDetector*> >fPerfectSD;
 	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
 	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
+	std::map<G4String,G4LogicalVolume*> fPerfectSDVolumes;
 
 	//Input file if constructed from file
 	std::string fInfileName;
