@@ -125,6 +125,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 {
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled()){
+		vect->clear();
 		static G4int HCID = -1;
 		if(HCID<0)
 		{
@@ -139,11 +140,14 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 			hit.x=iHit->GetPos().getX();
 			hit.y=iHit->GetPos().getY();
 			hit.z=iHit->GetPos().getZ();
+			hit.px=iHit->getMom().getX();
+			hit.py=iHit->getMom().getY();
+			hit.pz=iHit->getMom().getZ();
+			hit.ekin=iHit->GetEtot();
 			hit.tof=iHit->GetTof();
 			hit.pid=iHit->GetParticleId();
 			hit.trid=iHit->GetTrackID();
 			vect->push_back(hit);
-
 		}
 		/*
 	for(auto iPart=particleNames.begin();iPart!=particleNames.end();++iPart){
