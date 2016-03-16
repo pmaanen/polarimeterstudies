@@ -21,7 +21,7 @@ public:
 class trackerhit_t : public TObject {
 public:
 	trackerhit_t():TObject(),x(0),y(0),z(0),px(0),py(0),pz(0),edep(0),pid(0),trid(0),tof(0){;};
-	Double_t x,y,z,px,py,pz,edep,pid,trid,tof;
+	Double_t x,y,z,px,py,pz,edep,pid,trid,tof,ekin;
 	ClassDef(trackerhit_t,4)
 };
 
