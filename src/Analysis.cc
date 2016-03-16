@@ -141,6 +141,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 		OutFile.Write();
 		fOutBranches.clear();
 		fCaloSDNames.clear();
+		fTrackerSDNames.clear();
 	}
 
 }
