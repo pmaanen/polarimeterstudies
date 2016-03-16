@@ -30,7 +30,7 @@ using namespace CLHEP;
 static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
 DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fScatteringModel(nullptr){
-	fBeamEnergy=235.*CLHEP::MeV;
+	fBeamEnergy=270.*CLHEP::MeV;
 	fBeamPolarization=Double_t(2./3.);
 	fInitialized=false;
 
