@@ -33,13 +33,13 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
 	
-	auto solidMother= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,motherLength/2);
+	auto solidMother= new G4Box("Detector",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,motherLength/2+1*CLHEP::mm);
 	auto logicMother=new G4LogicalVolume(solidMother,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Crystal");
 	if(fAbsorberLength>1e-3*CLHEP::mm){		 
 	  auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/fNumLayers/2);
 	  auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber"); 
 	  logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
-	  this->fCaloSDVolumes["Absorber"]=logicAbsorber;
+		fPerfectSDVolumes["Absorber"]=logicAbsorber;
 	  for(G4int iLayer=0;iLayer<fNumLayers;iLayer++)
 	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,iLayer,false);	
 	}
@@ -48,9 +48,8 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
-	
-	//fPerfectSDVolumes["Calorimeter"]=logicDetector;
-	fCaloSDVolumes["Calorimeter"]=logicDetector;
+	fPerfectSDVolumes["Mother"]=logicMother;
+	fPerfectSDVolumes["Calorimeter"]=logicDetector;
 	return logicMother;
 }
 
@@ -68,7 +67,7 @@ G4VPhysicalVolume* SingleSandwichModule::Construct() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength)/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength)/2-2*CLHEP::mm), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 
 	return fPhysiWorld;
 }
