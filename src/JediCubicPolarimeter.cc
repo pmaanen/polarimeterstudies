@@ -123,26 +123,37 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	fCaloSDVolumes["Calorimeter"]=aCrystal;
 
 	if(fHodoscopeShape=="pizza"){
-		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength,0,10*CLHEP::deg);
-		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"deltaE");
-		aDetectorElement->SetVisAttributes(new G4VisAttributes(cyan));
-		auto rot=new G4RotationMatrix();
-		auto placement=G4ThreeVector(0,0,DetectorZ-0.5*fDeltaELength);
+		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
+		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
+		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
+		fCaloSDVolumes["Hodoscope"]=aDetectorElement;
 		for(int iSlice=0;iSlice<36;iSlice++){
-		  auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength,iSlice*10*CLHEP::deg,10*CLHEP::deg);
-		  auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"deltaE");
-		  new G4PVPlacement (0, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice, false);
+			auto rot1=new G4RotationMatrix();
+			rot1->rotateZ(iSlice*10*CLHEP::deg);
+			new G4PVPlacement (rot1, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice);
+
 		}
+		placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength);
+		for(int iSlice=0;iSlice<36;iSlice++){
+			auto rot2=new G4RotationMatrix();
+			rot2->rotateZ(iSlice*10*CLHEP::deg+5*CLHEP::deg);
+			new G4PVPlacement (rot2, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice+36, false);
+		}
+
 	}
 	else if(fHodoscopeShape=="square"){
 		auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
 		aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
-		fCaloSDVolumes["DeltaE"]=aDeltaETile;
+		fCaloSDVolumes["Hodoscope"]=aDeltaETile;
 		PlaceHodoscope(aDeltaETile);
+	}
+	else{
+		std::stringstream description;
+		description<<"hodoscope shape: "<< fHodoscopeShape<<" not found.";
+		G4Exception("JediCubicPolarimeter::Construct()","",FatalException,description.str().c_str());
 	}
 
 	PlaceCalorimeter(aCrystal);
-
 	return fPhysiWorld;
 }
 
@@ -157,15 +168,42 @@ void JediCubicPolarimeter::DefineCommands() {
 	fMessenger->DeclareMethod("update",
 			&JediCubicPolarimeter::UpdateGeometry,
 			"update geometry");
+
+	auto hodoShapeCmd=fMessenger->DeclareProperty("hodoscope_shape",
+			JediCubicPolarimeter::fHodoscopeShape,
+			"hodoscope shape");
+	hodoShapeCmd.SetCandidates("pizza square");
+
 }
 
 G4double JediCubicPolarimeter::distanceToEdge(G4double a, G4double b,
 		G4ThreeVector direction) {
-	auto direction2d=G4TwoVector(direction.getX(),direction.getY());
+
+
+
+	/*
+	auto direction2d=G4TwoVector(-direction.getX(),-direction.getY());
 	auto alpha=direction2d.angle(G4TwoVector(1,0))*CLHEP::rad;
 	while(alpha>45*CLHEP::deg)
 		alpha-=90*CLHEP::deg;
-	return a*sqrt(1+tan(alpha)*tan(alpha));
+	return a/cos(alpha)/2.;
+
+
+	 */
+	G4double magnitude=0;
+	auto angle=direction.getPhi();
+	float abs_cos_angle= fabs(cos(angle));
+	float abs_sin_angle= fabs(sin(angle));
+	if (a/2*abs_sin_angle <= b/2*abs_cos_angle)
+	{
+		magnitude= a/2/abs_cos_angle;
+	}
+	else
+	{
+		magnitude= b/2/abs_sin_angle;
+	}
+
+	return magnitude;
 }
 
 void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
@@ -173,6 +211,7 @@ void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
 	std::stringstream buf;
 	buf.clear();
 	buf.str(std::string());
+	G4int copyNo=0;
 	for(int iCrystalX=-fMaxCrystal; iCrystalX<fMaxCrystal+1;iCrystalX++){
 		if(fx!=-999)
 			fx++;
@@ -191,8 +230,7 @@ void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
-			G4int copyNo=1000*(iCrystalX+fMaxCrystal)+iCrystalY+fMaxCrystal;
-			new G4PVPlacement (0, placement, aDetectorElement, "Crystal", fLogicWorld, false, copyNo, false);
+			new G4PVPlacement (0, placement, aDetectorElement, "Crystal", fLogicWorld, false, copyNo++, false);
 			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aDetectorElement->GetName()<<" "<<aDetectorElement->GetMaterial()->GetName()<<" "<<fCrystalWidth<<" "<<fCrystalWidth<<" "<<fCrystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			fGeomCache.push_back(buf.str());
 			buf.clear();
@@ -207,11 +245,12 @@ void JediCubicPolarimeter::PlaceHodoscope(G4LogicalVolume* aDetectorElement) {
 	std::stringstream buf;
 	buf.clear();
 	buf.str(std::string());
+	G4int copyNo=0;
 	for(int iCrystalX=-fMaxCrystal; iCrystalX<fMaxCrystal+1;iCrystalX++){
 		if(fx!=-999)
 			fx++;
 		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ-0.5*fDeltaELength);
+			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ+0.5*fDeltaELength);
 			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
@@ -225,8 +264,7 @@ void JediCubicPolarimeter::PlaceHodoscope(G4LogicalVolume* aDetectorElement) {
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
-			G4int copyNo=1000*(iCrystalX+fMaxCrystal)+iCrystalY+fMaxCrystal;
-			new G4PVPlacement (0, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, copyNo, false);
+			new G4PVPlacement (0, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, copyNo++, false);
 			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aDetectorElement->GetName()<<" "<<aDetectorElement->GetMaterial()->GetName()<<" "<<fDeltaEWidth<<" "<<fDeltaEWidth<<" "<<fDeltaELength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			fGeomCache.push_back(buf.str());
 			buf.clear();

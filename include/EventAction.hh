@@ -25,7 +25,7 @@ class EventAction : public G4UserEventAction
 		virtual ~EventAction();
 		EventAction();
 		virtual void   BeginOfEventAction(const G4Event*);
-		virtual void   EndOfEventAction(const G4Event*);
+		virtual void   EndOfEventAction(const G4Event* evt);
 
 		G4int GetEventno();
 	private:

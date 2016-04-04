@@ -40,9 +40,25 @@ public:
 	virtual ~DetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct(){return fGeometry->Construct();};
-	virtual void ConstructSDandField(){fGeometry->ConstructSDandField();};
+	virtual void ConstructSDandField() {
+		fGeometry->ConstructSDandField();
+	}
+	/*
+	void setGeometryName(const std::string& geometryName) {
+		fGeometryName = geometryName;
+		InitializeGeometry();
+		auto geom=dynamic_cast<JediPolarimeter*>(fGeometry);
+		if(geom)
+			geom->UpdateGeometry();
+	}
+	*/
+
+	;
 private:
-	JediPolarimeter* fGeometry;
+	G4VUserDetectorConstruction* fGeometry;
+	std::string fGeometryName;
+	G4GenericMessenger* fMessenger;
+	void InitializeGeometry();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

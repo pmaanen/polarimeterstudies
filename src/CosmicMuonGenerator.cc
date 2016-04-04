@@ -12,8 +12,10 @@
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"
 #include "Analysis.hh"
+#include "G4Event.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
+#include "hit.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fFunctions=new function_helper;
@@ -37,26 +39,16 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 	auto muon=event.particles[0];
 	auto momentum=G4ThreeVector(muon.px,muon.py,muon.pz);
 
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.vx,event.vy,event.vz));
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 
 	Analysis* an=Analysis::Instance();
-	an->FillNtupleIColumn(fTupleId[0],fTupleId[1],E->GetEventID());
-	an->FillNtupleIColumn(fTupleId[0],fTupleId[2],muon.id);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[3],momentum.getX());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[4],momentum.getY());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[5],momentum.getZ());
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[6],fParticleGun->GetParticlePosition().getX()/CLHEP::mm);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[7],fParticleGun->GetParticlePosition().getY()/CLHEP::mm);
-	an->FillNtupleFColumn(fTupleId[0],fTupleId[8],fParticleGun->GetParticlePosition().getZ()/CLHEP::mm);
-	an->AddNtupleRow(fTupleId[0]);
-
 	fParticleGun->SetParticleMomentum(momentum) ;
 	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
 	fParticleGun->GeneratePrimaryVertex(E);
 
 }
 
-PrimaryEvent CosmicMuonGenerator::Generate() {
+genevent_t CosmicMuonGenerator::Generate() {
 	G4double yMom=1;
 	G4double mom=0;
 	G4ThreeVector momentum;
@@ -87,23 +79,15 @@ PrimaryEvent CosmicMuonGenerator::Generate() {
 	auto vx=fPosition.getX()+fSpotsize.getX()*(G4UniformRand()-0.5);
 	auto vy=fPosition.getY()+fSpotsize.getY()*(G4UniformRand()-0.5);
 	auto vz=fPosition.getZ()+fSpotsize.getZ()*(G4UniformRand()-0.5);
-	PrimaryEvent res(0,vx,vy,vz);
-	res.particles.push_back(PrimaryParticle(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ()));
+	genevent_t res(0,0,vx,vy,vz);
+	Double_t mass=part->GetPDGMass()/CLHEP::GeV;
+	Double_t e=sqrt(mom*mom+mass*mass);
+	res.particles.push_back(particle_t(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ(),e));
 	return res;
 }
 
 void CosmicMuonGenerator::Initialize() {
 	fTupleId.clear();
 	Analysis* an=Analysis::Instance();
-	fTupleId.push_back(an->CreateNtuple("Cosmics","Comics"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"event"));
-	fTupleId.push_back(an->CreateNtupleIColumn(fTupleId[0],"pid"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"px"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"py"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"pz"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vx"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vy"));
-	fTupleId.push_back(an->CreateNtupleFColumn(fTupleId[0],"vz"));
-	an->FinishNtuple(fTupleId[0]);
 	fRunInitialized=true;
 }

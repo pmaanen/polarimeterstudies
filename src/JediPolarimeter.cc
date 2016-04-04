@@ -20,7 +20,6 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
-
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
@@ -49,7 +48,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	fTargetChamberThickness=2*CLHEP::mm;
 
 	fWrappingThickness=100*CLHEP::um;
-
+	fSafetyDistance=.1*CLHEP::cm;
 	fTargetThickness=1*CLHEP::cm;
 	fTargetWidth=1*CLHEP::cm;
 	fChangedParameters=true;
@@ -64,10 +63,10 @@ JediPolarimeter::~JediPolarimeter() {
 
 void JediPolarimeter::ComputeParameters() {
 
-	DetectorZ = (fBeampipeRadius) / tan( fThetaMin );
+	DetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
 
 	fInnerDetectorRadius=DetectorZ*tan( fThetaMin );
-	fOuterDetectorRadius=DetectorZ*tan( fThetaMax );
+	fOuterDetectorRadius=(DetectorZ+fCrystalLength)*tan( fThetaMax );
 
 	fMaxCrystal=ceil(fOuterDetectorRadius/fCrystalWidth);
 	fMinCrystal=ceil(fInnerDetectorRadius/fCrystalWidth);
@@ -120,14 +119,14 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(fTargetChamberZ2-fTargetChamberZ1)/2,0,360*CLHEP::deg);
 	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(fTargetChamberZ2-fTargetChamberZ1)/2));
 	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	fCaloSDVolumes["logicExitWindow"]=logicTargetChamber;
 	return logicTargetChamber;
 }
 
 void JediPolarimeter::DefineCommands() {
+
 	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/detector/",
-			"detector control");
+				"/PolarimeterStudies/detector/",
+				"detector control");
 
 	G4GenericMessenger::Command& thetaMinCmd
 	= fMessenger->DeclareMethodWithUnit("thetamin","deg",
@@ -270,7 +269,17 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 }
 
 void JediPolarimeter::UpdateGeometry(){
+	/*
+	for(auto iVol: fCaloSDVolumes){
+		if (!fCaloSD[iVol.first].Get()==0)
+			delete fCaloSD[iVol.first].Pop();
+	}
 
+	for(auto iVol: fTrackerSDVolumes){
+		if (!fTrackerSD[iVol.first].Get()==0)
+			delete fTrackerSD[iVol.first].Pop();
+	}
+*/
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
@@ -279,9 +288,23 @@ void JediPolarimeter::UpdateGeometry(){
 }
 
 void JediPolarimeter::ConstructSDandField() {
+
+
+	for(auto iVol: fPerfectSDVolumes){
+		if (fTrackerSD[iVol.first].Get()==0)
+			fTrackerSD[iVol.first].Put(new PerfectDetector(iVol.first,iVol.first));
+		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
+	}
+
 	for(auto iVol: fCaloSDVolumes){
 		if (fCaloSD[iVol.first].Get()==0)
 			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
 		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
+	}
+
+	for(auto iVol: fTrackerSDVolumes){
+		if (fTrackerSD[iVol.first].Get()==0)
+			fTrackerSD[iVol.first].Put(new TrackerSensitiveDetector(iVol.first,iVol.first));
+		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
 	}
 }

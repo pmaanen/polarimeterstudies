@@ -59,7 +59,7 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	 *}
 	 */
 	G4int cacheSize=10000;
-	std::vector<PrimaryEvent> evtCache;
+	std::vector<genevent_t> evtCache;
 	G4bool doMore=true;
 	while(doMore){
 		for(G4int ii=0;ii<cacheSize;ii++){

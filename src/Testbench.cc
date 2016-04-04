@@ -5,25 +5,25 @@
  *      Author: pmaanen
  */
 
-#include <CosmicSetup.hh>
 #include <Analysis.hh>
-CosmicSetup::CosmicSetup():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
+#include <Testbench.hh>
+Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
 	fCrystalLength=10*CLHEP::cm;
-	fTriggerLength=fCrystalLength;
-	fTriggerWidth=fCrystalWidth;
-	fTriggerThickness=1*CLHEP::cm;
-	fUpperTrigger=true;
-	fLowerTrigger=false;
+	fCrystalWidth=3*CLHEP::cm;
+	fTriggerLength=2.5*CLHEP::cm;
+	fTriggerWidth=1.5*CLHEP::cm;
+	fTriggerThickness=.5*CLHEP::cm;
+	fTrigger=true;
 	fScintillatorMaterialName="LYSO";
 	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 
 	DefineCommands();
 }
 
-CosmicSetup::~CosmicSetup(){
+Testbench::~Testbench(){
 }
 
-G4VPhysicalVolume* CosmicSetup::Construct() {
+G4VPhysicalVolume* Testbench::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();
 
@@ -38,33 +38,39 @@ G4VPhysicalVolume* CosmicSetup::Construct() {
 	new G4PVPlacement (rot, G4ThreeVector(0,0,0), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	if(fTriggerThickness>0 and fTriggerLength>0 and fTriggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
+		auto triggerRot=new G4RotationMatrix();
+		triggerRot->rotateX(90*CLHEP::deg);
 		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
-		if(fUpperTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,fCrystalWidth/2+fTriggerThickness/2+fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,0,false);
-		if(fLowerTrigger)
-		new G4PVPlacement(0,G4ThreeVector(fTriggerOffsetX,-fCrystalWidth/2-fTriggerThickness/2-fTriggerOffsetY,fTriggerOffsetZ),fCaloSDVolumes["Trigger"],"Trigger",fLogicWorld,false,1,false);
+		fCaloSDVolumes["Trigger"]->SetVisAttributes(new G4VisAttributes(G4Colour(1.,0.,0.)));
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 0, false);
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-10*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 1, false);
+
+		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 2, false);
+		//new G4PVPlacement (triggerRot, G4ThreeVector(0,0,12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 3, false);
+
+
+
 	}
 	return fPhysiWorld;
 }
 
-void CosmicSetup::DefineCommands() {
+void Testbench::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
-	G4cout<<"CosmicSetup::DefineCommands() called"<<G4endl;
 	G4GenericMessenger::Command& triggerLengthCmd
 	= fMessenger->DeclareMethodWithUnit("triggerlength","mm",
-			&CosmicSetup::setTriggerLength,
+			&Testbench::setTriggerLength,
 			"trigger length (mm)");
 
 
 	G4GenericMessenger::Command& triggerThicknessCmd
 	= fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
-			&CosmicSetup::setTriggerThickness,
+			&Testbench::setTriggerThickness,
 			"trigger thickness (mm)");
 
 	G4GenericMessenger::Command& triggerWidthCmd
 	= fMessenger->DeclareMethodWithUnit("triggerwidth","mm",
-			&CosmicSetup::setTriggerWidth,
+			&Testbench::setTriggerWidth,
 			"trigger width (mm)");
 
 	triggerWidthCmd.SetParameterName("width", true);
@@ -73,35 +79,16 @@ void CosmicSetup::DefineCommands() {
 
 	G4GenericMessenger::Command& trgOffsetXCmd
 	= fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
-			&CosmicSetup::setTriggerOffsetX,
+			&Testbench::setTriggerOffsetX,
 			"trigger offset in x dir. (mm)");
 	G4GenericMessenger::Command& trgOffsetYCmd
 	= fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
-			&CosmicSetup::setTriggerOffsetY,
+			&Testbench::setTriggerOffsetY,
 			"trigger offset in y dir. (mm)");
 	G4GenericMessenger::Command& trgOffsetZCmd
 	= fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
-			&CosmicSetup::setTriggerOffsetZ,
+			&Testbench::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 
 
-}
-
-void CosmicSetup::ConstructSDandField() {
-
-	if (fCaloSD["Calorimeter"].Get()==0 and fCaloSDVolumes["Calorimeter"]){
-		fCaloSD["Calorimeter"].Put(new CaloSensitiveDetector("Calorimeter"));
-	}
-
-	if (fCaloSD["Trigger"].Get()==0 and fCaloSDVolumes["Trigger"]){
-		fCaloSD["Trigger"].Put(new CaloSensitiveDetector("Trigger"));
-	}
-
-	if(fCaloSDVolumes["Calorimeter"])
-		SetSensitiveDetector(fCaloSDVolumes["Calorimeter"],fCaloSD["Calorimeter"].Get());
-
-	if(fCaloSDVolumes["Trigger"])
-		SetSensitiveDetector(fCaloSDVolumes["Trigger"],fCaloSD["Trigger"].Get());
-
-	return;
 }

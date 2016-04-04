@@ -1,0 +1,3 @@
+/gun/energy {Ekin} MeV
+/analysis/setFileName 40_Fe_Plastic_{Ekin}.root
+/run/beamOn 10000

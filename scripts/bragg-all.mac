@@ -1,0 +1,5 @@
+/control/foreach scripts/bragg-alu.mac Ekin "50 100 150 200 250 270 300"
+/control/foreach scripts/bragg-iron.mac Ekin "50 100 150 200 250 270 300"
+/control/foreach scripts/bragg-lead.mac Ekin "50 100 150 200 250 270 300"
+/control/foreach scripts/bragg-plastic.mac Ekin "50 100 150 200 250 270 300"
+/control/foreach scripts/bragg-lyso.mac Ekin "50 100 150 200 250 270 300"

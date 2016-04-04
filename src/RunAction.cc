@@ -1,4 +1,5 @@
 #include "RunAction.hh"
+#include "global.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"
@@ -12,7 +13,7 @@
 #include "Randomize.hh"
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
-
+#include "JediRun.hh"
 #include "G4AutoLock.hh"
 
 namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
@@ -28,22 +29,18 @@ RunAction::RunAction()
 	fLuxury = 3;     // RANLUX luxury level (3 is default)
 	fSaveRndm = 0;
 	fNEvents=0;
-
-	Analysis* analysisManager = Analysis::Instance();
-	analysisManager->SetVerboseLevel(1);
-	analysisManager->SetFirstHistoId(1);
-
-	// Creating histograms
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{
-	G4AutoLock lock(&RunActionMutex);
-	delete Analysis::Instance();}
-
+{}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
+
+
+G4Run* RunAction::GenerateRun()
+{ return new JediRun; }
 //*********************************************************************************
 //******************  Begin Of Run Action                   ***********************
 //*********************************************************************************
@@ -52,17 +49,15 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	auto an=Analysis::Instance();
-	if(an->isEnabled()){
-		Analysis::Instance()->OpenFile(Analysis::Instance()->GetFileName());
-	}
+	an->BeginOfRun();
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
-	}
-	else{
+		return;
 	}
 
 	//Master or sequential
+
 	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (fSeed<0) //not initialized by anybody else
 	{
@@ -87,46 +82,17 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //*********************************************************************************
 void RunAction::EndOfRunAction(const G4Run* aRun)
 {
-	G4cout <<"Run Number:" <<aRun->GetRunID()<<" ended\n";
-	auto an=Analysis::Instance();
-	if(an->isEnabled()){
-		an->Write();
-		an->CloseFile();
-		if(IsMaster()){
-				std::ostringstream hadd;
-				std::ostringstream rm;
-				std::ostringstream mv;
-				G4String extension;
-				auto name=Analysis::Instance()->GetFileName();
-				if ( name.find(".") != std::string::npos ) {
-					extension = name.substr(name.find("."));
-					name = name.substr(0, name.find("."));
-				}
-				else {
-					extension = ".";
-					extension.append(Analysis::Instance()->GetFileType());
-				}
-				rm<<"rm ";
-				hadd<<"hadd -f "<<Analysis::Instance()->GetFileName()<<" ";
-				for(int ii=0;ii<G4MTRunManager::GetMasterRunManager()->GetNumberOfThreads(); ii++){
-					hadd<<name<<"_t"<<ii<<extension<<" ";
-					rm<<name<<"_t"<<ii<<extension<<" ";
-				}
-				system(hadd.str().c_str());
-				system(rm.str().c_str());
-				system(mv.str().c_str());
-		}
-	}
 	if (!IsMaster())
 	{
 		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
 		return;
 	}
+	auto an=Analysis::Instance();
+	if (an->isEnabled()){
+		an->EndOfRun(aRun);
+	}
 	// Complete clean-up
 	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
-	// save Rndm status
-	if (fSaveRndm == 1)
-		G4Random::saveEngineStatus("endOfRun.rndm");
 	return;
 
 }

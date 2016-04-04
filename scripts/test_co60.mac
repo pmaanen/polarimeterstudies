@@ -1,0 +1,6 @@
+/analysis/Enable
+/analysis/setFileName co60.root
+/gun/particle ion
+/gun/ion 27 60
+/gun/energy 0
+/run/beamOn 10000

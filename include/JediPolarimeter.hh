@@ -47,6 +47,7 @@
 #include "G4OpBoundaryProcess.hh"
 #include "G4SDManager.hh"
 #include "CaloSensitiveDetector.hh"
+#include "PerfectDetector.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 
@@ -81,6 +82,7 @@ public:
 	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
 	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
 	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
+	virtual void UpdateGeometry();
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
 		auto oldName=fScintillatorMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
@@ -107,7 +109,7 @@ public:
 	}
 
 	 void checkGeometry(){
-		auto check=fPhysiWorld->CheckOverlaps(2000);
+		fPhysiWorld->CheckOverlaps(2000);
 	}
 
 protected:
@@ -124,7 +126,7 @@ protected:
 	G4double fThetaMin, fThetaMax;
 	G4double fBeampipeRadius, fBeampipeThickness, fCrystalLength, fCrystalWidth,
 	fInnerDetectorRadius, fOuterDetectorRadius,DetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
-	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth;
+	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
 	G4String fScintillatorMaterialName;
 	G4Material* fScintillatorMaterial;
 
@@ -133,14 +135,16 @@ protected:
 
 	virtual void DefineCommands();
 	virtual void ComputeParameters();
-	virtual void UpdateGeometry();
 
 	std::vector<std::string> fGeomCache;
 
 	//Sensitive detectors
 	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
 	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
+	std::map<G4String,G4Cache<PerfectDetector*> >fPerfectSD;
 	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
+	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
+	std::map<G4String,G4LogicalVolume*> fPerfectSDVolumes;
 
 	//Input file if constructed from file
 	std::string fInfileName;
