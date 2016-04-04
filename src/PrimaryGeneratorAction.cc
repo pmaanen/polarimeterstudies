@@ -3,6 +3,7 @@
 
 #include "Analysis.hh"
 #include "global.hh"
+#include "DCInelasticEventGenerator.hh"
 #include "DCElasticEventGenerator.hh"
 #include "DCBreakupEventGenerator.hh"
 #include "DCElasticTimeDependentGenerator.hh"
@@ -60,6 +61,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
 	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
 	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
+	fEvtGenerators["dcinelastic"]=new DCInelasticEventGenerator(fParticleGun);
 	fEvtGenerators["beam"]=new BeamGenerator(fParticleGun);
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
