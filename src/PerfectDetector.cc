@@ -38,14 +38,14 @@ G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) 
 
 	newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
 	newHit->SetEdep(edep);
-	newHit->SetEtot(aStep->GetTrack()->GetKineticEnergy());
+	newHit->SetEtot(aStep->GetTrack()->GetParticleDefinition()->GetPDGMass()+aStep->GetTrack()->GetKineticEnergy());
 	newHit->SetPos (aStep->GetPreStepPoint()->GetPosition());
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::s);
+	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::ns);
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
 	newHit->setMom(aStep->GetTrack()->GetMomentum());
 	fHitsCollection->insert( newHit );
-	aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+	//aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 	return true;
 }

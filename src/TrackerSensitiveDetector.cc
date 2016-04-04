@@ -52,9 +52,9 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
-		const G4String& /*hitsCollectionName*/)
+		const G4String& hitsCollectionName)
 : G4VSensitiveDetector(name),
-  fHitsCollection(NULL)
+  fHitsCollection(nullptr)
 {
 	collectionName.insert(name);
 
@@ -99,22 +99,16 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 	newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
 	newHit->SetEdep(edep);
 	newHit->SetEtot(aStep->GetTrack()->GetKineticEnergy());
-	newHit->SetTruePos (aStep->GetPreStepPoint()->GetPosition());
+	newHit->SetPos (aStep->GetPreStepPoint()->GetPosition());
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
 
 
-	newHit->SetDetId(theTouchable->GetCopyNumber());
+	//newHit->SetDetId(theTouchable->GetCopyNumber());
 	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::s);
 	G4ThreeVector worldPosition = preStepPoint->GetPosition();
 
-	newHit->SetPos(worldPosition);
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
-	/*
-	if(particleNames.count(aStep->GetTrack()->GetParticleDefinition()->GetParticleName())==0)
-		particleNames[aStep->GetTrack()->GetParticleDefinition()->GetParticleName()]=1;
-	 */
-
 	fHitsCollection->insert( newHit );
 	return true;
 }
@@ -126,7 +120,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled()){
 		vect->clear();
-		static G4int HCID = -1;
+		G4int HCID = -1;
 		if(HCID<0)
 		{
 			HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
@@ -140,10 +134,10 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 			hit.x=iHit->GetPos().getX();
 			hit.y=iHit->GetPos().getY();
 			hit.z=iHit->GetPos().getZ();
-			hit.px=iHit->getMom().getX();
-			hit.py=iHit->getMom().getY();
-			hit.pz=iHit->getMom().getZ();
-			hit.ekin=iHit->GetEtot();
+			hit.px=iHit->getMom().getX()/CLHEP::GeV;
+			hit.py=iHit->getMom().getY()/CLHEP::GeV;
+			hit.pz=iHit->getMom().getZ()/CLHEP::GeV;
+			hit.ekin=iHit->GetEtot()/CLHEP::GeV;
 			hit.tof=iHit->GetTof();
 			hit.pid=iHit->GetParticleId();
 			hit.trid=iHit->GetTrackID();
