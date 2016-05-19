@@ -27,9 +27,6 @@ public:
 	virtual void Initialize()=0;
 
 protected:
-	std::vector<G4int> fTupleId;
-	std::vector<G4int> fHistoId;
-
 
 	G4ParticleGun* fParticleGun;
 	G4bool fRunInitialized;

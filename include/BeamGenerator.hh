@@ -23,7 +23,6 @@ public:
 private:
 	G4ThreeVector fPosition, fSpotsize;
 	G4double fXPrime,fYPrime;
-	G4ParticleGun* fGun;
 };
 
 #endif /* INCLUDE_BEAMGENERATOR_HH_ */

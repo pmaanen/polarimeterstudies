@@ -14,19 +14,19 @@
 #include "hit.hh"
 class CaloSensitiveDetector: public G4MultiFunctionalDetector {
 public:
+	class JediSensitiveDetector;
+	friend JediSensitiveDetector;
 	CaloSensitiveDetector(G4String name, G4int depth=0);
+	virtual ~CaloSensitiveDetector();
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 	virtual void Initialize(G4HCofThisEvent* HC);
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
-	void BeginOfRun();
-	void EndOfRun();
 
 	std::vector<calorhit_t>* getVect() {
 		return vect;
 	}
 
 private:
-	G4String fName;
 	std::vector<calorhit_t> * vect;
 };
 

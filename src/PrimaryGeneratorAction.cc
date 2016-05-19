@@ -72,8 +72,13 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 	delete fParticleGun ;
 }
 
-void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
+void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 {
+	auto oldPos=fParticleGun->GetParticlePosition();
+	auto oldMom=fParticleGun->GetParticleMomentum();
+	auto oldEnergy=fParticleGun->GetParticleEnergy();
+	auto oldParticle=fParticleGun->GetParticleDefinition();
+	auto oldTime=fParticleGun->GetParticleTime();
 	fGeneratorName.toLower();
 	if(fEvtGenerators.count(fGeneratorName)==0){
 		std::stringstream message;
@@ -85,6 +90,7 @@ void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 		auto event=fEvtGenerators[fGeneratorName]->Generate();
 		event.eventid=E->GetEventID();
 		fGenEvent=event;
+		fParticleGun->SetParticlePosition(G4ThreeVector(event.x*CLHEP::mm,event.y*CLHEP::mm,event.z*CLHEP::mm));
 		for(auto ipart : event.particles){
 			auto part=G4ParticleTable::GetParticleTable()->FindParticle(ipart.id);
 			if(!part){
@@ -93,7 +99,7 @@ void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 				A=0;
 				G4double En=0;
 				auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
-				G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
+				//G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
 				part=G4IonTable::GetIonTable()->GetIon(Z,A);
 				if(!part){
 					std::stringstream message;
@@ -109,6 +115,14 @@ void PrimaryGeneratorAction::generateEventFromPhaseSpace(G4Event *E)
 			fParticleGun->GeneratePrimaryVertex(E);
 		}
 	}
+
+	fParticleGun->SetParticlePosition(oldPos);
+	if(oldMom>1e-5)
+		fParticleGun->SetParticleMomentum(oldMom);
+	else
+		fParticleGun->SetParticleEnergy(oldEnergy);
+	fParticleGun->SetParticleDefinition(oldParticle);
+	fParticleGun->SetParticleTime(oldTime);
 	return;
 }
 
@@ -136,7 +150,7 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 			A=0;
 			G4double En=0;
 			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
-			G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
+			//G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
 			part=G4IonTable::GetIonTable()->GetIon(Z,A);
 			if(!part){
 				std::stringstream message;
@@ -173,6 +187,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		return;
 	}
 	if(fGeneratorName=="gun"){
+		//G4cout<<G4BestUnit(fParticleGun->GetParticleEnergy(),"Energy")<<G4endl;
 		fGenEvent.eventid=E->GetEventID();
 		fGenEvent.time=0;
 		particle_t aParticle;
@@ -202,7 +217,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		return;
 	}
 	else
-		generateEventFromPhaseSpace(E);
+		generateEventFromGenerator(E);
 	return;
 }
 

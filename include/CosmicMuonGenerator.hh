@@ -25,18 +25,15 @@ public:
 	virtual void Generate(G4Event* E);
 	virtual genevent_t Generate();
 	virtual void Initialize();
-
-	function_helper* fFunctions;
-	TF1* fAngle,*fMomentumAmp;
 	G4ThreeVector fPosition, fSpotsize;
 
 
 	G4GenericMessenger* fMessenger;
 };
-class function_helper{
+class cosmic_functions{
 	public:
-		Double_t angle(Double_t *x, Double_t *){return cos(x[0])*cos(x[0]);};
-		Double_t energy(Double_t *x, Double_t *){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
+		static G4double angle(G4double theta){return cos(theta)*cos(theta);};
+		static G4double momentum(G4double momAmp){if(momAmp/CLHEP::GeV<3.35) return std::pow(3.35,-2.7); else return std::pow(momAmp/CLHEP::GeV,-2.7);};
 	};
 
 #endif /* INCLUDE_COSMICMUONGENERATOR_HH_ */

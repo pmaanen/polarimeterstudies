@@ -102,11 +102,13 @@ public:
 		}
 		genevent_t ev = evCache.front();
 		evCache.pop_front();
+        /*
 #ifdef MYDEBUG
 		for(auto particle : ev){
 			G4cout<<particle<<G4endl;
 		}
 #endif
+         */
 		return ev;
 	}
 	virtual ~FileReader_root(){

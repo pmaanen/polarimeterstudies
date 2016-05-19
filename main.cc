@@ -1,9 +1,24 @@
 
 #define MAIN
+
+//global configuration
 #include "global.hh"
-#include "Analysis.hh"
+
+//Geometries
 #include "DetectorConstruction.hh"
+#include "JediCubicPolarimeter.hh"
+#include "JediHexagonalPolarimeter.hh"
+#include "SingleCrystal.hh"
+#include "SingleSandwichModule.hh"
+#include "JediSandwichCalorimeter.hh"
+#include "Testbench.hh"
+
+//User defined actions
+#include "Analysis.hh"
+#include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
+
+//Geant4 stuff
 #ifdef G4MULTITHREADED
 #include <G4MTRunManager.hh>
 #else
@@ -23,29 +38,20 @@
 #include <G4UIExecutive.hh>
 #endif
 
-#include "DetectorConstruction.hh"
-#include "JediCubicPolarimeter.hh"
-#include "JediHexagonalPolarimeter.hh"
-#include "SingleCrystal.hh"
-#include "SingleSandwichModule.hh"
-#include "JediSandwichCalorimeter.hh"
-#include "Testbench.hh"
-#include "EventAction.hh"
+//Physics Lists
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
-#include <FTFP_BERT.hh>
+#include <QGSP_BERT.hh>
+
+//Additional Physics
 #include <G4EmParameters.hh>
-#include "G4OpticalPhysics.hh"
+#include <G4OpticalPhysics.hh>
 #include <G4RadioactiveDecayPhysics.hh>
-#include <PrimaryGeneratorAction.hh>
-#include "Analysis.hh"
-#include "G4StateManager.hh"
 #include <G4StepLimiterPhysics.hh>
 #include <G4HadronicProcessStore.hh>
-#include <signal.h>
-#include <ctime>
+
 namespace CLHEP {}
-using namespace CLHEP; 
+using namespace CLHEP;
 
 int main(int argc,char** argv) {
 	try{
@@ -74,13 +80,52 @@ int main(int argc,char** argv) {
 	DetectorConstruction* detector = new DetectorConstruction;
 	runManager->SetUserInitialization(detector);
 	// set physics list
-	auto the_physics=new QGSP_BIC(0);
-	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+	G4VModularPhysicsList* the_physics=nullptr;
+	if(gConfig["general.physics"].as<string>()=="QGSP_BERT")
+		the_physics=new QGSP_BERT(0);
+	if(gConfig["general.physics"].as<string>()=="QGSP_BIC")
+		the_physics=new QGSP_BIC(0);
+	if(gConfig["general.physics"].as<string>()=="QGSP_INCLXX")
+		the_physics=new QGSP_INCLXX(0);
+	if(!the_physics)
+		G4Exception("main","PHYS01", FatalException, "no physics list");
+
+
+
+	//Low energy electromagnetic options
+	/*
+	 * opt.SetVerbose(1) ;
+   // Multiple Coulomb scattering
+   //
+   opt.SetMscStepLimitation(fUseDistanceToBoundary) ;
+   opt.SetMscRangeFactor(0.02) ;
+   // Physics tables
+   //
+   opt.SetMinEnergy(1000*eV) ; // default 100*eV
+   opt.SetMaxEnergy(5*GeV) ; // default 100*TeV
+   opt.SetDEDXBinning(400) ; // default 12*7
+   opt.SetLambdaBinning(250) ; // default 12*7
+   opt.SetSplineFlag(true) ; // default true
+   // Ionization
+   //
+   opt.SetSubCutoff(true) ; // default false
+   // ...
+	 */
+	//the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
+	the_physics->RegisterPhysics(new G4StepLimiterPhysics);
+	auto em=G4EmParameters::Instance();
+	em->SetMscStepLimitType(fUseDistanceToBoundary);
+	em->SetMscRangeFactor(0.02);
+
+	em->SetMinEnergy(1000*CLHEP::eV);
+	em->SetMaxEnergy(5*CLHEP::GeV);
+	em->SetNumberOfBins(400);
+	em->SetSpline(true);
 	G4HadronicProcessStore::Instance()->SetVerbose(0);
 	runManager->SetUserInitialization(the_physics);
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
-	// Visualization manager
+// Visualization manager
 	//
 	G4VisManager* visManager = new G4VisExecutive("quiet");
 	visManager->Initialize();
@@ -93,7 +138,7 @@ int main(int argc,char** argv) {
 	// Initialize G4 kernel
 	//
 	//runManager->Initialize();
-
+	G4cout<<UImanager->GetMacroSearchPath()<<G4endl;
 	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
 	{
 

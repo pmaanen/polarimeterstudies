@@ -32,7 +32,6 @@
 #define SensitiveDetector_h 1
 
 #include "G4VSensitiveDetector.hh"
-
 #include "DetectorHit.hh"
 
 #include <vector>
@@ -56,21 +55,21 @@ class SensitiveDetectorMessenger;
 
 class TrackerSensitiveDetector : public G4VSensitiveDetector
 {
-  public:
-    TrackerSensitiveDetector(const G4String& name, 
-                const G4String& hitsCollectionName);
-    virtual ~TrackerSensitiveDetector();
-  
-    // methods from base class
-    virtual void   Initialize(G4HCofThisEvent* hitCollection);
-    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
-    virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
-    void BeginOfRun();
-    void EndOfRun();
+	class JediSensitiveDetector;
+	friend JediSensitiveDetector;
+public:
+	TrackerSensitiveDetector(const G4String& name,
+			const G4String& hitsCollectionName);
+	virtual ~TrackerSensitiveDetector();
+
+	// methods from base class
+	virtual void   Initialize(G4HCofThisEvent* hitCollection);
+	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 	std::vector<trackerhit_t>* getVect() {		return vect;	}
 
-  protected:
-    DetectorHitsCollection* fHitsCollection;
+protected:
+	DetectorHitsCollection* fHitsCollection;
 	std::vector<trackerhit_t> * vect;
 
 };

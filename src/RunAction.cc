@@ -15,7 +15,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "JediRun.hh"
 #include "G4AutoLock.hh"
-
+#include <G4EmProcessOptions.hh>
 namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -47,18 +47,23 @@ G4Run* RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
+	G4EmProcessOptions opt;
+
+	opt.SetSubCutoff(true);
+
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	auto an=Analysis::Instance();
 	an->BeginOfRun();
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
-		G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
+		if(gVerbose>2)
+			G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
 		return;
 	}
 
 	//Master or sequential
-
-	G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
+	if(gVerbose>2)
+		G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (fSeed<0) //not initialized by anybody else
 	{
 
@@ -84,7 +89,8 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	if (!IsMaster())
 	{
-		G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
+		if(gVerbose>2)
+			G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
 		return;
 	}
 	auto an=Analysis::Instance();
@@ -92,7 +98,8 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		an->EndOfRun(aRun);
 	}
 	// Complete clean-up
-	G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
+	if(gVerbose>2)
+		G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	return;
 
 }

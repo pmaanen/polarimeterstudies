@@ -16,7 +16,7 @@ public:
 	virtual ~Testbench();
 
 	void setTriggerLength(G4double triggerLength) {
-		this->fTriggerLength = triggerLength;
+		this->fTriggerHeight = triggerLength;
 		fChangedParameters=true;
 	}
 
@@ -51,7 +51,7 @@ protected:
 	G4Cache<CaloSensitiveDetector*> fTriggerSD;
 	G4LogicalVolume* fLogicTrigger;
 	std::vector<int> fMyTupleId;
-	G4double fTriggerLength,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
+	G4double fTriggerHeight,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
 	G4bool fTrigger;
 };
 

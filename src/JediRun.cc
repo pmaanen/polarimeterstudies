@@ -8,8 +8,12 @@
 #include <JediRun.hh>
 #include "Analysis.hh"
 #include <G4Threading.hh>
+
+
+#include "global.hh"
 JediRun::JediRun() {
-	G4cout<<"JediRun::JediRun(): "<<fEvents.size()<<" events."<<G4endl;
+	if(gVerbose>2)
+		G4cout<<"JediRun::JediRun(): "<<fEvents.size()<<" events."<<G4endl;
 }
 
 JediRun::~JediRun() {
@@ -24,7 +28,8 @@ void JediRun::Merge(const G4Run* aRun) {
 	auto an=Analysis::Instance();
 	auto events=an->getSimEvents();
 	auto genevents=an->getGenEvents();
-	G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events->size()<<" events.";
+	if(gVerbose>2)
+		G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events->size()<<" events.";
 	for(auto iEvent : *events){
 		fEvents.push_back(iEvent);
 	}

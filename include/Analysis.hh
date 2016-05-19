@@ -70,8 +70,9 @@ public:
 
 	void FillTree(){};
 	void RegisterTrackerSD(TrackerSensitiveDetector*);
+	void UnRegisterTrackerSD(TrackerSensitiveDetector*);
 	void RegisterCaloSD(CaloSensitiveDetector*);
-
+	void UnRegisterCaloSD(CaloSensitiveDetector*);
 	const std::vector<simevent_t>* getSimEvents() const {
 		return fSimEvents;
 	}
@@ -102,6 +103,8 @@ private:
 	TTree* fInfoTree;
 	TTree* fGenTree;
 	std::map<G4String,TBranch*> fOutBranches;
+
+
 
 	std::vector<CaloSensitiveDetector*> fCaloSD;
 	std::vector<TrackerSensitiveDetector*> fTrackerSD;

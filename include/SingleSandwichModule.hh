@@ -24,7 +24,8 @@ public:
 		}
 		fAbsorberMaterial=newMat;
 		fAbsorberMaterialName=absorberMaterialName;
-		G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
+		if(gVerbose==3)
+			G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
 		return;
 	}
 
@@ -47,7 +48,7 @@ protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
 	G4int fNumLayers;
-	G4double fAbsorberLength;
+	G4double fAbsorberLength,fDeLength;
 	G4Material* fAbsorberMaterial;
 	G4String fAbsorberMaterialName;
 };

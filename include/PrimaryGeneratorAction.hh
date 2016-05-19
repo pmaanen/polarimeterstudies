@@ -26,7 +26,7 @@ public:
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
-	void generateEventFromPhaseSpace(G4Event* E);
+	void generateEventFromGenerator(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
 	G4ParticleGun* getPGun() const {

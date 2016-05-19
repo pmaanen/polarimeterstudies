@@ -97,8 +97,15 @@ void DCElasticEventGenerator::DefineCommands()
 genevent_t DCElasticEventGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
-	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
-	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
+
+	auto position=fParticleGun->GetParticlePosition();
+	G4double x=position.x(),y=position.y(),z=position.z();
+	if(fSpotsize.x()>0)
+		x+=G4RandGauss::shoot(0,fSpotsize.x());
+	if(fSpotsize.y()>0)
+		y+=G4RandGauss::shoot(0,fSpotsize.y());
+	if(fSpotsize.z()>0)
+		z+=G4RandGauss::shoot(0,fSpotsize.z());
 	while (1) {
 		fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
 		fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
@@ -143,7 +150,7 @@ genevent_t DCElasticEventGenerator::Generate() {
 				continue;
 			}
 			else {
-				genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
+				genevent_t res(0,0,x/CLHEP::mm,y/CLHEP::mm,z/CLHEP::mm);
 				res.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*GeV-carbon_4.M()*GeV));
 				res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),deuteron_3.getX()/CLHEP::GeV,deuteron_3.getY()/CLHEP::GeV,deuteron_3.getZ()/CLHEP::GeV,deuteron_4.Energy()*GeV-deuteron_4.M()*GeV));
 				return res;

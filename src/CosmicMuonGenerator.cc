@@ -18,9 +18,6 @@
 #include "hit.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
 
-	fFunctions=new function_helper;
-	fAngle=new TF1("cos_squared",fFunctions,&function_helper::angle,0,3.1415,0,"function_helper","angle");
-	fMomentumAmp=new TF1("energy",fFunctions,&function_helper::energy,0,20,0,"function_helper","energy");
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
 
 	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
@@ -58,21 +55,22 @@ genevent_t CosmicMuonGenerator::Generate() {
 	while(yMom>0){
 		while(1){
 			theta=G4UniformRand()*CLHEP::pi/2;
-			if(fAngle->Eval(theta)>fAngle->GetMaximum(0,CLHEP::pi/2)*G4UniformRand())
+			auto acc=cosmic_functions::angle(0)*G4UniformRand();
+			if(cosmic_functions::angle(theta)>acc)
 				break;
 		}
-		phi=G4UniformRand()*2*CLHEP::pi;
+		phi=G4UniformRand()*2*CLHEP::pi*CLHEP::rad;
 		auto charge=G4UniformRand()-0.5;
 		if(charge>0)
 			part=G4MuonPlus::MuonPlusDefinition();
 		else
 			part=G4MuonMinus::MuonMinusDefinition();
 		while(1){
-			mom=G4UniformRand()*20;
-			if(fMomentumAmp->Eval(mom)>fMomentumAmp->GetMaximum(0,20)*G4UniformRand())
+			mom=G4UniformRand()*20*CLHEP::GeV;
+			auto acc=cosmic_functions::momentum(0)*G4UniformRand();
+			if(cosmic_functions::momentum(mom)>acc)
 				break;
 		}
-		mom*=CLHEP::GeV;
 		momentum=G4ThreeVector(mom*sin(theta)*cos(phi),mom*(-cos(theta)),mom*(sin(theta)*sin(phi)));
 		yMom=momentum.getY();
 	}
@@ -86,8 +84,4 @@ genevent_t CosmicMuonGenerator::Generate() {
 	return res;
 }
 
-void CosmicMuonGenerator::Initialize() {
-	fTupleId.clear();
-	Analysis* an=Analysis::Instance();
-	fRunInitialized=true;
-}
+void CosmicMuonGenerator::Initialize() {}

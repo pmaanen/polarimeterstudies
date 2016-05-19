@@ -22,6 +22,7 @@
 #include "EddaDetectorConstruction.hh"
 #include "global.hh"
 #include <G4GenericMessenger.hh>
+#include <TestBeam2016A.hh>
 #include <map>
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -59,37 +60,35 @@ void DetectorConstruction::InitializeGeometry() {
 		delete fGeometry;
 		fGeometry=nullptr;
 	}
-	std::string cubic("cubic");
-	std::string hexagonal("hexagonal");
-	std::string gdml("gdml");
-	std::string single("single");
-	std::string sandwich("sandwich");
-	std::string testbench("testbench");
-	std::string singlesandwich("singlesandwich");
-	std::string edda("edda");
-	if(fGeometryName==cubic){
+	auto name=fGeometryName.substr(0,fGeometryName.find(":"));
+
+	if(name=="cubic"){
 		fGeometry=new JediCubicPolarimeter();
 	}
-	else if(fGeometryName==hexagonal){
+	else if(name=="hexagonal"){
 		fGeometry=new JediHexagonalPolarimeter;
 	}
-	else if(fGeometryName==single){
+	else if(name=="single"){
 		fGeometry= new SingleCrystal();
 	}
-	else if(fGeometryName==sandwich){
+	else if(name=="sandwich"){
 		fGeometry= new JediSandwichCalorimeter();
 	}
-	else if(fGeometryName==testbench){
+	else if(name=="testbench"){
 		fGeometry= new Testbench();
 	}
-	else if(fGeometryName==singlesandwich){
+	else if(name=="singlesandwich"){
 		fGeometry= new SingleSandwichModule();
 	}
-	else if(fGeometryName==edda){
+	else if(name=="edda"){
 		fGeometry= new EddaDetectorConstruction();
 	}
-	if(!fGeometry){
-		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
-		fGeometry= new SingleCrystal();
+	else if(name=="testbeam")
+	{
+		fGeometry= new TestBeam2016A();
 	}
+		if(!fGeometry){
+			G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
+			fGeometry= new SingleCrystal();
+		}
 }

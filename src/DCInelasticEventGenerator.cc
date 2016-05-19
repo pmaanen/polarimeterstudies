@@ -12,7 +12,7 @@
 #include "G4Electron.hh"
 #include "TMath.h"
 #include "G4ParticleGun.hh"
-
+#include "global.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
 DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun) {
@@ -79,14 +79,16 @@ genevent_t DCInelasticEventGenerator::Generate() {
 			G4ThreeVector carbon_3(c3.X()*CLHEP::GeV,c3.Y()*CLHEP::GeV,c3.Z()*CLHEP::GeV);
 			auto q4=fBeam-deuteron_4;
 			auto q=sqrt(-(q4*q4))*CLHEP::GeV;
-			G4cout<<"q="<<q/CLHEP::GeV<<G4endl;
+			if(gVerbose>3)
+				G4cout<<"q="<<q/CLHEP::GeV<<G4endl;
 
 			if(fScatteringModel->Sigma(q/CLHEP::GeV,Ex/CLHEP::MeV)<acc){
 				continue;
 			}
 			else{
 				genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
-				G4cout<<"DATA="<<Ex/CLHEP::MeV<<" "<<(deuteron_4.Energy()-deuteron_4.M())/CLHEP::MeV<<G4endl;
+				if(gVerbose>3)
+					G4cout<<"DATA="<<Ex/CLHEP::MeV<<" "<<(deuteron_4.Energy()-deuteron_4.M())/CLHEP::MeV<<G4endl;
 				auto excitedCarbon=G4IonTable::GetIonTable()->GetIon(6,12,Ex);
 				res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),deuteron_3.getX()/CLHEP::GeV,deuteron_3.getY()/CLHEP::GeV,deuteron_3.getZ()/CLHEP::GeV,deuteron_4.Energy()*CLHEP::GeV-deuteron_4.M()*CLHEP::GeV));
 				res.particles.push_back(particle_t(excitedCarbon->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*CLHEP::GeV-carbon_4.M()*CLHEP::GeV));

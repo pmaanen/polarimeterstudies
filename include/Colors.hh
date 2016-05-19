@@ -17,5 +17,6 @@ green   (0.0, 1.0, 0.0), // green
 blue    (0.0, 0.0, 1.0), // blue
 cyan    (0.0, 1.0, 1.0), // cyan
 magenta (1.0, 0.0, 1.0), // magenta
-yellow  (1.0, 1.0, 0.0); // yellow
+yellow  (1.0, 1.0, 0.0), // yellow
+yellow_transparent  (1.0,1.0,0.0,0.5); //transparent yellow
 #endif /* INCLUDE_COLORS_HH_ */

@@ -23,7 +23,7 @@
 namespace { G4Mutex CaloSDMutex = G4MUTEX_INITIALIZER; }
 
 
-CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name),fName(name) {
+CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name) {
 	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",depth);
 	this->RegisterPrimitive(scorer);
 	Analysis::Instance()->RegisterCaloSD(this);
@@ -40,16 +40,10 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 			G4int collID=this->GetCollectionID(iPrim);
 			auto evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
 			for(const auto& iHit:*(evtMap->GetMap())){
-				try{
 					calorhit_t hit;
 					hit.detid=iHit.first;
 					hit.edep=*(iHit.second)/CLHEP::MeV;
 					vect->push_back(hit);
-				}
-				catch(myG4Exception& exc){
-					G4cout <<exc.getExceptionCode()<<" caught in hit loop"<<G4endl;
-					continue;
-				}
 			}
 		}
 	}
@@ -64,6 +58,7 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
 	return G4MultiFunctionalDetector::ProcessHits(step,history);
 }
 
-void CaloSensitiveDetector::BeginOfRun() {}
+CaloSensitiveDetector::~CaloSensitiveDetector() {
+	Analysis::Instance()->UnRegisterCaloSD(this);
+}
 
-void CaloSensitiveDetector::EndOfRun() {}

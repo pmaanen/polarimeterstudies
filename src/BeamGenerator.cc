@@ -12,7 +12,7 @@
 BeamGenerator::BeamGenerator(G4ParticleGun* gun) {
 	fXPrime=fYPrime=0;
 	fPosition=fSpotsize=G4ThreeVector(0,0,0);
-	fGun=gun;
+	fParticleGun=gun;
 
 	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/beam/", "beam event generator control");
 
@@ -20,6 +20,7 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun) {
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of gun");
 	fMessenger->DeclarePropertyWithUnit("xp","rad",fXPrime,"x prime");
 	fMessenger->DeclarePropertyWithUnit("yp","rad",fYPrime,"y prime");
+
 }
 
 BeamGenerator::~BeamGenerator() {
@@ -28,14 +29,15 @@ BeamGenerator::~BeamGenerator() {
 
 void BeamGenerator::Generate(G4Event* E) {
 	auto event=Generate();
-	fGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
+	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 	auto part=event.particles[0];
-	fGun->SetParticleMomentumDirection(G4ThreeVector(part.px,part.py,part.pz));
-	fGun->GeneratePrimaryVertex(E);
+	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(part.px,part.py,part.pz));
+	fParticleGun->GeneratePrimaryVertex(E);
 }
 
 genevent_t BeamGenerator::Generate() {
-	G4double x=fPosition.x(),y=fPosition.y(),z=fPosition.z();
+	auto position=fParticleGun->GetParticlePosition();
+	G4double x=position.x(),y=position.y(),z=position.z();
 	if(fSpotsize.x()>0)
 		x+=G4RandGauss::shoot(0,fSpotsize.x());
 	if(fSpotsize.y()>0)
@@ -48,9 +50,21 @@ genevent_t BeamGenerator::Generate() {
 	if(fYPrime>0)
 		direction.rotateY(G4RandGauss::shoot(0,fYPrime));
 
-
-	genevent_t res(0,0,x,y,z);
-	res.particles.push_back(particle_t(0,direction.getX(),direction.getY(),direction.getZ(),0));
+	genevent_t res(0,0,x/CLHEP::mm,y/CLHEP::mm,z/CLHEP::mm);
+	auto id=0;
+	G4double e=0;
+	G4double mom=0;
+	if(fParticleGun){
+		mom=fParticleGun->GetParticleMomentum()/CLHEP::GeV;
+		if(mom<1e-5){
+			auto mass=fParticleGun->GetParticleDefinition()->GetPDGMass()/CLHEP::GeV;
+			auto e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
+			mom=sqrt(e*e-mass*mass);
+		}
+		id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
+		e=fParticleGun->GetParticleEnergy()/CLHEP::GeV;
+	}
+	res.particles.push_back(particle_t(id,mom*direction.getX(),mom*direction.getY(),mom*direction.getZ(),0));
 	return res;
 
 }

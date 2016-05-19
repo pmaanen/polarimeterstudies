@@ -10,7 +10,7 @@
 Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
-	fTriggerLength=2.5*CLHEP::cm;
+	fTriggerHeight=2.5*CLHEP::cm;
 	fTriggerWidth=1.5*CLHEP::cm;
 	fTriggerThickness=.5*CLHEP::cm;
 	fTrigger=true;
@@ -32,25 +32,16 @@ G4VPhysicalVolume* Testbench::Construct() {
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-	G4RotationMatrix* rot=new G4RotationMatrix();
-	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,0), aCrystal, "Crystal", fLogicWorld, false, 0, false);
-	if(fTriggerThickness>0 and fTriggerLength>0 and fTriggerWidth>0){
-		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerThickness/2,fTriggerLength/2);
-		auto triggerRot=new G4RotationMatrix();
-		triggerRot->rotateX(90*CLHEP::deg);
-		fCaloSDVolumes["Trigger"]=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
-		fCaloSDVolumes["Trigger"]->SetVisAttributes(new G4VisAttributes(G4Colour(1.,0.,0.)));
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 0, false);
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-10*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 1, false);
+	auto solidTarget=new G4Box("Target",.5*CLHEP::cm,.5*CLHEP::cm,1*CLHEP::mm);
+	auto logicTarget=new G4LogicalVolume(solidTarget,G4NistManager::Instance()->FindOrBuildMaterial("G4_C"),"Target");
+	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicTarget,"Target",fLogicWorld,0,0,0);
 
-		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,15*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 2, false);
-		//new G4PVPlacement (triggerRot, G4ThreeVector(0,0,12.5*CLHEP::cm), fCaloSDVolumes["Trigger"], "Trigger", fLogicWorld, false, 3, false);
+	auto solidDetector=new G4Tubs("Detector",3.5*CLHEP::mm,12.3*CLHEP::mm,.5*CLHEP::mm,0,360*CLHEP::deg);
+	auto logicDetector=new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Detector");
+	new G4PVPlacement(0,G4ThreeVector(0,0,10*CLHEP::cm),logicDetector,"Detector",fLogicWorld,0,0,0);
 
+	fSensitiveDetectors.Update("Detector",SDtype::kPerfect,{logicDetector});
 
-
-	}
 	return fPhysiWorld;
 }
 

@@ -102,11 +102,12 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", fLogicWorld, false, ++ii, false);
 		}
 	}
-
+/*
 	G4cout<<"Geometry END"<<G4endl;
 	G4cout<<"----------------"<<G4endl;
 	G4cout<<"number of crystals: "<<ii<<G4endl;
 	G4cout<<"----------------"<<G4endl;
+	*/
 	return fPhysiWorld;
 }
 

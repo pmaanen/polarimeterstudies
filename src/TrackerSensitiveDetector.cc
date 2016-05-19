@@ -63,8 +63,9 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-TrackerSensitiveDetector::~TrackerSensitiveDetector() 
-{}
+TrackerSensitiveDetector::~TrackerSensitiveDetector(){
+	Analysis::Instance()->UnRegisterTrackerSD(this);
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -98,7 +99,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 	newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
 	newHit->SetEdep(edep);
-	newHit->SetEtot(aStep->GetTrack()->GetKineticEnergy());
+	newHit->SetEkin(aStep->GetTrack()->GetKineticEnergy());
 	newHit->SetPos (aStep->GetPreStepPoint()->GetPosition());
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
@@ -151,9 +152,4 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
 	}
 	return;
 }
-
-void TrackerSensitiveDetector::BeginOfRun() {}
-
-
-void TrackerSensitiveDetector::EndOfRun() {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

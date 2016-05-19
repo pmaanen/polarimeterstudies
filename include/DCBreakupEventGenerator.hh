@@ -24,7 +24,7 @@ protected:
 	virtual void DefineCommands();
 	Double_t fMomentum_cms,fBeamPolarization;
 	deuteron_breakup_model* fScatteringModel;
-	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization); fInitialized=false;};
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization); fRunInitialized=false;};
 
 };
 

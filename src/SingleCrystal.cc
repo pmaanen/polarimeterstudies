@@ -40,11 +40,11 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
 	G4Box* solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
-	auto solidEnvelope=new G4Box("solidEnv1",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,fCrystalLength/2+1*CLHEP::mm);
+	//auto solidEnvelope=new G4Box("solidEnv1",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,fCrystalLength/2+1*CLHEP::mm);
 	//auto solidEnv2= new G4Box("solidEnv2",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,1*CLHEP::mm);
 	//auto solidEnvelope=new G4SubtractionSolid("solidEnvelope",solidEnv1,solidEnv2,0,G4ThreeVector(0,0,-fCrystalLength/2-.5*CLHEP::mm));
-	G4LogicalVolume* logicEnvelope = new G4LogicalVolume(solidEnvelope,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Envelope");
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"Detector",logicEnvelope,false,0,false);
+	//G4LogicalVolume* logicEnvelope = new G4LogicalVolume(solidEnvelope,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Envelope");
+	//new G4PVPlacement(0,G4ThreeVector(0,0,0),logicDetector,"Detector",logicEnvelope,false,0,false);
 
 
 
@@ -58,9 +58,9 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	fPerfectSDVolumes["Envelope"]=logicEnvelope;
-	fPerfectSDVolumes["Calorimeter"]=logicDetector;
-	return logicEnvelope;
+	//fPerfectSDVolumes["Envelope"]=logicEnvelope;
+	fCaloSDVolumes["Calorimeter"].push_back(logicDetector);
+	return logicDetector;
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {

@@ -6,13 +6,17 @@
  */
 
 #include <DCBreakupEventGenerator.hh>
+
+#include "global.hh"
+
+#include "VertexGeneratorO.hh"
+#include "VertexGeneratorU.hh"
+
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
 #include "TMath.h"
 #include "G4ParticleGun.hh"
 
-#include "VertexGeneratorO.hh"
-#include "VertexGeneratorU.hh"
 static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
 
@@ -77,6 +81,11 @@ genevent_t DCBreakupEventGenerator::Generate() {
 
 	if(!fInitialized)
 		Initialize();
+
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX(),fBeamspot.getY(),fBeamspot.getZ());
+	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX(),fSpotsize.getY(),fSpotsize.getZ());
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ());
+
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	while (1) {
@@ -117,29 +126,30 @@ genevent_t DCBreakupEventGenerator::Generate() {
 		neutronCMS.Boost(-fCms.BoostVector());
 		Ex=(neutronCMS.E()-neutronCMS.M())*CLHEP::GeV;
 		//G4cout<<G4BestUnit(Ex,"Energy")<<G4endl;
-				//Set angular cut in lab-frame
-				if(th_scattered>fThetaMin and th_scattered<fThetaMax){
-					if(Ex<0)
-						continue;
-					G4double acc=100*G4UniformRand();
-					auto p3=proton_4.Vect();
-					auto c3=carbon_4.Vect();
-					auto n3=neutron_4.Vect();
-					G4ThreeVector proton_3(p3.X()*CLHEP::GeV,p3.Y()*CLHEP::GeV,p3.Z()*CLHEP::GeV);
-					G4ThreeVector carbon_3(c3.X()*CLHEP::GeV,c3.Y()*CLHEP::GeV,c3.Z()*CLHEP::GeV);
-					G4ThreeVector neutron_3(n3.X()*CLHEP::GeV,n3.Y()*CLHEP::GeV,n3.Z()*CLHEP::GeV);
-					if(fScatteringModel->sigma(th_scattered/CLHEP::deg,0,Ex/CLHEP::MeV)<acc){
-						continue;
-					}
-					else{
-						genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
-						G4cout<<"Ep="<<(proton_4.Energy()*CLHEP::GeV-proton_4.M()*CLHEP::GeV)/CLHEP::MeV<<G4endl;
-						res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),proton_3.getX()/CLHEP::GeV,proton_3.getY()/CLHEP::GeV,proton_3.getZ()/CLHEP::GeV,proton_4.Energy()*CLHEP::GeV-proton_4.M()*CLHEP::GeV));
-						res.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),neutron_3.getX()/CLHEP::GeV,neutron_3.getY()/CLHEP::GeV,neutron_3.getZ()/CLHEP::GeV,neutron_4.Energy()*CLHEP::GeV-neutron_4.M()*CLHEP::GeV));
-						res.particles.push_back(particle_t(fParticles[2]->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*CLHEP::GeV-carbon_4.M()*CLHEP::GeV));
-						return res;
-					}
-				}
+		//Set angular cut in lab-frame
+		if(th_scattered>fThetaMin and th_scattered<fThetaMax){
+			if(Ex<0)
+				continue;
+			G4double acc=100*G4UniformRand();
+			auto p3=proton_4.Vect();
+			auto c3=carbon_4.Vect();
+			auto n3=neutron_4.Vect();
+			G4ThreeVector proton_3(p3.X()*CLHEP::GeV,p3.Y()*CLHEP::GeV,p3.Z()*CLHEP::GeV);
+			G4ThreeVector carbon_3(c3.X()*CLHEP::GeV,c3.Y()*CLHEP::GeV,c3.Z()*CLHEP::GeV);
+			G4ThreeVector neutron_3(n3.X()*CLHEP::GeV,n3.Y()*CLHEP::GeV,n3.Z()*CLHEP::GeV);
+			if(fScatteringModel->sigma(th_scattered/CLHEP::deg,0,Ex/CLHEP::MeV)<acc){
+				continue;
+			}
+			else{
+				genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
+				if(gVerbose>3)
+					G4cout<<"Ep="<<(proton_4.Energy()*CLHEP::GeV-proton_4.M()*CLHEP::GeV)/CLHEP::MeV<<G4endl;
+				res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),proton_3.getX()/CLHEP::GeV,proton_3.getY()/CLHEP::GeV,proton_3.getZ()/CLHEP::GeV,proton_4.Energy()*CLHEP::GeV-proton_4.M()*CLHEP::GeV));
+				res.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),neutron_3.getX()/CLHEP::GeV,neutron_3.getY()/CLHEP::GeV,neutron_3.getZ()/CLHEP::GeV,neutron_4.Energy()*CLHEP::GeV-neutron_4.M()*CLHEP::GeV));
+				res.particles.push_back(particle_t(fParticles[2]->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*CLHEP::GeV-carbon_4.M()*CLHEP::GeV));
+				return res;
+			}
+		}
 	}
 }
 

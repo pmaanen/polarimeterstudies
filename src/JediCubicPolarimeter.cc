@@ -109,10 +109,10 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		while(std::getline(ifile, line)){
 			if(line[0]=='#') continue;
 			std::istringstream(line)>>copyNo>>name>>matName>>x>>y>>z>>placementX>>placementY>>placementZ;
-			if(!fCaloSDVolumes[name]){
-				fCaloSDVolumes[name]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);;
+			if(!fCaloSDVolumes[name][0]){
+				fCaloSDVolumes[name][0]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);
 			}
-			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fCaloSDVolumes[name] , name, fLogicWorld, false, copyNo, false);
+			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fCaloSDVolumes[name][0] , name, fLogicWorld, false, copyNo, false);
 		}
 		return fPhysiWorld;
 	}
@@ -120,13 +120,13 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	fGeomCache.clear();
 	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
 	aCrystal->SetVisAttributes(new G4VisAttributes(green));
-	fCaloSDVolumes["Calorimeter"]=aCrystal;
+	fCaloSDVolumes["Calorimeter"].push_back(aCrystal);
 
 	if(fHodoscopeShape=="pizza"){
 		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
 		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
 		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
-		fCaloSDVolumes["Hodoscope"]=aDetectorElement;
+		fCaloSDVolumes["Hodoscope"].push_back(aDetectorElement);
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot1=new G4RotationMatrix();
 			rot1->rotateZ(iSlice*10*CLHEP::deg);
@@ -144,7 +144,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	else if(fHodoscopeShape=="square"){
 		auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
 		aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
-		fCaloSDVolumes["Hodoscope"]=aDeltaETile;
+		fCaloSDVolumes["Hodoscope"].push_back(aDeltaETile);
 		PlaceHodoscope(aDeltaETile);
 	}
 	else{

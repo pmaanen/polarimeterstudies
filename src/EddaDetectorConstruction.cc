@@ -40,11 +40,12 @@
 #include "G4SDManager.hh"
 #include "EddaDetectorConstruction.hh"
 
+#include "global.hh"
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 EddaDetectorConstruction::EddaDetectorConstruction()
-  :logicWorld(0), physiWorld(0), LogicalTube(0), PhysicalTube(0), LogicalSiPM(0), PhysicalSiPM(0), LogicalTarget(0), PhysicalTarget(0)
+:logicWorld(0), physiWorld(0), LogicalTube(0), PhysicalTube(0), LogicalSiPM(0), PhysicalSiPM(0), LogicalTarget(0), PhysicalTarget(0)
 {;}
 
 
@@ -93,7 +94,7 @@ void EddaDetectorConstruction::DefineMaterials()
 	Air = man->FindOrBuildMaterial("G4_AIR");
 
 	//Polystyrene 
- 	Pstyrene = man->FindOrBuildMaterial("G4_POLYSTYRENE");
+	Pstyrene = man->FindOrBuildMaterial("G4_POLYSTYRENE");
 
 	//Fiber(PMMA)
 	G4int polyPMMA = 1;
@@ -110,7 +111,7 @@ void EddaDetectorConstruction::DefineMaterials()
 
 	//Cladding(polyethylene)   G4_POLYETHYLENE
 	Pethylene = man->FindOrBuildMaterial("G4_POLYETHYLENE");
-	
+
 	//Double cladding(fluorinated polyethylene)
 	fPethylene = new G4Material("fPethylene", density=1400*kg/m3,1);
 	fPethylene->AddMaterial(Pethylene,1.);
@@ -126,7 +127,7 @@ void EddaDetectorConstruction::DefineMaterials()
 	pScint = new G4Material(name="pScintillator", density, ncomponents=2);
 	pScint->AddElement(C, natoms=9);
 	pScint->AddElement(H, natoms=10);
-	
+
 	TargetMaterial = man->FindOrBuildMaterial("G4_POLYCARBONATE");
 	//TargetMaterial = man->FindOrBuildMaterial("G4_H");
 
@@ -142,16 +143,16 @@ void EddaDetectorConstruction::DefineMaterials()
 
 
 void EddaDetectorConstruction::DefineMaterialProperties(){
-// 	const G4int NUMENTRIES = 2;
-// 	G4double pScint_PP[NUMENTRIES]    = { 171.2068*eV, 331*eV };
-// 	G4double pScint_SCINT[NUMENTRIES] = { 1.0, 1.0 };
-// 	G4double pScint_RIND[NUMENTRIES]  = { 1.57, 1.57 };
-// 	G4double pScint_ABSL[NUMENTRIES]  = { 1500*cm, 2500*cm};
-// 	G4MaterialPropertiesTable *pScint_mt = new G4MaterialPropertiesTable();
-// 	pScint_mt->AddProperty("SCINTILLATION", pScint_PP, pScint_SCINT, NUMENTRIES);
-// 	pScint_mt->AddProperty("RINDEX",        pScint_PP, pScint_RIND,  NUMENTRIES);
-// 	pScint_mt->AddProperty("ABSLENGTH",     pScint_PP, pScint_ABSL,  NUMENTRIES);
-// 	pScint->SetMaterialPropertiesTable(pScint_mt);
+	// 	const G4int NUMENTRIES = 2;
+	// 	G4double pScint_PP[NUMENTRIES]    = { 171.2068*eV, 331*eV };
+	// 	G4double pScint_SCINT[NUMENTRIES] = { 1.0, 1.0 };
+	// 	G4double pScint_RIND[NUMENTRIES]  = { 1.57, 1.57 };
+	// 	G4double pScint_ABSL[NUMENTRIES]  = { 1500*cm, 2500*cm};
+	// 	G4MaterialPropertiesTable *pScint_mt = new G4MaterialPropertiesTable();
+	// 	pScint_mt->AddProperty("SCINTILLATION", pScint_PP, pScint_SCINT, NUMENTRIES);
+	// 	pScint_mt->AddProperty("RINDEX",        pScint_PP, pScint_RIND,  NUMENTRIES);
+	// 	pScint_mt->AddProperty("ABSLENGTH",     pScint_PP, pScint_ABSL,  NUMENTRIES);
+	// 	pScint->SetMaterialPropertiesTable(pScint_mt);
 
 	const G4int VAC_NUMENTRIES = 3;
 
@@ -173,7 +174,7 @@ void EddaDetectorConstruction::DefineMaterialProperties(){
 	G4double Absorption1[FIBER_NUMENTRIES]={2.*cm, 2.*cm, 2.*cm, 2.*cm};
 	MPTPStyrene->AddProperty("ABSLENGTH",FIBER_Energy,Absorption1,FIBER_NUMENTRIES);
 
- 	G4double ScintilFast[FIBER_NUMENTRIES]={0.00, 0.00, 1.00, 1.00}; 
+	G4double ScintilFast[FIBER_NUMENTRIES]={0.00, 0.00, 1.00, 1.00};
 	MPTPStyrene->AddProperty("FASTCOMPONENT",FIBER_Energy, ScintilFast,FIBER_NUMENTRIES);
 	MPTPStyrene->AddConstProperty("SCINTILLATIONYIELD",10./keV);
 	MPTPStyrene->AddConstProperty("RESOLUTIONSCALE",1.0);
@@ -181,13 +182,13 @@ void EddaDetectorConstruction::DefineMaterialProperties(){
 
 	// Set the Birks Constant for the Polystyrene scintillator
 	Pstyrene->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
-	
+
 	G4double RefractiveIndexClad1[FIBER_NUMENTRIES]={ 1.49, 1.49, 1.49, 1.49};
 	G4MaterialPropertiesTable* MPTClad1 = new G4MaterialPropertiesTable();
 	MPTClad1->AddProperty("RINDEX", FIBER_Energy, RefractiveIndexClad1, FIBER_NUMENTRIES);
 	MPTClad1->AddProperty("ABSLENGTH", FIBER_Energy, Absorption1, FIBER_NUMENTRIES);
 	Pethylene->SetMaterialPropertiesTable(MPTClad1);
-	
+
 	G4double RefractiveIndexClad2[FIBER_NUMENTRIES]={ 1.42, 1.42, 1.42, 1.42};
 	G4MaterialPropertiesTable* MPTClad2 = new G4MaterialPropertiesTable();
 	MPTClad2->AddProperty("RINDEX", FIBER_Energy, RefractiveIndexClad2, FIBER_NUMENTRIES);
@@ -200,7 +201,7 @@ void EddaDetectorConstruction::DefineMaterialProperties(){
 	G4MaterialPropertiesTable* MPTMirror = new G4MaterialPropertiesTable();
 	MPTMirror->AddProperty("RINDEX", MirrorEnergy, RefractiveIndexMirror, MIRROR_NUMENTRIES);
 	MirrorMaterial->SetMaterialPropertiesTable(MPTMirror);
-	
+
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -253,7 +254,7 @@ G4LogicalVolume * EddaDetectorConstruction::ConstructFiber(G4double Rmax, G4doub
 
 	new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), Fiber_log, "Fiber", clad1_log, false, 0);
 	new G4PVPlacement(0, G4ThreeVector(0.,0.,0.), clad1_log, "Cladding1", clad2_log, false, 0);
-	
+
 	return clad2_log;
 }
 // //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -272,19 +273,19 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4double WorldSizeZ = 2 *m;
 
 	G4Box* solidWorld = new G4Box("World",			//its name
-					WorldSizeX/2,WorldSizeY/2,WorldSizeZ/2);	//its size
+			WorldSizeX/2,WorldSizeY/2,WorldSizeZ/2);	//its size
 
 	logicWorld = new G4LogicalVolume(solidWorld,	//its solid
-									Vacuum,			//defaultMaterial,
-									"World");		//its name
+			Vacuum,			//defaultMaterial,
+			"World");		//its name
 
 	physiWorld = new G4PVPlacement(0,			//no rotation
-							G4ThreeVector(),	//at (0,0,0)
-							"World",			//its name
-							logicWorld,			//its logical volume
-							0,					//its mother  volume
-							false,				//no boolean operation
-							0);					//copy number
+			G4ThreeVector(),	//at (0,0,0)
+			"World",			//its name
+			logicWorld,			//its logical volume
+			0,					//its mother  volume
+			false,				//no boolean operation
+			0);					//copy number
 
 
 	//Target
@@ -295,13 +296,13 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4double TargetPositionX = 0*cm;
 	G4double TargetPositionY = 0*cm;
 	G4double TargetPositionZ = 0*cm;
-	
+
 	G4Box* solidTarget = new G4Box("SolidTarget", TargetSizeX/2, TargetSizeY/2, TargetSizeZ/2);
 	LogicalTarget = new G4LogicalVolume(solidTarget, TargetMaterial, "LogicalTarget");
 	PhysicalTarget = new G4PVPlacement(0, G4ThreeVector(TargetPositionX, TargetPositionY, TargetPositionZ),"PhysicalTarget", LogicalTarget, physiWorld, false, 0);
 
 	//EDDA
-/*
+	/*
 # accepted z-range (mm):   0.0 -   0.0
 # ring geometry used for calculating prediction:
 # ring #  z (mm)   dz(mm)  low r   up r   low z  up z
@@ -334,7 +335,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 #   27	779.581	 84.562	194.200	171.000	779.581	864.143
 #   28	864.143	 93.755	194.200	171.000	864.143	957.898
 #   29	957.898	 20.000	194.200	171.000	957.898	977.898
-*/
+	 */
 	double RBar = 160.;
 	double Rmin = 171.;
 	double Rmax[29] = {0};
@@ -366,11 +367,11 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	LogicalEdda = new G4LogicalVolume(solidEdda, Pstyrene, "LogicalEdda");
 	PhysicalEdda = new G4PVPlacement(0, G4ThreeVector(0, 0, (EddaStart + EddaZ/2.)), "PhysicalEdda", LogicalEdda, physiWorld, false, 0);
 
-		
+
 	G4Color
-		yellow(1.0,1.0,0.0),
-		red(1.0,0.0,0.0),
-		white(1.0,1.0,1.0);
+	yellow(1.0,1.0,0.0),
+	red(1.0,0.0,0.0),
+	white(1.0,1.0,1.0);
 
 
 	//Setting SensitiveDetectors
@@ -384,13 +385,14 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 
 	for(int i=0; i<29; i++){
 		//left ring
-	G4cout<<"Left: "<<"Ring " <<i<<G4endl;
+		if(gVerbose>3)
+			G4cout<<"Left: "<<"Ring " <<i<<G4endl;
 		G4double startPhi = 90.*deg;
 		G4double deltaPhi = 180.*deg;
 		G4Tubs * solidRingL = new G4Tubs("solidRingL", Rmin*mm, Rmax[i]*mm, dZ[i]*mm/2., startPhi, deltaPhi);
 		G4LogicalVolume *LogicalRingL = new G4LogicalVolume(solidRingL, Pstyrene, "LogicalRingL");
 
-		
+
 		//right ring
 		startPhi = 270.*deg;
 		G4Tubs * solidRingR = new G4Tubs("solidRingR", Rmin*mm, Rmax[i]*mm, dZ[i]*mm/2., startPhi, deltaPhi);
@@ -408,7 +410,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 		new G4PVPlacement(0, G4ThreeVector(0,0,(lowZ[i] + dZ[i]/2.)*mm - EddaStart - EddaZ/2. ), "PhysicalRingR", LogicalRingR, PhysicalEdda, false, i);
 
 	}
-	
+
 	double angleStep = 360./32.*deg;	// 32 Bars around 360deg
 	G4double dx1 = 64.9*mm;
 	G4double dx2 = 0.*mm;
@@ -435,7 +437,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 
 
 
-/* Barrels
+	/* Barrels
 	G4double Barrel_1Rmin = 10*cm;
 	G4double Barrel_1Rmax = Barrel_1Rmin + 5*mm;
 	G4double Barrel_1z = 1*m;
@@ -468,9 +470,9 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4double Barrel_2Rmax = Barrel_2Rmin + 5*mm;
 	G4double Barrel_2z = 1*m;
 
-	
 
-	
+
+
 
 	G4Tubs* solidBarrel_2 = new G4Tubs("solidBarrel_2", Barrel_2Rmin, Barrel_2Rmax, Barrel_2z/2., Barrel_PhiMin, Barrel_PhiMax); 
 	LogicalBarrel_2 = new G4LogicalVolume(solidBarrel_2, Pstyrene, "LogicalBarrel_2");
@@ -505,10 +507,10 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	aBarrelSD = new DetectorPhysSDBarrel( SDname = "/Barrel_2" );
 	SDman->AddNewDetector( aBarrelSD );
 	LogicalBarrel_2->SetSensitiveDetector( aBarrelSD );
-*/
-	 
+	 */
 
-/*
+
+	/*
 	//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 	//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 	//
@@ -526,7 +528,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4double SiPMZ = .1*mm;
 	G4int NoSiPMs = 16;
 
-	
+
 	G4double LayerX = NoTubes*Rges + Rges;
 	G4double LayerY = (2+sqrt(3))*Rges;
 	G4double LayerZ = Lz + 2*SiPMOffset + 2*SiPMZ;
@@ -541,7 +543,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4VPhysicalVolume* PhysicalLayer = new G4PVPlacement(G4Transform3D(*LayerRot, LayerTrans), "physicalLayer", LogicalLayer, physiWorld, false, 0);
 
 	LogicalTube = ConstructFiber(Rmax, Lz, 0.015);
-	
+
 	G4OpticalSurface* TubeWrap = new G4OpticalSurface("TubeWrap");
 	TubeWrap->SetType(dielectric_metal);
 	TubeWrap->SetFinish(polished);
@@ -594,7 +596,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 		G4double ZPosition = Lz/2+SiPMZ/2 + SiPMOffset;	
 		PhysicalSiPM = new G4PVPlacement(0, G4ThreeVector(XPosition, YPosition, ZPosition), "SiPM", LogicalSiPM, PhysicalLayer, false, i);
 	}
-*/
+	 */
 
 	//Layout option1: back with mirror
 	/*G4Box* SolidMirror = new G4Box("Mirror", LayerX/2, LayerY/2, SiPMZ/2);
@@ -617,33 +619,33 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	FiberMirror->SetMaterialPropertiesTable(FiberMirrorProperty);
 
 	new G4LogicalBorderSurface("FiberMirror", PhysicalMirror, PhysicalTube, FiberMirror);*/
-	
 
-	
+
+
 
 	// Visualization attributes
 
 
 	G4Color
-		//red(1.0,0.0,0.0),
-		//yellow(1.0,1.0,0.0),
-		green(0.0,1.0,0.0),
-		blue(0.0,0.0,1.0),
-		brown(0.4,0.4,0.1),
-		metal(204/255., 204/255, 255/255.),
-		lblue(153/255., 255/255., 153/255.),
-		lgreen(153/255. ,255/255. ,153/255.);
+	//red(1.0,0.0,0.0),
+	//yellow(1.0,1.0,0.0),
+	green(0.0,1.0,0.0),
+	blue(0.0,0.0,1.0),
+	brown(0.4,0.4,0.1),
+	metal(204/255., 204/255, 255/255.),
+	lblue(153/255., 255/255., 153/255.),
+	lgreen(153/255. ,255/255. ,153/255.);
 
 	LogicalTarget->SetVisAttributes(new G4VisAttributes(white));
 	logicWorld->SetVisAttributes (G4VisAttributes::Invisible);
 
 	LogicalEdda->SetVisAttributes(G4VisAttributes::Invisible); 
-	
-// 	LogicalBarrel_1->SetVisAttributes( new G4VisAttributes(metal));
-// 
-// 	LogicalBarrel_2->SetVisAttributes( new G4VisAttributes(lgreen));
-// 	LogicalTubs1->SetVisAttributes( new G4VisAttributes(false, white) );
-// 	LogicalTorus1->SetVisAttributes( new G4VisAttributes(false, white) );
+
+	// 	LogicalBarrel_1->SetVisAttributes( new G4VisAttributes(metal));
+	//
+	// 	LogicalBarrel_2->SetVisAttributes( new G4VisAttributes(lgreen));
+	// 	LogicalTubs1->SetVisAttributes( new G4VisAttributes(false, white) );
+	// 	LogicalTorus1->SetVisAttributes( new G4VisAttributes(false, white) );
 	//LogicalTubs2->SetVisAttributes( G4VisAttributes::Invisible);
 	//LogicalTorus2->SetVisAttributes( G4VisAttributes::Invisible);
 

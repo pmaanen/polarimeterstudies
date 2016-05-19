@@ -27,7 +27,7 @@ public:
 	virtual ~DCElasticEventGenerator();
 	virtual void Initialize();
 	virtual genevent_t Generate();
-	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fInitialized=false;};
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fRunInitialized=false;};
 
 protected:
 

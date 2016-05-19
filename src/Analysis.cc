@@ -27,6 +27,7 @@
 #include "tools/wroot/file"
 #include <algorithm>
 #include "hit.hh"
+#include "global.hh"
 //
 #include "JediRun.hh"
 #include <G4Threading.hh>
@@ -68,12 +69,18 @@ void Analysis::BeginOfRun() {
 void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
 	if(!G4Threading::IsWorkerThread()){
-		G4cout<<"Creating file and trees..."<<G4endl;
+		if(gVerbose>1)
+			G4cout<<"Creating file and trees..."<<G4endl;
 		G4String fileName("");
+		//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
 		if(fFileName==""){
-			std::stringstream fname;
-			fname<<"run_"<<run->GetRunID()<<".root";
-			fileName=fname.str().c_str();
+			if(gConfig.count("analysis.output_file"))
+				fileName=gConfig["analysis.output_file"].as<std::string>();
+			else{
+				std::stringstream fname;
+				fname<<"run_"<<run->GetRunID()<<".root";
+				fileName=fname.str().c_str();
+			}
 		}else{
 			fileName=fFileName;
 		}
@@ -87,7 +94,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 		// Write events from SD to file
 		auto GenEvents=myRun->getGenEvents();
 		genevent_t* thisEvent=nullptr;
-		G4cout<<"generator name:"<<fGeneratorName<<G4endl;
+		if(gVerbose>2)
+			G4cout<<"generator name:"<<fGeneratorName<<G4endl;
 		fOutBranches["gen"]=GenTree.Branch(fGeneratorName,"genevent_t",&thisEvent);
 		for(auto iEvent : GenEvents){
 			thisEvent=&iEvent;
@@ -99,9 +107,9 @@ void Analysis::EndOfRun(const G4Run* run) {
 		auto first=(*SimEvents)[0];
 
 		for(auto detector : first.calorimeter){
-
 			if ( std::find(fCaloSDNames.begin(),fCaloSDNames.end(),G4String(detector.first)) == fCaloSDNames.end()){
-				G4cout<<"Creating branch for "<<detector.first<<G4endl;
+				if(gVerbose>2)
+					G4cout<<"Creating branch for "<<detector.first<<G4endl;
 				fCaloHits[detector.first]=nullptr;
 				fCaloSDNames.push_back(detector.first);
 				fOutBranches[detector.first]=SimTree.Branch(detector.first.c_str(),"std::vector<calorhit_t>",&fCaloHits[detector.first]);
@@ -109,7 +117,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 		}
 		for(auto detector : first.tracker){
 			if ( std::find(fTrackerSDNames.begin(),fTrackerSDNames.end(),G4String(detector.first)) == fTrackerSDNames.end()){
-				G4cout<<"Creating branch for "<<detector.first<<G4endl;
+				if(gVerbose>2)
+					G4cout<<"Creating branch for "<<detector.first<<G4endl;
 				fTrackerHits[detector.first]=nullptr;
 				fTrackerSDNames.push_back(detector.first);
 				fOutBranches[detector.first]=SimTree.Branch(detector.first.c_str(),"std::vector<trackerhit_t>",&fTrackerHits[detector.first]);
@@ -133,11 +142,11 @@ void Analysis::EndOfRun(const G4Run* run) {
 				delete pointer.second;
 				pointer.second=nullptr;
 			}
-
 		}
 
 		//
-		G4cout<<"Writing Tree to file..."<<G4endl;
+		if(gVerbose>2)
+			G4cout<<"Writing Tree to file..."<<G4endl;
 		OutFile.Write();
 		fOutBranches.clear();
 		fCaloSDNames.clear();
@@ -147,14 +156,37 @@ void Analysis::EndOfRun(const G4Run* run) {
 }
 
 void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
-	fTrackerSD.push_back(sd);
+	if(gVerbose>3)
+		G4cout<<"Analysis::RegisterTrackerSD: "<<sd->GetName()<<G4endl;
+	if(std::find(fTrackerSD.begin(),fTrackerSD.end(),sd)==fTrackerSD.end())
+		fTrackerSD.push_back(sd);
 	return;
 }
 
 void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
-	fCaloSD.push_back(sd);
+	if(gVerbose>3)
+		G4cout<<"Analysis::RegisterCaloSD: "<<sd->GetName()<<G4endl;
+	if(std::find(fCaloSD.begin(),fCaloSD.end(),sd)==fCaloSD.end())
+		fCaloSD.push_back(sd);
 	return;
 }
+
+void Analysis::UnRegisterTrackerSD(TrackerSensitiveDetector* sd) {
+	if(gVerbose>3)
+		G4cout<<"Analysis::UnRegisterTrackerSD: "<<sd->GetName()<<G4endl;
+	auto pos=std::find(fTrackerSD.begin(),fTrackerSD.end(),sd);
+	if(pos!=fTrackerSD.end())
+		fTrackerSD.erase(pos);
+}
+
+void Analysis::UnRegisterCaloSD(CaloSensitiveDetector* sd) {
+	if(gVerbose>3)
+		G4cout<<"Analysis::UnRegisterCaloSD: "<<sd->GetName()<<G4endl;
+	auto pos=std::find(fCaloSD.begin(),fCaloSD.end(),sd);
+	if(pos!=fCaloSD.end())
+		fCaloSD.erase(pos);
+}
+
 
 void Analysis::BeginOfEvent() {}
 
@@ -172,11 +204,11 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 	thisGenEvent.eventid=evt->GetEventID();
 	auto gen=static_cast<const PrimaryGeneratorAction*>(G4MTRunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
 	if(gen==nullptr){
-		G4cout<<"Error! Could not convert primary generator!"<<G4endl;
-		return;
+		G4Exception("Analysis::EndOfEvent","",FatalException,"Could not find PrimaryGeneratorAction or pointer is invalid!");
 	}
 	if(evt->GetEventID()==0){
-		G4cout<<"Setting generator name to "<<gen->getGeneratorName()<<G4endl;
+		if(gVerbose>2)
+			G4cout<<"Setting generator name to "<<gen->getGeneratorName()<<G4endl;
 		fGeneratorName=gen->getGeneratorName();
 	}
 	thisGenEvent=gen->getGenEvent();

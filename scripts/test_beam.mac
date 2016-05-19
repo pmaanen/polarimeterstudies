@@ -1,0 +1,7 @@
+/analysis/Enable
+/PolarimeterStudies/generator/setGenerator beam
+/PolarimeterStudies/beam/spotsize .425 .425 0 cm
+/gun/position 0 0 -30 cm
+/gun/energy 270 MeV
+/gun/particle deuteron
+/run/beamOn 100
