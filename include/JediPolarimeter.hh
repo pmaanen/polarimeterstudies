@@ -138,13 +138,15 @@ protected:
 
 	std::vector<std::string> fGeomCache;
 
+
+	SensitiveDetectorMap fSensitiveDetectors;
 	//Sensitive detectors
 	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
 	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
 	std::map<G4String,G4Cache<PerfectDetector*> >fPerfectSD;
-	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
-	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
-	std::map<G4String,G4LogicalVolume*> fPerfectSDVolumes;
+	std::map<G4String,std::vector<G4LogicalVolume*> > fCaloSDVolumes;
+	std::map<G4String,std::vector<G4LogicalVolume*> > fTrackerSDVolumes;
+	std::map<G4String,std::vector<G4LogicalVolume*> > fPerfectSDVolumes;
 
 	//Input file if constructed from file
 	std::string fInfileName;

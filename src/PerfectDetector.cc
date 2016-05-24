@@ -24,8 +24,7 @@ class SensitiveDetectorMessenger;
 #include "global.hh"
 #include <G4VProcess.hh>
 #include <algorithm>
-PerfectDetector::PerfectDetector(const G4String& name,
-		const G4String& hitsCollectionName):TrackerSensitiveDetector(name,hitsCollectionName) {
+PerfectDetector::PerfectDetector(const G4String& name):TrackerSensitiveDetector(name) {
 }
 
 G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) {
@@ -56,8 +55,6 @@ G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) 
 	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
 	newHit->setMom(aStep->GetPreStepPoint()->GetMomentum());
 	fHitsCollection->insert( newHit );
-	if(gVerbose>3)
-		G4cout<<"PerfectDetector::ProcessHits: "<<GetName()<<G4endl;
 	return true;
 }
 

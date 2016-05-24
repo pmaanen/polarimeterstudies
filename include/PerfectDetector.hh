@@ -12,11 +12,14 @@
 
 class PerfectDetector: public TrackerSensitiveDetector {
 public:
-	PerfectDetector(const G4String& name,
-            const G4String& hitsCollectionName);
+	PerfectDetector(const G4String& name);
 
 	// methods from base class
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+
+	virtual void EndOfEvent(G4HCofThisEvent* hitCollection);
+private:
+	std::vector<G4int> fTrackIds;
 };
 
 #endif /* PERFECTDETECTOR_HH_ */

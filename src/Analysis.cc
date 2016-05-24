@@ -103,7 +103,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 		}
 
 
-		auto SimEvents=&myRun->getEvents();
+		auto SimEvents=&myRun->getSimEvents();
 		auto first=(*SimEvents)[0];
 
 		for(auto detector : first.calorimeter){
@@ -135,11 +135,13 @@ void Analysis::EndOfRun(const G4Run* run) {
 			SimTree.Fill();
 
 			for(auto pointer : fCaloHits){
-				delete pointer.second;
+				if(pointer.second)
+					delete pointer.second;
 				pointer.second=nullptr;
 			}
 			for(auto pointer : fTrackerHits){
-				delete pointer.second;
+				if(pointer.second)
+					delete pointer.second;
 				pointer.second=nullptr;
 			}
 		}
@@ -148,6 +150,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 		if(gVerbose>2)
 			G4cout<<"Writing Tree to file..."<<G4endl;
 		OutFile.Write();
+		fCaloHits.clear();
+		fTrackerHits.clear();
 		fOutBranches.clear();
 		fCaloSDNames.clear();
 		fTrackerSDNames.clear();
@@ -191,15 +195,15 @@ void Analysis::UnRegisterCaloSD(CaloSensitiveDetector* sd) {
 void Analysis::BeginOfEvent() {}
 
 void Analysis::EndOfEvent(const G4Event* evt) {
-	simevent_t thisEvent;
-	thisEvent.eventid=evt->GetEventID();
+	simevent_t thisSimEvent;
+	thisSimEvent.eventid=evt->GetEventID();
 	for(auto iSD:fCaloSD){
-		thisEvent.calorimeter[iSD->GetName()]=*iSD->getVect();
+		thisSimEvent.calorimeter[iSD->GetName()]=*iSD->getVect();
 	}
 	for(auto iSD:fTrackerSD){
-		thisEvent.tracker[iSD->GetName()]=*iSD->getVect();
+		thisSimEvent.tracker[iSD->GetName()]=*iSD->getVect();
 	}
-	fSimEvents->push_back(thisEvent);
+	fSimEvents->push_back(thisSimEvent);
 	genevent_t thisGenEvent;
 	thisGenEvent.eventid=evt->GetEventID();
 	auto gen=static_cast<const PrimaryGeneratorAction*>(G4MTRunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
@@ -207,8 +211,8 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 		G4Exception("Analysis::EndOfEvent","",FatalException,"Could not find PrimaryGeneratorAction or pointer is invalid!");
 	}
 	if(evt->GetEventID()==0){
-		if(gVerbose>2)
-			G4cout<<"Setting generator name to "<<gen->getGeneratorName()<<G4endl;
+		if(gVerbose>3)
+			G4cout<<"Analysis:: Generator Name is now: "<<gen->getGeneratorName()<<G4endl;
 		fGeneratorName=gen->getGeneratorName();
 	}
 	thisGenEvent=gen->getGenEvent();

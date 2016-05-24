@@ -39,6 +39,7 @@
 class G4Step;
 class G4HCofThisEvent;
 class SensitiveDetectorMessenger;
+#include "JediSensitiveDetector.hh"
 #include <G4String.hh>
 #include <map>
 #include "TTree.h"
@@ -53,13 +54,12 @@ class SensitiveDetectorMessenger;
 /// The values are accounted in hits in ProcessHits() function which is called
 /// by Geant4 kernel at each step.
 
-class TrackerSensitiveDetector : public G4VSensitiveDetector
+class TrackerSensitiveDetector : public JediSensitiveDetector_impl
 {
 	class JediSensitiveDetector;
 	friend JediSensitiveDetector;
 public:
-	TrackerSensitiveDetector(const G4String& name,
-			const G4String& hitsCollectionName);
+	TrackerSensitiveDetector(const G4String& name);
 	virtual ~TrackerSensitiveDetector();
 
 	// methods from base class
@@ -68,6 +68,8 @@ public:
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 	std::vector<trackerhit_t>* getVect() {		return vect;	}
 
+	virtual void EndOfRun(){};
+	virtual void BeginOfRun(){};
 protected:
 	DetectorHitsCollection* fHitsCollection;
 	std::vector<trackerhit_t> * vect;

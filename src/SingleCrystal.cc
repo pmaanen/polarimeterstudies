@@ -58,8 +58,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	//fPerfectSDVolumes["Envelope"]=logicEnvelope;
-	fCaloSDVolumes["Calorimeter"].push_back(logicDetector);
+	fSensitiveDetectors.Update("Detector",SDtype::kCalorimeter,logVolVector{logicDetector});
 	return logicDetector;
 }
 

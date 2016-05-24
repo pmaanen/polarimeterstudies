@@ -51,9 +51,8 @@ using namespace CLHEP;
 #define NDEBUG
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name,
-		const G4String& hitsCollectionName)
-: G4VSensitiveDetector(name),
+TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name)
+: JediSensitiveDetector_impl(name),
   fHitsCollection(nullptr)
 {
 	collectionName.insert(name);

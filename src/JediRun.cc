@@ -11,10 +11,7 @@
 
 
 #include "global.hh"
-JediRun::JediRun() {
-	if(gVerbose>2)
-		G4cout<<"JediRun::JediRun(): "<<fEvents.size()<<" events."<<G4endl;
-}
+JediRun::JediRun() {}
 
 JediRun::~JediRun() {
 
@@ -26,14 +23,14 @@ void JediRun::RecordEvent(const G4Event* evt) {
 
 void JediRun::Merge(const G4Run* aRun) {
 	auto an=Analysis::Instance();
-	auto events=an->getSimEvents();
-	auto genevents=an->getGenEvents();
+	auto simEvents=an->getSimEvents();
+	auto genEvents=an->getGenEvents();
 	if(gVerbose>2)
-		G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events->size()<<" events.";
-	for(auto iEvent : *events){
-		fEvents.push_back(iEvent);
+		G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<simEvents->size()<<" events.";
+	for(auto iEvent : *simEvents){
+		fSimEvents.push_back(iEvent);
 	}
-	for(auto iEvent : *genevents){
+	for(auto iEvent : *genEvents){
 		fGenEvents.push_back(iEvent);
 	}
 	G4Run::Merge(aRun);

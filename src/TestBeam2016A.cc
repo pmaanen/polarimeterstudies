@@ -55,7 +55,7 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 
 	auto logicVeto=MakeDetector("Veto",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),66*CLHEP::mm,.6*CLHEP::cm,fCrystalLength);
 	logicVeto->SetVisAttributes(new G4VisAttributes(red));
-	fSensitiveDetectors.Update("Veto",SDtype::kCalorimeter,{logicVeto});
+	fSensitiveDetectors.Update("Veto",SDtype::kTracker,logVolVector{logicVeto});
 	auto vetoPosition=G4ThreeVector(3*CLHEP::mm,fCrystalWidth+0.3*CLHEP::cm,fCrystalLength/2);
 	for(int i=0;i<4;i++){
 		auto vetoRot=new G4RotationMatrix(*rot);
@@ -98,10 +98,9 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 	fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 
 	auto logicPerfectDetector=MakeDetector("Observer",G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),2*fCrystalWidth,2*fCrystalWidth,1*CLHEP::mm);
-	fSensitiveDetectors.Update("Observer",SDtype::kPerfect,{logicPerfectDetector});
+	fSensitiveDetectors.Update("Observer",SDtype::kPerfect,logVolVector{logicPerfectDetector});
 	new G4PVPlacement(rot,fCalorimeterPosition+G4ThreeVector(0,0,-.5*CLHEP::mm),logicPerfectDetector,"Observer",fLogicWorld,false,0,false);
-	//logicPerfectDetector->SetVisAttributes(G4VisAttributes::Invisible);
-	//fPerfectSDVolumes["Observer"].push_back(logicPerfectDetector);
+	logicPerfectDetector->SetVisAttributes(G4VisAttributes::Invisible);
 	return fPhysiWorld;
 }
 
