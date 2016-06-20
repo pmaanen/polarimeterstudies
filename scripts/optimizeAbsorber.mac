@@ -1,1 +1,24 @@
-/control/execute scripts/bragg.mac
+/analysis/Enable
+/PolarimeterStudies/generator/setGenerator beam
+/PolarimeterStudies/beam/spotsize .425 .425 0 cm
+/gun/position 0 0 -30 cm
+/gun/direction 0 0 1
+/gun/particle deuteron
+/PolarimeterStudies/detector/position -1.5 -1.5 0 cm
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/generator/setGenerator gun
+/gun/energy 100 MeV
+/analysis/setFileName 100.root
+/run/beamOn 1000
+/gun/energy 150 MeV
+/analysis/setFileName 150.root
+/run/beamOn 1000
+/gun/energy 200 MeV
+/analysis/setFileName 200.root
+/run/beamOn 1000
+/gun/energy 250 MeV
+/analysis/setFileName 250.root
+/run/beamOn 1000
+/gun/energy 270 MeV
+/analysis/setFileName 270.root
+/run/beamOn 1000

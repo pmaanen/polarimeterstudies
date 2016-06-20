@@ -10,7 +10,7 @@
 #include "Colors.hh"
 #include <G4UserLimits.hh>
 #include <JediSensitiveDetector.hh>
-TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0) {
+TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("sandwich") {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
 	fTriggerHeight=2.5*CLHEP::cm;
@@ -41,9 +41,14 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	MakeSetup();
-	//Make2016ADetector();
-	MakeSandwichDetector();
-
+	if(fDetectorName=="effective")
+		MakeEffectiveDetector();
+	else if(fDetectorName=="default")
+		Make2016ADetector();
+	else if(fDetectorName=="sandwich")
+		MakeSandwichDetector();
+	else
+		Make2016ADetector();
 
 	return fPhysiWorld;
 }
@@ -79,6 +84,23 @@ void TestBeam2016A::MakeSetup() {
 	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe"),"exitWindow");
 	logicExitWindow->SetVisAttributes(new G4VisAttributes(gray));
 	new G4PVPlacement(0,G4ThreeVector(0,0,10*CLHEP::cm-100*CLHEP::um),logicExitWindow,"exitWindow",logicVacuum,false,0,false);
+
+
+}
+
+void TestBeam2016A::MakeSandwichDetector() {
+
+	G4RotationMatrix* rot=new G4RotationMatrix();
+	rot->set(fPhi,fTheta,fPsi);
+
+	auto logicHodoscope=MakeDetector("Hodoscope",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fCrystalWidth,fCrystalWidth,1*CLHEP::cm);
+	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicHodoscope});
+	auto logicAbsorber=MakeDetector("Detector",G4NistManager::Instance()->FindOrBuildMaterial("G4_W"),fCrystalWidth,fCrystalWidth,fCrystalLength);
+	fSensitiveDetectors.Update("Detector",SDtype::kTracker,logVolVector{logicAbsorber});
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,-.5*CLHEP::cm), logicHodoscope, "Hodoscope", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,fCrystalLength/2), logicAbsorber, "Detector", fLogicWorld, false, 0, false);
+	return;
+
 
 
 }
@@ -124,6 +146,10 @@ void TestBeam2016A::DefineCommands() {
 			"calorimeter position");
 
 
+	auto detCmd=fMessenger->DeclareProperty("detector",TestBeam2016A::fDetectorName,"detector type.");
+	detCmd.SetCandidates("default sandwich");
+
+
 }
 
 void TestBeam2016A::Make2016ADetector() {
@@ -164,7 +190,7 @@ void TestBeam2016A::Make2016ADetector() {
 	return;
 }
 
-void TestBeam2016A::MakeSandwichDetector() {
+void TestBeam2016A::MakeEffectiveDetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 

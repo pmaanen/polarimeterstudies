@@ -56,6 +56,7 @@ protected:
 
 	void MakeSetup();
 	void Make2016ADetector();
+	void MakeEffectiveDetector();
 	void MakeSandwichDetector();
 
 	virtual void DefineCommands();
@@ -65,6 +66,7 @@ protected:
 	G4double fTriggerHeight,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
 	G4ThreeVector fCalorimeterPosition;
 	G4bool fTrigger;
+	G4String fDetectorName;
 
 };
 
