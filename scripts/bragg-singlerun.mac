@@ -1,4 +1,5 @@
 /PolarimeterStudies/generator/setGenerator gun
+/PolarimeterStudies/detector/
 /PolarimeterStudies/detector/calolength 1000 cm
 /PolarimeterStudies/detector/calowidth 50 cm
 /PolarimeterStudies/detector/update

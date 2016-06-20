@@ -58,8 +58,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
-	//fPerfectSDVolumes["Envelope"]=logicEnvelope;
-	fCaloSDVolumes["Calorimeter"].push_back(logicDetector);
+	fSensitiveDetectors.Update("Detector",SDtype::kCalorimeter,logVolVector{logicDetector});
 	return logicDetector;
 }
 
@@ -77,7 +76,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	aCrystal->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2-5*CLHEP::mm), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	return fPhysiWorld;
 }
 

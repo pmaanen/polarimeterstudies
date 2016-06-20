@@ -11,6 +11,7 @@
 #include <G4Event.hh>
 #include "G4Exception.hh"
 #include "TNtuple.h"
+#include "global.hh"
 #include "G4EventManager.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
@@ -18,44 +19,54 @@
 #include <G4Colour.hh>
 #include <G4Transform3D.hh>
 #include <G4VisManager.hh>
-
+#include <G4UnitsTable.hh>
 #include "G4AutoLock.hh"
 namespace { G4Mutex CaloSDMutex = G4MUTEX_INITIALIZER; }
 
 
-CaloSensitiveDetector::CaloSensitiveDetector(G4String name,G4int depth):G4MultiFunctionalDetector(name) {
-	G4VPrimitiveScorer* scorer = new G4PSEnergyDeposit("edep",depth);
-	this->RegisterPrimitive(scorer);
+CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
 	Analysis::Instance()->RegisterCaloSD(this);
 	vect=new std::vector<calorhit_t>;
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
-	G4MultiFunctionalDetector::EndOfEvent(HC);
-	G4int nPrim = primitives.size();
-	Analysis* an=Analysis::Instance();
-	if(an->isEnabled()){
-		vect->clear();
-		for(G4int iPrim=0;iPrim<nPrim;iPrim++){
-			G4int collID=this->GetCollectionID(iPrim);
-			auto evtMap=(G4THitsMap<G4double>*)HC->GetHC(collID);
-			for(const auto& iHit:*(evtMap->GetMap())){
-					calorhit_t hit;
-					hit.detid=iHit.first;
-					hit.edep=*(iHit.second)/CLHEP::MeV;
-					vect->push_back(hit);
-			}
+	vect->clear();
+	if(gVerbose>3){
+		for(const auto iHit : fHitMap){
+			G4cout<<"Index: "<<iHit.first<<" Energy: "<<G4BestUnit(iHit.second,"Energy")<<G4endl;
 		}
 	}
+	for(const auto &iHit : fHitMap){
+		calorhit_t hit;
+		hit.edep=iHit.second/CLHEP::MeV;
+		hit.detid=iHit.first;
+		vect->push_back(hit);
+	}
+	fHitMap.clear();
 }
 
-void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {
-	G4MultiFunctionalDetector::Initialize(HC);
-}
+void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {}
 
-G4bool CaloSensitiveDetector::ProcessHits(G4Step* step,
+G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 		G4TouchableHistory* history) {
-	return G4MultiFunctionalDetector::ProcessHits(step,history);
+
+	if(!Analysis::Instance()->isEnabled())
+		return false;
+	// energy deposit
+	G4double edep = aStep->GetTotalEnergyDeposit();
+
+	if (edep==0.)
+		return false;
+
+	auto preStep = aStep->GetPreStepPoint();
+	auto th = (G4TouchableHistory*)(preStep->GetTouchable());
+	auto index=th->GetReplicaNumber();
+
+	if(fHitMap.count(index)==0)
+		fHitMap[index]=edep;
+	else
+		fHitMap[index]+=edep;
+	return true;
 }
 
 CaloSensitiveDetector::~CaloSensitiveDetector() {

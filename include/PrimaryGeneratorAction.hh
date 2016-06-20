@@ -42,6 +42,8 @@ public:
 	}
 
 	;
+
+	void Print(){G4cout<<this<<G4endl;}
 private:
 	void DefineCommands();
 	G4ParticleGun			*fParticleGun ;

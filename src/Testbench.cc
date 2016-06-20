@@ -40,7 +40,7 @@ G4VPhysicalVolume* Testbench::Construct() {
 	auto logicDetector=new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Detector");
 	new G4PVPlacement(0,G4ThreeVector(0,0,10*CLHEP::cm),logicDetector,"Detector",fLogicWorld,0,0,0);
 
-	fSensitiveDetectors.Update("Detector",SDtype::kPerfect,{logicDetector});
+	//fSensitiveDetectors.Update("Detector",SDtype::kPerfect,{logicDetector});
 
 	return fPhysiWorld;
 }

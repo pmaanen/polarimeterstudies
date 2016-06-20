@@ -254,7 +254,10 @@ void PrimaryGeneratorAction::DefineCommands()
 
 	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
 	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
-	fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
+	auto cmd=fMessenger->DeclareMethod("list",&PrimaryGeneratorAction::listModes,"List available generators");
+	cmd.SetToBeBroadcasted(true);
+	fMessenger->DeclareMethod("Print",&PrimaryGeneratorAction::Print,"");
+
 }
 // eof
 

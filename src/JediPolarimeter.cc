@@ -125,8 +125,8 @@ G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
 void JediPolarimeter::DefineCommands() {
 
 	fMessenger = new G4GenericMessenger(this,
-				"/PolarimeterStudies/detector/",
-				"detector control");
+			"/PolarimeterStudies/detector/",
+			"detector control");
 
 	G4GenericMessenger::Command& thetaMinCmd
 	= fMessenger->DeclareMethodWithUnit("thetamin","deg",
@@ -269,17 +269,6 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 }
 
 void JediPolarimeter::UpdateGeometry(){
-	/*
-	for(auto iVol: fCaloSDVolumes){
-		if (!fCaloSD[iVol.first].Get()==0)
-			delete fCaloSD[iVol.first].Pop();
-	}
-
-	for(auto iVol: fTrackerSDVolumes){
-		if (!fTrackerSD[iVol.first].Get()==0)
-			delete fTrackerSD[iVol.first].Pop();
-	}
-*/
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
@@ -289,22 +278,13 @@ void JediPolarimeter::UpdateGeometry(){
 
 void JediPolarimeter::ConstructSDandField() {
 
-
-	for(auto iVol: fPerfectSDVolumes){
-		if (fTrackerSD[iVol.first].Get()==0)
-			fTrackerSD[iVol.first].Put(new PerfectDetector(iVol.first,iVol.first));
-		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
-	}
-
-	for(auto iVol: fCaloSDVolumes){
-		if (fCaloSD[iVol.first].Get()==0)
-			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
-		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
-	}
-
-	for(auto iVol: fTrackerSDVolumes){
-		if (fTrackerSD[iVol.first].Get()==0)
-			fTrackerSD[iVol.first].Put(new TrackerSensitiveDetector(iVol.first,iVol.first));
-		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
+	for (auto iSD : fSensitiveDetectors.getMap()){
+		if (!fSD[iSD.first].Get())
+			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
+		for(auto iVol: iSD.second.fLogVol){
+			fSD[iSD.first].Get()->Print();
+			G4cout<<G4endl;
+			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
+		}
 	}
 }

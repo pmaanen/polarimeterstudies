@@ -9,24 +9,27 @@
 #define CALOSENSITIVEDETECTOR_HH_
 
 #include <G4MultiFunctionalDetector.hh>
+#include "JediSensitiveDetector.hh"
 #include "TTree.h"
 #include <vector>
 #include "hit.hh"
-class CaloSensitiveDetector: public G4MultiFunctionalDetector {
+class CaloSensitiveDetector: public JediSensitiveDetector_impl {
 public:
-	class JediSensitiveDetector;
-	friend JediSensitiveDetector;
-	CaloSensitiveDetector(G4String name, G4int depth=0);
+	CaloSensitiveDetector(const G4String& name);
 	virtual ~CaloSensitiveDetector();
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 	virtual void Initialize(G4HCofThisEvent* HC);
-	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+	virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* history);
 
 	std::vector<calorhit_t>* getVect() {
 		return vect;
 	}
 
+	virtual void EndOfRun(){};
+	virtual void BeginOfRun(){};
+
 private:
+	std::map<G4int, G4double> fHitMap;
 	std::vector<calorhit_t> * vect;
 };
 
