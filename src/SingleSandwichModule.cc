@@ -6,6 +6,7 @@
  */
 
 #include "SingleSandwichModule.hh"
+#include <G4UserLimits.hh>
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
 gray    (0.5, 0.5, 0.5), // gray
@@ -43,14 +44,16 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,0,false);
 	}
 	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,0,false);
-	auto solidDe=new G4Box("deltaE",fCrystalWidth/2,fCrystalWidth/2,fDeLength/2);
-	auto logicDe = new G4LogicalVolume(solidDe,fScintillatorMaterial,"Detector");
-	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength/2),logicDe,"deltaE",logicMother,false,0,false);
+	auto solidDe=new G4Box("Hodoscope",fCrystalWidth/2,fCrystalWidth/2,fDeLength/4);
+	auto logicDe = new G4LogicalVolume(solidDe,fScintillatorMaterial,"Hodoscope");
+	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength/4),logicDe,"Hodoscope",logicMother,false,0,false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+3*fDeLength/4),logicDe,"Hodoscope",logicMother,false,1,false);
+	logicDe->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
+	logicDetector->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
-	//fCaloSDVolumes["Mother"].push_back(logicMother);
-	fCaloSDVolumes["Calorimeter"].push_back(logicDetector);
-	fCaloSDVolumes["DeltaE"].push_back(logicDe);
+	fSensitiveDetectors.Update("Detector",SDtype::kTracker,logVolVector{logicDetector});
+	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicDe});
 	return logicMother;
 }
 
@@ -68,11 +71,13 @@ G4VPhysicalVolume* SingleSandwichModule::Construct() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength+fDeLength)/2-2*CLHEP::mm), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength+fDeLength)/2-fDeLength), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	/*
 	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm,100*CLHEP::um,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe"),"exitWindow");
 	logicExitWindow->SetVisAttributes(new G4VisAttributes(gray));
 	new G4PVPlacement(0,G4ThreeVector(0,0,-1*CLHEP::cm),logicExitWindow,"exitWindow",fLogicWorld,false,0,false);
+	*/
 	return fPhysiWorld;
 }
 

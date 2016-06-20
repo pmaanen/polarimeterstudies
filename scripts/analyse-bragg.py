@@ -30,7 +30,7 @@ def analyse(filename,myWorker):
         infile=ROOT.TFile(filename,"READ")
         data=infile.Get("sim")
         for entry in data:
-            hits=[TrackerHit(h) for h in entry.Calorimeter]
+            hits=[TrackerHit(h) for h in entry.Detector]
             doEvent(hits,histomap)
         temp=histomap["ekin_vs_z"].Clone()
         temp.RebinX(10)
@@ -68,7 +68,9 @@ def doEvent(hits,histomap):
         return None
     primaryTrack=sorted(filter(lambda hit:hit.trackId==1,hits),key=lambda hit:hit.time)
     pathlength=0
-    for i in range(len(primaryTrack)):
+    if len(primaryTrack)==0:
+        return None
+    for i in range(1,len(primaryTrack)):
         hit=primaryTrack[i]
         lastHit=primaryTrack[i-1]
         ds=0              

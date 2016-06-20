@@ -140,6 +140,9 @@ protected:
 
 
 	SensitiveDetectorMap fSensitiveDetectors;
+
+	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
+	std::map<G4String,std::vector<G4LogicalVolume*> > fSDVolumes;
 	//Sensitive detectors
 	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
 	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;

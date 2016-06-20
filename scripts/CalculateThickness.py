@@ -5,27 +5,31 @@ c1=ROOT.TCanvas("*","*",1600,900)
 fitfunc=ROOT.TF1("fa","[0]+[1]*x",40,60); 
 
 def doFile(infile,dirname):
-    EvsZ=infile.Get(dirname+"/ekin_vs_z_pfx")
-    last=EvsZ.FindLastBinAbove(50)
-    lower=EvsZ.GetBinCenter(EvsZ.FindLastBinAbove(40))
-    upper=EvsZ.GetBinCenter(EvsZ.FindLastBinAbove(60))
-    EvsZ.Fit(fitfunc,"Q")
-    pol1=fitfunc;
-    val=(50-pol1.GetParameter(0))/pol1.GetParameter(1)
-    err=math.sqrt(1/pol1.GetParameter(1)*1/pol1.GetParameter(1)*pol1.GetParError(0)*pol1.GetParError(0)+((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*pol1.GetParError(1)*pol1.GetParError(1))
-    EvsZ.Draw()
+    try:
+        EvsZ=infile.Get(dirname+"/ekin_vs_z_pfx")
+        last=EvsZ.FindLastBinAbove(50)
+        lower=EvsZ.GetBinCenter(EvsZ.FindLastBinAbove(40))
+        upper=EvsZ.GetBinCenter(EvsZ.FindLastBinAbove(60))
+        EvsZ.Fit(fitfunc,"Q")
+        pol1=fitfunc;
+        val=(50-pol1.GetParameter(0))/pol1.GetParameter(1)
+        err=math.sqrt(1/pol1.GetParameter(1)*1/pol1.GetParameter(1)*pol1.GetParError(0)*pol1.GetParError(0)+((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*pol1.GetParError(1)*pol1.GetParError(1))
+        EvsZ.Draw()
     #c1.Print(dirname+".pdf")
-    return last,0
+        return last,0
+    except:
+        print "Problem analysing ",dirname
+        raise
 
 def asfloatarray(vec):
     return numpy.asarray(map(lambda x:float(x),vec))
 
-materials=["iron","lyso","plastic"]
-Ekin=asfloatarray(range(100,300,50)+[270])
+materials=["iron","tungsten"]
+Ekin=asfloatarray(range(150,300,50)+[270])
 graphs=[]
 allGraph=ROOT.TMultiGraph()
 iCol=2
-infile=TFile=ROOT.TFile("bragg.root")
+infile=ROOT.TFile("bragg.root")
 for material in materials:
     print "---",material,"---"
     values=[]
@@ -42,7 +46,8 @@ for material in materials:
         values.append(val)
         errors.append(err)
 #        print iEkin,"MeV: (",'%.2f' % val,"mm +/-",'%.2f' % float(err/val*1000),u"\u2030"
-        print "/control/alias",iEkin,"%.1f"%val
+        print iEkin
+        print "/PolarimeterStudies/detector/absorberlength ","%.1f"%val
         #print "Optimum thickness for",iEkin,"MeV :",thick,"mm"
     graph=ROOT.TGraphErrors(len(Ekin),Ekin,asfloatarray(values),asfloatarray(len(Ekin)*[0]),asfloatarray(errors))
     graph.SetName(material)

@@ -43,18 +43,18 @@ G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) 
 	}
 	 */
 
-	DetectorHit* newHit = new DetectorHit();
-	newHit->SetTrackID(aStep->GetTrack()->GetTrackID());
-	newHit->SetEdep(-1);
-	//newHit->SetDetId(history->GetCopyNumber());
-	newHit->SetEkin(aStep->GetPreStepPoint()->GetKineticEnergy());
-	newHit->SetPos (aStep->GetPreStepPoint()->GetPosition());
+	DetectorHit newHit;
+	newHit.SetTrackID(aStep->GetTrack()->GetTrackID());
+	newHit.SetEdep(-1);
+	//newHit.SetDetId(history->GetCopyNumber());
+	newHit.SetEkin(aStep->GetPreStepPoint()->GetKineticEnergy());
+	newHit.SetPos (aStep->GetPreStepPoint()->GetPosition());
 	G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-	newHit->SetTof(preStepPoint->GetGlobalTime()/CLHEP::ns);
-	newHit->SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
-	newHit->setMom(aStep->GetPreStepPoint()->GetMomentum());
-	fHitsCollection->insert( newHit );
+	newHit.SetTof(preStepPoint->GetGlobalTime()/CLHEP::ns);
+	newHit.SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
+	newHit.setMom(aStep->GetPreStepPoint()->GetMomentum());
+	fHitBuffer.push_back( newHit );
 	return true;
 }
 

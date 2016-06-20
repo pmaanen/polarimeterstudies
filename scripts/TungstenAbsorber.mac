@@ -1,0 +1,22 @@
+/analysis/Enable
+/PolarimeterStudies/Hodoscope/SetType tracker
+/PolarimeterStudies/Detector/SetType calo
+/PolarimeterStudies/detector/absorber {{material}}
+/PolarimeterStudies/detector/update
+/analysis/setFileName {material}-200.root
+/gun/energy 200 MeV
+/PolarimeterStudies/detector/absorberlength  5.0
+/PolarimeterStudies/detector/update
+/run/beamOn 1000
+/analysis/setFileName {material}-200.root
+/PolarimeterStudies/detector/update
+/gun/energy 250 MeV
+/PolarimeterStudies/detector/absorberlength  12.0
+/analysis/setFileName {material}-250.root
+/PolarimeterStudies/detector/update
+/run/beamOn 1000
+/analysis/setFileName {material}-270.root
+/gun/energy 270 MeV
+/PolarimeterStudies/detector/absorberlength 16.0
+/PolarimeterStudies/detector/update
+/run/beamOn 1000

@@ -66,13 +66,14 @@ public:
 	virtual void   Initialize(G4HCofThisEvent* hitCollection);
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
-	std::vector<trackerhit_t>* getVect() {		return vect;	}
+	std::vector<trackerhit_t>* getVect() {		return fHits;	}
 
 	virtual void EndOfRun(){};
 	virtual void BeginOfRun(){};
 protected:
-	DetectorHitsCollection* fHitsCollection;
-	std::vector<trackerhit_t> * vect;
+
+	std::vector<DetectorHit> fHitBuffer;
+	std::vector<trackerhit_t> * fHits;
 
 };
 

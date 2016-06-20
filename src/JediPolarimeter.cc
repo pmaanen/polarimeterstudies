@@ -269,17 +269,6 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 }
 
 void JediPolarimeter::UpdateGeometry(){
-	/*
-	for(auto iVol: fCaloSDVolumes){
-		if (!fCaloSD[iVol.first].Get()==0)
-			delete fCaloSD[iVol.first].Pop();
-	}
-
-	for(auto iVol: fTrackerSDVolumes){
-		if (!fTrackerSD[iVol.first].Get()==0)
-			delete fTrackerSD[iVol.first].Pop();
-	}
-	 */
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
@@ -289,36 +278,13 @@ void JediPolarimeter::UpdateGeometry(){
 
 void JediPolarimeter::ConstructSDandField() {
 
-
-
 	for (auto iSD : fSensitiveDetectors.getMap()){
-		if (iSD.second.fSD.Get()==0)
-			iSD.second.fSD.Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
+		if (!fSD[iSD.first].Get())
+			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
 		for(auto iVol: iSD.second.fLogVol){
-			G4cout<<iVol->GetName()<<" ";
-			iSD.second.fSD.Get()->Print();
+			fSD[iSD.first].Get()->Print();
 			G4cout<<G4endl;
-			SetSensitiveDetector(iVol,iSD.second.fSD.Get());
+			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
 	}
-
-	/*
-	for(auto iVol: fPerfectSDVolumes){
-		if (fTrackerSD[iVol.first].Get()==0)
-			fTrackerSD[iVol.first].Put(new PerfectDetector(iVol.first,iVol.first));
-		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
-	}
-
-	for(auto iVol: fCaloSDVolumes){
-		if (fCaloSD[iVol.first].Get()==0)
-			fCaloSD[iVol.first].Put(new CaloSensitiveDetector(iVol.first));
-		SetSensitiveDetector(iVol.second,fCaloSD[iVol.first].Get());
-	}
-
-	for(auto iVol: fTrackerSDVolumes){
-		if (fTrackerSD[iVol.first].Get()==0)
-			fTrackerSD[iVol.first].Put(new TrackerSensitiveDetector(iVol.first,iVol.first));
-		SetSensitiveDetector(iVol.second,fTrackerSD[iVol.first].Get());
-	}
-	 */
 }

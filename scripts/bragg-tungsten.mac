@@ -1,5 +1,5 @@
 /analysis/Enable
-/analysis/setFileName {pname}-lyso-{Ekin}.root
-/PolarimeterStudies/detector/material LYSO
+/analysis/setFileName {pname}-tungsten-{Ekin}.root
+/PolarimeterStudies/detector/material G4_W
 /PolarimeterStudies/detector/update
 /control/execute scripts/bragg-singlerun.mac

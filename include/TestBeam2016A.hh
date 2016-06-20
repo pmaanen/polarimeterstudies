@@ -53,6 +53,11 @@ public:
 protected:
 	virtual G4VPhysicalVolume* Construct();
 	G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double thickness);
+
+	void MakeSetup();
+	void Make2016ADetector();
+	void MakeSandwichDetector();
+
 	virtual void DefineCommands();
 	G4Cache<CaloSensitiveDetector*> fTriggerSD;
 	G4LogicalVolume* fLogicTrigger;

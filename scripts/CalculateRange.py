@@ -11,9 +11,9 @@ class Gaus:
    def __call__( self, x, par ):
       return par[0]*ROOT.TMath.Gaus(x[0],par[1],par[2])
 
-Ekin=range(50,350,50)+[270]
+Ekin=range(100,300,50)+[270]
 for particle in ["deuteron","proton"]:
-    for material in ["plastic","lyso","iron","lead","alu"]:
+    for material in ["iron","tungsten"]:
         size=[]
         size_err=[]
         for iEkin in Ekin:

@@ -18,7 +18,7 @@ JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype&
 		fSD=new TrackerSensitiveDetector(name);
 	else if(type==SDtype::kPerfect)
 		fSD=new PerfectDetector(name);
-	else
+	else if(type==SDtype::kUndefined)
 		fSD=nullptr;
 	DefineCommands();
 }
@@ -47,8 +47,10 @@ void JediSensitiveDetector::SetType(G4String command) {
 		SetType_impl(SDtype::kCalorimeter);
 	else if(command=="tracker")
 		SetType_impl(SDtype::kTracker);
-	else
+	else{
 		SetType_impl(SDtype::kUndefined);
+		G4Exception("JediSensitiveDetector::SetType","",JustWarning,"SD type not recognized.");
+	}
 }
 
 void JediSensitiveDetector::DefineCommands() {
@@ -60,9 +62,8 @@ void JediSensitiveDetector::DefineCommands() {
 	fMessenger=new G4GenericMessenger(this,dir,"");
 
 	fMessenger->DeclareMethod("Print",&JediSensitiveDetector::Print,"");
-	fMessenger->DeclareMethod("SetType",&JediSensitiveDetector::SetType,"");
+	auto cmd=fMessenger->DeclareMethod("SetType",&JediSensitiveDetector::SetType,"");
+	cmd.SetCandidates("perfect calo tracker");
 }
 
-void JediSensitiveDetector::Print() {
-	G4cout<<"Thread: "<<G4Threading::G4GetThreadId()<<" Detector: "<<this<<" Type: "<<int(fType)<<G4endl;
-}
+void JediSensitiveDetector::Print() {}
