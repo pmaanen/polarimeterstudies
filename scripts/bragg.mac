@@ -1,3 +1,4 @@
 /control/alias nEvents 10000
+/analysis/Enable
 /PolarimeterStudies/Detector/SetType tracker
 /control/foreach scripts/bragg-all.mac pname "deuteron"
