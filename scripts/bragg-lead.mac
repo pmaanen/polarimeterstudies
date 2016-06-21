@@ -1,4 +1,3 @@
-/analysis/Enable
 /analysis/setFileName {pname}-lead-{Ekin}.root
 /PolarimeterStudies/detector/material G4_Pb
 /PolarimeterStudies/detector/update

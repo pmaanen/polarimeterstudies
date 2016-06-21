@@ -16,7 +16,7 @@ def doFile(infile,dirname):
         err=math.sqrt(1/pol1.GetParameter(1)*1/pol1.GetParameter(1)*pol1.GetParError(0)*pol1.GetParError(0)+((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*((50-pol1.GetParameter(0))/(pol1.GetParameter(1)*pol1.GetParameter(1)))*pol1.GetParError(1)*pol1.GetParError(1))
         EvsZ.Draw()
     #c1.Print(dirname+".pdf")
-        return last,0
+        return val,err
     except:
         print "Problem analysing ",dirname
         raise

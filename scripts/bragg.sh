@@ -13,4 +13,4 @@ cp ./scripts/CalculateLateral.py $DIR
 cp ./scripts/CalculateThickness.py $DIR
 cp ./scripts/CalculateRange.py $DIR
 cp libAnalysis* $DIR
-cd $DIR  && ./analyse-bragg.py *.root && cd -
+cd $DIR  && ./analyse-bragg.py -n $N -o bragg.root *.root && cd -

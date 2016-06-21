@@ -7,7 +7,7 @@ fi
 echo "N="$N
 DIR=../optimizeAbsorber-$(date "+%Y-%m-%d")
 mkdir -p $DIR
-./polarimeterstudies -g testbeam -m scripts/optimizeAbsorber.mac -n $N -b
+./polarimeterstudies -g singlesandwich -m scripts/optimizeAbsorber.mac -n $N -b
 cp ./scripts/analyse-bragg.py $DIR
 cp ./scripts/CalculateLateral.py $DIR
 cp ./scripts/CalculateThickness.py $DIR

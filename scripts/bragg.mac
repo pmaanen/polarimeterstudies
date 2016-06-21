@@ -1,4 +1,4 @@
-/control/alias nEvents 1000
+/control/alias nEvents 10000
 /PolarimeterStudies/Detector/SetType tracker
-/PolarimeterStudies/detector/absorberlength 0
-/control/foreach scripts/bragg-all.mac pname "deuteron proton"
+/PolarimeterStudies/detector/absorberlength
+/control/foreach scripts/bragg-all.mac pname "deuteron"

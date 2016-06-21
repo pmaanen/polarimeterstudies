@@ -7,6 +7,8 @@
 /PolarimeterStudies/detector/position -1.5 -1.5 0 cm
 /PolarimeterStudies/detector/update
 /PolarimeterStudies/generator/setGenerator gun
+/control/alias nEvents 10000
+/control/foreach scripts/optimizeAbsorberMaterials.mac material "iron tungsten"
 /gun/energy 100 MeV
 /analysis/setFileName 100.root
 /run/beamOn 1000
