@@ -48,7 +48,7 @@ protected:
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();
 	G4int fNumLayers;
-	G4double fAbsorberLength,fDeLength;
+	G4double fAbsorberLength;
 	G4Material* fAbsorberMaterial;
 	G4String fAbsorberMaterialName;
 };

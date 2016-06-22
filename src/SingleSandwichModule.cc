@@ -21,7 +21,7 @@ SingleSandwichModule::SingleSandwichModule():SingleCrystal() {
 	fAbsorberMaterial=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
 	fCrystalLength=10*CLHEP::cm;
 	fAbsorberLength=5*CLHEP::cm;
-	fDeLength=1*CLHEP::cm;
+	fDeltaELength=1*CLHEP::cm;
 	fNumLayers=1;
 	DefineCommands();
 
@@ -31,7 +31,7 @@ SingleSandwichModule::~SingleSandwichModule() {}
 
 G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 
-	auto motherLength=fCrystalLength+fAbsorberLength+fDeLength;
+	auto motherLength=fCrystalLength+fAbsorberLength+fDeltaELength;
 	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
 
@@ -42,13 +42,13 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 		auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
 		logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
 		fSensitiveDetectors.Update("Absorber",SDtype::kTracker,logVolVector{logicAbsorber});
-		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,0,false);
+		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,0,false);
 	}
-	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,0,false);
-	auto solidDe=new G4Box("Hodoscope",fCrystalWidth/2,fCrystalWidth/2,fDeLength/4);
-	auto logicDe = new G4LogicalVolume(solidDe,fScintillatorMaterial,"Hodoscope");
-	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength/4),logicDe,"Hodoscope",logicMother,false,0,false);
-	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+3*fDeLength/4),logicDe,"Hodoscope",logicMother,false,1,false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,0,false);
+	auto solidDe=new G4Box("Hodoscope",fCrystalWidth/2,fCrystalWidth/2,fDeltaELength/4);
+	auto logicDe = new G4LogicalVolume(solidDe,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
+	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength/4),logicDe,"Hodoscope",logicMother,false,0,false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+3*fDeltaELength/4),logicDe,"Hodoscope",logicMother,false,1,false);
 	logicDe->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	logicDetector->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
@@ -72,7 +72,7 @@ G4VPhysicalVolume* SingleSandwichModule::Construct() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength+fDeLength)/2-fDeLength), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,(fCrystalLength+fAbsorberLength+fDeltaELength)/2-fDeltaELength), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	/*
 	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm,100*CLHEP::um,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe"),"exitWindow");

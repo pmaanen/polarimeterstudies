@@ -15,4 +15,4 @@ cp ./scripts/CalculateRange.py $DIR
 cp ./scripts/AnalysisBase.py $DIR
 cp libAnalysis* $DIR
 find ./ -name "*root*" -exec mv {} $DIR \;
-cd $DIR  && ./analyse-bragg.py -n 4 -o bragg.root *.root && ./CalculateThickness.py && cd -
+cd $DIR  && ./analyse-bragg.py -n $N -o bragg.root *.root && ./CalculateThickness.py && cd -
