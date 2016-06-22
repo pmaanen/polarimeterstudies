@@ -1,26 +1,31 @@
 /analysis/Enable
-/PolarimeterStudies/generator/setGenerator beam
-/PolarimeterStudies/beam/spotsize .425 .425 0 cm
+/control/alias nEvents 10000
 /gun/position 0 0 -30 cm
 /gun/direction 0 0 1
 /gun/particle deuteron
-/PolarimeterStudies/detector/position -1.5 -1.5 0 cm
+/polarimeterStudies/detector/absorber G4_W
+/gun/energy 100.0 MeV
+/PolarimeterStudies/detector/absorberlength 3.0 mm
 /PolarimeterStudies/detector/update
-/PolarimeterStudies/generator/setGenerator gun
-/control/alias nEvents 10000
-/control/foreach scripts/optimizeAbsorberMaterials.mac material "iron tungsten"
-/gun/energy 100 MeV
-/analysis/setFileName 100.root
-/run/beamOn 1000
-/gun/energy 150 MeV
-/analysis/setFileName 150.root
-/run/beamOn 1000
-/gun/energy 200 MeV
-/analysis/setFileName 200.root
-/run/beamOn 1000
-/gun/energy 250 MeV
-/analysis/setFileName 250.root
-/run/beamOn 1000
-/gun/energy 270 MeV
-/analysis/setFileName 270.root
-/run/beamOn 1000
+/analysis/setFileName deuteron-tungsten-100.root
+/run/beamOn {nEvents}
+/gun/energy 150.0 MeV
+/PolarimeterStudies/detector/absorberlength 8.3 mm
+/PolarimeterStudies/detector/update
+/analysis/setFileName deuteron-tungsten-150.root
+/run/beamOn {nEvents}
+/gun/energy 200.0 MeV
+/PolarimeterStudies/detector/absorberlength 15.5 mm
+/PolarimeterStudies/detector/update
+/analysis/setFileName deuteron-tungsten-200.root
+/run/beamOn {nEvents}
+/gun/energy 250.0 MeV
+/PolarimeterStudies/detector/absorberlength 24.1 mm
+/PolarimeterStudies/detector/update
+/analysis/setFileName deuteron-tungsten-250.root
+/run/beamOn {nEvents}
+/gun/energy 270.0 MeV
+/PolarimeterStudies/detector/absorberlength 27.8 mm
+/PolarimeterStudies/detector/update
+/analysis/setFileName deuteron-tungsten-270.root
+/run/beamOn {nEvents}

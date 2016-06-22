@@ -41,6 +41,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 		auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/fNumLayers/2);
 		auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
 		logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
+		fSensitiveDetectors.Update("Absorber",SDtype::kTracker,logVolVector{logicAbsorber});
 		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,0,false);
 	}
 	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeLength+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,0,false);
