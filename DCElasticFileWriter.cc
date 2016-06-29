@@ -57,27 +57,14 @@ public:
 };
 
 int main(int argc,char** argv) {
-	namespace po = boost::program_options;
-	po::options_description description("Usage");
-	description.add_options()
-("help,h", "Display this help message")
-("general.config_file,c", po::value<std::string>(), "config file")
-("general.num_threads,t", po::value<int>()->default_value(1), "number of worker threads")
-("generator.generator,g", po::value<std::string>(), "generator name")
-("general.num_events,n", po::value<int>()->default_value(1), "number of events to be generated.")
-("generator.beam_energy,e", po::value<double>()->default_value(270),"energy of beam in MeV")
-("generator.beam_polarization,p", po::value<double>()->default_value(1),"polarization of beam")
-("generator.output_file,o", po::value<std::string>(),"output file"),
-("general.macro_file,m", po::value<std::string>(), "macro file");
 
 
-	std::ifstream cfg;
-	po::store(po::parse_command_line(argc, argv, description), gConfig);
-	notify(gConfig);
-	if(gConfig.count("general.config_file")){
-		cfg.open(gConfig["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
-		po::store(po::parse_config_file(cfg, description), gConfig);
-		notify(gConfig);
+	try{
+		initializeConfiguration(argc,argv);
+	}
+	catch(const std::exception& e){
+		std::cout<<"uncaught exception in main: "<<e.what()<<std::endl;
+		throw e;
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
@@ -101,11 +88,11 @@ int main(int argc,char** argv) {
 	FTFP_BERT* the_physics =new FTFP_BERT(0);
 	runManager->SetUserInitialization(the_physics);
 	//User action initialization
-	if(gConfig.count("generator.output_file"))
+	if(gConfig.count("general.output_file"))
 		runManager->SetUserInitialization(
 				new FileWriterActionInitialization(gConfig["general.num_events"].as<int>(),
 						G4String(gConfig["generator.generator"].as<std::string>()),
-						G4String(gConfig["generator.output_file"].as<std::string>()) )
+						G4String(gConfig["general.output_file"].as<std::string>()) )
 		);
 	else
 		runManager->SetUserInitialization(new FileWriterActionInitialization(gConfig["general.num_events"].as<int>(),G4String(gConfig["generator.generator"].as<std::string>())));

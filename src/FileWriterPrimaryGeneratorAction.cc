@@ -16,7 +16,7 @@ namespace { G4Mutex FileWriterMutex = G4MUTEX_INITIALIZER; }
 
 FileWriterPrimaryGeneratorAction::FileWriter* FileWriterPrimaryGeneratorAction::fgFileWriter = nullptr;
 
-FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents, G4String generator, G4String fileName=""):G4VUserPrimaryGeneratorAction(),fEvtGen(nullptr){
+FileWriterPrimaryGeneratorAction::FileWriterPrimaryGeneratorAction(G4int nEvents, G4String generator, G4String fileName=""):G4VUserPrimaryGeneratorAction(),fNEvents(nEvents),fEvtGen(nullptr){
 	G4String muon("muon");
 	G4String dcelastic("dcelastic");
 	G4String dcbreakup("dcbreakup");
@@ -58,7 +58,7 @@ void FileWriterPrimaryGeneratorAction::GeneratePrimaries(G4Event*){
 	 *	evt = fileReader->GetEvent();
 	 *}
 	 */
-	G4int cacheSize=10000;
+	G4int cacheSize=std::min(1000,fNEvents);
 	std::vector<genevent_t> evtCache;
 	G4bool doMore=true;
 	while(doMore){

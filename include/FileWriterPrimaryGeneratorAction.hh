@@ -80,8 +80,9 @@ public:
 			for(auto iEvent:someEvents){
 				fGenEvent=new genevent_t(iEvent);
 				fOutTree->Fill();
-				if(fGenEvent->eventid==fNEvents)
+				if(fCurrentEventId==fNEvents)
 					return false;
+				fCurrentEventId++;
 			}
 			return true;
 		};
@@ -116,5 +117,6 @@ public:
 	private:
 	EventGenerator* fEvtGen;
 	static FileWriter* fgFileWriter;
+	G4int fNEvents;
 };
 #endif /* FILEWRITERPRIMARYGENERATORACTION_HH_ */

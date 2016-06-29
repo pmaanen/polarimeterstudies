@@ -161,8 +161,12 @@ int main(int argc,char** argv) {
 		std::stringstream o;
 		if(gConfig.count("general.macro_file")){
 			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
-			UImanager->ApplyCommand(o.str().c_str());
+
 		}
+		else{
+			o<<"/control/execute "<<"scripts/vis_T0.mac";
+		}
+		UImanager->ApplyCommand(o.str().c_str());
 	}
 
 #ifdef G4VIS_USE

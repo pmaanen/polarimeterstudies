@@ -74,8 +74,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 		G4String fileName("");
 		//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
 		if(fFileName==""){
-			if(gConfig.count("analysis.output_file"))
-				fileName=gConfig["analysis.output_file"].as<std::string>();
+			if(gConfig.count("general.output_file"))
+				fileName=gConfig["general.output_file"].as<std::string>();
 			else{
 				std::stringstream fname;
 				fname<<"run_"<<run->GetRunID()<<".root";
