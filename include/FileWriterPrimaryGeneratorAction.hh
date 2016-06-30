@@ -78,10 +78,12 @@ public:
 
 		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
 			for(auto iEvent:someEvents){
-				fGenEvent=new genevent_t(iEvent);
-				fOutTree->Fill();
 				if(fCurrentEventId==fNEvents)
 					return false;
+				fGenEvent=new genevent_t(iEvent);
+				fGenEvent->eventid=fCurrentEventId;
+				fOutTree->Fill();
+				delete fGenEvent;
 				fCurrentEventId++;
 			}
 			return true;
