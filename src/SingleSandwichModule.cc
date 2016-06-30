@@ -19,9 +19,9 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 SingleSandwichModule::SingleSandwichModule():SingleCrystal() {
 	fAbsorberMaterial=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
-	fCrystalLength=10*CLHEP::cm;
-	fAbsorberLength=5*CLHEP::cm;
-	fDeltaELength=1*CLHEP::cm;
+	fCrystalLength=5*CLHEP::cm;
+	fAbsorberLength=3*CLHEP::cm;
+	fDeltaELength=2*CLHEP::cm;
 	fNumLayers=1;
 	DefineCommands();
 
@@ -40,18 +40,19 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	if(fAbsorberLength>1e-3*CLHEP::mm){		 
 		auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/fNumLayers/2);
 		auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
-		logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
+		logicAbsorber->SetVisAttributes(new G4VisAttributes(gray));
 		fSensitiveDetectors.Update("Absorber",SDtype::kTracker,logVolVector{logicAbsorber});
 		new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,0,false);
 	}
 	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength+fAbsorberLength+fCrystalLength/2),logicDetector,"Detector",logicMother,false,0,false);
-	auto solidDe=new G4Box("Hodoscope",fCrystalWidth/2,fCrystalWidth/2,fDeltaELength/4);
+	auto solidDe=new G4Box("Hodoscope",fDeltaEWidth/2,fDeltaEWidth/2,fDeltaELength/4);
 	auto logicDe = new G4LogicalVolume(solidDe,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
 	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+fDeltaELength/4),logicDe,"Hodoscope",logicMother,false,0,false);
 	new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+3*fDeltaELength/4),logicDe,"Hodoscope",logicMother,false,1,false);
 	logicDe->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	logicDetector->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
-	logicDetector->SetVisAttributes(new G4VisAttributes(red));
+	logicDetector->SetVisAttributes(new G4VisAttributes(green));
+	logicDe->SetVisAttributes(new G4VisAttributes(cyan));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
 	fSensitiveDetectors.Update("Detector",SDtype::kTracker,logVolVector{logicDetector});
 	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicDe});

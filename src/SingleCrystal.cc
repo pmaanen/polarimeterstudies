@@ -7,18 +7,7 @@
 #include "SingleCrystal.hh"
 #include <G4UserLimits.hh>
 #include <G4Region.hh>
-
-
-static G4Colour
-white   (1.0, 1.0, 1.0),  // white
-gray    (0.5, 0.5, 0.5), // gray
-black   (0.0, 0.0, 0.0), // black
-red     (1.0, 0.0, 0.0), // red
-green   (0.0, 1.0, 0.0), // green
-blue    (0.0, 0.0, 1.0), // blue
-cyan    (0.0, 1.0, 1.0), // cyan
-magenta (1.0, 0.0, 1.0), // magenta
-yellow  (1.0, 1.0, 0.0); // yellow
+#include "Colors.hh"
 SingleCrystal::SingleCrystal():JediPolarimeter(),fTheta(0),fPhi(0),fPsi(0) {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;

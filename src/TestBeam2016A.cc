@@ -77,7 +77,7 @@ void TestBeam2016A::MakeSetup() {
 
 	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm,10*CLHEP::cm,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicVacuum=new G4LogicalVolume(solidVacuum,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Vacuum");
-	logicVacuum->SetVisAttributes(new G4VisAttributes(yellow_transparent));
+	logicVacuum->SetVisAttributes(new G4VisAttributes(tyellow));
 	new G4PVPlacement(0,G4ThreeVector(0,0,-20*CLHEP::cm-100*CLHEP::um),logicVacuum,"Vacuum",fLogicWorld,false,0,false);
 
 	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm,100*CLHEP::um,0,2*CLHEP::pi*CLHEP::rad);
