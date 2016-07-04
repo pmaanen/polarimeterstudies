@@ -96,7 +96,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 		genevent_t* thisEvent=nullptr;
 		if(gVerbose>2)
 			G4cout<<"generator name:"<<fGeneratorName<<G4endl;
-		fOutBranches["gen"]=GenTree.Branch(fGeneratorName,"genevent_t",&thisEvent);
+		fOutBranches["gen"]=GenTree.Branch("events","genevent_t",&thisEvent);
 		for(auto iEvent : GenEvents){
 			thisEvent=&iEvent;
 			GenTree.Fill();
