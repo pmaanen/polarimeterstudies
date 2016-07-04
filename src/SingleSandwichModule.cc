@@ -54,7 +54,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 	logicDetector->SetVisAttributes(new G4VisAttributes(green));
 	logicDe->SetVisAttributes(new G4VisAttributes(cyan));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
-	fSensitiveDetectors.Update("Detector",SDtype::kTracker,logVolVector{logicDetector});
+	fSensitiveDetectors.Update("Detector",SDtype::kCalorimeter,logVolVector{logicDetector});
 	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicDe});
 	return logicMother;
 }
