@@ -147,7 +147,6 @@ class CaloHit:
     def __init__(self,hit):
         self.detid=hit.detid
         self.edep=hit.edep
-        self.event=hit.event
     def __str__(self):
         return str([self.event,self.detid,self.edep])
 def unpack(tree,HitClass):
