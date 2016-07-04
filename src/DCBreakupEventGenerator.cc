@@ -20,7 +20,7 @@
 //static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
 
-DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun),fScatteringModel(nullptr) {
+DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun,"dcbreakup"),fScatteringModel(nullptr) {
 	if(gConfig.count("generator.beam_polarization")){
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
 	}
@@ -102,7 +102,7 @@ genevent_t DCBreakupEventGenerator::Generate() {
 		//Polar angle for proton in lab-frame (degrees)
 		G4double th_scattered  = proton_4.Vect().Theta()*CLHEP::rad;
 		//Polar angle for proton in lab-frame (degrees)
-		G4double th_recoil  = neutron_4.Vect().Theta()*CLHEP::rad;
+		//G4double th_recoil  = neutron_4.Vect().Theta()*CLHEP::rad;
 
 		G4double phi_scattered = proton_4.Vect().Phi();//pscattered_3.getPhi();
 		if(phi_scattered<0)

@@ -91,7 +91,6 @@ public:
 			genevent_t thisEvent;
 			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
-			Int_t ev,id;
 			for(auto iev=0;iev<100;++iev){
 					if(fCurEntry>fInputTree->GetEntries())
 						G4Exception("FileReader_root","NoMoreEvents",RunMustBeAborted,"No more events in input file.");

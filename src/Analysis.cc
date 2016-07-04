@@ -36,11 +36,11 @@
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"
 #include "PrimaryGeneratorAction.hh"
-namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
+//namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 G4String Analysis::fGeneratorName=G4String("gen");
 Analysis* Analysis::fgMasterInstance = nullptr;
 G4ThreadLocal Analysis* Analysis::fgInstance = nullptr;
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fFileName("")
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fFileName(""),fOutFile(nullptr),fSimTree(nullptr),fInfoTree(nullptr),fGenTree(nullptr)
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;

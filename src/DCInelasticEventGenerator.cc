@@ -15,7 +15,7 @@
 #include "global.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
-DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun) {
+DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fBeamPolarization(0) {
 	fBeamEnergy=270.*CLHEP::MeV;
 	fInitialized=false;
 

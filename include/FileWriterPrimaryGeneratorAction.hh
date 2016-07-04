@@ -117,8 +117,8 @@ public:
 	virtual ~FileWriterPrimaryGeneratorAction();
 	virtual void GeneratePrimaries(G4Event* E);
 	private:
+	G4int fNEvents;
 	EventGenerator* fEvtGen;
 	static FileWriter* fgFileWriter;
-	G4int fNEvents;
 };
 #endif /* FILEWRITERPRIMARYGENERATORACTION_HH_ */

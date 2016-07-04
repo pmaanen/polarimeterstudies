@@ -149,8 +149,7 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 			Z=0;
 			A=0;
 			G4double En=0;
-			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
-			//G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
+			//auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
 			part=G4IonTable::GetIonTable()->GetIon(Z,A);
 			if(!part){
 				std::stringstream message;

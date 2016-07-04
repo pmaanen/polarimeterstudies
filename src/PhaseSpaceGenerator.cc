@@ -38,8 +38,8 @@ PhaseSpaceGenerator::~PhaseSpaceGenerator() {}
 void PhaseSpaceGenerator::DefineCommands() {
 
 
-
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dcelastic/", "elastic event generator control");
+	G4String dir=G4String("/PolarimeterStudies/")+G4String(fName)+G4String("/");
+	fMessenger=new G4GenericMessenger(this, dir, "elastic event generator control");
 	fMessenger->DeclarePropertyWithUnit("beamspot","mm",PhaseSpaceGenerator::fBeamspot,"position of beam centroid.");
 	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
 	fMessenger->DeclareMethod("energy", &PhaseSpaceGenerator::setBeamEnergy, "beam energy");
@@ -60,7 +60,6 @@ void PhaseSpaceGenerator::Generate(G4Event* E) {
 		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
 		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
 		fParticleGun->GeneratePrimaryVertex(E);
-		Analysis* an=Analysis::Instance();
 	}
 	return;
 }

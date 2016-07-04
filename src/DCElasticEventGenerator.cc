@@ -26,10 +26,7 @@
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
 using namespace CLHEP;
-
-static double DegToRad=3.14159265359/180.;
-//static double RadToDeg=1/DegToRad;
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fScatteringModel(nullptr){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun,"dcelastic"),fScatteringModel(nullptr){
 
 	if(gConfig.count("generator.beam_polarization")){
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
