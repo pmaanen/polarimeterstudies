@@ -27,7 +27,7 @@
 #include <TMath.h>
 #include <utility>
 #include <vector>
-
+#include "global.hh"
 #include <G4UnitsTable.hh>
 
 #include "EventGenerator.hh"
