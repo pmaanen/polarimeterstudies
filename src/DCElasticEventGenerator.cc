@@ -81,13 +81,7 @@ void DCElasticEventGenerator::Initialize() {
 
 void DCElasticEventGenerator::DefineCommands()
 {
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dcelastic/", "elastic event generator control");
-	fMessenger->DeclarePropertyWithUnit("beamspot","mm",PhaseSpaceGenerator::fBeamspot,"position of beam centroid.");
-	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
 	fMessenger->DeclareMethod("polarization", &DCElasticEventGenerator::setBeamPolarization, "beam polarization");
-	fMessenger->DeclareMethod("energy", &DCElasticEventGenerator::setBeamEnergy, "beam energy");
-	fMessenger->DeclarePropertyWithUnit("thetamin","deg",PhaseSpaceGenerator::fThetaMin,"min angle");
-	fMessenger->DeclarePropertyWithUnit("thetamax","deg",PhaseSpaceGenerator::fThetaMax,"max angle");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

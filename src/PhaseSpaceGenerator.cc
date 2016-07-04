@@ -8,7 +8,7 @@
 
 #include "G4ParticleGun.hh"
 #include <PhaseSpaceGenerator.hh>
-PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamspot(0,0,0),fSpotsize(0,0,0) {
+PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun, G4String name):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamspot(0,0,0),fSpotsize(0,0,0),fName(name) {
 
 	if(gConfig.count("generator.beam_energy")){
 		fBeamEnergy=gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV;
@@ -35,7 +35,21 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun):fXPrime(0),fYPrime(
 
 PhaseSpaceGenerator::~PhaseSpaceGenerator() {}
 
-void PhaseSpaceGenerator::DefineCommands() {}
+void PhaseSpaceGenerator::DefineCommands() {
+
+
+
+	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dcelastic/", "elastic event generator control");
+	fMessenger->DeclarePropertyWithUnit("beamspot","mm",PhaseSpaceGenerator::fBeamspot,"position of beam centroid.");
+	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
+	fMessenger->DeclareMethod("energy", &PhaseSpaceGenerator::setBeamEnergy, "beam energy");
+	fMessenger->DeclarePropertyWithUnit("thetamin","deg",PhaseSpaceGenerator::fThetaMin,"min angle");
+	fMessenger->DeclarePropertyWithUnit("thetamax","deg",PhaseSpaceGenerator::fThetaMax,"max angle");
+
+
+
+
+}
 
 void PhaseSpaceGenerator::Generate(G4Event* E) {
 

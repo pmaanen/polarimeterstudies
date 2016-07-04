@@ -197,9 +197,5 @@ Double_t deuteron_breakup_model::d2(Double_t theta, Double_t E) {
 }
 
 void DCBreakupEventGenerator::DefineCommands() {
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dcbreakup/", "elastic event generator control");
-	fMessenger->DeclarePropertyWithUnit("beamspot","mm",PhaseSpaceGenerator::fBeamspot,"position of beam centroid.");
-	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
 	fMessenger->DeclareMethod("polarization", &DCBreakupEventGenerator::setBeamPolarization, "beam polarization");
-	fMessenger->DeclareMethod("energy", &DCBreakupEventGenerator::setBeamEnergy, "beam energy");
 }

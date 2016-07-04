@@ -37,7 +37,7 @@ class G4ParticleGun;
 
 class PhaseSpaceGenerator: public EventGenerator {
 public:
-	PhaseSpaceGenerator(G4ParticleGun* gun=0);
+	PhaseSpaceGenerator(G4ParticleGun* gun=0,G4String name="");
 	virtual ~PhaseSpaceGenerator();
 
 	G4double getBeamEnergy() const {return fBeamEnergy;}
@@ -56,7 +56,7 @@ protected:
 	G4GenericMessenger* fMessenger;
 	G4double fXPrime,fYPrime,fTiltX,fTiltY;
 	G4ThreeVector fBeamspot, fSpotsize;
-
+	G4String fName;
 
 	virtual void Generate(G4Event* E);
 	virtual genevent_t Generate()=0;
