@@ -1,14 +1,14 @@
 
 # Sets some default verbose
 #
-/control/verbose 1
+/control/verbose 0
 /control/saveHistory
 /run/verbose 0
 #
 # create empty scene
 #
 /vis/scene/create
-/vis/open OGLS
+/vis/open DAWNFILE
 /vis/viewer/set/style s
 /vis/viewer/set/viewpointThetaPhi 135 160
 /vis/drawVolume 
@@ -33,11 +33,15 @@
 /gun/energy 270 MeV
 /gun/direction 0 0 1
 /gun/position 0 0 -5 cm
-#/PolarimeterStudies/generator/setGenerator beam
-#/PolarimeterStudies/beam/spotsize .25 .25 0 cm
-#/PolarimeterStudies/beam/xp 5 deg
-#/PolarimeterStudies/beam/yp 5 deg
+/PolarimeterStudies/detector/absorberlength 0 mm
+/PolarimeterStudies/detector/calolength 8 cm
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/generator/setGenerator dcelastic
+/PolarimeterStudies/dcelastic/beamposition 0 0 -5 cm
+/PolarimeterStudies/dcelastic/spotsize .25 .25 0 cm
+/PolarimeterStudies/beam/xp 5 deg
+/PolarimeterStudies/beam/yp 5 deg
 ################################
 /tracking/storeTrajectory 1
-/vis/scene/endOfEventAction accumulate 100
-/vis/viewer/flush
+/vis/scene/endOfEventAction accumulate 10
+/run/beamOn 10

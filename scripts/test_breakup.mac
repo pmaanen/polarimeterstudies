@@ -1,7 +1,8 @@
 /analysis/Enable
-/PolarimeterStudies/detector/calolength 90 mm
-/PolarimeterStudies/detector/absorberlength 40 mm
-/PolarimeterStudies/detector/update
+
+
 /PolarimeterStudies/generator/setGenerator dcbreakup
-/PolarimeterStudies/dcelastic/energy 270 MeV
-/run/beamOn 10000
+/PolarimeterStudies/dcbreakup/beamspot 0 0 -3 cm
+/PolarimeterStudies/dcbreakup/energy 270 MeV
+/PolarimeterStudies/dcelastic/thetamin 5 deg
+/run/beamOn 100000
