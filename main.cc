@@ -125,7 +125,7 @@ int main(int argc,char** argv) {
 	runManager->SetUserInitialization(the_physics);
 	runManager->SetUserInitialization(new UserActionInitialization);
 #ifdef G4VIS_USE
-// Visualization manager
+	// Visualization manager
 	//
 	G4VisManager* visManager = new G4VisExecutive("quiet");
 	visManager->Initialize();
@@ -146,8 +146,15 @@ int main(int argc,char** argv) {
 		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
 		UImanager->ApplyCommand("/run/initialize");
+
 		std::stringstream o;
-		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
+		if(gConfig.count("general.macro_file")){
+			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
+
+		}
+		else{
+			o<<"/control/execute "<<"scripts/vis_T0.mac";
+		}
 		UImanager->ApplyCommand(o.str().c_str());
 #endif
 		ui->SessionStart();
