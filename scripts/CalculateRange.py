@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 import ROOT,sys,numpy,math
-c1=ROOT.TCanvas("*","*",1600,900)
-colors=[ROOT.kBlack,ROOT.kBlue,ROOT.kRed,ROOT.kSpring,ROOT.kOrange,ROOT.kMagenta]
+ROOT.gStyle.SetOptStat(0000000000000)
+gStyle=ROOT.gStyle
+gStyle.SetMarkerStyle(20)
+gStyle.SetMarkerSize(2.5)
+gStyle.SetLabelSize(.045,"xy")
+gStyle.SetTitleSize(.05,"xy")
+gStyle.SetTitleOffset(.8,"xy")
+
+c1=ROOT.TCanvas("graph","graph",1600,900)
+colors=[ROOT.kBlue,ROOT.kRed,ROOT.kYellow-3,ROOT.kSpring,ROOT.kOrange,ROOT.kMagenta]
 def getFWHM(histo):
      maximum=histo.GetMaximum()
      firstbin=histo.FindFirstBinAbove(.5*maximum)
@@ -12,12 +20,15 @@ def getFWHM(histo):
 def doFile(infile,dirname):
     try:
         histo=infile.Get(dirname+"/range")
+        #histo.Sumw2()
+        histo.Scale(1./histo.GetEntries())
         maximum=histo.GetMaximum()
         maximumLoc=histo.GetXaxis().GetBinCenter(histo.GetMaximumBin())
         width=max(1/2.3548*getFWHM(histo),histo.GetXaxis().GetBinWidth(histo.GetMaximumBin()))
         histo=infile.Get(dirname+"/range")
         histo.GetXaxis().SetRangeUser(maximumLoc-10*width,maximumLoc+10*width)
-        histo.GetXaxis().SetTitle("range [mm]")
+        histo.GetXaxis().SetTitle("Range [mm]")
+        histo.GetYaxis().SetTitle("rel. freq.")
         fitfunc=ROOT.TF1("Gaussian","[0]*TMath::Gaus(x,[1],[2])",maximumLoc-5*width,maximumLoc+5*width)
         fitfunc.SetParName(0,"Constant")
         fitfunc.SetParName(1,"Mean")
@@ -25,6 +36,7 @@ def doFile(infile,dirname):
         fitfunc.SetParameters(maximum,maximumLoc,width)
         fitfunc.SetNpx(1000)
         histo.Fit(fitfunc,"RQ")
+        histo.SetTitle(dirname+" MeV")
         histo.Draw()
         c1.Print(dirname+"-range.pdf")
         val=fitfunc.GetParameter(1)
@@ -63,11 +75,12 @@ for material in materials:
     graph.GetXaxis().SetTitle("E_{kin} [MeV]")
     graph.GetYaxis().SetTitle("Range [mm]")
     graph.SetLineColor(colors[iCol % len(colors)])
-    graph.SetMarkerStyle(24)
+    graph.SetMarkerColor(colors[(iCol +1 )% len(colors)])
     graph.SetFillColor(colors[iCol % len(colors)])
     graph.SetLineWidth(3)
     iCol+=1
     allGraph.Add(graph)
+    graph.SetTitle("deuteron range in "+material)
     graph.Draw("ALP")
     c1.Print(material+"-range.pdf")
     c1.Print(material+"-range.root")

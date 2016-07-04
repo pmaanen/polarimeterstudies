@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 import ROOT,sys,numpy,math
-c1=ROOT.TCanvas("*","*",1600,900)
-colors=[ROOT.kBlue,ROOT.kRed,ROOT.kSpring,ROOT.kOrange,ROOT.kMagenta]
+ROOT.gStyle.SetOptStat(0000000000000)
+gStyle=ROOT.gStyle
+gStyle.SetMarkerStyle(20)
+gStyle.SetMarkerSize(2.5)
+gStyle.SetLabelSize(.045,"xy")
+gStyle.SetTitleSize(.05,"xy")
+gStyle.SetTitleOffset(.8,"xy")
+c1=ROOT.TCanvas("graph","graph",1600,900)
+colors=[ROOT.kBlue,ROOT.kRed,ROOT.kYellow-3,ROOT.kSpring,ROOT.kOrange,ROOT.kMagenta]
 def getFWHM(histo):
      maximum=histo.GetMaximum()
      firstbin=histo.FindFirstBinAbove(.5*maximum)
@@ -18,7 +25,7 @@ def getIntegral(histo,threshold):
             sum+=histo.GetBinContent(ii)
         if sum>threshold*histo.GetEntries():
             print histo.GetXaxis().GetBinCenter(cut),getFWHM(histo)
-            return histo.GetXaxis().GetBinCenter(cut)
+            return 2*histo.GetXaxis().GetBinCenter(cut)
     print "no cut found!"
         
 def doFile(infile,dirname):
@@ -60,11 +67,12 @@ for material in materials:
     graph.GetXaxis().SetTitle("E_{kin} [MeV]")
     graph.GetYaxis().SetTitle("x displacement (90% inside) [mm]")
     graph.SetLineColor(colors[iCol % len(colors)])
-    graph.SetMarkerStyle(24)
+    graph.SetMarkerColor(colors[(iCol +1 )% len(colors)])
     graph.SetFillColor(colors[iCol % len(colors)])
     graph.SetLineWidth(3)
     iCol+=1
     allGraph.Add(graph)
+    graph.SetTitle("deuteron displacement in "+material)
     graph.Draw("ALP")
     c1.Print(material+"-x.pdf")
     c1.Print(material+"-x.root")

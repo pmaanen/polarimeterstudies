@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 import ROOT,sys,numpy,math
+
+ROOT.gStyle.SetOptStat(0000000000000)
+gStyle=ROOT.gStyle
+gStyle.SetMarkerStyle(20)
+gStyle.SetMarkerSize(2.5)
+gStyle.SetLabelSize(.045,"xy")
+gStyle.SetTitleSize(.05,"xy")
+gStyle.SetTitleOffset(.8,"xy")
+
 c1=ROOT.TCanvas("*","*",1600,900)
 
 fitfunc=ROOT.TF1("fa","[0]+[1]*x",40,60); 
