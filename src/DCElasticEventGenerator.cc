@@ -30,12 +30,13 @@ using namespace CLHEP;
 static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
 DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fScatteringModel(nullptr){
-	fBeamEnergy=270.*CLHEP::MeV;
-	fBeamPolarization=Double_t(2./3.);
-	fInitialized=false;
 
-	fThetaMin=5*CLHEP::deg;
-	fThetaMax=20*CLHEP::deg;
+	if(gConfig.count("generator.beam_polarization")){
+		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
+	}
+	else
+		fBeamPolarization=Double_t(2./3.);
+
 	DefineCommands();
 }
 
@@ -56,7 +57,7 @@ void DCElasticEventGenerator::Initialize() {
 		if(!(*ipart))
 			G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",FatalException,"beam particle not found.");
 	}
-
+	G4cout<<"Theta_Min="<<fThetaMin/CLHEP::deg<<" Theta_Max="<<fThetaMax/CLHEP::deg<<G4endl;
 	Double_t m_target = fParticles[1]->GetPDGMass()/GeV;
 	Double_t m_beam = fParticles[0]->GetPDGMass()/GeV;
 	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
@@ -75,11 +76,6 @@ void DCElasticEventGenerator::Initialize() {
 
 	}
 	fMaxY=2*fScatteringModel->SigmaUnpol(fBeamEnergy/CLHEP::MeV,sin(fThetaMin/2.)*2*fMomentumCMS/CLHEP::GeV);
-
-
-	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX(),fBeamspot.getY(),fBeamspot.getZ());
-	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX(),fSpotsize.getY(),fSpotsize.getZ());
-	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ());
 	fInitialized=true;
 }
 
@@ -90,6 +86,8 @@ void DCElasticEventGenerator::DefineCommands()
 	fMessenger->DeclarePropertyWithUnit("beamsize","mm",PhaseSpaceGenerator::fSpotsize,"beam size.");
 	fMessenger->DeclareMethod("polarization", &DCElasticEventGenerator::setBeamPolarization, "beam polarization");
 	fMessenger->DeclareMethod("energy", &DCElasticEventGenerator::setBeamEnergy, "beam energy");
+	fMessenger->DeclarePropertyWithUnit("thetamin","deg",PhaseSpaceGenerator::fThetaMin,"min angle");
+	fMessenger->DeclarePropertyWithUnit("thetamax","deg",PhaseSpaceGenerator::fThetaMax,"max angle");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -98,14 +96,14 @@ genevent_t DCElasticEventGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
 
-	auto position=fParticleGun->GetParticlePosition();
-	G4double x=position.x(),y=position.y(),z=position.z();
-	if(fSpotsize.x()>0)
-		x+=G4RandGauss::shoot(0,fSpotsize.x());
-	if(fSpotsize.y()>0)
-		y+=G4RandGauss::shoot(0,fSpotsize.y());
-	if(fSpotsize.z()>0)
-		z+=G4RandGauss::shoot(0,fSpotsize.z());
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX()/CLHEP::mm,fBeamspot.getY()/CLHEP::mm,fBeamspot.getZ()/CLHEP::mm);
+	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX()/CLHEP::mm,fSpotsize.getY()/CLHEP::mm,fSpotsize.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamspot.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ()/CLHEP::mm);
+
+	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
+	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
+
 	while (1) {
 		fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
 		fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
@@ -150,7 +148,7 @@ genevent_t DCElasticEventGenerator::Generate() {
 				continue;
 			}
 			else {
-				genevent_t res(0,0,x/CLHEP::mm,y/CLHEP::mm,z/CLHEP::mm);
+				genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
 				res.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*GeV-carbon_4.M()*GeV));
 				res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),deuteron_3.getX()/CLHEP::GeV,deuteron_3.getY()/CLHEP::GeV,deuteron_3.getZ()/CLHEP::GeV,deuteron_4.Energy()*GeV-deuteron_4.M()*GeV));
 				return res;
@@ -167,7 +165,7 @@ Double_t elastic_scattering_model::sigma(TLorentzVector in, TLorentzVector out) 
 	auto q=sqrt(-(out-in).M2());
 	auto phi=out.Vect().Phi()*CLHEP::rad;
 	auto theta=out.Vect().Theta()*CLHEP::rad;
-	return SigmaUnpol(fBeamEnergy,q)*(1+fBeamPolarization*Ay(fBeamEnergy,theta/CLHEP::deg)*cos(phi));
+	return SigmaUnpol(fBeamEnergy/CLHEP::MeV,q)*(1+fBeamPolarization*Ay(fBeamEnergy/CLHEP::MeV,theta/CLHEP::deg)*cos(phi));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -8,16 +8,28 @@
 
 #include "G4ParticleGun.hh"
 #include <PhaseSpaceGenerator.hh>
-
 PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamspot(0,0,0),fSpotsize(0,0,0) {
 
-	fBeamEnergy=235.*CLHEP::MeV;
-	fInitialized=false;
+	if(gConfig.count("generator.beam_energy")){
+		fBeamEnergy=gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV;
+	}
+	else
+		fBeamEnergy=270*CLHEP::MeV;
 
-	fThetaMin=5*CLHEP::deg;
-	fThetaMax=20*CLHEP::deg;
+	if(gConfig.count("generator.thetamin")){
+		fThetaMin=gConfig["generator.thetamin"].as<double>()*CLHEP::deg;
+	}
+	else
+		fThetaMin=0*CLHEP::deg;
+
+	if(gConfig.count("generator.thetamax")){
+		fThetaMax=gConfig["generator.thetamax"].as<double>()*CLHEP::deg;
+	}
+	else
+		fThetaMax=180*CLHEP::deg;
+
 	DefineCommands();
-
+	fInitialized=false;
 	fParticleGun=gun;
 }
 
