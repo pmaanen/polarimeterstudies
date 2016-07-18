@@ -9,6 +9,7 @@
 #include <Randomize.hh>
 #include <G4GenericMessenger.hh>
 #include <G4ParticleGun.hh>
+
 BeamGenerator::BeamGenerator(G4ParticleGun* gun) {
 	fXPrime=fYPrime=0;
 	fPosition=fSpotsize=G4ThreeVector(0,0,0);

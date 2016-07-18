@@ -14,6 +14,8 @@
 
 #pragma link C++ class calorhit_t+;
 #pragma link C++ class trackerhit_t+;
+//#pragma link C++ class DeuteronCarbonElasticScatteringModel;
+//#pragma link C++ class DeuteronCarbonBreakupModel;
 #pragma link C++ class std::vector <trackerhit_t>+;
 #pragma link C++ class std::vector <calorhit_t>+;
 #pragma link C++ class std::map<std::string,std::vector<calorhit_t> > +;
