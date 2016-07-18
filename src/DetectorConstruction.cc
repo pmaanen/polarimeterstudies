@@ -23,6 +23,7 @@
 #include "global.hh"
 #include <G4GenericMessenger.hh>
 #include <TestBeam2016A.hh>
+#include <TestBeam2016B.hh>
 #include <map>
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -86,6 +87,10 @@ void DetectorConstruction::InitializeGeometry() {
 	else if(name=="testbeam")
 	{
 		fGeometry= new TestBeam2016A();
+	}
+	else if(name=="testbeam2016b")
+	{
+		fGeometry= new TestBeam2016B();
 	}
 		if(!fGeometry){
 			G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
