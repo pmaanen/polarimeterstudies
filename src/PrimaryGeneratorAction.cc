@@ -83,7 +83,7 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 	if(fEvtGenerators.count(fGeneratorName)==0){
 		std::stringstream message;
 		message<<"event generator "<<fGeneratorName<<" is not known.";
-		G4Exception("PrimaryGeneratorAction::generateEventFromPhaseSpace","NO_SUCH_GENERATOR",RunMustBeAborted,message.str().c_str());
+		G4Exception("PrimaryGeneratorAction::generateEventFromPhaseSpace","GeneratorError",RunMustBeAborted,message.str().c_str());
 		return;
 	}
 	else{
@@ -98,13 +98,15 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 				Z=0;
 				A=0;
 				G4double En=0;
+				G4cout<<"Blubb"<<G4endl;
 				auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
-				//G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
-				part=G4IonTable::GetIonTable()->GetIon(Z,A);
+				G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
+				part=G4IonTable::GetIonTable()->GetParticle(ipart.id);
+				//G4cout<<part->GetParticleName()<<G4endl;
 				if(!part){
 					std::stringstream message;
 					message<<"primary particle not found.particle id: "<<ipart.id;
-					G4Exception("EventGenerator::generateEventFromInput()", "ParticleError", FatalException,
+					G4Exception("EventGenerator::generateEventFromInput()", "ParticleError", RunMustBeAborted,
 							message.str().c_str());
 				}
 				particle_t a_particle;
@@ -149,12 +151,12 @@ void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 			Z=0;
 			A=0;
 			G4double En=0;
-			//auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
+			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
 			part=G4IonTable::GetIonTable()->GetIon(Z,A);
 			if(!part){
 				std::stringstream message;
 				message<<"primary particle not found.particle id: "<<ipart.id;
-				G4Exception("EventGenerator::generateEventFromInput()", "ParticleError", FatalException,
+				G4Exception("EventGenerator::generateEventFromInput()", "ParticleError", RunMustBeAborted,
 						message.str().c_str());
 			}
 			particle_t a_particle;
@@ -211,6 +213,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		if(fInfileName==""){
 			G4Exception("[EventGenerator]", "GeneratePrimaries", RunMustBeAborted,
 					" ERROR: Must set input file before first beamOn.");
+			return;
 		}
 		generateEventFromInput(E);
 		return;
