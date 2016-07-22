@@ -87,7 +87,7 @@ public:
 		if( evCache.size() == 0 )
 		{
 			genevent_t* curEvent=nullptr;
-			fInputTree->SetBranchAddress("gen",&curEvent);
+			fInputTree->SetBranchAddress("events",&curEvent);
 			genevent_t thisEvent;
 			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
