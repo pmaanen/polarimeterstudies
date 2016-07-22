@@ -5,6 +5,6 @@ if [ $# -eq 1 ]
     N="$1"
 fi
 mkdir -p ~/sim/efficiency
-./polarimeterstudies -g single -m scripts/efficiency-lyso.mac -n $N -b
-./polarimeterstudies -g singlesandwich -m scripts/efficiency-plastic.mac -n $N -b
+nice -n 15 ./polarimeterstudies -g single -m scripts/efficiency-lyso.mac -n $N -b
+nice -n 15 ./polarimeterstudies -g singlesandwich -m scripts/efficiency-plastic.mac -n $N -b
 find ./ -name "*root" -exec mv {} ~/sim/efficiency

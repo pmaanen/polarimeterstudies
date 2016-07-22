@@ -6,7 +6,7 @@ if [ $# -eq 1 ]
 fi
 DIR=../TestBeamEffectiveEnergy-$(date "+%Y-%m-%d")
 mkdir -p $DIR
-./polarimeterstudies -g testbeam -m scripts/TestBeamEffectiveEnergy.mac -n $N -b 1>/dev/null
+nice -n 15 ./polarimeterstudies -g testbeam -m scripts/TestBeamEffectiveEnergy.mac -n $N -b 1>/dev/null
 #mv *.root $DIR/
 #cp scripts/AnalysisBase.py $DIR/.
 #cp libAnalysis* $DIR/.
