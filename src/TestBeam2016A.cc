@@ -10,7 +10,7 @@
 #include "Colors.hh"
 #include <G4UserLimits.hh>
 #include <JediSensitiveDetector.hh>
-TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("sandwich") {
+TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
 	fTriggerHeight=2.5*CLHEP::cm;
@@ -147,7 +147,7 @@ void TestBeam2016A::DefineCommands() {
 
 
 	auto detCmd=fMessenger->DeclareProperty("detector",TestBeam2016A::fDetectorName,"detector type.");
-	detCmd.SetCandidates("default sandwich");
+	detCmd.SetCandidates("default sandwich effective");
 
 
 }

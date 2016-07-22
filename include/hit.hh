@@ -48,7 +48,7 @@ public:
 */
 	Int_t id;
 	Double_t px,py,pz,E;
-	ClassDef(particle_t,4)
+	ClassDef(particle_t,5)
 };
 
 class genevent_t: public TObject {
