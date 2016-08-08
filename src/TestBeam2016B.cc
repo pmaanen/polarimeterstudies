@@ -243,4 +243,8 @@ void TestBeam2016B::DefineCommands() {
 	fMessenger->DeclarePropertyWithUnit("armangle","rad",TestBeam2016B::fArmAngle,"");
 
 	fMessenger->DeclareProperty("support",TestBeam2016B::kSupport,"support beam on/off");
+
+	fMessenger->DeclareProperty("nx",TestBeam2016B::fNx,"number of detectors in x");
+
+	fMessenger->DeclareProperty("ny",TestBeam2016B::fNy,"number of detectors in y");
 }
