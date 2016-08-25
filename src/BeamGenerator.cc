@@ -38,7 +38,7 @@ void BeamGenerator::Generate(G4Event* E) {
 
 genevent_t BeamGenerator::Generate() {
 	auto position=fParticleGun->GetParticlePosition();
-	G4double x=position.x(),y=position.y(),z=position.z();
+	G4double x=fPosition.x(),y=fPosition.y(),z=fPosition.z();
 	if(fSpotsize.x()>0)
 		x+=G4RandGauss::shoot(0,fSpotsize.x());
 	if(fSpotsize.y()>0)

@@ -53,7 +53,7 @@ G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) 
 	G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
 	newHit.SetTof(preStepPoint->GetGlobalTime()/CLHEP::ns);
 	newHit.SetParticleId(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding() );
-	newHit.setMom(aStep->GetPreStepPoint()->GetMomentum());
+	newHit.setMom(aStep->GetTrack()->GetMomentum());
 	fHitBuffer.push_back( newHit );
 	return true;
 }

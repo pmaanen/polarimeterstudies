@@ -68,6 +68,7 @@ DetectorHit::DetectorHit(const DetectorHit& right)
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
 	fEkin=right.fEkin;
+	fMom=right.fMom;
 
 }
 
@@ -82,7 +83,7 @@ const DetectorHit& DetectorHit::operator=(const DetectorHit& right)
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
 	fEkin=right.fEkin;
-
+	fMom=right.fMom;
 	return *this;
 }
 
