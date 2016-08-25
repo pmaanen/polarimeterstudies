@@ -1,0 +1,11 @@
+/analysis/Enable
+/PolarimeterStudies/generator/setGenerator dcelastic
+/PolarimeterStudies/dcelastic/energy 270 MeV
+/PolarimeterStudies/dcelastic/beamspot 0 0 0 cm
+/PolarimeterStudies/dcelastic/thetamin 3 deg
+
+/PolarimeterStudies/detector/detector effective
+/PolarimeterStudies/detector/armangle 5 deg
+/PolarimeterStudies/detector/update
+
+/run/beamOn 10000
