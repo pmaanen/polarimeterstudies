@@ -10,8 +10,10 @@
 
 #include "Colors.hh"
 
+#include <G4UIManager.hh>
 #include <G4UserLimits.hh>
 #include <TestBeam2016B.hh>
+
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
@@ -201,6 +203,8 @@ void TestBeam2016B::MakeEffectiveDetector() {
 	new G4PVPlacement(rot1,G4ThreeVector(0,-3./2.*fArmWidth-fMinDistance+fDetectorHeight+fArmWidth/2+(fArmWidth+fMinDistance),fArmLength-fArmWidth/2-fCrystalLength/2+.5*CLHEP::mm).rotateY(-fArmAngle),logicRight,"Left",fLogicWorld,0,0,false);
 	new G4PVPlacement(rot2,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance,fArmLength-fArmWidth/2-fCrystalLength/2+.5*CLHEP::mm).rotateY(fArmAngle),logicLeft,"Right",fLogicWorld,0,1,false);
 
+	G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Left/SetType perfect");
+	G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Right/SetType perfect");
 }
 
 void TestBeam2016B::MakeSandwichDetector() {
@@ -247,4 +251,6 @@ void TestBeam2016B::DefineCommands() {
 	fMessenger->DeclareProperty("nx",TestBeam2016B::fNx,"number of detectors in x");
 
 	fMessenger->DeclareProperty("ny",TestBeam2016B::fNy,"number of detectors in y");
+
+	fMessenger->DeclareProperty("ny",TestBeam2016B::fDetectorName,"detector");
 }
