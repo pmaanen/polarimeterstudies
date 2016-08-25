@@ -2,10 +2,11 @@
 import sys
 from multiprocessing import Process,JoinableQueue,Queue
 import os.path
-from os import system
+from os import system,remove
 from time import sleep,time
 import argparse
 import subprocess
+from ROOT import TFileMerger
 class ConsumerBase(Process):
     def __init__(self, task_queue, result_queue):
         Process.__init__(self)
@@ -88,15 +89,16 @@ class AnalysisBase:
                     print "Problem",item
                     continue
         if len(self.input)==0:
-            hadd="hadd "+str(self.args.output)
+            merger=TFileMerger()
+            merger.SetPrintLevel(0)
+            #hadd="hadd "+str(self.args.output)
             for f in self.filesToMerge:
-                hadd+=" "+f
-            with open(os.devnull, 'wb') as devnull:
-                system(hadd)
-                #subprocess.call(["hadd",hadd])
-            with open(os.devnull, 'wb') as devnull:
-                for f in self.filesToMerge:
-                    subprocess.call(['rm', f])
+                #hadd+=" "+f
+                merger.AddFile(f)
+            merger.OutputFile(self.args.output)
+            merger.Merge()
+            for f in self.filesToMerge:
+                os.remove(f)
         return self.input
     
     def __call__(self,function,**kwargs):
