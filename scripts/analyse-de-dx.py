@@ -46,18 +46,18 @@ def analyse(filename,myWorker):
         dir.cd()
         for event in data:
             triggerhits=filter(lambda hit:hit.edep>.5,event.Trigger)
-            for hit in event.Calorimeter:
+            for hit in event.Detector:
                 edep_raw.Fill(hit.edep)
-            if len(triggerhits)==4:
-                for hit in event.Calorimeter:
+            if len(triggerhits)==3:
+                for hit in event.Detector:
                     edep.Fill(hit.edep)
                     
         edep.Write()
         edep_raw.Write()
         outfile.Write()
         outfile.Close()
-    except:
-        print "Problem in file:",filename
+    except Exception as e:
+        print "Problem in file:",filename,": "+str(e)
         return None
     print "Finished",filename
     return (filename[:-5])
@@ -74,3 +74,34 @@ if __name__=="__main__":
     leftToDo=myAnalysis(analyse)
     while len(leftToDo):
       myAnalysis(analyse)
+    infile=ROOT.TFile(myAnalysis.args.output,"UPDATE")
+    L=range(30,90,5)
+    T=[270]
+    
+    for iT in T:
+       gEdep=ROOT.TGraph(len(T))
+       gEdep.SetName("e_vs_l_deuterons_"+str(iT))
+       gEdep.SetTitle("e_vs_l_deuterons_"+str(iT))
+       i=0
+       E=[]
+       d=[]
+       for iL in L:
+          dir="deuterons_"+str(iT)+"_"+str(iL)
+          print dir+"/edep"
+          hEdep=infile.Get(dir+"/edep")
+          if hEdep.GetEntries()>100:
+             E.append(hEdep.GetMean())
+             d.append(iL)
+             gEdep.SetPoint(i,iL,hEdep.GetMean())
+             i+=1
+       gDeDx=ROOT.TGraph(i-1)
+       gDeDx.SetName("dedx_vs_l_deuterons_"+str(iT))
+       gDeDx.SetTitle("dedx_vs_l_deuterons_"+str(iT))
+       for ii in range(i-1):
+          de=E[ii+1]-E[ii]
+          dx=d[ii+1]-d[ii]
+          gDeDx.SetPoint(ii,d[ii+1],de/dx)
+       gDeDx.Write()
+       gEdep.Write()
+    infile.Write()
+    infile.Close()

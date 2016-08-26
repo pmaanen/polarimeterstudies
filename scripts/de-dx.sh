@@ -4,11 +4,11 @@ if [ $# -eq 1 ]
   then
     N="$1"
 fi
-export PYTHONPATH+=$(pwd)/scripts
-mkdir -p ~/sim/de-dx
-nice -n 15 ./polarimeterstudies -g testbench: -m scripts/de-dx.mac -n $N -b -o
-find ./ -name "*root" -type f -d 1 -exec {} mv ~/sim/de-dx \;
-cp ./scripts/analyse-de-dx.py ~/sim/de-dx/.
-cp ./scripts/AnalysisBase.py ~/sim/de-dx/.
-cp ./libAnalysis* ~/sim/de-dx/.
-cd ~/sim/de-dx && nice -n 15 ./analyse-de-dx.py -n $N -o dedx.root *root && cd -
+DIR=../de-dx-$(date "+%Y-%m-%d")
+mkdir -p $DIR
+nice -n 15 ./polarimeterstudies -g testbench: -m scripts/de-dx.mac -n $N -b
+mv *.root $DIR/.
+cp ./scripts/analyse-de-dx.py $DIR/.
+cp ./scripts/AnalysisBase.py $DIR/.
+cp ./libAnalysis* $DIR/.
+cd $DIR && nice -n 15 ./analyse-de-dx.py -n $N -o dedx.root *root && cd -
