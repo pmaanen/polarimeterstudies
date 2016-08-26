@@ -40,7 +40,6 @@ G4VPhysicalVolume* Testbench::Construct() {
 	if(fTriggerWidth>0 and fTriggerHeight>0 and fTriggerThickness>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerHeight/2,fTriggerThickness/2);
 		auto triggerRot=new G4RotationMatrix();
-		triggerRot->rotateX(90*CLHEP::deg);
 		auto logicTrigger=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Trigger");
 		logicTrigger->SetVisAttributes(new G4VisAttributes(G4Colour(1.,0.,0.)));
 		new G4PVPlacement (triggerRot, G4ThreeVector(0,0,-15*CLHEP::cm), logicTrigger, "Trigger", fLogicWorld, false, 0, false);
