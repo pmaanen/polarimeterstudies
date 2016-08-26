@@ -10,7 +10,7 @@
 
 #include "Colors.hh"
 
-#include <G4UIManager.hh>
+#include <G4UImanager.hh>
 #include <G4UserLimits.hh>
 #include <TestBeam2016B.hh>
 
