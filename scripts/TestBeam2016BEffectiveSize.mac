@@ -1,0 +1,14 @@
+/analysis/Enable
+/analysis/setFileName TestBeam2016BEffectiveSize.root
+/PolarimeterStudies/generator/setGenerator beam
+#/PolarimeterStudies/beam/energy 270 MeV
+/PolarimeterStudies/beam/position 0 0 -5 cm
+/PolarimeterStudies/beam/spotsize 1 1 0 cm
+/PolarimeterStudies/beam/xp 2.5 deg
+/PolarimeterStudies/beam/yp 2.5 deg
+
+/PolarimeterStudies/detector/right 0
+/PolarimeterStudies/detector/armangle 0 deg
+/PolarimeterStudies/detector/update
+
+/run/beamOn 100000
