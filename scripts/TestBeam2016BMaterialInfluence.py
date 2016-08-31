@@ -10,6 +10,18 @@ class exampleAnalysis(AnalysisBase):
         return
 
 
+def doDetector(detector,hVertex,hEvsR,hIsPrimaryTrack):
+    for hit in detector:
+        if hit.trid==1:
+            hIsPrimaryTrack.Fill(1)
+        else:
+                hIsPrimaryTrack.Fill(0)
+        x=hit.x-hit.z*hit.px/hit.pz
+        y=hit.y-hit.z*hit.py/hit.pz
+        r=hypot(x,y)
+        hVertex.Fill(x,y)
+        hEvsR.Fill(hit.ekin,r)
+
 def analysis(filename,myWorker):
     try:
         hVertex=ROOT.TH2F("hVertex","vertex coordinates",200,-10,10,200,-10,10)
@@ -22,26 +34,8 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            for hit in event.Left:
-                if hit.trid==1:
-                    hIsPrimaryTrack.Fill(1)
-                else:
-                    hIsPrimaryTrack.Fill(0)
-                x=hit.x-hit.z*hit.px/hit.pz
-                y=hit.y-hit.z*hit.py/hit.pz
-                r=hypot(x,y)
-                hVertex.Fill(x,y)
-                hEvsR.Fill(hit.ekin,r)
-            for hit in event.Right:
-                if hit.trid==1:
-                    hIsPrimaryTrack.Fill(1)
-                else:
-                    hIsPrimaryTrack.Fill(0)
-                x=hit.x-hit.z*hit.px/hit.pz
-                y=hit.y-hit.z*hit.py/hit.pz
-                r=hypot(x,y)
-                hVertex.Fill(x,y)
-                hEvsR.Fill(hit.ekin,r)
+            doDetector(event.Left,hVertex,hEvsR,hIsPrimaryTrack)
+            doDetector(event.Right,hVertex,hEvsR,hIsPrimaryTrack)
         hIsPrimaryTrack.Write()
         hVertex.Write()
         hEvsR.Write()
