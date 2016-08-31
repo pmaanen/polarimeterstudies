@@ -7,7 +7,7 @@
 
 #ifndef INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
 #define INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
-#include "RTypes.h"
+#include "Rtypes.h"
 class DeuteronCarbonBreakupModel {
 public:
 	DeuteronCarbonBreakupModel();

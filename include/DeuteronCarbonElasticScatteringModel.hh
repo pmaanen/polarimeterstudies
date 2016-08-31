@@ -7,7 +7,7 @@
 
 #ifndef INCLUDE_DEUTERONCARBONELASTICSCATTERINGMODEL_HH_
 #define INCLUDE_DEUTERONCARBONELASTICSCATTERINGMODEL_HH_
-#include "RTypes.h"
+#include "Rtypes.h"
 #include "TLorentzVector.h" d
 //This is the Function to build the TF2.
 //x[0] is theta_cm, x[1] is phi par[0] is beam energy. par[1] is beam momentum in cms
