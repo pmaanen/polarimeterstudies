@@ -29,7 +29,7 @@ private:
 
 	G4double fArmLength,fArmWidth,fArmAngle,fDetectorHeight,fMinDistance;
 	G4int fNx,fNy;
-	G4bool kSupport;
+	G4bool fSupport,fRightDetector,fLeftDetector,fTarget;
 };
 
 #endif /* INCLUDE_TESTBEAM2016B_HH_ */
