@@ -6,6 +6,8 @@
  */
 #include "SensitiveDetectorConfiguration.hh"
 #include "JediSensitiveDetector.hh"
+#include "G4UImanager.hh"
+#include <sstream>
 void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vector) {
 
 	if(fSDmap.count(name)==0){
@@ -16,7 +18,22 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 	else{
 		fSDmap[name].fType=type;
 		fSDmap[name].fLogVol=vector;
-		//fSDmap[name].fSD.Get()->SetType(type);
+		std::stringstream cmd;
+		cmd<<"/PolarimeterStudies/"<<name<<"SetType ";
+
+		switch(SDtype)
+		case SDtype::kCalorimeter:
+			cmd<<"calo";
+			break;
+		case SDtype::kPerfect:
+			cmd<<"perfect";
+			break;
+		case SDtype::kTracker:
+			cmd<<"tracker";
+			break;
+		default:
+			return;
+		G4UImanager::GetUIpointer()->ApplyCommand(cmd.str().c_str());
 	}
 }
 
