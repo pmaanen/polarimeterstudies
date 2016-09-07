@@ -1,4 +1,5 @@
 /analysis/Enable
+/analysis/setFileName wMaterial.root
 /PolarimeterStudies/generator/setGenerator dcelastic
 /PolarimeterStudies/dcelastic/energy 270 MeV
 /PolarimeterStudies/dcelastic/beamspot 0 0 0 cm
@@ -6,6 +7,11 @@
 
 /PolarimeterStudies/detector/detector effective
 /PolarimeterStudies/detector/armangle 5 deg
+/PolarimeterStudies/detector/update
+
+/run/beamOn 10000
+/analysis/setFileName woMaterial.root
+/PolarimeterStudies/detector/support 0
 /PolarimeterStudies/detector/update
 
 /run/beamOn 10000
