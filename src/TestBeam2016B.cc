@@ -35,7 +35,7 @@ G4VPhysicalVolume* TestBeam2016B::Construct() {
 		ComputeParameters();
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
-	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),"World");
+	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
@@ -168,8 +168,8 @@ void TestBeam2016B::MakeEffectiveDetector() {
 	if(fLeftDetector)
 		new G4PVPlacement(rot2,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance,fArmLength-fArmWidth/2-fCrystalLength/2+.5*CLHEP::mm).rotateY(fArmAngle),logicLeft,"Left",fLogicWorld,0,1,false);
 
-	G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Left/SetType perfect");
-	G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Right/SetType perfect");
+	//G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Left/SetType perfect");
+	//G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Right/SetType perfect");
 }
 
 void TestBeam2016B::MakeSandwichDetector() {

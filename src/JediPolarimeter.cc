@@ -42,6 +42,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 		exit(1);
 	}
 	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
+	fWorldMaterialName="G4_AIR";
 	fDeltaELength=1*CLHEP::cm;
 	fDeltaEWidth=fCrystalWidth;
 
@@ -215,6 +216,8 @@ void JediPolarimeter::DefineCommands() {
 
 	matCmd.SetParameterName("material", true);
 	matCmd.SetStates(G4State_Idle);
+
+	fMessenger->DeclareProperty("worldmaterial",JediPolarimeter::fWorldMaterialName,"world material name");
 
 	G4GenericMessenger::Command& dumpCmd
 	= fMessenger->DeclareMethod("dump",&JediPolarimeter::WriteWorldToFile,"dump geometry to file");
