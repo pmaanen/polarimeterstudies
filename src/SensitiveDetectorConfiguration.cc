@@ -20,8 +20,7 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 		fSDmap[name].fLogVol=vector;
 		std::stringstream cmd;
 		cmd<<"/PolarimeterStudies/"<<name<<"SetType ";
-
-		switch(SDtype)
+		switch(type){
 		case SDtype::kCalorimeter:
 			cmd<<"calo";
 			break;
@@ -33,6 +32,7 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 			break;
 		default:
 			return;
+		}
 		G4UImanager::GetUIpointer()->ApplyCommand(cmd.str().c_str());
 	}
 }

@@ -127,7 +127,7 @@ protected:
 	G4double fBeampipeRadius, fBeampipeThickness, fCrystalLength, fCrystalWidth,
 	fInnerDetectorRadius, fOuterDetectorRadius,DetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
 	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
-	G4String fScintillatorMaterialName;
+	G4String fScintillatorMaterialName,fWorldMaterialName;
 	G4Material* fScintillatorMaterial;
 
 	G4bool fChangedParameters;
@@ -143,13 +143,7 @@ protected:
 
 	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
 	std::map<G4String,std::vector<G4LogicalVolume*> > fSDVolumes;
-	//Sensitive detectors
-	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
-	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
-	std::map<G4String,G4Cache<PerfectDetector*> >fPerfectSD;
-	std::map<G4String,std::vector<G4LogicalVolume*> > fCaloSDVolumes;
-	std::map<G4String,std::vector<G4LogicalVolume*> > fTrackerSDVolumes;
-	std::map<G4String,std::vector<G4LogicalVolume*> > fPerfectSDVolumes;
+
 
 	//Input file if constructed from file
 	std::string fInfileName;
