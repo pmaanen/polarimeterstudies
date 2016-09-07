@@ -5,6 +5,7 @@ from math import acos,atan2,sqrt,hypot
 import sys
 from numpy.random import randint
 from time import sleep
+import os
 class Gaus:
    def __call__( self, x, p ):
        p[0]*ROOT.TMath.Gaus(x[0],p[1],p[2])
@@ -76,7 +77,7 @@ if __name__=="__main__":
       myAnalysis(analyse)
     infile=ROOT.TFile(myAnalysis.args.output,"UPDATE")
     L=range(30,90,5)
-    T=[270]
+    T=range(100,300,50)+[270]
     
     for iT in T:
        gEdep=ROOT.TGraph(len(T))
@@ -101,7 +102,33 @@ if __name__=="__main__":
           de=E[ii+1]-E[ii]
           dx=d[ii+1]-d[ii]
           gDeDx.SetPoint(ii,d[ii+1],de/dx)
+       gDeDx.Draw("AP")
+       gDeDx.SetLineColor(ROOT.kWhite)
+       gDeDx.SetMarkerSize(1.2)
+       gDeDx.SetMarkerStyle(24)
+       gDeDx.GetXaxis().SetTitle("L_{eff} [mm]")
+       gDeDx.GetYaxis().SetTitle("#Delta E_{dep} / #Delta L_{eff} [MeV/mm]")
        gDeDx.Write()
        gEdep.Write()
     infile.Write()
     infile.Close()
+    if os.path.isfile("bragg.root"): 
+       exp=ROOT.TFile("dedx.root")
+       truth=ROOT.TFile("bragg.root")
+       
+       hTruth=truth.Get("deuteron-lyso-270/dEdz")
+       gExp=exp.Get("dedx_vs_l_deuterons_270")
+       
+       c1=ROOT.TCanvas("dedx","dE/dx",1600,900)
+       
+       gExp.SetTitle("")
+       gExp.SetName("reconstructed")
+       hTruth.SetTitle("")
+       hTruth.SetName("mc truth")
+       gExp.Draw()
+       gExp.SetFillColor(ROOT.kWhite)
+       gExp.GetXaxis().SetRangeUser(0,57)
+       hTruth.Draw("SAME")
+       c1.BuildLegend(0.2,0.7,0.6,0.85)
+       c1.Print("dedx-270.pdf")
+       c1.Print("dedx-270.root")
