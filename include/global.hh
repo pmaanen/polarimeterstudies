@@ -33,6 +33,8 @@ void initializeConfiguration(int argc,char** argv){
     po::options_description description("Usage");
     description.add_options()
     ("help,h", "Display this help message")
+
+	//General
 	("general.output_file,o",po::value<std::string>(), "output filename")
 	("general.verbosity,v", po::value<int>()->default_value(0), "verbosity")
     ("general.config_file,c", po::value<std::string>(), "config file")
@@ -43,11 +45,9 @@ void initializeConfiguration(int argc,char** argv){
     ("general.batch_mode,b", po::bool_switch()->default_value(false), "batch mode")
     ("general.seed", po::value<int>(), "random seed")
     ("no-merge-output", po::bool_switch()->default_value(false), "merge output files")
-    ("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
-	("generator.generator,e", po::value<std::string>(), "generator name.")
-    ("generator.beam_particle", po::value<int>()->default_value(0), "PDG id of beam")
-    ("generator.target_particle", po::value<int>()->default_value(0), "PDG id of target")
-    ("generator.beam_energy", po::value<double>()->default_value(270),"energy of beam in MeV")
+
+	//Geometry
+	("detector.geometry,g", po::value<std::string>()->default_value(""), "geometry file")
     ("detector.positions", po::value<std::vector<double> >()->multitoken(),"positions")
     ("detector.beampipeRadius", po::value<double>()->default_value(50),"beampipe radius in mm")
     ("detector.beampipeThickness", po::value<double>()->default_value(2),"beampipe thickness in mm")
@@ -56,10 +56,15 @@ void initializeConfiguration(int argc,char** argv){
     ("detector.crystalWidth", po::value<double>()->default_value(30),"crystal width(x,y)  in mm")
     ("detector.thetamin", po::value<double>()->default_value(5),"theta min in deg")
     ("detector.thetamax", po::value<double>()->default_value(19.5),"theta max in deg")
-    ("generator.thetamin", po::value<double>(),"theta min in deg")
-    ("generator.thetamax", po::value<double>(),"theta max in deg");
-    
 
+	//Generator
+    ("generator.thetamin", po::value<double>(),"theta min in deg")
+    ("generator.thetamax", po::value<double>(),"theta max in deg")
+    ("generator.generator,e", po::value<std::string>(), "generator name.")
+    ("generator.beam_particle", po::value<int>()->default_value(0), "PDG id of beam")
+    ("generator.target_particle", po::value<int>()->default_value(0), "PDG id of target")
+    ("generator.beam_energy", po::value<double>()->default_value(270),"energy of beam in MeV")
+;
 
     std::ifstream cfg;
     po::store(po::parse_command_line(argc, argv, description), gConfig);
