@@ -6,6 +6,7 @@
  */
 
 #include <JediPolarimeter.hh>
+#include <InternalBeampipe.hh>
 #include <G4UnionSolid.hh>
 #include <fstream>
 static G4Colour
@@ -26,8 +27,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-	fWorldSizeXY=2*CLHEP::m;
-	fWorldSizeZ=10*CLHEP::m;
+
 	try{
 		fScintillatorMaterialName=gConfig["detector.scintillatorMaterial"].as<std::string>();
 		fThetaMin=gConfig["detector.thetamin"].as<double>()*CLHEP::mm*CLHEP::deg;
@@ -64,63 +64,25 @@ JediPolarimeter::~JediPolarimeter() {
 
 void JediPolarimeter::ComputeParameters() {
 
-	DetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
+	fDetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
 
-	fInnerDetectorRadius=DetectorZ*tan( fThetaMin );
-	fOuterDetectorRadius=(DetectorZ+fCrystalLength)*tan( fThetaMax );
+	fInnerDetectorRadius=fDetectorZ*tan( fThetaMin );
+	fOuterDetectorRadius=(fDetectorZ+fCrystalLength)*tan( fThetaMax );
 
 	fMaxCrystal=ceil(fOuterDetectorRadius/fCrystalWidth);
 	fMinCrystal=ceil(fInnerDetectorRadius/fCrystalWidth);
 
 	fTargetChamberZ1=fBeampipeRadius/ tan(fThetaMax)-1*CLHEP::cm;
-	fTargetChamberZ2=DetectorZ-fDeltaELength-1*CLHEP::cm;
+	fTargetChamberZ2=fDetectorZ-fDeltaELength-1*CLHEP::cm;
 
-	fDeltaEZ=DetectorZ-5*CLHEP::cm;
+	fDeltaEZ=fDetectorZ-5*CLHEP::cm;
 
 	fWorldSizeXY=2*fOuterDetectorRadius+0.5*CLHEP::m;
-	fWorldSizeZ=2*(DetectorZ+fCrystalLength)+0.5*CLHEP::m;
+	fWorldSizeZ=2*(fDetectorZ+fCrystalLength+1*CLHEP::cm);
+
+	fBeampipeLength=fWorldSizeZ/2;
 
 	fChangedParameters=false;
-}
-
-G4LogicalVolume* JediPolarimeter::MakeBeampipe() {
-
-	G4double windowThickness=0.1*CLHEP::mm;
-	G4double foilThickness=0.1*CLHEP::mm;
-
-	auto al=G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
-	auto mylar=G4NistManager::Instance()->FindOrBuildMaterial("G4_MYLAR");
-	auto uhv=G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
-
-	G4Tubs* solidBeampipe=new G4Tubs("Beampipe",fBeampipeRadius-fBeampipeThickness,fBeampipeRadius,fWorldSizeZ/2-1*CLHEP::cm,0*CLHEP::deg,360*CLHEP::deg);
-	G4LogicalVolume* logicBeampipe = new G4LogicalVolume(solidBeampipe,al,"Beampipe");
-	G4Tubs* solidMylarFoil=new G4Tubs("MylarFoil",fBeampipeRadius-fBeampipeThickness+windowThickness,fBeampipeRadius-fBeampipeThickness+foilThickness+windowThickness,(fTargetChamberZ2-fTargetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
-	G4LogicalVolume* logicMylarFoil=new G4LogicalVolume(solidMylarFoil,mylar,"MylarFoil");
-	new G4PVPlacement(0,G4ThreeVector(0,0,fTargetChamberZ1+0.5*(fTargetChamberZ2-fTargetChamberZ1)),logicMylarFoil,"MylarFoil",logicBeampipe,0,false,0);
-	G4Tubs* solidGap= new G4Tubs("Gap",fBeampipeRadius-fBeampipeThickness+foilThickness+windowThickness,fBeampipeRadius,(fTargetChamberZ2-fTargetChamberZ1)/2,0*CLHEP::deg,360*CLHEP::deg);
-	G4LogicalVolume* logicGap=new G4LogicalVolume(solidGap,uhv,"Gap");
-	new G4PVPlacement(0,G4ThreeVector(0,0,fTargetChamberZ1+0.5*(fTargetChamberZ2-fTargetChamberZ1)),logicGap,"Gap",logicBeampipe,0,false,0);
-
-	logicGap->SetVisAttributes(G4VisAttributes::Invisible);
-	G4VisAttributes* beampipeVisAttr = new G4VisAttributes(gray);
-	logicBeampipe->SetVisAttributes(beampipeVisAttr);
-	return logicBeampipe;
-}
-
-G4LogicalVolume* JediPolarimeter::MakeTargetChamber(){
-	auto al=G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
-	//Do it with Cons+Tube
-	auto windowRadius=fTargetChamberZ2*tan( fThetaMax );
-	auto exitWindowThickness=2*CLHEP::mm;
-	G4Tubs* solidExitWindow=new G4Tubs("ExitWindow",fBeampipeRadius,windowRadius,exitWindowThickness/2,0,360*CLHEP::deg);
-	G4double rInner1=fBeampipeRadius;
-	G4double rOuter1=fBeampipeRadius+fBeampipeThickness;
-	G4double rInner2=windowRadius;
-	G4double rOuter2=windowRadius+fBeampipeThickness;
-	G4Cons* solidConicalSection=new G4Cons("ConicalSection",rInner1,rOuter1,rInner2,rOuter2,(fTargetChamberZ2-fTargetChamberZ1)/2,0,360*CLHEP::deg);
-	G4UnionSolid* solidTargetChamber= new G4UnionSolid("TargetChamber",solidConicalSection,solidExitWindow,0,G4ThreeVector(0,0,(fTargetChamberZ2-fTargetChamberZ1)/2));
-	G4LogicalVolume* logicTargetChamber=new G4LogicalVolume(solidTargetChamber,al,"TargetChamber");
-	return logicTargetChamber;
 }
 
 void JediPolarimeter::DefineCommands() {
@@ -235,8 +197,8 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),MakeBeampipe(),"Beampipe",fLogicWorld,false,0,false);
-	new G4PVPlacement(0,G4ThreeVector(0,0,fTargetChamberZ1+0.5*(fTargetChamberZ2-fTargetChamberZ1)),MakeTargetChamber(),"TargetChamber",fLogicWorld,false,0,false);
+
+	new InternalBeampipe(0,G4ThreeVector(0,0,fBeampipeLength/2),fLogicWorld,false,0,this);
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
 	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");

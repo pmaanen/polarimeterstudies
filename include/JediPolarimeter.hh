@@ -108,15 +108,50 @@ public:
 		fChangedParameters=true;
 	}
 
-	 void checkGeometry(){
+	void checkGeometry(){
 		fPhysiWorld->CheckOverlaps(2000);
 	}
 
-protected:
-	G4LogicalVolume* MakeBeampipe();
-	G4LogicalVolume*  MakeTargetChamber();
-	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+	G4double getBeampipeRadius() const {
+		return fBeampipeRadius;
+	}
 
+	G4double getBeampipeThickness() const {
+		return fBeampipeThickness;
+	}
+
+	G4double getWorldSizeXy() const {
+		return fWorldSizeXY;
+	}
+
+	G4double getWorldSizeZ() const {
+		return fWorldSizeZ;
+	}
+
+	G4double getBeampipeLength() const {
+		return fBeampipeLength;
+	}
+
+	G4double getThetaMax() const {
+		return fThetaMax;
+	}
+
+	G4double getThetaMin() const {
+		return fThetaMin;
+	}
+
+	G4double getSafetyDistance() const {
+		return fSafetyDistance;
+	}
+
+	G4double getDeltaELength() const {
+		return fDeltaELength;
+	}
+
+protected:
+
+	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+	//virtual G4VPhysicalVolume* Construct()=0;
 
 	G4LogicalVolume* fLogicWorld;
 	G4VPhysicalVolume* fPhysiWorld;
@@ -124,8 +159,8 @@ protected:
 
 	//Geometry parameters
 	G4double fThetaMin, fThetaMax;
-	G4double fBeampipeRadius, fBeampipeThickness, fCrystalLength, fCrystalWidth,
-	fInnerDetectorRadius, fOuterDetectorRadius,DetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
+	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength,  fCrystalLength, fCrystalWidth,
+	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
 	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
 	G4String fScintillatorMaterialName,fWorldMaterialName;
 	G4Material* fScintillatorMaterial;
@@ -137,7 +172,6 @@ protected:
 	virtual void ComputeParameters();
 
 	std::vector<std::string> fGeomCache;
-
 
 	SensitiveDetectorMap fSensitiveDetectors;
 

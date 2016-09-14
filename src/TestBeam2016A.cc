@@ -10,6 +10,7 @@
 #include "Colors.hh"
 #include <G4UserLimits.hh>
 #include <JediSensitiveDetector.hh>
+#include "ExternalBeampipe.hh"
 TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
@@ -40,7 +41,10 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
+
 	MakeSetup();
+
+
 	if(fDetectorName=="effective")
 		MakeEffectiveDetector();
 	else if(fDetectorName=="default")
@@ -54,6 +58,8 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 }
 
 void TestBeam2016A::MakeSetup() {
+
+
 	if(fTriggerThickness>0 and fTriggerHeight>0 and fTriggerWidth>0){
 		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerHeight/2,fTriggerThickness/2);
 		auto logicStart=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Start");
@@ -75,15 +81,7 @@ void TestBeam2016A::MakeSetup() {
 		new G4PVPlacement(0,G4ThreeVector(0,0,-8.1*CLHEP::cm-0.160*CLHEP::mm-.5/2.*CLHEP::mm),logicMylar,"Mylar",fLogicWorld,false,0,false);
 	}
 
-	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm,10*CLHEP::cm,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicVacuum=new G4LogicalVolume(solidVacuum,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Vacuum");
-	logicVacuum->SetVisAttributes(new G4VisAttributes(tyellow));
-	new G4PVPlacement(0,G4ThreeVector(0,0,-20*CLHEP::cm-100*CLHEP::um),logicVacuum,"Vacuum",fLogicWorld,false,0,false);
-
-	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm,100*CLHEP::um,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe"),"exitWindow");
-	logicExitWindow->SetVisAttributes(new G4VisAttributes(gray));
-	new G4PVPlacement(0,G4ThreeVector(0,0,10*CLHEP::cm-100*CLHEP::um),logicExitWindow,"exitWindow",logicVacuum,false,0,false);
+	new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm),fLogicWorld,0,0,this);
 
 
 }

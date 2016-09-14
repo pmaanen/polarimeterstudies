@@ -6,7 +6,7 @@
  */
 
 #include <JediCubicPolarimeter.hh>
-
+#include "InternalBeampipe.hh"
 //***** include basic geometry classes
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -98,44 +98,77 @@ G4LogicalVolume* JediCubicPolarimeter::MakeDeltaECrystal() {
 
 }
 
-G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
-	JediPolarimeter::Construct();
-	if(fInfileName!=""){
-		std::ifstream ifile(fInfileName);
-		std::string line;
-		double placementX,placementY,placementZ,x,y,z;
-		G4String name="",matName;
-		int copyNo=0;
-		while(std::getline(ifile, line)){
-			if(line[0]=='#') continue;
-			std::istringstream(line)>>copyNo>>name>>matName>>x>>y>>z>>placementX>>placementY>>placementZ;
-			if(fSensitiveDetectors.getMap().count(name)==0){
-				fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z)});
-			}
-			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fSensitiveDetectors.getMap().at(name).fLogVol[0] , name, fLogicWorld, false, copyNo, false);
+void JediCubicPolarimeter::ReadFromFile() {
+	std::ifstream ifile(fInfileName);
+	std::string line;
+	double placementX, placementY, placementZ, x, y, z;
+	G4String name = "", matName;
+	int copyNo = 0;
+	while (std::getline(ifile, line)) {
+		if (line[0] == '#')
+			continue;
+
+		std::istringstream(line) >> copyNo >> name >> matName >> x >> y >> z
+				>> placementX >> placementY >> placementZ;
+		if (fSensitiveDetectors.getMap().count(name) == 0) {
+			fSensitiveDetectors.Update(name, SDtype::kCalorimeter,
+					logVolVector { MakeDetector(name,
+							G4NistManager::Instance()->FindOrBuildMaterial(
+									matName), x, y, z) });
 		}
+		new G4PVPlacement(0,
+				G4ThreeVector(placementX * CLHEP::mm, placementY * CLHEP::mm,
+						placementZ * CLHEP::mm),
+						fSensitiveDetectors.getMap().at(name).fLogVol[0], name,
+						fLogicWorld, false, copyNo, false);
+	}
+}
+
+G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
+	if(fInfileName!=""){
+		ReadFromFile();
 		return fPhysiWorld;
 	}
+
+	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
+	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
+
+	new InternalBeampipe(0,G4ThreeVector(0,0,fBeampipeLength/2),fLogicWorld,false,0,this);
+	G4cout<<"Beampipe Length="<<G4BestUnit(fBeampipeLength,"Length")<<G4endl;
+	G4cout<<"Detector Z="<<G4BestUnit(fDetectorZ,"Length")<<G4endl;
+	G4cout<<"Calo Length="<<G4BestUnit(fCrystalLength,"Length")<<G4endl;
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+
+
+	//TODO: Extract into class
+	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
+	G4Box* solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
+	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
+	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
 
 	fGeomCache.clear();
 	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
 	aCrystal->SetVisAttributes(new G4VisAttributes(green));
 	fSensitiveDetectors.Update("Calorimeter",SDtype::kCalorimeter,logVolVector{aCrystal});
 	if(fHodoscopeShape=="pizza"){
-		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
-		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
+		auto placement=G4ThreeVector(0,0,fDetectorZ-3.*fDeltaELength/4.);
+		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/2,10*CLHEP::deg,10*CLHEP::deg);
 		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
 		fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{aDetectorElement});
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot1=new G4RotationMatrix();
 			rot1->rotateZ(iSlice*10*CLHEP::deg);
+			G4cout<<placement<<G4endl;
 			new G4PVPlacement (rot1, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice);
 
 		}
-		placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength);
+		placement=G4ThreeVector(0,0,fDetectorZ-1.*fDeltaELength/4.);
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot2=new G4RotationMatrix();
 			rot2->rotateZ(iSlice*10*CLHEP::deg+5*CLHEP::deg);
+			G4cout<<placement<<G4endl;
 			new G4PVPlacement (rot2, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice+36, false);
 		}
 
@@ -151,7 +184,6 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 		description<<"hodoscope shape: "<< fHodoscopeShape<<" not found.";
 		G4Exception("JediCubicPolarimeter::Construct()","",FatalException,description.str().c_str());
 	}
-
 	PlaceCalorimeter(aCrystal);
 	return fPhysiWorld;
 }
@@ -215,7 +247,7 @@ void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
 		if(fx!=-999)
 			fx++;
 		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
+			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,fDetectorZ+0.5*fCrystalLength);
 			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
@@ -249,7 +281,7 @@ void JediCubicPolarimeter::PlaceHodoscope(G4LogicalVolume* aDetectorElement) {
 		if(fx!=-999)
 			fx++;
 		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,DetectorZ+0.5*fDeltaELength);
+			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,fDetectorZ-0.5*fDeltaELength);
 			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
@@ -263,6 +295,7 @@ void JediCubicPolarimeter::PlaceHodoscope(G4LogicalVolume* aDetectorElement) {
 			G4double phi=placement.phi();
 			if(phi<0)
 				phi+=360*CLHEP::deg;
+			G4cout<<placement<<G4endl;
 			new G4PVPlacement (0, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, copyNo++, false);
 			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aDetectorElement->GetName()<<" "<<aDetectorElement->GetMaterial()->GetName()<<" "<<fDeltaEWidth<<" "<<fDeltaEWidth<<" "<<fDeltaELength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			fGeomCache.push_back(buf.str());

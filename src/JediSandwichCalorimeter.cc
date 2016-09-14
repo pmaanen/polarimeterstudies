@@ -87,7 +87,7 @@ G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 	//aCrystal->SetVisAttributes(new G4VisAttributes(green));
 
 	if(fHodoscopeShape=="pizza"){
-		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
+		auto placement=G4ThreeVector(0,0,fDetectorZ-fDeltaELength/2);
 		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
 		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
 		fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{aDetectorElement});
@@ -97,7 +97,7 @@ G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 			new G4PVPlacement (rot1, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice);
 
 		}
-		placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength);
+		placement=G4ThreeVector(0,0,fDetectorZ-fDeltaELength);
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot2=new G4RotationMatrix();
 			rot2->rotateZ(iSlice*10*CLHEP::deg+5*CLHEP::deg);

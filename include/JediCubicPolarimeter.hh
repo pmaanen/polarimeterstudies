@@ -44,6 +44,9 @@ protected:
 	void PlaceHodoscope(G4LogicalVolume* aDetectorElement);
 
 	G4String fHodoscopeShape;
+
+private:
+	void ReadFromFile();
 };
 
 

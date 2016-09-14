@@ -13,7 +13,7 @@
 #include <G4UImanager.hh>
 #include <G4UserLimits.hh>
 #include <TestBeam2016B.hh>
-
+#include "ExternalBeampipe.hh"
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
@@ -53,8 +53,6 @@ G4VPhysicalVolume* TestBeam2016B::Construct() {
 }
 
 void TestBeam2016B::MakeSetup() {
-
-	G4Material* supportMaterial=nullptr;
 	if(fSupport){
 
 
@@ -109,15 +107,7 @@ void TestBeam2016B::MakeSetup() {
 	auto logicMonitor=MakeDetector("Monitor",man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),4*CLHEP::cm,4*CLHEP::cm,5*CLHEP::mm);
 	new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fCrystalWidth/2+2*CLHEP::cm,fArmLength/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
 
-	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm,10*CLHEP::cm,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicVacuum=new G4LogicalVolume(solidVacuum,man->FindOrBuildMaterial("G4_Galactic"),"Vacuum");
-	logicVacuum->SetVisAttributes(new G4VisAttributes(tyellow));
-	new G4PVPlacement(0,G4ThreeVector(0,0,-20*CLHEP::cm-100*CLHEP::um),logicVacuum,"Vacuum",fLogicWorld,false,0,false);
-
-	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm,100*CLHEP::um,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,man->FindOrBuildMaterial("G4_Fe"),"exitWindow");
-	logicExitWindow->SetVisAttributes(new G4VisAttributes(gray));
-	new G4PVPlacement(0,G4ThreeVector(0,0,10*CLHEP::cm-100*CLHEP::um),logicExitWindow,"exitWindow",logicVacuum,false,0,false);
+	new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm),fLogicWorld,0,0,this);
 }
 
 G4LogicalVolume* TestBeam2016B::MakeScintillatorMatrix(G4String name) {
@@ -192,9 +182,11 @@ void TestBeam2016B::Make2016BDetector() {
 
 	auto logicRight=MakeScintillatorMatrix("Right");
 	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto trigVisAttr=new G4VisAttributes(cyan);
 	if(fRightDetector){
 		if(fTrigger){
 			auto logicTrigger=MakeDetector("TriggerR",vacuum,fNx*fCrystalWidth,fNy*fCrystalWidth,1*CLHEP::mm);
+			logicTrigger->SetVisAttributes(trigVisAttr);
 			fSensitiveDetectors.Update("TriggerR",SDtype::kPerfect,logVolVector{logicTrigger});
 			new G4PVPlacement(rot1,G4ThreeVector(0,-3./2.*fArmWidth-fMinDistance+fDetectorHeight+fArmWidth/2+(fArmWidth+fMinDistance),fArmLength-fArmWidth/2-fCrystalLength/2-.5*CLHEP::mm).rotateY(-fArmAngle),logicTrigger,"TriggerRight",fLogicWorld,0,0,false);
 		}
@@ -203,6 +195,7 @@ void TestBeam2016B::Make2016BDetector() {
 	if(fLeftDetector){
 		if(fTrigger){
 			auto logicTrigger=MakeDetector("TriggerL",vacuum,fNx*fCrystalWidth,fNy*fCrystalWidth,1*CLHEP::mm);
+			logicTrigger->SetVisAttributes(trigVisAttr);
 			fSensitiveDetectors.Update("TriggerL",SDtype::kPerfect,logVolVector{logicTrigger});
 			new G4PVPlacement(rot2,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance,fArmLength-fArmWidth/2-fCrystalLength/2-.5*CLHEP::mm).rotateY(fArmAngle),logicTrigger,"TriggerLeft",fLogicWorld,0,1,false);
 

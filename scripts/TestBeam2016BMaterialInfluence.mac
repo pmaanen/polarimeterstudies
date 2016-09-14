@@ -3,15 +3,16 @@
 /PolarimeterStudies/generator/setGenerator dcelastic
 /PolarimeterStudies/dcelastic/energy 270 MeV
 /PolarimeterStudies/dcelastic/beamspot 0 0 0 cm
+/PolarimeterStudies/dcelastic/beamsize .5 .5 0 cm
 /PolarimeterStudies/dcelastic/thetamin 3 deg
 
 /PolarimeterStudies/detector/detector effective
 /PolarimeterStudies/detector/armangle 5 deg
+/PolarimeterStudies/detector/target 0
 /PolarimeterStudies/detector/update
 
-/run/beamOn 10000
+/run/beamOn 1000000
 /analysis/setFileName woMaterial.root
 /PolarimeterStudies/detector/support 0
 /PolarimeterStudies/detector/update
-
-/run/beamOn 10000
+/run/beamOn 1000000
