@@ -151,6 +151,10 @@ public:
 protected:
 
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+
+	virtual void DefineCommands();
+	virtual void ComputeParameters();
+
 	//virtual G4VPhysicalVolume* Construct()=0;
 
 	G4LogicalVolume* fLogicWorld;
@@ -163,21 +167,14 @@ protected:
 	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
 	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
 	G4String fScintillatorMaterialName,fWorldMaterialName;
+	G4int fMinCrystal,fMaxCrystal;
 	G4Material* fScintillatorMaterial;
 
 	G4bool fChangedParameters;
-	G4int fMinCrystal,fMaxCrystal;
-
-	virtual void DefineCommands();
-	virtual void ComputeParameters();
 
 	std::vector<std::string> fGeomCache;
 
 	SensitiveDetectorMap fSensitiveDetectors;
-
-	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
-	std::map<G4String,std::vector<G4LogicalVolume*> > fSDVolumes;
-
 
 	//Input file if constructed from file
 	std::string fInfileName;
