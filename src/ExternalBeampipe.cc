@@ -6,7 +6,6 @@
  */
 
 #include <ExternalBeampipe.hh>
-#include <G4PVPlacement.hh>
 #include <G4NistManager.hh>
 #include <G4Tubs.hh>
 #include "JediPolarimeter.hh"
