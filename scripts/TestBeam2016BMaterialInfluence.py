@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+OB#!/usr/bin/env python
 from AnalysisBase import *
 import ROOT
 from numpy.random import randint,normal
@@ -21,12 +21,19 @@ def doDetector(detector,hVertex,hEvsR,hIsPrimaryTrack):
         r=hypot(x,y)
         hVertex.Fill(x,y)
         hEvsR.Fill(hit.ekin,r)
-
+def doCalorimeter(detector,hMax,hSum):
+    sum=0
+    for hit in detector:
+        sum+=hit.edep
+    hSum.Fill(sum)
+    hMax.Fill(sorted(detector,key=lambda hit:hit.edep,reverse=True)[0].edep)
 def analysis(filename,myWorker):
     try:
         hVertex=ROOT.TH2F("hVertex","vertex coordinates",200,-10,10,200,-10,10)
         hEvsR=ROOT.TH2F("hEvsR","Energy vs vertex distance",300,0,300,200,0,20)
         hIsPrimaryTrack=ROOT.TH1F("is_primary_track","is_primary_track",2,-0.5,1.5)
+        hEdepMax=ROOT.TH1F("hEdepMax","max E_{dep}",300,0,300)
+        hEdepMax=ROOT.TH1F("hEdepSum","sum E_{dep}",300,0,300)
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
@@ -34,11 +41,15 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            doDetector(event.Left,hVertex,hEvsR,hIsPrimaryTrack)
-            doDetector(event.Right,hVertex,hEvsR,hIsPrimaryTrack)
+            doDetector(event.TriggerL,hVertex,hEvsR,hIsPrimaryTrack)
+            doDetector(event.TriggerR,hVertex,hEvsR,hIsPrimaryTrack)
+            doCalorimeter(event.Left,hEdepMax,hEdepSum)
+            doCalorimeter(event.Right,hEdepMax,hEdepSum)
         hIsPrimaryTrack.Write()
         hVertex.Write()
         hEvsR.Write()
+        hEdepMax.Write()
+        hEdepSum.Write()
         outfile.Write()
         outfile.Close()
     except Exception as e:
