@@ -41,6 +41,8 @@
 #include "EddaDetectorConstruction.hh"
 
 #include "global.hh"
+
+#include "JediSensitiveDetector.hh"
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -390,24 +392,25 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 		G4double startPhi = 90.*deg;
 		G4double deltaPhi = 180.*deg;
 		G4Tubs * solidRingL = new G4Tubs("solidRingL", Rmin*mm, Rmax[i]*mm, dZ[i]*mm/2., startPhi, deltaPhi);
-		G4LogicalVolume *LogicalRingL = new G4LogicalVolume(solidRingL, Pstyrene, "LogicalRingL");
+		auto thisRingL=new G4LogicalVolume(solidRingL, Pstyrene, "LogicalRingL");
+		LogicalRingL.push_back(thisRingL);
 
 
 		//right ring
 		startPhi = 270.*deg;
 		G4Tubs * solidRingR = new G4Tubs("solidRingR", Rmin*mm, Rmax[i]*mm, dZ[i]*mm/2., startPhi, deltaPhi);
-		G4LogicalVolume *LogicalRingR = new G4LogicalVolume(solidRingR, Pstyrene, "LogicalRingR");
-
+		auto thisRingR= new G4LogicalVolume(solidRingR, Pstyrene, "LogicalRingR");
+		LogicalRingR.push_back(thisRingR);
 		if(i%2==0){
-			LogicalRingL->SetVisAttributes(visLogicalRingL1);
-			LogicalRingR->SetVisAttributes(visLogicalRingR2);
+			thisRingL->SetVisAttributes(visLogicalRingL1);
+			thisRingR->SetVisAttributes(visLogicalRingR2);
 		}else{
-			LogicalRingL->SetVisAttributes(visLogicalRingL2);
-			LogicalRingR->SetVisAttributes(visLogicalRingR1);
+			thisRingL->SetVisAttributes(visLogicalRingL2);
+			thisRingR->SetVisAttributes(visLogicalRingR1);
 		}
 
-		new G4PVPlacement(0, G4ThreeVector(0,0,(lowZ[i] + dZ[i]/2.)*mm - EddaStart - EddaZ/2. ), "PhysicalRingL", LogicalRingL, PhysicalEdda, false, i);
-		new G4PVPlacement(0, G4ThreeVector(0,0,(lowZ[i] + dZ[i]/2.)*mm - EddaStart - EddaZ/2. ), "PhysicalRingR", LogicalRingR, PhysicalEdda, false, i);
+		new G4PVPlacement(0, G4ThreeVector(0,0,(lowZ[i] + dZ[i]/2.)*mm - EddaStart - EddaZ/2. ), "PhysicalRingL", thisRingL, PhysicalEdda, false, i);
+		new G4PVPlacement(0, G4ThreeVector(0,0,(lowZ[i] + dZ[i]/2.)*mm - EddaStart - EddaZ/2. ), "PhysicalRingR", thisRingR, PhysicalEdda, false, i);
 
 	}
 
@@ -421,13 +424,8 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4Trd *solidBar = new G4Trd("solidBar", dx1/2., dx2/2., dy1/2., dy2/2., dz/2.);
 	G4VisAttributes *visLogicalBar1 = new G4VisAttributes(G4Color(0., 0., 0.78));
 	G4VisAttributes *visLogicalBar2 = new G4VisAttributes(G4Color(0., 0.25, 0.5));
+	LogicalBar = new G4LogicalVolume(solidBar, Pstyrene, "LogicalBar");
 	for(int i=0;i<32;i++){
-		G4LogicalVolume *LogicalBar = new G4LogicalVolume(solidBar, Pstyrene, "LogicalBar");
-		if(i%2==0){
-			LogicalBar->SetVisAttributes( visLogicalBar1 );
-		}else{
-			LogicalBar->SetVisAttributes( visLogicalBar2 );
-		}
 		G4RotationMatrix *rot1 = new G4RotationMatrix((angleStep)*i+90.*deg+angleStep/2., 90*deg,0 );
 		G4ThreeVector vec = G4ThreeVector(0, 160.*mm+dz/2., 0);
 		vec.setPhi(360./32.*deg*i);
@@ -652,4 +650,17 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	//LogicalTube->SetVisAttributes(new G4VisAttributes(lgreen));
 	//LogicalSiPM->SetVisAttributes(new G4VisAttributes(red));
 	return physiWorld;
+}
+
+void EddaDetectorConstruction::ConstructSDandField() {
+
+	auto barSD=new JediSensitiveDetector("Bars",SDtype::kCalorimeter);
+	SetSensitiveDetector(LogicalBar,barSD);
+	auto ringLeftSD=new JediSensitiveDetector("RingL",SDtype::kCalorimeter);
+	for(const auto & iVol : LogicalRingL)
+		SetSensitiveDetector(iVol,ringLeftSD);
+	auto ringRightSD=new JediSensitiveDetector("RingR",SDtype::kCalorimeter);
+	for(const auto & iVol : LogicalRingL)
+		SetSensitiveDetector(iVol,ringRightSD);
+
 }

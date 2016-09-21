@@ -15,7 +15,7 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
-
+#include <vector>
 
 class G4LogicalVolume;
 class G4VPhysicalVolume;
@@ -57,7 +57,14 @@ class EddaDetectorConstruction : public G4VUserDetectorConstruction
 	G4LogicalVolume* LogicalTorus2;
 	G4LogicalVolume* LogicalTubs2;
 
+	//Ring Left
+	std::vector<G4LogicalVolume*> LogicalRingL;
 
+	//Ring Right;
+	std::vector<G4LogicalVolume*> LogicalRingR;
+
+	//Bars
+	G4LogicalVolume *LogicalBar;
 	// Fibers
 	G4LogicalVolume* LogicalTube;
 	G4VPhysicalVolume* PhysicalTube;
@@ -90,6 +97,8 @@ class EddaDetectorConstruction : public G4VUserDetectorConstruction
 		void DefineMaterialProperties();
 		G4VPhysicalVolume* ConstructSetUp();
 		G4LogicalVolume* ConstructFiber(G4double Rmax, G4double Lz, G4double RCladding);
+
+		virtual void ConstructSDandField();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
