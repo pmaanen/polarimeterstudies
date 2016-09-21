@@ -10,7 +10,11 @@
 #include <G4GenericMessenger.hh>
 #include <G4ParticleGun.hh>
 
-BeamGenerator::BeamGenerator(G4ParticleGun* gun) {
+
+#include "VertexGeneratorU.hh"
+#include "VertexGeneratorA.hh"
+#include "VertexGeneratorO.hh"
+BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGeneratorU::GetInstance()) {
 	fXPrime=fYPrime=0;
 	fPosition=fSpotsize=G4ThreeVector(0,0,0);
 	fParticleGun=gun;
@@ -21,6 +25,8 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun) {
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of gun");
 	fMessenger->DeclarePropertyWithUnit("xp","rad",fXPrime,"x prime");
 	fMessenger->DeclarePropertyWithUnit("yp","rad",fYPrime,"y prime");
+	auto formCmd=fMessenger->DeclareMethod("form",&BeamGenerator::SetVertexGenerator,"shape of beam");
+	formCmd.SetCandidates("uniform gaus parabola");
 
 }
 
@@ -37,21 +43,18 @@ void BeamGenerator::Generate(G4Event* E) {
 }
 
 genevent_t BeamGenerator::Generate() {
-	auto position=fParticleGun->GetParticlePosition();
-	G4double x=fPosition.x(),y=fPosition.y(),z=fPosition.z();
-	if(fSpotsize.x()>0)
-		x+=G4RandGauss::shoot(0,fSpotsize.x());
-	if(fSpotsize.y()>0)
-		y+=G4RandGauss::shoot(0,fSpotsize.y());
-	if(fSpotsize.z()>0)
-		z+=G4RandGauss::shoot(0,fSpotsize.z());
+	fVertexGenerator->setBeamsize(fSpotsize.x()/CLHEP::mm,fSpotsize.y()/CLHEP::mm,fSpotsize.z()/CLHEP::mm);
+	fVertexGenerator->setBeamposition(fPosition.x()/CLHEP::mm,fPosition.y()/CLHEP::mm,fPosition.z()/CLHEP::mm);
+
+	auto pos=fVertexGenerator->generateVertex();
+
 	G4ThreeVector direction(0,0,1);
 	if(fXPrime>0)
 		direction.rotateX(G4RandGauss::shoot(0,fXPrime));
 	if(fYPrime>0)
 		direction.rotateY(G4RandGauss::shoot(0,fYPrime));
 
-	genevent_t res(0,0,x/CLHEP::mm,y/CLHEP::mm,z/CLHEP::mm);
+	genevent_t res(0,0,pos.x(),pos.y(),pos.z());
 	auto id=0;
 	G4double e=0;
 	G4double mom=0;
@@ -59,7 +62,7 @@ genevent_t BeamGenerator::Generate() {
 		mom=fParticleGun->GetParticleMomentum()/CLHEP::GeV;
 		if(mom<1e-5){
 			auto mass=fParticleGun->GetParticleDefinition()->GetPDGMass()/CLHEP::GeV;
-			auto e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
+			e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
 			mom=sqrt(e*e-mass*mass);
 		}
 		id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
@@ -68,4 +71,15 @@ genevent_t BeamGenerator::Generate() {
 	res.particles.push_back(particle_t(id,mom*direction.getX(),mom*direction.getY(),mom*direction.getZ(),0));
 	return res;
 
+}
+
+void BeamGenerator::SetVertexGenerator(G4String cmd) {
+	if(cmd=="uniform")
+		fVertexGenerator=VertexGeneratorU::GetInstance();
+	else if(cmd=="gaus")
+		fVertexGenerator=VertexGeneratorO::GetInstance();
+	else if (cmd=="parabola")
+		fVertexGenerator=VertexGeneratorA::GetInstance();
+	else
+		G4Exception("BeamGenerator::SetVertexGenerator","",FatalException,"Generator name not recognized");
 }
