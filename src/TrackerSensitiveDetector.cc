@@ -55,7 +55,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name)
 : JediSensitiveDetector_impl(name)
 {
 	Analysis::Instance()->RegisterTrackerSD(this);
-	fHits=new std::vector<trackerhit_t>;
+	fHits=std::unique_ptr<std::vector<trackerhit_t>>(new std::vector<trackerhit_t>);
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

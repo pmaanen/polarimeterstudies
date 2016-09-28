@@ -44,6 +44,7 @@ class SensitiveDetectorMessenger;
 #include <map>
 #include "TTree.h"
 #include <vector>
+#include <memory>
 #include "hit.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -66,14 +67,14 @@ public:
 	virtual void   Initialize(G4HCofThisEvent* hitCollection);
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
-	std::vector<trackerhit_t>* getVect() {		return fHits;	}
+	const std::vector<trackerhit_t>* getVect() {		return fHits.get();	}
 
 	virtual void EndOfRun(){};
 	virtual void BeginOfRun(){};
 protected:
 
 	std::vector<DetectorHit> fHitBuffer;
-	std::vector<trackerhit_t> * fHits;
+	std::unique_ptr<std::vector<trackerhit_t>> fHits;
 
 };
 

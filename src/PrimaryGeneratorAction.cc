@@ -44,6 +44,7 @@
 
 //System headers
 #include <vector>
+#include <memory>
 #include <utility>
 using namespace CLHEP;
 #include "G4AutoLock.hh"
@@ -57,12 +58,12 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fParticleGun = new G4ParticleGun(Nparticle);
 	fIlluminationAngle=-1;
 	DefineCommands();
-	fEvtGenerators["muon"]=new CosmicMuonGenerator(fParticleGun);
-	fEvtGenerators["dcelastic"]=new DCElasticEventGenerator(fParticleGun);
-	fEvtGenerators["dcbreakup"]=new DCBreakupEventGenerator(fParticleGun);
-	fEvtGenerators["dcelastictime"]=new DCElasticTimeDependentGenerator(fParticleGun);
-	fEvtGenerators["dcinelastic"]=new DCInelasticEventGenerator(fParticleGun);
-	fEvtGenerators["beam"]=new BeamGenerator(fParticleGun);
+	fEvtGenerators["muon"]=std::unique_ptr<CosmicMuonGenerator>(new CosmicMuonGenerator());
+	fEvtGenerators["dcelastic"]=std::unique_ptr<DCElasticEventGenerator>(new DCElasticEventGenerator(fParticleGun));
+	fEvtGenerators["dcbreakup"]=std::unique_ptr<DCBreakupEventGenerator>(new DCBreakupEventGenerator(fParticleGun));
+	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator(fParticleGun));
+	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator(fParticleGun));
+	fEvtGenerators["beam"]=std::unique_ptr<BeamGenerator>(new BeamGenerator(fParticleGun));
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 	fParticleGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition());

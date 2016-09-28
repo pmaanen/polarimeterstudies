@@ -26,13 +26,13 @@ namespace { G4Mutex CaloSDMutex = G4MUTEX_INITIALIZER; }
 
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
 	Analysis::Instance()->RegisterCaloSD(this);
-	vect=new std::vector<calorhit_t>;
+	vect=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	vect->clear();
 	if(gVerbose>3){
-		for(const auto iHit : fHitMap){
+		for(const auto& iHit : fHitMap){
 			G4cout<<"Index: "<<iHit.first<<" Energy: "<<G4BestUnit(iHit.second,"Energy")<<G4endl;
 		}
 	}

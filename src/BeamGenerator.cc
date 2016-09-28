@@ -4,7 +4,7 @@
  *  Created on: 19.02.2016
  *      Author: pmaanen
  */
-
+#include <memory>
 #include <BeamGenerator.hh>
 #include <Randomize.hh>
 #include <G4GenericMessenger.hh>

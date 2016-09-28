@@ -12,6 +12,7 @@
 #include "JediSensitiveDetector.hh"
 #include "TTree.h"
 #include <vector>
+#include <memory>
 #include "hit.hh"
 class CaloSensitiveDetector: public JediSensitiveDetector_impl {
 public:
@@ -22,7 +23,7 @@ public:
 	virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* history);
 
 	std::vector<calorhit_t>* getVect() {
-		return vect;
+		return vect.get();
 	}
 
 	virtual void EndOfRun(){};
@@ -30,7 +31,7 @@ public:
 
 private:
 	std::map<G4int, G4double> fHitMap;
-	std::vector<calorhit_t> * vect;
+	std::unique_ptr<std::vector<calorhit_t>> vect;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */

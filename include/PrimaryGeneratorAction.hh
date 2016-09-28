@@ -53,11 +53,11 @@ private:
 	std::vector<G4int> fTupleId;
 	G4double fIlluminationAngle;
 	static FileReader* fgFileReader;
-	std::map<G4String,EventGenerator*> fEvtGenerators;
+	std::map<G4String,std::unique_ptr<EventGenerator>> fEvtGenerators;
 	G4String fGeneratorName;
 	genevent_t fGenEvent;
 protected:
-	void listModes(){G4cout<<"gun "; G4cout<<"file ";for (auto iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
+	void listModes(){G4cout<<"gun "; G4cout<<"file ";for (const auto& iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
 
 } ;
 
