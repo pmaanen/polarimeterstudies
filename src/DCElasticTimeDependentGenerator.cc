@@ -56,8 +56,6 @@ void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
 
 void DCElasticTimeDependentGenerator::DefineCommands() {
 
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCtime/", "time dependent event generator control");
-
 	fMessenger->DeclareMethod("polarization", &DCElasticTimeDependentGenerator::setBeamPolarization, "beam polarization");
 
 	fMessenger->DeclareMethod("energy", &DCElasticTimeDependentGenerator::setBeamEnergy, "beam energy");

@@ -19,7 +19,7 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGenerato
 	fPosition=fSpotsize=G4ThreeVector(0,0,0);
 	fParticleGun=gun;
 
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/beam/", "beam event generator control");
+	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, "/PolarimeterStudies/beam/", "beam event generator control"));
 
 	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of gun");
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of gun");
@@ -30,9 +30,7 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGenerato
 
 }
 
-BeamGenerator::~BeamGenerator() {
-	delete fMessenger;
-}
+BeamGenerator::~BeamGenerator() {}
 
 void BeamGenerator::Generate(G4Event* E) {
 	auto event=Generate();

@@ -8,9 +8,7 @@
 #include "EventGenerator.hh"
 #include "G4ParticleGun.hh"
 #include <G4GenericMessenger.hh>
-EventGenerator::EventGenerator(G4ParticleGun* pgun):fParticleGun(pgun),fRunInitialized(false),fMessenger(0) {}
+EventGenerator::EventGenerator(G4ParticleGun* pgun):fParticleGun(pgun),fRunInitialized(false) {}
 
-EventGenerator::~EventGenerator() {
-	delete fMessenger;
-}
+EventGenerator::~EventGenerator() {}
 

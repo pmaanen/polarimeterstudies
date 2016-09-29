@@ -27,8 +27,6 @@ public:
 	virtual void Initialize();
 	G4ThreeVector fPosition, fSpotsize;
 
-
-	G4GenericMessenger* fMessenger;
 };
 class cosmic_functions{
 	public:

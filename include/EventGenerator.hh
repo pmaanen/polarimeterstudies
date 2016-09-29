@@ -13,6 +13,7 @@ class G4Event;
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <ostream>
 #include <vector>
+#include <memory>
 #include "hit.hh"
 class G4GenericMessenger;
 
@@ -31,7 +32,7 @@ protected:
 	G4ParticleGun* fParticleGun;
 	G4bool fRunInitialized;
 
-	G4GenericMessenger* fMessenger;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 };
 
 #endif /* INCLUDE_EVENTGENERATOR_HH_ */

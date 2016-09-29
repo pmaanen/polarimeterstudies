@@ -18,16 +18,14 @@
 #include "hit.hh"
 CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
 
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control");
+	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control"));
 
 	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
 
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
 }
 
-CosmicMuonGenerator::~CosmicMuonGenerator() {
-	delete fMessenger;
-}
+CosmicMuonGenerator::~CosmicMuonGenerator() {}
 
 void CosmicMuonGenerator::Generate(G4Event* E) {
 	if(!fRunInitialized)
