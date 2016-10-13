@@ -53,14 +53,12 @@ G4VPhysicalVolume* Testbench::Construct() {
 	void Testbench::DefineCommands() {
 
 		SingleCrystal::DefineCommands();
-		G4GenericMessenger::Command& triggerLengthCmd
-		= fMessenger->DeclareMethodWithUnit("triggerlength","mm",
+fMessenger->DeclareMethodWithUnit("triggerlength","mm",
 				&Testbench::setTriggerLength,
 				"trigger length (mm)");
 
 
-		G4GenericMessenger::Command& triggerThicknessCmd
-		= fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
+fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
 				&Testbench::setTriggerThickness,
 				"trigger thickness (mm)");
 
@@ -73,18 +71,15 @@ G4VPhysicalVolume* Testbench::Construct() {
 		triggerWidthCmd.SetRange("width>=0.");
 		triggerWidthCmd.SetDefaultValue("30.");
 
-		G4GenericMessenger::Command& trgOffsetXCmd
-		= fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
+fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
 				&Testbench::setTriggerOffsetX,
 				"trigger offset in x dir. (mm)");
 
-		G4GenericMessenger::Command& trgOffsetYCmd
-		= fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
+fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
 				&Testbench::setTriggerOffsetY,
 				"trigger offset in y dir. (mm)");
 
-		G4GenericMessenger::Command& trgOffsetZCmd
-		= fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
+fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
 				&Testbench::setTriggerOffsetZ,
 				"trigger offset in z dir. (mm)");
 

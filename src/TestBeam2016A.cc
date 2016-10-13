@@ -106,14 +106,14 @@ void TestBeam2016A::MakeSandwichDetector() {
 void TestBeam2016A::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
-	G4GenericMessenger::Command& triggerLengthCmd
-	= fMessenger->DeclareMethodWithUnit("triggerheight","mm",
+
+	fMessenger->DeclareMethodWithUnit("triggerheight","mm",
 			&TestBeam2016A::setTriggerLength,
 			"trigger height (mm)");
 
 
-	G4GenericMessenger::Command& triggerThicknessCmd
-	= fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
+
+	fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
 			&TestBeam2016A::setTriggerThickness,
 			"trigger thickness (mm)");
 
@@ -126,16 +126,15 @@ void TestBeam2016A::DefineCommands() {
 	triggerWidthCmd.SetRange("width>=0.");
 	triggerWidthCmd.SetDefaultValue("30.");
 
-	G4GenericMessenger::Command& trgOffsetXCmd
-	= fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
+fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
 			&TestBeam2016A::setTriggerOffsetX,
 			"trigger offset in x dir. (mm)");
-	G4GenericMessenger::Command& trgOffsetYCmd
-	= fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
+
+fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
 			&TestBeam2016A::setTriggerOffsetY,
 			"trigger offset in y dir. (mm)");
-	G4GenericMessenger::Command& trgOffsetZCmd
-	= fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
+
+fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
 			&TestBeam2016A::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 

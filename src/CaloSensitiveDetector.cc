@@ -21,15 +21,12 @@
 #include <G4VisManager.hh>
 #include <G4UnitsTable.hh>
 #include "G4AutoLock.hh"
-namespace { G4Mutex CaloSDMutex = G4MUTEX_INITIALIZER; }
-
-
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
 	Analysis::Instance()->RegisterCaloSD(this);
 	vect=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 }
 
-void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
+void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	vect->clear();
 	if(gVerbose>3){
 		for(const auto& iHit : fHitMap){
@@ -45,10 +42,10 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent* HC) {
 	fHitMap.clear();
 }
 
-void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HC) {}
+void CaloSensitiveDetector::Initialize(G4HCofThisEvent*) {}
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
-		G4TouchableHistory* history) {
+		G4TouchableHistory*) {
 
 	if(!Analysis::Instance()->isEnabled())
 		return false;

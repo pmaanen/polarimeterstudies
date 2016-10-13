@@ -96,13 +96,13 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 	G4cout<<"Calo Length="<<G4BestUnit(fCrystalLength,"Length")<<G4endl;
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
-
+/*
 	//TODO: Extract into class
 	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
-	G4Box* solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
-	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
-	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
-
+	auto solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
+	auto logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
+*/
 
 
 
@@ -139,8 +139,7 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 }
 
 void JediHexagonalPolarimeter::DefineCommands() {
-	G4GenericMessenger::Command& updateCmd
-	= fMessenger->DeclareMethod("update",
+	fMessenger->DeclareMethod("update",
 			&JediHexagonalPolarimeter::UpdateGeometry,
 			"update geometry");
 }

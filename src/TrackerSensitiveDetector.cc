@@ -43,9 +43,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "G4AutoLock.hh"
-namespace { G4Mutex TrackerSDMutex = G4MUTEX_INITIALIZER; }
-
-
 using namespace CLHEP;
 
 #define NDEBUG
@@ -65,7 +62,7 @@ TrackerSensitiveDetector::~TrackerSensitiveDetector(){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackerSensitiveDetector::Initialize(G4HCofThisEvent* hce)
+void TrackerSensitiveDetector::Initialize(G4HCofThisEvent*)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -102,7 +99,7 @@ G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent* HCE)
+void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
 	Analysis* an=Analysis::Instance();
 	if(an->isEnabled()){

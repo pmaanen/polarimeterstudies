@@ -27,7 +27,7 @@ class SensitiveDetectorMessenger;
 PerfectDetector::PerfectDetector(const G4String& name):TrackerSensitiveDetector(name) {
 }
 
-G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* history) {
+G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 	if(!Analysis::Instance()->isEnabled())
 		return false;
 	// energy deposit

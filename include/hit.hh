@@ -37,7 +37,7 @@ public:
 
 class particle_t : public TObject{
 public:
-	particle_t():TObject(),px(0),py(0),pz(0),id(0),E(0){;};
+	particle_t():TObject(),id(0),px(0),py(0),pz(0),E(0){;};
 	particle_t(Int_t iid,Double_t ppx,Double_t ppy,Double_t ppz,Double_t ee):id(iid),px(ppx),py(ppy),pz(ppz),E(ee){;};
 /*
  * id(iid),px(ppx),py(ppy),pz(ppz),E(ee)

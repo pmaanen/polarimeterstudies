@@ -136,11 +136,9 @@ void JediPolarimeter::DefineCommands() {
 	crystalWidthCmd.SetRange("width>=0.");
 	crystalWidthCmd.SetDefaultValue("30.");
 
-	G4GenericMessenger::Command& updateCmd
-	= fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
+	fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
 
-	G4GenericMessenger::Command& checkCmd
-	= fMessenger->DeclareMethod("check",&JediPolarimeter::checkGeometry,"check geometry for overlaps");
+	fMessenger->DeclareMethod("check",&JediPolarimeter::checkGeometry,"check geometry for overlaps");
 
 
 	G4GenericMessenger::Command& matCmd
@@ -148,13 +146,11 @@ void JediPolarimeter::DefineCommands() {
 			&JediPolarimeter::setCaloMaterialName,
 			"scintillator material");
 
-	G4GenericMessenger::Command& dEWidthCmd
-	= fMessenger->DeclareMethodWithUnit("dEwidth","mm",
+	fMessenger->DeclareMethodWithUnit("dEwidth","mm",
 			&JediPolarimeter::setDeltaEwidth,
 			"delta E width (mm)");
 
-	G4GenericMessenger::Command& dELengthCmd
-	= fMessenger->DeclareMethodWithUnit("dElength","mm",
+	fMessenger->DeclareMethodWithUnit("dElength","mm",
 			&JediPolarimeter::setDeltaElength,
 			"delta E width (mm)");
 
@@ -201,12 +197,12 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 	new InternalBeampipe(0,G4ThreeVector(0,0,fBeampipeLength/2),fLogicWorld,false,0,this);
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
+	/*
 	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
-
 	G4Box* solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
 	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
 	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
-
+	 */
 	return fPhysiWorld;
 }
 
@@ -265,6 +261,6 @@ void JediPolarimeter::ConstructSDandField() {
 			G4cout<<G4endl;
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
-		*/
+		 */
 	}
 }

@@ -17,7 +17,7 @@
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
-TestBeam2016B::TestBeam2016B():fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fSupport(true),fMinDistance(25*CLHEP::cm),fTarget(true),fLeftDetector(true),fRightDetector(true),TestBeam2016A() {
+TestBeam2016B::TestBeam2016B():TestBeam2016A(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(true),fRightDetector(true),fLeftDetector(true),fTarget(true) {
 	fWorldSizeXY=3*CLHEP::m;
 	fWorldSizeZ=5*CLHEP::m;
 	fNx=5;
