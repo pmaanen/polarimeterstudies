@@ -36,7 +36,6 @@ void CosmicMuonGenerator::Generate(G4Event* E) {
 
 	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
 
-	Analysis* an=Analysis::Instance();
 	fParticleGun->SetParticleMomentum(momentum) ;
 	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
 	fParticleGun->GeneratePrimaryVertex(E);

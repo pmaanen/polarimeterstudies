@@ -16,8 +16,6 @@
 #include "JediRun.hh"
 #include "G4AutoLock.hh"
 #include <G4EmProcessOptions.hh>
-namespace { G4Mutex RunActionMutex = G4MUTEX_INITIALIZER; }
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 RunAction::RunAction()
 {

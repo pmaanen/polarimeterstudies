@@ -19,7 +19,7 @@ public:
 	virtual genevent_t Generate();
 private:
 	Double_t fBeamPolarization;
-	inelastic_scattering_model* fScatteringModel;
+	std::unique_ptr<inelastic_scattering_model> fScatteringModel;
 };
 
 

@@ -57,7 +57,7 @@ public:
 private:
 	G4VUserDetectorConstruction* fGeometry;
 	std::string fGeometryName;
-	G4GenericMessenger* fMessenger;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 	void InitializeGeometry();
 };
 

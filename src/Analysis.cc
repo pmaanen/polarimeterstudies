@@ -3,7 +3,6 @@
 #include "G4SDManager.hh"
 #include "DetectorHit.hh"
 #include "DetectorConstruction.hh"
-#include "AnalysisMessenger.hh"
 //ROOT Stuff
 #include "TTree.h"
 #include "TROOT.h"
@@ -40,7 +39,7 @@
 G4String Analysis::fGeneratorName=G4String("gen");
 Analysis* Analysis::fgMasterInstance = nullptr;
 G4ThreadLocal Analysis* Analysis::fgInstance = nullptr;
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fFileName(""),fOutFile(nullptr),fSimTree(nullptr),fInfoTree(nullptr),fGenTree(nullptr)
+Analysis::Analysis(G4bool isMaster):fEnabled(false),fFileName("")
 {
 	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
 		G4ExceptionDescription description;

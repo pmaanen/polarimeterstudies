@@ -42,7 +42,7 @@
 #include <QGSP_INCLXX.hh>
 #include <QGSP_BIC.hh>
 #include <QGSP_BERT.hh>
-
+#include <QBBC.hh>
 //Additional Physics
 #include <G4EmParameters.hh>
 #include <G4OpticalPhysics.hh>
@@ -87,6 +87,8 @@ int main(int argc,char** argv) {
 		the_physics=new QGSP_BIC(0);
 	if(gConfig["general.physics"].as<string>()=="QGSP_INCLXX")
 		the_physics=new QGSP_INCLXX(0);
+	if(gConfig["general.physics"].as<string>()=="QBBC")
+		the_physics=new QBBC(0);
 	if(!the_physics)
 		G4Exception("main","PHYS01", FatalException, "no physics list");
 

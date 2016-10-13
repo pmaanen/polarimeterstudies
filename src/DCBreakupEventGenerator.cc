@@ -20,7 +20,7 @@
 //static double DegToRad=3.14159265359/180.;
 //static double RadToDeg=1/DegToRad;
 
-DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun),fScatteringModel(nullptr) {
+DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceGenerator(gun) {
 	if(gConfig.count("generator.beam_polarization")){
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
 	}
@@ -30,9 +30,7 @@ DCBreakupEventGenerator::DCBreakupEventGenerator(G4ParticleGun* gun):PhaseSpaceG
 	DefineCommands();
 }
 
-DCBreakupEventGenerator::~DCBreakupEventGenerator() {
-	delete fScatteringModel;
-}
+DCBreakupEventGenerator::~DCBreakupEventGenerator() {}
 
 void DCBreakupEventGenerator::DefineCommands() {
 	fMessenger->DeclareMethod("polarization", &DCBreakupEventGenerator::setBeamPolarization, "beam polarization");
@@ -54,7 +52,7 @@ void DCBreakupEventGenerator::Initialize() {
 	fCms = fBeam + fTarget;
 	fPhaseSpace.SetDecay(fCms, 3, masses);
 	if(!fScatteringModel)
-		fScatteringModel=new DeuteronCarbonBreakupModel(fBeamEnergy/CLHEP::MeV,fBeamPolarization);
+		fScatteringModel=std::unique_ptr<DeuteronCarbonBreakupModel>(new DeuteronCarbonBreakupModel(fBeamEnergy/CLHEP::MeV,fBeamPolarization));
 	else{
 		fScatteringModel->setBeamEnergy(fBeamEnergy/CLHEP::MeV);
 		fScatteringModel->setBeamPolarization(fBeamPolarization);

@@ -21,7 +21,7 @@ DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseS
 
 	fThetaMin=2.0*CLHEP::deg;
 	fThetaMax=180.*CLHEP::deg;
-	fScatteringModel=new inelastic_scattering_model(fBeamPolarization);
+	fScatteringModel=std::unique_ptr<inelastic_scattering_model>(new inelastic_scattering_model(fBeamPolarization));
 	//DefineCommands();
 
 }
@@ -116,7 +116,7 @@ void DCInelasticEventGenerator::Initialize() {
 	fCms = fBeam + fTarget;
 	fPhaseSpace.SetDecay(fCms, 3, masses);
 	if(!fScatteringModel)
-		fScatteringModel=new inelastic_scattering_model(fBeamPolarization);
+		fScatteringModel=std::unique_ptr<inelastic_scattering_model>(new inelastic_scattering_model(fBeamPolarization));
 	else{
 		//fScatteringModel->setBeamPolarization(fBeamPolarization);
 	}

@@ -28,7 +28,7 @@
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeometry(nullptr),fGeometryName(""),fMessenger(nullptr)
+DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeometry(nullptr),fGeometryName("")
 {
 
 	fGeometryName=gConfig["detector.geometry"].as<std::string>();
@@ -50,7 +50,6 @@ DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeom
 
 DetectorConstruction::~DetectorConstruction()
 {
-	delete fMessenger;
 	delete fGeometry;
 }
 

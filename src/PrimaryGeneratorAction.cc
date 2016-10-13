@@ -55,23 +55,21 @@ namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 FileReader* PrimaryGeneratorAction::fgFileReader = 0;
 PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),fInfileName(""),fInstream("",std::ifstream::in) {
 	G4int Nparticle = 1 ;
-	fParticleGun = new G4ParticleGun(Nparticle);
+	fParticleGun =std::unique_ptr<G4ParticleGun>(new G4ParticleGun(Nparticle));
 	fIlluminationAngle=-1;
 	DefineCommands();
 	fEvtGenerators["muon"]=std::unique_ptr<CosmicMuonGenerator>(new CosmicMuonGenerator());
-	fEvtGenerators["dcelastic"]=std::unique_ptr<DCElasticEventGenerator>(new DCElasticEventGenerator(fParticleGun));
-	fEvtGenerators["dcbreakup"]=std::unique_ptr<DCBreakupEventGenerator>(new DCBreakupEventGenerator(fParticleGun));
-	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator(fParticleGun));
-	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator(fParticleGun));
-	fEvtGenerators["beam"]=std::unique_ptr<BeamGenerator>(new BeamGenerator(fParticleGun));
+	fEvtGenerators["dcelastic"]=std::unique_ptr<DCElasticEventGenerator>(new DCElasticEventGenerator(fParticleGun.get()));
+	fEvtGenerators["dcbreakup"]=std::unique_ptr<DCBreakupEventGenerator>(new DCBreakupEventGenerator(fParticleGun.get()));
+	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator(fParticleGun.get()));
+	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator(fParticleGun.get()));
+	fEvtGenerators["beam"]=std::unique_ptr<BeamGenerator>(new BeamGenerator(fParticleGun.get()));
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
 	fParticleGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition());
 }
 
-PrimaryGeneratorAction::~PrimaryGeneratorAction() {
-	delete fParticleGun ;
-}
+PrimaryGeneratorAction::~PrimaryGeneratorAction() {}
 
 void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 {
@@ -131,28 +129,30 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 
 void PrimaryGeneratorAction::generateEventFromInput(G4Event *E)
 {
+	if(fInfileName==""){
+		G4Exception("[EventGenerator]", "GeneratePrimaries", RunMustBeAborted,
+				" ERROR: Must set input file before first beamOn.");
+		return;
+	}
 	genevent_t evt;
 	if(fgFileReader)
 	{
 		G4AutoLock lock(&PrimaryGeneratorMutex);
-		evt = fgFileReader->GetEvent();
+		fGenEvent = fgFileReader->GetEvent();
 	}
 	else{
 		G4AutoLock lock(&PrimaryGeneratorMutex);
 		fgFileReader=new FileReader(fInfileName);
-		evt = fgFileReader->GetEvent();
+		fGenEvent = fgFileReader->GetEvent();
 	}
-
-
-	fGenEvent=evt;
-	for(auto ipart : evt.particles){
+	for(auto ipart : fGenEvent.particles){
 		auto part=G4ParticleTable::GetParticleTable()->FindParticle(ipart.id);
 		if(!part){
 			G4int Z,A,lvl;
 			Z=0;
 			A=0;
 			G4double En=0;
-			auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
+			G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
 			part=G4IonTable::GetIonTable()->GetIon(Z,A);
 			if(!part){
 				std::stringstream message;
@@ -189,35 +189,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		return;
 	}
 	if(fGeneratorName=="gun"){
-		//G4cout<<G4BestUnit(fParticleGun->GetParticleEnergy(),"Energy")<<G4endl;
-		fGenEvent.eventid=E->GetEventID();
-		fGenEvent.time=0;
-		particle_t aParticle;
-		auto mom=fParticleGun->GetParticleMomentum()/CLHEP::GeV;
-
-		if(mom<1e-5){
-			auto mass=fParticleGun->GetParticleDefinition()->GetPDGMass()/CLHEP::GeV;
-			auto e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
-			mom=sqrt(e*e-mass*mass);
-		}
-		auto dir=fParticleGun->GetParticleMomentumDirection();
-		aParticle.px=(mom*dir.getX());
-		aParticle.py=(mom*dir.getY());
-		aParticle.pz=(mom*dir.getZ());
-		aParticle.id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
-		aParticle.E=fParticleGun->GetParticleEnergy()/CLHEP::GeV;
-		fGenEvent.particles.push_back(aParticle);
-		fParticleGun->GeneratePrimaryVertex(E) ;
-		return;
+		generateEventFromGun(E);
 	}
 	else if(fGeneratorName=="file"){
-		if(fInfileName==""){
-			G4Exception("[EventGenerator]", "GeneratePrimaries", RunMustBeAborted,
-					" ERROR: Must set input file before first beamOn.");
-			return;
-		}
 		generateEventFromInput(E);
-		return;
 	}
 	else
 		generateEventFromGenerator(E);
@@ -246,9 +221,9 @@ void PrimaryGeneratorAction::illuminateAngle(G4Event* E) {
 
 void PrimaryGeneratorAction::DefineCommands()
 {
-	fMessenger = new G4GenericMessenger(this,
+	fMessenger =std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,
 			"/PolarimeterStudies/generator/",
-			"Generator control");
+			"Generator control"));
 
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
@@ -261,6 +236,27 @@ void PrimaryGeneratorAction::DefineCommands()
 	cmd.SetToBeBroadcasted(true);
 	fMessenger->DeclareMethod("Print",&PrimaryGeneratorAction::Print,"");
 
+}
+
+void PrimaryGeneratorAction::generateEventFromGun(G4Event* E) {
+	fGenEvent.eventid=E->GetEventID();
+	fGenEvent.time=0;
+	particle_t aParticle;
+	auto mom=fParticleGun->GetParticleMomentum()/CLHEP::GeV;
+
+	if(mom<1e-5){
+		auto mass=fParticleGun->GetParticleDefinition()->GetPDGMass()/CLHEP::GeV;
+		auto e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
+		mom=sqrt(e*e-mass*mass);
+	}
+	auto dir=fParticleGun->GetParticleMomentumDirection();
+	aParticle.px=(mom*dir.getX());
+	aParticle.py=(mom*dir.getY());
+	aParticle.pz=(mom*dir.getZ());
+	aParticle.id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
+	aParticle.E=fParticleGun->GetParticleEnergy()/CLHEP::GeV;
+	fGenEvent.particles.push_back(aParticle);
+	fParticleGun->GeneratePrimaryVertex(E) ;
 }
 // eof
 

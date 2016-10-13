@@ -27,11 +27,9 @@ public:
 	virtual void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGenerator(G4Event* E);
+	void generateEventFromGun(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
-	G4ParticleGun* getPGun() const {
-		return fParticleGun;
-	}
 
 	const genevent_t& getGenEvent() const {
 		return fGenEvent;
@@ -46,8 +44,8 @@ public:
 	void Print(){G4cout<<this<<G4endl;}
 private:
 	void DefineCommands();
-	G4ParticleGun			*fParticleGun ;
-	G4GenericMessenger*		fMessenger;
+	std::unique_ptr<G4ParticleGun> fParticleGun ;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;
 	std::vector<G4int> fTupleId;

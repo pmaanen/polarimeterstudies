@@ -10,14 +10,15 @@
 #include "TrackerSensitiveDetector.hh"
 #include "PerfectDetector.hh"
 #include "G4Threading.hh"
+#include <memory>
 JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype& type):fType(type),fName(name),G4VSensitiveDetector(name){
 
 	if(type==SDtype::kCalorimeter)
-		fSD=new CaloSensitiveDetector(name);
+		fSD=std::unique_ptr<CaloSensitiveDetector>(new CaloSensitiveDetector(name));
 	else if(type==SDtype::kTracker)
-		fSD=new TrackerSensitiveDetector(name);
+		fSD=std::unique_ptr<TrackerSensitiveDetector>(new TrackerSensitiveDetector(name));
 	else if(type==SDtype::kPerfect)
-		fSD=new PerfectDetector(name);
+		fSD=std::unique_ptr<PerfectDetector>(new PerfectDetector(name));
 	else if(type==SDtype::kUndefined)
 		fSD=nullptr;
 	DefineCommands();
@@ -25,17 +26,14 @@ JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype&
 
 void JediSensitiveDetector::SetType_impl(SDtype type) {
 	if(fType!=type){
-		if(fSD)
-			delete fSD;
-		fSD=nullptr;
 		if(type==SDtype::kCalorimeter){
-			fSD=new CaloSensitiveDetector(fName);
+			fSD.reset(new CaloSensitiveDetector(fName));
 		}
 		else if(type==SDtype::kTracker){
-			fSD=new TrackerSensitiveDetector(fName);
+			fSD.reset(new TrackerSensitiveDetector(fName));
 		}
 		else if(type==SDtype::kPerfect){
-			fSD=new PerfectDetector(fName);
+			fSD.reset(new PerfectDetector(fName));
 		}
 	}
 }
@@ -59,7 +57,7 @@ void JediSensitiveDetector::DefineCommands() {
 	dir+="/PolarimeterStudies/";
 	dir+=this->GetName();
 	dir+="/";
-	fMessenger=new G4GenericMessenger(this,dir,"");
+	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,dir,""));
 
 	fMessenger->DeclareMethod("Print",&JediSensitiveDetector::Print,"");
 	auto cmd=fMessenger->DeclareMethod("SetType",&JediSensitiveDetector::SetType,"");

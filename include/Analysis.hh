@@ -98,10 +98,6 @@ private:
 
 	G4String fFileName;
 	static G4String fGeneratorName;
-	TFile* fOutFile;
-	TTree* fSimTree;
-	TTree* fInfoTree;
-	TTree* fGenTree;
 	std::map<G4String,TBranch*> fOutBranches;
 
 

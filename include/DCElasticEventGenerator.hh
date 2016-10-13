@@ -32,7 +32,7 @@ public:
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
-	DeuteronCarbonElasticScatteringModel* fScatteringModel;
+	std::unique_ptr<DeuteronCarbonElasticScatteringModel> fScatteringModel;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 };

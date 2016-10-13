@@ -28,7 +28,7 @@
 using namespace CLHEP;
 
 #include "DeuteronCarbonElasticScatteringModel.hh"
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun,"dcelastic"),fScatteringModel(nullptr){
+DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun,"dcelastic"){
 
 	if(gConfig.count("generator.beam_polarization")){
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
@@ -40,12 +40,7 @@ DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpace
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-DCElasticEventGenerator::~DCElasticEventGenerator() {
-	if(fScatteringModel)
-		delete fScatteringModel;
-	fScatteringModel=0;
-
-}
+DCElasticEventGenerator::~DCElasticEventGenerator() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
@@ -68,7 +63,7 @@ void DCElasticEventGenerator::Initialize() {
 	fMomentumCMS=temp.Vect().Mag();
 	fPhaseSpace.SetDecay(fCms, 2, masses);
 	if(!fScatteringModel)
-		fScatteringModel=new DeuteronCarbonElasticScatteringModel(fBeamEnergy/CLHEP::MeV,fBeamPolarization);
+		fScatteringModel=std::unique_ptr<DeuteronCarbonElasticScatteringModel>(new DeuteronCarbonElasticScatteringModel(fBeamEnergy/CLHEP::MeV,fBeamPolarization));
 	else{
 		fScatteringModel->setBeamEnergy(fBeamEnergy/CLHEP::MeV);
 		fScatteringModel->setBeamPolarization(fBeamPolarization);

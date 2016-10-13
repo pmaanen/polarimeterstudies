@@ -9,6 +9,7 @@
 #define INCLUDE_JEDISENSITIVEDETECTOR_HH_
 
 #include <G4VSensitiveDetector.hh>
+#include <memory>
 #include "SensitiveDetectorConfiguration.hh"
 
 
@@ -29,7 +30,7 @@ public:
 class JediSensitiveDetector : public G4VSensitiveDetector {
 public:
 	JediSensitiveDetector(const G4String& name, const SDtype& type);
-	virtual ~JediSensitiveDetector(){delete fSD;}
+	virtual ~JediSensitiveDetector(){}
 	void Print();
 	void SetType(G4String command);
 	SDtype GetType(){return fType;};
@@ -46,9 +47,9 @@ public:
 
 private:
 	void SetType_impl(SDtype type);
-	JediSensitiveDetector_impl* fSD;
+	std::unique_ptr<JediSensitiveDetector_impl> fSD;
 	SDtype fType;
-	G4GenericMessenger* fMessenger;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String fName;
 	G4String fHitsCollectionName;
 
