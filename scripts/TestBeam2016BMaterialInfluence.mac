@@ -1,5 +1,4 @@
 /analysis/Enable
-/analysis/setFileName wMaterial.root
 /PolarimeterStudies/generator/setGenerator dcelastic
 /PolarimeterStudies/dcelastic/energy 270 MeV
 /PolarimeterStudies/dcelastic/beamspot 0 0 0 cm
@@ -10,9 +9,4 @@
 /PolarimeterStudies/detector/armangle 5 deg
 /PolarimeterStudies/detector/target 0
 /PolarimeterStudies/detector/update
-
-/run/beamOn 1000000
-/analysis/setFileName woMaterial.root
-/PolarimeterStudies/detector/support 0
-/PolarimeterStudies/detector/update
-/run/beamOn 1000000
+/control/foreach scripts/TestBeam2016BMaterialInfluence-singlerun.mac Ekin "100 150 200 250 270"
