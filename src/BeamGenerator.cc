@@ -16,6 +16,10 @@
 #include "VertexGeneratorO.hh"
 BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGeneratorU::GetInstance()) {
 	fXPrime=fYPrime=0;
+	if(fParticleGun)
+		fEnergy=fParticleGun->GetParticleEnergy();
+	else
+		fEnergy=100*CLHEP::MeV;
 	fPosition=fSpotsize=G4ThreeVector(0,0,0);
 	fParticleGun=gun;
 
@@ -27,6 +31,7 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGenerato
 	fMessenger->DeclarePropertyWithUnit("yp","rad",fYPrime,"y prime");
 	auto formCmd=fMessenger->DeclareMethod("form",&BeamGenerator::SetVertexGenerator,"shape of beam");
 	formCmd.SetCandidates("uniform gaus parabola");
+	fMessenger->DeclareMethodWithUnit("energy","MeV",&BeamGenerator::SetEnergy,"energy of beam");
 
 }
 
@@ -80,4 +85,9 @@ void BeamGenerator::SetVertexGenerator(G4String cmd) {
 		fVertexGenerator=VertexGeneratorA::GetInstance();
 	else
 		G4Exception("BeamGenerator::SetVertexGenerator","",FatalException,"Generator name not recognized");
+}
+
+void BeamGenerator::SetEnergy(G4double energy) {
+	fEnergy=energy;
+	fParticleGun->SetParticleEnergy(energy);
 }

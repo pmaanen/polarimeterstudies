@@ -14,7 +14,7 @@
 #include "VVertexGenerator.hh"
 class BeamGenerator: public EventGenerator {
 public:
-	BeamGenerator(G4ParticleGun* gun=0);
+	BeamGenerator(G4ParticleGun* gun);
 	virtual ~BeamGenerator();
 
 	virtual void Generate(G4Event*);
@@ -35,9 +35,10 @@ public:
 
 private:
 	G4ThreeVector fPosition, fSpotsize;
-	G4double fXPrime,fYPrime;
+	G4double fXPrime,fYPrime, fEnergy;
 	VVertexGenerator* fVertexGenerator;
 	void SetVertexGenerator(G4String);
+	void SetEnergy(G4double);
 };
 
 #endif /* INCLUDE_BEAMGENERATOR_HH_ */
