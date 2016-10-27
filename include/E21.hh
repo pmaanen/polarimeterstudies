@@ -5,13 +5,13 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_TESTBEAM2016A_HH_
-#define INCLUDE_TESTBEAM2016A_HH_
+#ifndef INCLUDE_E21_HH_
+#define INCLUDE_E21_HH_
 #include "SingleCrystal.hh"
-class TestBeam2016A: public SingleCrystal {
+class E21: public SingleCrystal {
 public:
-	TestBeam2016A();
-	virtual ~TestBeam2016A();
+	E21();
+	virtual ~E21();
 
 	void setTriggerLength(G4double triggerLength) {
 			this->fTriggerHeight = triggerLength;
@@ -70,4 +70,4 @@ protected:
 
 };
 
-#endif /* INCLUDE_TESTBEAM2016A_HH_ */
+#endif /* INCLUDE_E21_HH_ */

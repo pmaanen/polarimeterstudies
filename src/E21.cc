@@ -5,13 +5,13 @@
  *      Author: pmaanen
  */
 
-#include "TestBeam2016A.hh"
+#include <E21.hh>
 #include "Analysis.hh"
 #include "Colors.hh"
 #include <G4UserLimits.hh>
 #include <JediSensitiveDetector.hh>
 #include "ExternalBeampipe.hh"
-TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
+E21::E21():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
 	fCrystalLength=10*CLHEP::cm;
 	fCrystalWidth=3*CLHEP::cm;
 	fTriggerHeight=2.5*CLHEP::cm;
@@ -23,16 +23,16 @@ TestBeam2016A::TestBeam2016A():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(
 	DefineCommands();
 }
 
-TestBeam2016A::~TestBeam2016A(){
+E21::~E21(){
 }
 
-G4LogicalVolume* TestBeam2016A::MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double thickness) {
+G4LogicalVolume* E21::MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double thickness) {
 	auto solidDetector= new G4Box(name,width/2,height/2,thickness/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,mat,name);
 	return logicDetector;
 }
 
-G4VPhysicalVolume* TestBeam2016A::Construct() {
+G4VPhysicalVolume* E21::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();
 
@@ -57,7 +57,7 @@ G4VPhysicalVolume* TestBeam2016A::Construct() {
 	return fPhysiWorld;
 }
 
-void TestBeam2016A::MakeSetup() {
+void E21::MakeSetup() {
 
 
 	if(fTriggerThickness>0 and fTriggerHeight>0 and fTriggerWidth>0){
@@ -86,7 +86,7 @@ void TestBeam2016A::MakeSetup() {
 
 }
 
-void TestBeam2016A::MakeSandwichDetector() {
+void E21::MakeSandwichDetector() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
@@ -103,23 +103,23 @@ void TestBeam2016A::MakeSandwichDetector() {
 
 }
 
-void TestBeam2016A::DefineCommands() {
+void E21::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
 
 	fMessenger->DeclareMethodWithUnit("triggerheight","mm",
-			&TestBeam2016A::setTriggerLength,
+			&E21::setTriggerLength,
 			"trigger height (mm)");
 
 
 
 	fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
-			&TestBeam2016A::setTriggerThickness,
+			&E21::setTriggerThickness,
 			"trigger thickness (mm)");
 
 	G4GenericMessenger::Command& triggerWidthCmd
 	= fMessenger->DeclareMethodWithUnit("triggerwidth","mm",
-			&TestBeam2016A::setTriggerWidth,
+			&E21::setTriggerWidth,
 			"trigger width (mm)");
 
 	triggerWidthCmd.SetParameterName("width", true);
@@ -127,29 +127,29 @@ void TestBeam2016A::DefineCommands() {
 	triggerWidthCmd.SetDefaultValue("30.");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
-			&TestBeam2016A::setTriggerOffsetX,
+			&E21::setTriggerOffsetX,
 			"trigger offset in x dir. (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
-			&TestBeam2016A::setTriggerOffsetY,
+			&E21::setTriggerOffsetY,
 			"trigger offset in y dir. (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
-			&TestBeam2016A::setTriggerOffsetZ,
+			&E21::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 
 	fMessenger->DeclarePropertyWithUnit("position","mm",
-			TestBeam2016A::fCalorimeterPosition,
+			E21::fCalorimeterPosition,
 			"calorimeter position");
 
 
-	auto detCmd=fMessenger->DeclareProperty("detector",TestBeam2016A::fDetectorName,"detector type.");
+	auto detCmd=fMessenger->DeclareProperty("detector",E21::fDetectorName,"detector type.");
 	detCmd.SetCandidates("default sandwich effective");
 
 
 }
 
-void TestBeam2016A::Make2016ADetector() {
+void E21::Make2016ADetector() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
@@ -187,7 +187,7 @@ void TestBeam2016A::Make2016ADetector() {
 	return;
 }
 
-void TestBeam2016A::MakeEffectiveDetector() {
+void E21::MakeEffectiveDetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 

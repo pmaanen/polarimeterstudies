@@ -8,29 +8,31 @@
 
 
 
+#include <E22.hh>
 #include "Colors.hh"
 
 #include <G4UImanager.hh>
 #include <G4UserLimits.hh>
-#include <TestBeam2016B.hh>
 #include "ExternalBeampipe.hh"
+#include "E22Target.hh"
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
-TestBeam2016B::TestBeam2016B():TestBeam2016A(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(true),fRightDetector(true),fLeftDetector(true),fTarget(true) {
+E22::E22():E21(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(true),fRightDetector(true),fLeftDetector(true),fTarget(true) {
 	fWorldSizeXY=3*CLHEP::m;
 	fWorldSizeZ=5*CLHEP::m;
+	fTargetMaterialName="G4_C";
 	fNx=5;
 	fNy=2;
 	fDetectorName="default";
 	DefineCommands();
 }
 
-TestBeam2016B::~TestBeam2016B() {
+E22::~E22() {
 	// TODO Auto-generated destructor stub
 }
 
-G4VPhysicalVolume* TestBeam2016B::Construct() {
+G4VPhysicalVolume* E22::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();
 
@@ -52,7 +54,7 @@ G4VPhysicalVolume* TestBeam2016B::Construct() {
 	return fPhysiWorld;
 }
 
-void TestBeam2016B::MakeSetup() {
+void E22::MakeSetup() {
 	if(fSupport){
 
 
@@ -110,7 +112,7 @@ void TestBeam2016B::MakeSetup() {
 	new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm),fLogicWorld,0,0,this);
 }
 
-G4LogicalVolume* TestBeam2016B::MakeScintillatorMatrix(G4String name) {
+G4LogicalVolume* E22::MakeScintillatorMatrix(G4String name) {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
@@ -138,7 +140,7 @@ G4LogicalVolume* TestBeam2016B::MakeScintillatorMatrix(G4String name) {
 
 }
 
-void TestBeam2016B::MakeEffectiveDetector() {
+void E22::MakeEffectiveDetector() {
 
 	auto rot1=new G4RotationMatrix;
 	auto rot2=new G4RotationMatrix;
@@ -162,17 +164,15 @@ void TestBeam2016B::MakeEffectiveDetector() {
 	//G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Right/SetType perfect");
 }
 
-void TestBeam2016B::MakeSandwichDetector() {
+void E22::MakeSandwichDetector() {
 }
 
-void TestBeam2016B::MakeTarget() {
+void E22::MakeTarget() {
 
-	G4Box* solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
-	G4LogicalVolume* logicTarget=new G4LogicalVolume(solidTarget,man->FindOrBuildMaterial("G4_C"),"CarbonTarget");
-	new G4PVPlacement(0,G4ThreeVector(0,0,0),logicTarget,"Target",fLogicWorld,0,false,0);
+	new E22Target(0,G4ThreeVector(0,0,0),fLogicWorld,false,0,this);
 }
 
-void TestBeam2016B::Make2016BDetector() {
+void E22::Make2016BDetector() {
 
 	auto rot1=new G4RotationMatrix;
 	auto rot2=new G4RotationMatrix;
@@ -205,27 +205,37 @@ void TestBeam2016B::Make2016BDetector() {
 
 }
 
-void TestBeam2016B::DefineCommands() {
+void E22::DefineCommands() {
 
-	fMessenger->DeclarePropertyWithUnit("armlength","mm",TestBeam2016B::fArmLength,"");
 
-	fMessenger->DeclarePropertyWithUnit("height","mm",TestBeam2016B::fDetectorHeight,"");
+	fTargetMessenger =std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,
+			"/PolarimeterStudies/target/",
+			"target control"));
 
-	fMessenger->DeclarePropertyWithUnit("armwidth","mm",TestBeam2016B::fArmWidth,"");
+	fTargetMessenger->DeclareProperty("material",E22::fTargetMaterialName,"");
+	fTargetMessenger->DeclarePropertyWithUnit("x","mm",E22::fTargetSizeX,"");
+	fTargetMessenger->DeclarePropertyWithUnit("y","mm",E22::fTargetSizeY,"");
+	fTargetMessenger->DeclarePropertyWithUnit("z","mm",E22::fTargetSizeZ,"");
 
-	fMessenger->DeclarePropertyWithUnit("armangle","rad",TestBeam2016B::fArmAngle,"");
+	fMessenger->DeclarePropertyWithUnit("armlength","mm",E22::fArmLength,"");
 
-	fMessenger->DeclareProperty("support",TestBeam2016B::fSupport,"support beam on/off");
+	fMessenger->DeclarePropertyWithUnit("height","mm",E22::fDetectorHeight,"");
 
-	fMessenger->DeclareProperty("nx",TestBeam2016B::fNx,"number of detectors in x");
+	fMessenger->DeclarePropertyWithUnit("armwidth","mm",E22::fArmWidth,"");
 
-	fMessenger->DeclareProperty("ny",TestBeam2016B::fNy,"number of detectors in y");
+	fMessenger->DeclarePropertyWithUnit("armangle","rad",E22::fArmAngle,"");
 
-	fMessenger->DeclareProperty("ny",TestBeam2016B::fDetectorName,"detector");
+	fMessenger->DeclareProperty("support",E22::fSupport,"support beam on/off");
 
-	fMessenger->DeclareProperty("left",TestBeam2016B::fLeftDetector,"left detector on/off");
+	fMessenger->DeclareProperty("nx",E22::fNx,"number of detectors in x");
 
-	fMessenger->DeclareProperty("right",TestBeam2016B::fRightDetector,"right detector on/off");
+	fMessenger->DeclareProperty("ny",E22::fNy,"number of detectors in y");
 
-	fMessenger->DeclareProperty("target",TestBeam2016B::fTarget,"target on/off");
+	fMessenger->DeclareProperty("ny",E22::fDetectorName,"detector");
+
+	fMessenger->DeclareProperty("left",E22::fLeftDetector,"left detector on/off");
+
+	fMessenger->DeclareProperty("right",E22::fRightDetector,"right detector on/off");
+
+	fMessenger->DeclareProperty("target",E22::fTarget,"target on/off");
 }

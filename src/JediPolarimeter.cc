@@ -238,18 +238,17 @@ void JediPolarimeter::UpdateGeometry(){
 }
 
 void JediPolarimeter::ConstructSDandField() {
-
-
-
-
-
+	if(gDebug>2)
+		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
 	for (auto & iSD : fSensitiveDetectors.getMap()){
 		if(!iSD.second.fSD.Get()){
 			iSD.second.fSD.Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
 		}
 		for(auto & iVol : iSD.second.fLogVol){
-			iSD.second.fSD.Get()->Print();
-			G4cout<<G4endl;
+			if(gDebug>2){
+				iSD.second.fSD.Get()->Print();
+				G4cout<<G4endl;
+			}
 			SetSensitiveDetector(iVol,iSD.second.fSD.Get());
 		}
 
