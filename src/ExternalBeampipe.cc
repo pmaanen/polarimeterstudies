@@ -26,7 +26,7 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 	auto solidBeampipe=new G4Tubs("Beampipe",0,5*CLHEP::cm,10*CLHEP::cm,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicBeampipe=new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 
-	auto windowThickness=1*CLHEP::cm;
+	auto windowThickness=0.1*CLHEP::mm;
 
 
 	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm-2*CLHEP::mm,10*CLHEP::cm-windowThickness,0,2*CLHEP::pi*CLHEP::rad);

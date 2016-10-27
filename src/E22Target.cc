@@ -18,7 +18,7 @@ E22Target::E22Target(G4RotationMatrix *pRot,
 		G4bool pMany, G4int pCopyNo, JediPolarimeter* dc) :
 		G4PVPlacement(pRot, tlate,
 				new G4LogicalVolume(new G4Tubs("temp", 0, 1, 1, 1, 1.),
-						G4Material::GetMaterial("Vacuum"), "temp", 0, 0, 0),
+						G4Material::GetMaterial("G4_Galactic"), "temp", 0, 0, 0),
 						"Target", pMotherLogical, pMany, pCopyNo),
 						fPolarimeter(dc),fMaterial(nullptr),fShape(shape::kDisc),fSizeX(1*CLHEP::cm),fSizeY(1*CLHEP::cm),fSizeZ(1*CLHEP::cm){
 
