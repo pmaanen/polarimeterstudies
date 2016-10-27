@@ -64,13 +64,9 @@ public:
 	virtual ~TrackerSensitiveDetector();
 
 	// methods from base class
-	virtual void   Initialize(G4HCofThisEvent* hitCollection);
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 	const std::vector<trackerhit_t>* getVect() {		return fHits.get();	}
-
-	virtual void EndOfRun(){};
-	virtual void BeginOfRun(){};
 protected:
 
 	std::vector<DetectorHit> fHitBuffer;

@@ -233,33 +233,37 @@ void JediPolarimeter::UpdateGeometry(){
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
-	G4RunManager::GetRunManager()->ReinitializeGeometry();
+	G4RunManager::GetRunManager()->ReinitializeGeometry(false,true);
 
 }
 
 void JediPolarimeter::ConstructSDandField() {
-	if(gDebug>2)
+	if(gVerbose>2)
 		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
+	/*
 	for (auto & iSD : fSensitiveDetectors.getMap()){
 		if(!iSD.second.fSD.Get()){
+			if(gVerbose>2)
+				G4cout<<"JediPolarimeter::ConstructSDandField: iSD.second.fInitialized="<<iSD.second.fInitialized<<G4endl;
 			iSD.second.fSD.Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
-		}
-		for(auto & iVol : iSD.second.fLogVol){
-			if(gDebug>2){
-				iSD.second.fSD.Get()->Print();
-				G4cout<<G4endl;
-			}
-			SetSensitiveDetector(iVol,iSD.second.fSD.Get());
-		}
+			if(gVerbose>2)
+				G4cout<<"JediPolarimeter::ConstructSDandField: iSD.second.fInitialized="<<iSD.second.fInitialized<<G4endl;
+			for(auto & iVol : iSD.second.fLogVol){
+				if(gVerbose>2){
+					iSD.second.fSD.Get()->Print();
+					G4cout<<G4endl;
+				}
+				SetSensitiveDetector(iVol,iSD.second.fSD.Get());
 
-		/*
+			}
+		}
+	}
+	 */
+	for (auto & iSD : fSensitiveDetectors.getMap()){
 		if (!fSD[iSD.first].Get())
 			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
 		for(auto iVol: iSD.second.fLogVol){
-			fSD[iSD.first].Get()->Print();
-			G4cout<<G4endl;
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
-		 */
 	}
 }

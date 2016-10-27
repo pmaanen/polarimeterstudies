@@ -14,6 +14,7 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 		fSDmap[name]=SD();
 		fSDmap[name].fType=type;
 		fSDmap[name].fLogVol=vector;
+		fSDmap[name].fSD.Put(nullptr);
 	}
 	else{
 		fSDmap[name].fType=type;

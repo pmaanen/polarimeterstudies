@@ -171,11 +171,9 @@ protected:
 	G4Material* fScintillatorMaterial;
 
 	G4bool fChangedParameters;
-
-	std::vector<std::string> fGeomCache;
-
 	SensitiveDetectorMap fSensitiveDetectors;
-
+	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
+	std::vector<std::string> fGeomCache;
 	//Input file if constructed from file
 	std::string fInfileName;
 };

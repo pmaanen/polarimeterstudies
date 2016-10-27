@@ -42,8 +42,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	fHitMap.clear();
 }
 
-void CaloSensitiveDetector::Initialize(G4HCofThisEvent*) {}
-
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 		G4TouchableHistory*) {
 

@@ -62,11 +62,6 @@ TrackerSensitiveDetector::~TrackerSensitiveDetector(){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void TrackerSensitiveDetector::Initialize(G4HCofThisEvent*)
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep, 
 		G4TouchableHistory*)
 {  

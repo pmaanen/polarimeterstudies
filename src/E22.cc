@@ -24,6 +24,7 @@ E22::E22():E21(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLH
 	fTargetMaterialName="G4_C";
 	fNx=5;
 	fNy=2;
+	fTargetSizeX=fTargetSizeY=fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
 	DefineCommands();
 }

@@ -13,17 +13,18 @@
 #include "SensitiveDetectorConfiguration.hh"
 
 
-class JediSensitiveDetector_impl: public G4VSensitiveDetector {
+class JediSensitiveDetector_impl{
 public:
-	JediSensitiveDetector_impl(const G4String& name):G4VSensitiveDetector(name){};
+	JediSensitiveDetector_impl(const G4String& name):fName(name){};
 	virtual ~JediSensitiveDetector_impl(){};
 
 	// methods from base class
-	virtual void   Initialize(G4HCofThisEvent* hitCollection)=0;
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history)=0;
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection)=0;
-	virtual void BeginOfRun()=0;
-	virtual void EndOfRun()=0;
+	const G4String& GetName() const {return fName;}
+
+private:
+	G4String fName;
 
 };
 
@@ -37,11 +38,8 @@ public:
 
 
 	// methods from base class
-	virtual void   Initialize(G4HCofThisEvent* hitCollection){if(fSD) fSD->Initialize(hitCollection);};
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history){if(fSD) return fSD->ProcessHits(step,history); return false;};
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection){if(fSD) fSD->EndOfEvent(hitCollection);};
-	virtual void BeginOfRun(){if(fSD) fSD->BeginOfRun();};
-	virtual void EndOfRun(){if(fSD) fSD->EndOfRun();};
 
 
 

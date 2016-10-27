@@ -11,8 +11,10 @@
 #include "PerfectDetector.hh"
 #include "G4Threading.hh"
 #include <memory>
+#include "global.hh"
 JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype& type):fType(type),fName(name),G4VSensitiveDetector(name){
-
+	if(gVerbose>2)
+		G4cout<<"JediSensitiveDetector::JediSensitiveDetector("<<name<<","<<int(type)<<")"<<G4endl;
 	if(type==SDtype::kCalorimeter)
 		fSD=std::unique_ptr<CaloSensitiveDetector>(new CaloSensitiveDetector(name));
 	else if(type==SDtype::kTracker)
