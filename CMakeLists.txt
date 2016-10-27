@@ -89,13 +89,7 @@ add_dependencies(polarimeterstudies Analysis)
 # build gammagamma. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-foreach(_script ${scripts})
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/scripts/${_script}	
-    ${PROJECT_BINARY_DIR}/scripts/${_script}
-    COPYONLY
-    )
-endforeach()
+file(COPY ${PROJECT_SOURCE_DIR}/scripts DESTINATION ${PROJECT_BINARY_DIR} )
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
