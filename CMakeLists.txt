@@ -64,9 +64,9 @@ set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DISABLE
 # dictionary
 set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh)
 set(Analysis_LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh )
-set(Analysis_DICT ${CMAKE_BINARY_DIR}/AnalysisDict)
+#set(AnalysisDict.. ${PROJECT_SOURCE_DIR}/AnalysisDict)
 
-ROOT_GENERATE_DICTIONARY(${Analysis_DICT} ${Analysis_HEADERS} LINKDEF ${Analysis_LINKDEF})
+ROOT_GENERATE_DICTIONARY(G__Analysis ${Analysis_HEADERS} LINKDEF ${Analysis_LINKDEF})
 # add the dictionary to the list of source files
 #SET(sources ${sources} ${Analysis_DICT})
 #SET(Analysis_SRCS ${Analysis_DICT})
@@ -80,7 +80,7 @@ target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} $
 add_executable(dceventgenerator DCElasticFileWriter.cc ${sources} ${headers})
 target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES} Analysis)
 
-add_library(Analysis SHARED ${Analysis_DICT})
+add_library(Analysis SHARED G__Analysis.cxx)
 target_link_libraries(Analysis ${ROOT_LIBRARIES})
 
 add_dependencies(polarimeterstudies Analysis)

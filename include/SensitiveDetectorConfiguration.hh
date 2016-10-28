@@ -21,11 +21,9 @@ enum class SDtype {kTracker, kCalorimeter, kPerfect, kUndefined};
 class JediSensitiveDetector;
 class SD{
 public:
-	SD():fInitialized(false){};
+	SD():fType(SDtype::kUndefined){};
 	SDtype fType;
 	std::vector<G4LogicalVolume*> fLogVol;
-	G4Cache<JediSensitiveDetector*> fSD;
-	G4bool fInitialized;
 };
 
 class SensitiveDetectorMap{

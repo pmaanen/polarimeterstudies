@@ -78,6 +78,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 			else{
 				std::stringstream fname;
 				fname<<"run_"<<run->GetRunID()<<".root";
+				if(gVerbose>2)
+					G4cout<<"run_"<<run->GetRunID()<<G4endl;
 				fileName=fname.str().c_str();
 			}
 		}else{

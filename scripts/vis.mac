@@ -1,0 +1,45 @@
+#
+# Macro file for the initialization phase of polarimeterStudies
+# when runing in interactive mode
+#
+# Sets some default verbose
+#
+/run/verbose 0
+/control/verbose 0
+#
+# Create a scene handler/viewer for a specific graphics system
+#    The compound command "/vis/open <vis-driver-name>"
+#    is equivalent to the following set of commands:
+#    /vis/scene/create
+#    /vis/sceneHandler/create
+#    /vis/viewer/create
+#
+# Create a scene handler and a viewer for the OGLIX driver
+/vis/scene/create
+/vis/open OGLS
+/vis/viewer/set/style s
+/vis/viewer/set/viewpointThetaPhi 135 160
+/vis/drawVolume 
+/vis/viewer/set/hiddenEdge 1
+# Store particle trajectories for visualization
+# (if too many tracks cause core dump => storeTrajectory 0)
+/tracking/storeTrajectory 1
+
+# Add trajectories to the current scene
+/vis/scene/add/trajectories
+
+# Requests viewer to accumulate hits, tracks, etc. at end of event. 
+# detector remains or is redrawn.
+/vis/scene/endOfEventAction accumulate 100
+
+# Dont draw photons and neutrons
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/add neutron
+/vis/filtering/trajectories/particleFilter-0/invert true
+
+# Set gun to sensible defaults
+/gun/particle deuteron
+/gun/energy 270 MeV
+#/gun/direction 0 0 1
+#/gun/position 0 0 0 cm

@@ -23,7 +23,7 @@ public:
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection)=0;
 	const G4String& GetName() const {return fName;}
 
-private:
+protected:
 	G4String fName;
 
 };

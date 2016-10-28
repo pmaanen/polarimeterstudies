@@ -16,7 +16,7 @@
 class JediRun: public G4Run {
 public:
 	JediRun();
-	virtual ~JediRun();
+	virtual ~JediRun()=default;
 
 	virtual void RecordEvent(const G4Event*);
 	void Merge(const G4Run*);

@@ -1,0 +1,3 @@
+/analysis/setFileName {Ekin}.root
+/PolarimeterStudies/dcelastic/energy {Ekin} MeV
+/run/beamOn 10000

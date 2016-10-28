@@ -11,11 +11,7 @@
 
 
 #include "global.hh"
-JediRun::JediRun() {}
-
-JediRun::~JediRun() {
-
-}
+JediRun::JediRun():G4Run() {}
 
 void JediRun::RecordEvent(const G4Event* evt) {
 	G4Run::RecordEvent(evt);

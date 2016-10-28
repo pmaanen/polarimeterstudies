@@ -27,8 +27,8 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
 	 */
 
-	G4Box* solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
-	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
+	auto solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
 	//auto solidEnvelope=new G4Box("solidEnv1",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,fCrystalLength/2+1*CLHEP::mm);
 	//auto solidEnv2= new G4Box("solidEnv2",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,1*CLHEP::mm);
 	//auto solidEnvelope=new G4SubtractionSolid("solidEnvelope",solidEnv1,solidEnv2,0,G4ThreeVector(0,0,-fCrystalLength/2-.5*CLHEP::mm));
@@ -44,7 +44,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	logicWrapping->SetVisAttributes(G4VisAttributes::Invisible);
 	logicReflector->SetVisAttributes(G4VisAttributes::Invisible);
 	 */
-
+	G4cout<<"logicDetector="<<logicDetector<<G4endl;
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 	fSensitiveDetectors.Update("Detector",SDtype::kCalorimeter,logVolVector{logicDetector});
@@ -59,9 +59,9 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	G4LogicalVolume* aCrystal=MakeCaloCrystal();
-//		auto worldRegion = new G4Region("calorimeter");
-//		worldRegion->AddRootLogicalVolume(aCrystal);
-//		worldRegion->SetUserLimits(new G4UserLimits(10.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
+	//		auto worldRegion = new G4Region("calorimeter");
+	//		worldRegion->AddRootLogicalVolume(aCrystal);
+	//		worldRegion->SetUserLimits(new G4UserLimits(10.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	aCrystal->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);

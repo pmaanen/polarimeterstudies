@@ -1,0 +1,3 @@
+/analysis/setFileName {Ekin}.root
+/PolarimeterStudies/beam/energy {Ekin} MeV
+/run/beamOn 1000000

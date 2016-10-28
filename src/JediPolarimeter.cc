@@ -233,8 +233,7 @@ void JediPolarimeter::UpdateGeometry(){
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
-	G4RunManager::GetRunManager()->ReinitializeGeometry(false,true);
-
+	G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
 void JediPolarimeter::ConstructSDandField() {
@@ -262,7 +261,8 @@ void JediPolarimeter::ConstructSDandField() {
 	for (auto & iSD : fSensitiveDetectors.getMap()){
 		if (!fSD[iSD.first].Get())
 			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
-		for(auto iVol: iSD.second.fLogVol){
+		for(auto & iVol: iSD.second.fLogVol){
+			G4cout<<iVol<<G4endl;
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
 	}

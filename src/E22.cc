@@ -232,8 +232,6 @@ void E22::DefineCommands() {
 
 	fMessenger->DeclareProperty("ny",E22::fNy,"number of detectors in y");
 
-	fMessenger->DeclareProperty("ny",E22::fDetectorName,"detector");
-
 	fMessenger->DeclareProperty("left",E22::fLeftDetector,"left detector on/off");
 
 	fMessenger->DeclareProperty("right",E22::fRightDetector,"right detector on/off");

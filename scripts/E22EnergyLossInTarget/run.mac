@@ -3,4 +3,4 @@
 /PolarimeterStudies/beam/energy {Ekin} MeV
 /PolarimeterStudies/target/z {Thickness} mm
 /PolarimeterStudies/detector/update
-/run/beamOn 1000
+/run/beamOn 100000

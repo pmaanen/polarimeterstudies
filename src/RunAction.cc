@@ -34,9 +34,6 @@ RunAction::~RunAction()
 {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-
-
-
 G4Run* RunAction::GenerateRun()
 { return new JediRun; }
 //*********************************************************************************

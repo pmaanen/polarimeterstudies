@@ -28,15 +28,16 @@ CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitive
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	vect->clear();
-	if(gVerbose>3){
-		for(const auto& iHit : fHitMap){
-			G4cout<<"Index: "<<iHit.first<<" Energy: "<<G4BestUnit(iHit.second,"Energy")<<G4endl;
-		}
-	}
+	if(gVerbose>3)
+		G4cout<<fName<<": "<<"CaloSensitiveDetector::EndOfEvent"<<G4endl;
 	for(const auto &iHit : fHitMap){
 		calorhit_t hit;
 		hit.edep=iHit.second/CLHEP::MeV;
 		hit.detid=iHit.first;
+		if(gVerbose>3){
+			G4int i=0;
+			G4cout<<fName<<" hit "<<i++<<": "<<G4BestUnit(hit.edep,"Energy")<<" in det no. "<<hit.detid<<G4endl;
+		}
 		vect->push_back(hit);
 	}
 	fHitMap.clear();
@@ -44,7 +45,8 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 		G4TouchableHistory*) {
-
+	if(gVerbose>4)
+			G4cout<<fName<<": "<<"CaloSensitiveDetector::ProcessHits"<<G4endl;
 	if(!Analysis::Instance()->isEnabled())
 		return false;
 	// energy deposit

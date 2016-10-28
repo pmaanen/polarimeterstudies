@@ -1,0 +1,5 @@
+/analysis/setFileName sim/de-dx-by-angle/deuterons_{Leff}_{Ekin}.root
+/PolarimeterStudies/detector/theta {angle} deg
+/PolarimeterStudies/detector/update
+/control/add Leff {Leff} 5
+/run/beamOn 100

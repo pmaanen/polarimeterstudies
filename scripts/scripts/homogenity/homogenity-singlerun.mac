@@ -1,0 +1,5 @@
+/analysis/setFileName sim/homogenity-muon/muons_{zPos}.root
+/control/subtract trgPos {zPos} 5
+/PolarimeterStudies/detector/trgOffsetZ {trgPos} mm
+/gun/position 0 25 {zPos} mm
+/run/beamOn 5000

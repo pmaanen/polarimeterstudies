@@ -14,11 +14,11 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 		fSDmap[name]=SD();
 		fSDmap[name].fType=type;
 		fSDmap[name].fLogVol=vector;
-		fSDmap[name].fSD.Put(nullptr);
 	}
 	else{
 		fSDmap[name].fType=type;
 		fSDmap[name].fLogVol=vector;
+		/*
 		std::stringstream cmd;
 		cmd<<"/PolarimeterStudies/"<<name<<"SetType ";
 		switch(type){
@@ -35,6 +35,7 @@ void SensitiveDetectorMap::Update(G4String name, SDtype type, logVolVector vecto
 			return;
 		}
 		G4UImanager::GetUIpointer()->ApplyCommand(cmd.str().c_str());
+		*/
 	}
 }
 
