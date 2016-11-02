@@ -38,10 +38,13 @@ class G4ParticleGun;
 class PhaseSpaceGenerator: public EventGenerator {
 public:
 	PhaseSpaceGenerator(G4ParticleGun* gun=0,G4String name="");
-	virtual ~PhaseSpaceGenerator();
+	virtual ~PhaseSpaceGenerator()=default;
 
 	G4double getBeamEnergy() const {return fBeamEnergy;}
 	void setBeamEnergy(G4double xBeamEnergy) {fBeamEnergy = xBeamEnergy; fInitialized=false;}
+
+	void setThetaMax(G4double thetaMax) {fThetaMax = thetaMax;fInitialized=false;}
+	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin; fInitialized=false;}
 
 protected:
 	G4double fBeamEnergy,fMaxY,fThetaMin,fThetaMax;
@@ -53,7 +56,7 @@ protected:
 	//Definition of particles. particles[0] carries the kinetic energy.
 	std::vector<G4ParticleDefinition*> fParticles;
 
-	G4GenericMessenger* fMessenger;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4double fXPrime,fYPrime,fTiltX,fTiltY;
 	G4ThreeVector fBeamspot, fSpotsize;
 	G4String fName;

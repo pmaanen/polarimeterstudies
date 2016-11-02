@@ -40,7 +40,7 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <G4StepLimiterPhysics.hh>
 #include <G4HadronicProcessStore.hh>
-
+#include <TROOT.h>
 namespace CLHEP {}
 using namespace CLHEP;
 G4VModularPhysicsList* choosePhysList();
@@ -56,6 +56,7 @@ int main(int argc,char** argv) {
 	}
 
 #ifdef G4MULTITHREADED
+	ROOT::EnableThreadSafety();
 	G4MTRunManager* runManager = new G4MTRunManager();
 	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else
