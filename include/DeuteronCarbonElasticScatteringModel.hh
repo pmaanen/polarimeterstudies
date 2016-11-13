@@ -23,7 +23,7 @@ public:
 		fBeamEnergy(0), fBeamPolarization(0) {
 	}
 
-	virtual ~DeuteronCarbonElasticScatteringModel(){};
+	virtual ~DeuteronCarbonElasticScatteringModel()=default;
 	Double_t sigma(TLorentzVector,TLorentzVector);
 	Double_t SigmaUnpol(Double_t, Double_t);
 	Double_t q(Double_t*, Double_t*);
@@ -81,7 +81,7 @@ double DeuteronCarbonElasticScatteringModel::q(Double_t* x, Double_t* par) {
 }
 
 double DeuteronCarbonElasticScatteringModel::Phi(Double_t* x, Double_t* par) {
-	return (1+par[1]*Ay(par[0],par[2]*180./3.1415)*cos(x[0]));
+	return 1+par[1]*Ay(par[0],par[2]*180./TMath::Pi())*cos(x[0]);
 }
 
 double DeuteronCarbonElasticScatteringModel::a1(Double_t x) {
