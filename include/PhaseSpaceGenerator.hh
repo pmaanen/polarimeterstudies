@@ -46,6 +46,17 @@ public:
 	void setThetaMax(G4double thetaMax) {fThetaMax = thetaMax;fInitialized=false;}
 	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin; fInitialized=false;}
 
+	void setBeamposition(const G4ThreeVector& beamspot) {fBeamposition = beamspot; fInitialized=false;}
+	void setBeamsize(const G4ThreeVector& spotsize) {fBeamsize = spotsize; fInitialized=false;}
+
+	G4double getTiltX() const {
+		return fTiltX;
+	}
+
+	void setTiltX(G4double tiltX) {
+		fTiltX = tiltX;
+	}
+
 protected:
 	G4double fBeamEnergy,fMaxY,fThetaMin,fThetaMax;
 	G4bool fInitialized;
@@ -58,7 +69,7 @@ protected:
 
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4double fXPrime,fYPrime,fTiltX,fTiltY;
-	G4ThreeVector fBeamspot, fSpotsize;
+	G4ThreeVector fBeamposition, fBeamsize;
 	G4String fName;
 
 	virtual void Generate(G4Event* E);

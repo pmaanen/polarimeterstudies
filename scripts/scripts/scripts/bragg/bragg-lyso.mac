@@ -1,0 +1,4 @@
+/analysis/setFileName {pname}-lyso-{Ekin}.root
+/PolarimeterStudies/detector/material LYSO
+/PolarimeterStudies/detector/update
+/control/execute scripts/bragg-singlerun.mac

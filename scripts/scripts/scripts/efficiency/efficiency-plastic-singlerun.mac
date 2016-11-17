@@ -1,0 +1,3 @@
+/analysis/setFileName plastic-{generator}.root
+/PolarimeterStudies/generator/setGenerator {generator}
+/run/beamOn 100000

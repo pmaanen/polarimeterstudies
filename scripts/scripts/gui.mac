@@ -5,11 +5,12 @@
 #
 # Process vis.mac (and draw geometry)
 #
-/control/execute vis.mac
+#/run/initialize
+/control/execute scripts/vis.mac
 #
 # Add icons of general interest
 #
-/control/execute icons.mac
+/control/execute scripts/icons.mac
 #
 # File menu :
 /gui/addMenu file File
@@ -25,7 +26,7 @@
 /gui/addMenu gun Gun
 /gui/addButton gun "100 MeV"  "/gun/energy 100 MeV"
 /gui/addButton gun "250 MeV"  "/gun/energy 250 MeV"
-/gui/addButton gun "1 GeV"    "/gun/energy 1 GeV"
+/gui/addButton gun "1 GeV"    "/gun/energy 1   GeV"
 /gui/addButton gun "e-"       "/gun/particle e-"
 /gui/addButton gun "mu-"      "/gun/particle mu-"
 /gui/addButton gun "deuteron" "/gun/particle deuteron"
@@ -43,4 +44,4 @@
 /gui/addButton viewer "Update scene" "/vis/scene/notifyHandlers"
 #
 # User defined icon :
-/gui/addIcon "Run beam on" user_icon "/run/beamOn 100" run.png 
+/gui/addIcon "Run beam on" user_icon "/run/beamOn 100" scripts/run.png

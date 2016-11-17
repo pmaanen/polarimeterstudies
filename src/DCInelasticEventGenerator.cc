@@ -121,9 +121,9 @@ void DCInelasticEventGenerator::Initialize() {
 		//fScatteringModel->setBeamPolarization(fBeamPolarization);
 	}
 	fMaxY=100;
-	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX(),fBeamspot.getY(),fBeamspot.getZ());
-	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX(),fSpotsize.getY(),fSpotsize.getZ());
-	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ());
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamposition.getX(),fBeamposition.getY(),fBeamposition.getZ());
+	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX(),fBeamsize.getY(),fBeamsize.getZ());
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ());
 	//G4cout<<(fScatteringModel->c2(0,270)-fScatteringModel->c3(0)*fScatteringModel->c4(0))<<G4endl;
 
 
