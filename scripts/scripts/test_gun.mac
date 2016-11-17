@@ -1,15 +1,7 @@
 /analysis/Enable
-/analysis/setFileName 270.root
 /gun/particle deuteron
 /gun/position 0 0 -50 cm
 /gun/direction 0 0 1
-/gun/energy 270 MeV
-/run/beamOn 100
-/PolarimeterStudies/detector/update
-/PolarimeterStudies/detector/update
-/analysis/setFileName 50.root
-/gun/energy 50 MeV
-/run/beamOn 100
-/analysis/setFileName 500.root
-/gun/energy 500 MeV
-/run/beamOn 100
+/gun/energy 10 GeV
+/run/beamOn 1000
+/run/beamOn 1000

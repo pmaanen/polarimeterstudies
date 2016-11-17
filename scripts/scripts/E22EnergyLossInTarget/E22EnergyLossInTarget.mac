@@ -5,11 +5,7 @@
 /PolarimeterStudies/detector/armangle 0
 /PolarimeterStudies/target/x 2 cm
 /PolarimeterStudies/target/z 5 mm
-/PolarimeterStudies/detector/nx 1
-/PolarimeterStudies/detector/ny 1
-/gun/particle deuteron
-/gun/position 0 0 -20 cm
-/gun/direction 0 0 1
+/PolarimeterStudies/beam/position 0 0 -20 cm
 /PolarimeterStudies/detector/update
 /process/inactivate dInelastic
 /control/foreach scripts/E22EnergyLossInTarget/Thickness.mac Ekin "100 150 200 250 270"
