@@ -35,7 +35,6 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun, G4String name):fXPr
 
 void PhaseSpaceGenerator::DefineCommands() {
 
-
 	G4String dir=G4String("/PolarimeterStudies/")+G4String(fName)+G4String("/");
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, dir, "elastic event generator control"));
 	fMessenger->DeclareMethod("beamposition",&PhaseSpaceGenerator::setBeamposition,"position of beam centroid.");
@@ -44,13 +43,10 @@ void PhaseSpaceGenerator::DefineCommands() {
 	fMessenger->DeclareMethodWithUnit("thetamin","deg",&PhaseSpaceGenerator::setThetaMin,"min angle");
 	fMessenger->DeclareMethodWithUnit("thetamax","deg",&PhaseSpaceGenerator::setThetaMin,"max angle");
 
-
-
-
+	return;
 }
 
 void PhaseSpaceGenerator::Generate(G4Event* E) {
-
 
 	auto event=genevent_t(Generate());
 	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
