@@ -97,7 +97,6 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 				Z=0;
 				A=0;
 				G4double En=0;
-				G4cout<<"Blubb"<<G4endl;
 				auto ionFound=G4IonTable::GetIonTable()->GetNucleusByEncoding(ipart.id,Z,A,En,lvl);
 				G4cout<<ionFound<<" "<<Z<<" "<<A<<" "<<G4endl;
 				part=G4IonTable::GetIonTable()->GetParticle(ipart.id);
