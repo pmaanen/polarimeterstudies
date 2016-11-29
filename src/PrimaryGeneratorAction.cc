@@ -73,11 +73,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {}
 
 void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 {
-	auto oldPos=fParticleGun->GetParticlePosition();
-	auto oldMom=fParticleGun->GetParticleMomentum();
-	auto oldEnergy=fParticleGun->GetParticleEnergy();
-	auto oldParticle=fParticleGun->GetParticleDefinition();
-	auto oldTime=fParticleGun->GetParticleTime();
 	fGeneratorName.toLower();
 	if(fEvtGenerators.count(fGeneratorName)==0){
 		std::stringstream message;
@@ -86,11 +81,10 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 		return;
 	}
 	else{
-		auto event=fEvtGenerators[fGeneratorName]->Generate();
-		event.eventid=E->GetEventID();
-		fGenEvent=event;
-		fParticleGun->SetParticlePosition(G4ThreeVector(event.x*CLHEP::mm,event.y*CLHEP::mm,event.z*CLHEP::mm));
-		for(auto ipart : event.particles){
+		fGenEvent=fEvtGenerators[fGeneratorName]->Generate();
+		fGenEvent.eventid=E->GetEventID();
+		fParticleGun->SetParticlePosition(G4ThreeVector(fGenEvent.x*CLHEP::mm,fGenEvent.y*CLHEP::mm,fGenEvent.z*CLHEP::mm));
+		for(auto ipart : fGenEvent.particles){
 			auto part=G4ParticleTable::GetParticleTable()->FindParticle(ipart.id);
 			if(!part){
 				G4int Z,A,lvl;
@@ -110,19 +104,11 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 				particle_t a_particle;
 			}
 			fParticleGun->SetParticleDefinition(part);
-			//G4cout<<part->GetParticleName()<<" "<<G4BestUnit(ipart.px,"Energy")<<" "<<G4BestUnit(ipart.py,"Energy")<<" "<<G4BestUnit(ipart.pz,"Energy")<<G4endl;;
-			fParticleGun->SetParticleMomentum(G4ThreeVector(ipart.px*CLHEP::GeV,ipart.py*CLHEP::GeV,ipart.pz*CLHEP::GeV)) ;
+			fParticleGun->SetParticleEnergy(ipart.E*CLHEP::GeV);
+			fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ipart.px*CLHEP::GeV,ipart.py*CLHEP::GeV,ipart.pz*CLHEP::GeV)) ;
 			fParticleGun->GeneratePrimaryVertex(E);
 		}
 	}
-
-	fParticleGun->SetParticlePosition(oldPos);
-	if(oldMom>1e-5)
-		fParticleGun->SetParticleMomentum(oldMom);
-	else
-		fParticleGun->SetParticleEnergy(oldEnergy);
-	fParticleGun->SetParticleDefinition(oldParticle);
-	fParticleGun->SetParticleTime(oldTime);
 	return;
 }
 
@@ -238,11 +224,15 @@ void PrimaryGeneratorAction::DefineCommands()
 }
 
 void PrimaryGeneratorAction::generateEventFromGun(G4Event* E) {
+	fGenEvent.particles.clear();
+	auto pos=fParticleGun->GetParticlePosition();
+	fGenEvent.x=pos.x();
+	fGenEvent.y=pos.y();
+	fGenEvent.z=pos.z();
 	fGenEvent.eventid=E->GetEventID();
 	fGenEvent.time=0;
 	particle_t aParticle;
 	auto mom=fParticleGun->GetParticleMomentum()/CLHEP::GeV;
-
 	if(mom<1e-5){
 		auto mass=fParticleGun->GetParticleDefinition()->GetPDGMass()/CLHEP::GeV;
 		auto e=fParticleGun->GetParticleEnergy()/CLHEP::GeV+mass;
