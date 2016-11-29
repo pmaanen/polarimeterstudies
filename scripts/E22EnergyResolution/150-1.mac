@@ -1,0 +1,9 @@
+/PolarimeterStudies/target/z 1 mm 
+/PolarimeterStudies/detector/update
+
+/analysis/setFileName 150-1-0.root
+/PolarimeterStudies/dcelastic/beamsize -0.065 -0.065 1.000 mm
+/PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.500 mm
+/PolarimeterStudies/dcelastic/energy 160.708 MeV
+/run/beamOn {nevents}
+
