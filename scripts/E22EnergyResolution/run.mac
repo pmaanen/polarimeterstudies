@@ -1,7 +1,1 @@
-/analysis/setFileName {Material}-{Ekin}-{Thickness}.root
-/PolarimeterStudies/target/material {Material}
-/PolarimeterStudies/beam/energy {Ekin} MeV
-/PolarimeterStudies/target/z {Thickness} mm
-/PolarimeterStudies/dcelastic/beamsize 5 5 {Thickness} mm
-/PolarimeterStudies/detector/update
-/run/beamOn 1000000
+/control/execute scripts/E22EnergyResolution/{Ekin}-{Thickness}.mac

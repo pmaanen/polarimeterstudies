@@ -5,9 +5,9 @@ if [ $# -eq 1 ]
     N="$1"
 fi
 echo "N="$N
-DIR=../bragg-sandwich-$(date "+%Y-%m-%d")
+DIR=../bragg-$(date "+%Y-%m-%d")
 mkdir -p $DIR
-nice -n 15 ./polarimeterstudies -g singlesandwich -m scripts/bragg.mac -n $N -b
+nice -n 15 ./polarimeterstudies -g single -m scripts/bragg.mac -n $N
 cp ./scripts/analyse-bragg.py $DIR
 cp ./scripts/CalculateLateral.py $DIR
 cp ./scripts/CalculateThickness.py $DIR

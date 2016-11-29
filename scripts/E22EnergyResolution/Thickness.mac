@@ -1,1 +1,1 @@
-/control/foreach scripts/E22EnergyResolution/Material.mac Thickness "1 5 10"
+/control/foreach scripts/E22EnergyResolution/run.mac Thickness "1 5 10 20"
