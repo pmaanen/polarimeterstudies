@@ -25,20 +25,18 @@ E22::E22():E21(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLH
 	fWorldSizeXY=3*CLHEP::m;
 	fWorldSizeZ=5*CLHEP::m;
 	fTargetMaterialName="G4_C";
-	fNx=5;
+	fNx=6;
 	fNy=2;
 	fTargetSizeX=fTargetSizeY=fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
 	DefineCommands();
 }
 
-E22::~E22() {
-	// TODO Auto-generated destructor stub
-}
-
 G4VPhysicalVolume* E22::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();
+
+	fWorldSizeZ=fWorldSizeXY=fArmLength+fTriggerThickness+fHCalSizeZ+3*CLHEP::m;
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
@@ -174,7 +172,7 @@ void E22::MakeSandwichDetector() {
 
 void E22::MakeTarget() {
 
-	new E22Target(0,G4ThreeVector(0,0,0),fLogicWorld,false,0,this);
+	new E22Target(0,G4ThreeVector(0,0,fTargetSizeZ/2),fLogicWorld,false,0,this);
 }
 
 void E22::Make2016BDetector() {

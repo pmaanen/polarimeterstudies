@@ -13,7 +13,7 @@
 class E22: public E21 {
 public:
 	E22();
-	virtual ~E22();
+	virtual ~E22()=default;
 
 	virtual G4VPhysicalVolume* Construct();
 	void MakeSetup();
