@@ -34,17 +34,17 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 		fThetaMax=gConfig["detector.thetamax"].as<double>()*CLHEP::mm*CLHEP::deg;
 		fBeampipeRadius=gConfig["detector.beampipeRadius"].as<double>()*CLHEP::mm;
 		fBeampipeThickness=gConfig["detector.beampipeThickness"].as<double>()*CLHEP::mm;
-		fCrystalLength=gConfig["detector.crystalLength"].as<double>()*CLHEP::mm;
-		fCrystalWidth=gConfig["detector.crystalWidth"].as<double>()*CLHEP::mm;
+		fHCalSizeXY=gConfig["detector.crystalLength"].as<double>()*CLHEP::mm;
+		fHCalSizeZ=gConfig["detector.crystalWidth"].as<double>()*CLHEP::mm;
 	}
 	catch(const std::exception& e){
 		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
 		exit(1);
 	}
-	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
+	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 	fWorldMaterialName="G4_AIR";
 	fDeltaELength=1*CLHEP::cm;
-	fDeltaEWidth=fCrystalWidth;
+	fDeltaEWidth=fHCalSizeZ;
 
 	fTargetChamberThickness=2*CLHEP::mm;
 
@@ -67,10 +67,10 @@ void JediPolarimeter::ComputeParameters() {
 	fDetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
 
 	fInnerDetectorRadius=fDetectorZ*tan( fThetaMin );
-	fOuterDetectorRadius=(fDetectorZ+fCrystalLength)*tan( fThetaMax );
+	fOuterDetectorRadius=(fDetectorZ+fHCalSizeXY)*tan( fThetaMax );
 
-	fMaxCrystal=ceil(fOuterDetectorRadius/fCrystalWidth);
-	fMinCrystal=ceil(fInnerDetectorRadius/fCrystalWidth);
+	fMaxCrystal=ceil(fOuterDetectorRadius/fHCalSizeZ);
+	fMinCrystal=ceil(fInnerDetectorRadius/fHCalSizeZ);
 
 	fTargetChamberZ1=fBeampipeRadius/ tan(fThetaMax)-1*CLHEP::cm;
 	fTargetChamberZ2=fDetectorZ-fDeltaELength-1*CLHEP::cm;
@@ -78,7 +78,7 @@ void JediPolarimeter::ComputeParameters() {
 	fDeltaEZ=fDetectorZ-5*CLHEP::cm;
 
 	fWorldSizeXY=2*fOuterDetectorRadius+0.5*CLHEP::m;
-	fWorldSizeZ=2*(fDetectorZ+fCrystalLength+1*CLHEP::cm);
+	fWorldSizeZ=2*(fDetectorZ+fHCalSizeXY+1*CLHEP::cm);
 
 	fBeampipeLength=fWorldSizeZ/2;
 
@@ -209,7 +209,7 @@ G4VPhysicalVolume* JediPolarimeter::Construct() {
 void JediPolarimeter::WriteWorldToFile(G4String filename) {
 
 	if(filename.contains(".gdml")){
-		//TODO: gdml yaddayadda
+		G4Exception("JediPolarimeter::WriteWorldToFile","",JustWarning,"writing to gdml file is not implemented!");
 	}
 	else{
 		std::streambuf * buf;
@@ -239,30 +239,11 @@ void JediPolarimeter::UpdateGeometry(){
 void JediPolarimeter::ConstructSDandField() {
 	if(gVerbose>2)
 		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
-	/*
-	for (auto & iSD : fSensitiveDetectors.getMap()){
-		if(!iSD.second.fSD.Get()){
-			if(gVerbose>2)
-				G4cout<<"JediPolarimeter::ConstructSDandField: iSD.second.fInitialized="<<iSD.second.fInitialized<<G4endl;
-			iSD.second.fSD.Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
-			if(gVerbose>2)
-				G4cout<<"JediPolarimeter::ConstructSDandField: iSD.second.fInitialized="<<iSD.second.fInitialized<<G4endl;
-			for(auto & iVol : iSD.second.fLogVol){
-				if(gVerbose>2){
-					iSD.second.fSD.Get()->Print();
-					G4cout<<G4endl;
-				}
-				SetSensitiveDetector(iVol,iSD.second.fSD.Get());
 
-			}
-		}
-	}
-	 */
 	for (auto & iSD : fSensitiveDetectors.getMap()){
 		if (!fSD[iSD.first].Get())
 			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
 		for(auto & iVol: iSD.second.fLogVol){
-			G4cout<<iVol<<G4endl;
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
 	}

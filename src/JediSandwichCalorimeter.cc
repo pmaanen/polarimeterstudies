@@ -18,7 +18,7 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 JediSandwichCalorimeter::JediSandwichCalorimeter():JediCubicPolarimeter() {
 	fAbsorberMaterial=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
-	fCrystalLength=10*CLHEP::cm;
+	fHCalSizeXY=10*CLHEP::cm;
 	fAbsorberLength=5*CLHEP::cm;
 	fNumLayers=1;
 	DefineCommands();
@@ -30,16 +30,16 @@ JediSandwichCalorimeter::~JediSandwichCalorimeter() {
 
 G4LogicalVolume* JediSandwichCalorimeter::MakeCaloCrystal() {
 
-	auto motherLength=fCrystalLength;
+	auto motherLength=fHCalSizeXY;
 
-	auto detectorLength=(fCrystalLength-fAbsorberLength)/fNumLayers;
-	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,detectorLength/2);
-	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Scintillator");
+	auto detectorLength=(fHCalSizeXY-fAbsorberLength)/fNumLayers;
+	auto solidDetector= new G4Box("Scintillator",fHCalSizeZ/2,fHCalSizeZ/2,detectorLength/2);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fHCalMaterial,"Scintillator");
 
-	auto solidMother= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,motherLength/2);
+	auto solidMother= new G4Box("Detector",fHCalSizeZ/2,fHCalSizeZ/2,motherLength/2);
 	auto logicMother=new G4LogicalVolume(solidMother,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Detector");
 	if(fAbsorberLength>1e-3*CLHEP::mm){
-	  auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/fNumLayers/2);
+	  auto solidAbsorber= new G4Box("Absorber",(fHCalSizeZ)/2,(fHCalSizeZ)/2,fAbsorberLength/fNumLayers/2);
 	  auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
 	  logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
 	  fSensitiveDetectors.Update("Absorber",SDtype::kCalorimeter,logVolVector{logicAbsorber});

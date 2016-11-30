@@ -77,7 +77,7 @@ JediCubicPolarimeter::JediCubicPolarimeter(std::string infile):JediPolarimeter(i
 }
 
 G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
-	auto logicDetector=MakeDetector("Detector",fScintillatorMaterial,fCrystalWidth,fCrystalWidth,fCrystalLength);
+	auto logicDetector=MakeDetector("Detector",fHCalMaterial,fHCalSizeZ,fHCalSizeZ,fHCalSizeXY);
 	auto detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);
 	return logicDetector;
@@ -138,7 +138,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	new InternalBeampipe(0,G4ThreeVector(0,0,fBeampipeLength/2),fLogicWorld,false,0,this);
 	G4cout<<"Beampipe Length="<<G4BestUnit(fBeampipeLength,"Length")<<G4endl;
 	G4cout<<"Detector Z="<<G4BestUnit(fDetectorZ,"Length")<<G4endl;
-	G4cout<<"Calo Length="<<G4BestUnit(fCrystalLength,"Length")<<G4endl;
+	G4cout<<"Calo Length="<<G4BestUnit(fHCalSizeXY,"Length")<<G4endl;
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
 
@@ -149,7 +149,7 @@ G4VPhysicalVolume* JediCubicPolarimeter::Construct() {
 	//new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
 
 	fGeomCache.clear();
-	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fCrystalWidth,fCrystalWidth,fCrystalLength);
+	auto aCrystal=MakeDetector("Calorimeter",G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName),fHCalSizeZ,fHCalSizeZ,fHCalSizeXY);
 	aCrystal->SetVisAttributes(new G4VisAttributes(green));
 	fSensitiveDetectors.Update("Calorimeter",SDtype::kCalorimeter,logVolVector{aCrystal});
 	if(fHodoscopeShape=="pizza"){
@@ -247,8 +247,8 @@ void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
 		if(fx!=-999)
 			fx++;
 		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,fDetectorZ+0.5*fCrystalLength);
-			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
+			auto placement=G4ThreeVector(iCrystalX*fHCalSizeZ,iCrystalY*fHCalSizeZ,fDetectorZ+0.5*fHCalSizeXY);
+			if((placement.perp()-distanceToEdge(fHCalSizeZ,fHCalSizeZ,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fHCalSizeZ,fHCalSizeZ,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
 				fy++;
@@ -262,7 +262,7 @@ void JediCubicPolarimeter::PlaceCalorimeter(G4LogicalVolume* aDetectorElement) {
 			if(phi<0)
 				phi+=360*CLHEP::deg;
 			new G4PVPlacement (0, placement, aDetectorElement, "Crystal", fLogicWorld, false, copyNo++, false);
-			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aDetectorElement->GetName()<<" "<<aDetectorElement->GetMaterial()->GetName()<<" "<<fCrystalWidth<<" "<<fCrystalWidth<<" "<<fCrystalLength<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
+			buf<<std::setfill('0')<<std::setw(6)<<copyNo<<" "<<aDetectorElement->GetName()<<" "<<aDetectorElement->GetMaterial()->GetName()<<" "<<fHCalSizeZ<<" "<<fHCalSizeZ<<" "<<fHCalSizeXY<<" "<<placement.x()<<" "<<placement.y()<<" "<<placement.z();
 			fGeomCache.push_back(buf.str());
 			buf.clear();
 			buf.str(std::string());
@@ -281,8 +281,8 @@ void JediCubicPolarimeter::PlaceHodoscope(G4LogicalVolume* aDetectorElement) {
 		if(fx!=-999)
 			fx++;
 		for(int iCrystalY=-fMaxCrystal; iCrystalY<fMaxCrystal+1;iCrystalY++){
-			auto placement=G4ThreeVector(iCrystalX*fCrystalWidth,iCrystalY*fCrystalWidth,fDetectorZ-0.5*fDeltaELength);
-			if((placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fCrystalWidth,fCrystalWidth,placement))>fOuterDetectorRadius)
+			auto placement=G4ThreeVector(iCrystalX*fHCalSizeZ,iCrystalY*fHCalSizeZ,fDetectorZ-0.5*fDeltaELength);
+			if((placement.perp()-distanceToEdge(fHCalSizeZ,fHCalSizeZ,placement))<fInnerDetectorRadius or (placement.perp()-distanceToEdge(fHCalSizeZ,fHCalSizeZ,placement))>fOuterDetectorRadius)
 				continue;
 			if(fy!=-999)
 				fy++;

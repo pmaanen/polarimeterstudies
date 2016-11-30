@@ -8,14 +8,14 @@
 #include <Analysis.hh>
 #include <Testbench.hh>
 Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0) {
-	fCrystalLength=10*CLHEP::cm;
-	fCrystalWidth=3*CLHEP::cm;
+	fHCalSizeXY=10*CLHEP::cm;
+	fHCalSizeZ=3*CLHEP::cm;
 	fTriggerHeight=2.5*CLHEP::cm;
 	fTriggerWidth=2.5*CLHEP::cm;
 	fTriggerThickness=.5*CLHEP::cm;
 	fTrigger=true;
 	fScintillatorMaterialName="LYSO";
-	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
+	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 
 	DefineCommands();
 }

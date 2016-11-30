@@ -9,8 +9,8 @@
 #include <G4Region.hh>
 #include "Colors.hh"
 SingleCrystal::SingleCrystal():JediPolarimeter(),fTheta(0),fPhi(0),fPsi(0) {
-	fCrystalLength=10*CLHEP::cm;
-	fCrystalWidth=3*CLHEP::cm;
+	fHCalSizeXY=10*CLHEP::cm;
+	fHCalSizeZ=3*CLHEP::cm;
 
 	DefineCommands();
 }
@@ -27,8 +27,8 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 	G4LogicalVolume*  logicReflector= new G4LogicalVolume(solidReflector,G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON"),"Reflector");
 	 */
 
-	auto solidDetector= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2);
-	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Detector");
+	auto solidDetector= new G4Box("Detector",fHCalSizeZ/2,fHCalSizeZ/2,fHCalSizeXY/2);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fHCalMaterial,"Detector");
 	//auto solidEnvelope=new G4Box("solidEnv1",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,fCrystalLength/2+1*CLHEP::mm);
 	//auto solidEnv2= new G4Box("solidEnv2",fCrystalWidth/2+1*CLHEP::mm,fCrystalWidth/2+1*CLHEP::mm,1*CLHEP::mm);
 	//auto solidEnvelope=new G4SubtractionSolid("solidEnvelope",solidEnv1,solidEnv2,0,G4ThreeVector(0,0,-fCrystalLength/2-.5*CLHEP::mm));
@@ -65,7 +65,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	aCrystal->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
-	new G4PVPlacement (rot, G4ThreeVector(0,0,fCrystalLength/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, G4ThreeVector(0,0,fHCalSizeXY/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	return fPhysiWorld;
 }
 
