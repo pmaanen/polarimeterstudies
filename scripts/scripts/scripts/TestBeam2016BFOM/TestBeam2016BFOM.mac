@@ -1,0 +1,20 @@
+/analysis/Enable
+/analysis/setFileName 2016b_dc_elastic_with_support.root
+/PolarimeterStudies/generator/setGenerator dcelastic
+/PolarimeterStudies/dcelastic/energy 270 MeV
+#/PolarimeterStudies/dcelastic/polarization 0
+#/PolarimeterStudies/Left/SetType perfect
+#/PolarimeterStudies/Right/SetType perfect
+/PolarimeterStudies/dcelastic/polarization 1
+/PolarimeterStudies/dcelastic/thetamin 3 deg
+/PolarimeterStudies/detector/armwidth 7.5 cm
+#/PolarimeterStudies/detector/armangle 7.764 deg
+#/PolarimeterStudies/detector/detector effective
+/PolarimeterStudies/detector/update
+#/run/beamOn 1000000
+#/analysis/setFileName 2016b_dc_elastic_without_support.root
+#/PolarimeterStudies/detector/support false
+#/PolarimeterStudies/detector/update
+#/run/beamOn 1000000
+/control/alias nEvents 1000000
+/control/loop scripts/TestBeam2016BFOM-singlerun.mac angle 8 24 2

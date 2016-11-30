@@ -1,0 +1,47 @@
+
+# Sets some default verbose
+#
+/control/verbose 0
+/control/saveHistory
+/run/verbose 0
+#
+# create empty scene
+#
+/vis/scene/create
+/vis/open DAWNFILE
+/vis/viewer/set/style s
+/vis/viewer/set/viewpointThetaPhi 135 160
+/vis/drawVolume 
+#/vis/scene/add/axes -1.5 -1.5 0 3 cm
+# global
+#/vis/viewer/set/culling  global  true
+# invisible
+#/vis/viewer/set/culling  invisible  true
+#/vis/heprep/setCullInvisibles true
+/vis/viewer/set/hiddenEdge 1
+/vis/viewer/set/edge 1
+/vis/viewer/set/hiddenMarker 0
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+#############Dont draw photons and neutrons
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/add neutron
+/vis/filtering/trajectories/particleFilter-0/invert true
+################################
+/gun/particle deuteron
+/gun/energy 270 MeV
+/gun/direction 0 0 1
+/gun/position 0 0 -5 cm
+/PolarimeterStudies/detector/absorberlength 0 mm
+/PolarimeterStudies/detector/calolength 8 cm
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/generator/setGenerator dcelastic
+/PolarimeterStudies/dcelastic/beamposition 0 0 -5 cm
+/PolarimeterStudies/dcelastic/spotsize .25 .25 0 cm
+/PolarimeterStudies/beam/xp 5 deg
+/PolarimeterStudies/beam/yp 5 deg
+################################
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate 10
+/run/beamOn 10

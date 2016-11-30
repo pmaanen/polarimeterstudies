@@ -44,7 +44,7 @@ private:
 
 	G4double fArmLength,fArmWidth,fArmAngle,fDetectorHeight,fMinDistance,fTargetSizeX,fTargetSizeY,fTargetSizeZ;
 	G4int fNx,fNy;
-	G4bool fSupport,fRightDetector,fLeftDetector,fTarget;
+	G4bool fSupport,fRightDetector,fLeftDetector,fTarget,fMonitor, fBeampipe;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 };

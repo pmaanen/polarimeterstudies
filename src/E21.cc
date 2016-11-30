@@ -12,14 +12,14 @@
 #include <JediSensitiveDetector.hh>
 #include "ExternalBeampipe.hh"
 E21::E21():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
-	fCrystalLength=10*CLHEP::cm;
-	fCrystalWidth=3*CLHEP::cm;
+	fHCalSizeXY=8*CLHEP::cm;
+	fHCalSizeZ=3*CLHEP::cm;
 	fTriggerHeight=2.5*CLHEP::cm;
 	fTriggerWidth=1.5*CLHEP::cm;
 	fTriggerThickness=.2*CLHEP::cm;
 	fTrigger=true;
 	fScintillatorMaterialName="LYSO";
-	fScintillatorMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
+	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 	DefineCommands();
 }
 
@@ -86,23 +86,6 @@ void E21::MakeSetup() {
 
 }
 
-void E21::MakeSandwichDetector() {
-
-	G4RotationMatrix* rot=new G4RotationMatrix();
-	rot->set(fPhi,fTheta,fPsi);
-
-	auto logicHodoscope=MakeDetector("Hodoscope",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fCrystalWidth,fCrystalWidth,1*CLHEP::cm);
-	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicHodoscope});
-	auto logicAbsorber=MakeDetector("Detector",G4NistManager::Instance()->FindOrBuildMaterial("G4_W"),fCrystalWidth,fCrystalWidth,fCrystalLength);
-	fSensitiveDetectors.Update("Detector",SDtype::kTracker,logVolVector{logicAbsorber});
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,-.5*CLHEP::cm), logicHodoscope, "Hodoscope", fLogicWorld, false, 0, false);
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,fCrystalLength/2), logicAbsorber, "Detector", fLogicWorld, false, 0, false);
-	return;
-
-
-
-}
-
 void E21::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
@@ -154,28 +137,28 @@ void E21::Make2016ADetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto bigCrystal=MakeDetector("lyso",fScintillatorMaterial,fCrystalWidth,fCrystalWidth,fCrystalLength);
-	auto smallCrystal=MakeDetector("lyso",fScintillatorMaterial,fCrystalWidth/2,fCrystalWidth,fCrystalLength);
+	auto bigCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeZ,fHCalSizeZ,fHCalSizeXY);
+	auto smallCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeZ/2,fHCalSizeZ,fHCalSizeXY);
 	fSensitiveDetectors.Update("Calorimeter",SDtype::kCalorimeter,logVolVector{bigCrystal,smallCrystal});
 	bigCrystal->SetVisAttributes(new G4VisAttributes(green));
 	smallCrystal->SetVisAttributes(new G4VisAttributes(green));
 
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(-fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2), bigCrystal, "Crystal1", fLogicWorld, false, 0, false);
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fCrystalWidth/2,fCrystalWidth/2,fCrystalLength/2), bigCrystal, "Crystal2", fLogicWorld, false, 1, false);
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fCrystalWidth/2-fCrystalWidth/4,-fCrystalWidth/2,fCrystalLength/2), smallCrystal, "Crystal3a", fLogicWorld, false, 2, false);
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fCrystalWidth/2+fCrystalWidth/4,-fCrystalWidth/2,fCrystalLength/2), smallCrystal, "Crystal3b", fLogicWorld, false, 3, false);
-	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(-fCrystalWidth/2,-fCrystalWidth/2,fCrystalLength/2), bigCrystal, "Crystal4", fLogicWorld, false, 4, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(-fHCalSizeZ/2,fHCalSizeZ/2,fHCalSizeXY/2), bigCrystal, "Crystal1", fLogicWorld, false, 0, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fHCalSizeZ/2,fHCalSizeZ/2,fHCalSizeXY/2), bigCrystal, "Crystal2", fLogicWorld, false, 1, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fHCalSizeZ/2-fHCalSizeZ/4,-fHCalSizeZ/2,fHCalSizeXY/2), smallCrystal, "Crystal3a", fLogicWorld, false, 2, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(+fHCalSizeZ/2+fHCalSizeZ/4,-fHCalSizeZ/2,fHCalSizeXY/2), smallCrystal, "Crystal3b", fLogicWorld, false, 3, false);
+	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(-fHCalSizeZ/2,-fHCalSizeZ/2,fHCalSizeXY/2), bigCrystal, "Crystal4", fLogicWorld, false, 4, false);
 
 
-	auto logicPerfectDetector=MakeDetector("Observer",G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),2*fCrystalWidth,2*fCrystalWidth,1*CLHEP::mm);
+	auto logicPerfectDetector=MakeDetector("Observer",G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"),2*fHCalSizeZ,2*fHCalSizeZ,1*CLHEP::mm);
 	fSensitiveDetectors.Update("Observer",SDtype::kPerfect,logVolVector{logicPerfectDetector});
 	new G4PVPlacement(rot,fCalorimeterPosition+G4ThreeVector(0,0,-.5*CLHEP::mm),logicPerfectDetector,"Observer",fLogicWorld,false,0,false);
 	logicPerfectDetector->SetVisAttributes(G4VisAttributes::Invisible);
 
-	auto logicVeto=MakeDetector("Veto",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),66*CLHEP::mm,.6*CLHEP::cm,fCrystalLength);
+	auto logicVeto=MakeDetector("Veto",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),66*CLHEP::mm,.6*CLHEP::cm,fHCalSizeXY);
 	logicVeto->SetVisAttributes(new G4VisAttributes(red));
 	fSensitiveDetectors.Update("Veto",SDtype::kTracker,logVolVector{logicVeto});
-	auto vetoPosition=G4ThreeVector(3*CLHEP::mm,fCrystalWidth+0.3*CLHEP::cm,fCrystalLength/2);
+	auto vetoPosition=G4ThreeVector(3*CLHEP::mm,fHCalSizeZ+0.3*CLHEP::cm,fHCalSizeXY/2);
 	for(int i=0;i<4;i++){
 		auto vetoRot=new G4RotationMatrix(*rot);
 		vetoRot->rotateZ(i*90*CLHEP::deg);
@@ -191,9 +174,9 @@ void E21::MakeEffectiveDetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto logicHodoscope=MakeDetector("Hodoscope",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fCrystalWidth,fCrystalWidth,1*CLHEP::cm);
+	auto logicHodoscope=MakeDetector("Hodoscope",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fHCalSizeZ,fHCalSizeZ,1*CLHEP::cm);
 	fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{logicHodoscope});
-	auto logicObserver=MakeDetector("Detector",G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),fCrystalWidth,fCrystalWidth,1*CLHEP::mm);
+	auto logicObserver=MakeDetector("Detector",G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),fHCalSizeZ,fHCalSizeZ,1*CLHEP::mm);
 	fSensitiveDetectors.Update("Detector",SDtype::kPerfect,logVolVector{logicObserver});
 	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,1*CLHEP::cm/2), logicHodoscope, "Hodoscope", fLogicWorld, false, 0, false);
 	new G4PVPlacement (rot, fCalorimeterPosition+G4ThreeVector(0,0,1*CLHEP::cm+.5*CLHEP::mm), logicObserver, "Detector", fLogicWorld, false, 0, false);

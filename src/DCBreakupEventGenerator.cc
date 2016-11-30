@@ -79,10 +79,10 @@ genevent_t DCBreakupEventGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
 
-	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX()/CLHEP::mm,fBeamspot.getY()/CLHEP::mm,fBeamspot.getZ()/CLHEP::mm);
-	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX()/CLHEP::mm,fSpotsize.getY()/CLHEP::mm,fSpotsize.getZ()/CLHEP::mm);
-	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamspot.getZ()/CLHEP::mm);
-	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ()/CLHEP::mm);
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamposition.getX()/CLHEP::mm,fBeamposition.getY()/CLHEP::mm,fBeamposition.getZ()/CLHEP::mm);
+	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX()/CLHEP::mm,fBeamsize.getY()/CLHEP::mm,fBeamsize.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamposition.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ()/CLHEP::mm);
 
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());

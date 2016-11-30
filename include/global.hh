@@ -64,6 +64,7 @@ void initializeConfiguration(int argc,char** argv){
     ("generator.beam_particle", po::value<int>()->default_value(0), "PDG id of beam")
     ("generator.target_particle", po::value<int>()->default_value(0), "PDG id of target")
     ("generator.beam_energy", po::value<double>()->default_value(270),"energy of beam in MeV")
+	("generator.beam_polarization", po::value<double>()->default_value(0),"energy of beam in MeV")
 ;
 
     std::ifstream cfg;

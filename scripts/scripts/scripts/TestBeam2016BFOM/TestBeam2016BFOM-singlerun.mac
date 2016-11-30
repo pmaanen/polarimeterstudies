@@ -1,0 +1,4 @@
+/analysis/setFileName {angle}.root
+/PolarimeterStudies/detector/armangle {angle} deg
+/PolarimeterStudies/detector/update
+/run/beamOn {nEvents}

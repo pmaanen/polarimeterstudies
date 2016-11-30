@@ -28,6 +28,7 @@
 
 #include <signal.h>
 #include <exception>
+#include <TROOT.h>
 namespace CLHEP {}
 using namespace CLHEP;
 
@@ -73,6 +74,7 @@ int main(int argc,char** argv) {
 	}
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
+	ROOT::EnableThreadSafety();
 	G4MTRunManager* runManager = new G4MTRunManager;
 	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
 #else

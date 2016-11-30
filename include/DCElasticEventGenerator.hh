@@ -27,13 +27,16 @@ public:
 	virtual ~DCElasticEventGenerator();
 	virtual void Initialize();
 	virtual genevent_t Generate();
-	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fRunInitialized=false;};
+	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fInitialized=false;};
 
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
 	std::unique_ptr<DeuteronCarbonElasticScatteringModel> fScatteringModel;
+	std::unique_ptr<TF1> fQ;
+	std::unique_ptr<TF1> fPhi;
 	virtual void DefineCommands();
+	Double_t fQmin,fQmax;
 	//Returns a the TF2 for hit and miss.
 };
 #endif /* DCELASTICEVENTGENERATOR_HH_ */

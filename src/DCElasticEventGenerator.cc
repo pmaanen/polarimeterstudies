@@ -22,7 +22,6 @@
 #include "G4ParticleGun.hh"
 #include <signal.h>
 #include "Randomize.hh"
-
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
 using namespace CLHEP;
@@ -34,7 +33,7 @@ DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpace
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
 	}
 	else
-		fBeamPolarization=Double_t(2./3.);
+		fBeamPolarization=Double_t(0);
 
 	DefineCommands();
 }
@@ -51,7 +50,8 @@ void DCElasticEventGenerator::Initialize() {
 		if(!(*ipart))
 			G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",FatalException,"beam particle not found.");
 	}
-	G4cout<<"Theta_Min="<<fThetaMin/CLHEP::deg<<" Theta_Max="<<fThetaMax/CLHEP::deg<<G4endl;
+	if(gVerbose>2)
+		G4cout<<"Theta_Min="<<fThetaMin/CLHEP::deg<<" Theta_Max="<<fThetaMax/CLHEP::deg<<G4endl;
 	Double_t m_target = fParticles[1]->GetPDGMass()/GeV;
 	Double_t m_beam = fParticles[0]->GetPDGMass()/GeV;
 	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
@@ -71,6 +71,22 @@ void DCElasticEventGenerator::Initialize() {
 	}
 	fMaxY=2*fScatteringModel->SigmaUnpol(fBeamEnergy/CLHEP::MeV,sin(fThetaMin/2.)*2*fMomentumCMS/CLHEP::GeV);
 	fInitialized=true;
+
+	// TF1 * f = new TF1("f",fptr,&MyFunction::Evaluate,0,1,npar,"MyFunction","Evaluate");   // create TF1 class.
+	fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&DeuteronCarbonElasticScatteringModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&DeuteronCarbonElasticScatteringModel::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
+	fQ->SetParameter(0,fBeamEnergy/MeV);
+	fPhi->SetParameter(0,fBeamEnergy/MeV);
+	fPhi->SetParameter(1,fBeamPolarization);
+
+	fQmin=2*fMomentumCMS*sin(fThetaMin/2);
+	fQmax=2*fMomentumCMS*sin(fThetaMax/2);
+
+	VertexGeneratorO::GetInstance()->setBeamposition(fBeamposition.getX()/CLHEP::mm,fBeamposition.getY()/CLHEP::mm,fBeamposition.getZ()/CLHEP::mm);
+	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX()/CLHEP::mm,fBeamsize.getY()/CLHEP::mm,fBeamsize.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamposition.getZ()/CLHEP::mm);
+	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ()/CLHEP::mm);
+
 }
 
 void DCElasticEventGenerator::DefineCommands()
@@ -83,66 +99,27 @@ void DCElasticEventGenerator::DefineCommands()
 genevent_t DCElasticEventGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
-
-	VertexGeneratorO::GetInstance()->setBeamposition(fBeamspot.getX()/CLHEP::mm,fBeamspot.getY()/CLHEP::mm,fBeamspot.getZ()/CLHEP::mm);
-	VertexGeneratorO::GetInstance()->setBeamsize(fSpotsize.getX()/CLHEP::mm,fSpotsize.getY()/CLHEP::mm,fSpotsize.getZ()/CLHEP::mm);
-	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamspot.getZ()/CLHEP::mm);
-	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fSpotsize.getZ()/CLHEP::mm);
-
+	genevent_t thisEvent;
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
-
-	while (1) {
-		fBeam.RotateX(fTiltX+G4RandGauss::shoot(fTiltX,fXPrime));
-		fBeam.RotateY(fTiltY+G4RandGauss::shoot(fTiltY,fYPrime));
-
-		//Sample an event assuming constant cross-section in cm-system
-		fPhaseSpace.Generate();
-		//L-vector of scattered particle in lab-frame
-		TLorentzVector deuteron_4 = *fPhaseSpace.GetDecay(0);
-
-		//L-vector of recoil particle in lab-frame
-		TLorentzVector carbon_4 = *fPhaseSpace.GetDecay(1) ;
-
-		//spatial parts of generated L-vectors
-		G4ThreeVector carbon_3(carbon_4.Vect().X()*GeV,carbon_4.Vect().Y()*GeV,carbon_4.Vect().Z()*GeV);
-		G4ThreeVector deuteron_3(deuteron_4.Vect().X()*GeV,deuteron_4.Vect().Y()*GeV,deuteron_4.Vect().Z()*GeV);
-
-		//Magnitude of spatial vectors
-		//G4double momentum_recoil  = precoil_3.mag();
-		//G4double momentum_scattered  = pscattered_3.mag();
-
-
-		//Polar angle for deuteron in lab-frame (degrees)
-		G4double th_scattered  = deuteron_3.getTheta()*CLHEP::rad;
-		//Polar angle for proton in lab-frame (degrees)
-		//G4double th_recoil  = precoil_3.getTheta();
-
-		G4double phi_scattered = deuteron_4.Vect().Phi();//pscattered_3.getPhi();
-		if(phi_scattered<0)
-			phi_scattered+=360*CLHEP::deg;
-
-		//G4double phi_recoil = precoil_3.getPhi();
-
-		//Set angular cut in lab-frame
-		if(th_scattered>fThetaMin and th_scattered<fThetaMax){
-
-			//Boost momentum of deuteron from lab-sytem to cm-system.
-			TVector3 CMv = fCms.BoostVector();     // in case beam simulation
-
-			//deuteron_4.Boost(-CMv);          // in case beam simulation
-			G4double acc=fMaxY*G4UniformRand();
-			if(fScatteringModel->sigma(fBeam,deuteron_4)<acc){
-				continue;
-			}
-			else {
-				genevent_t res(0,0,pos.getX(),pos.getY(),pos.getZ());
-				res.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),carbon_3.getX()/CLHEP::GeV,carbon_3.getY()/CLHEP::GeV,carbon_3.getZ()/CLHEP::GeV,carbon_4.Energy()*GeV-carbon_4.M()*GeV));
-				res.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),deuteron_3.getX()/CLHEP::GeV,deuteron_3.getY()/CLHEP::GeV,deuteron_3.getZ()/CLHEP::GeV,deuteron_4.Energy()*GeV-deuteron_4.M()*GeV));
-				return res;
-			}
-		}
-		else{
-		}
-	}
+	thisEvent.x=pos.x();
+	thisEvent.y=pos.y();
+	thisEvent.z=pos.z();
+	auto q=fQ->GetRandom(fQmin,fQmax);
+	TLorentzVector d4;
+	d4.SetPxPyPzE(fMomentumCMS,0,0,sqrt(fMomentumCMS*fMomentumCMS+fParticles[0]->GetPDGMass()/GeV*fParticles[0]->GetPDGMass()/GeV));
+	auto thetaCMS=2*TMath::ASin(q/2/fMomentumCMS);
+	d4.SetTheta(thetaCMS);
+	auto d4lab=TLorentzVector(d4);
+	d4lab.Boost(fCms.BoostVector());
+	auto thetaLab=d4lab.Theta();
+	fPhi->SetParameter(2,thetaLab);
+	auto phi=fPhi->GetRandom(0,2*CLHEP::pi);
+	d4.SetPhi(phi);
+	d4lab.SetPhi(phi);
+	auto c4=TLorentzVector(-d4.Vect(),sqrt(fMomentumCMS*fMomentumCMS+fParticles[1]->GetPDGMass()/GeV*fParticles[1]->GetPDGMass()/GeV));
+	c4.Boost(fCms.BoostVector());
+	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),d4lab.Vect().X(),d4lab.Vect().Y(),d4lab.Vect().Z(),d4lab.E()-fParticles[0]->GetPDGMass()/GeV));
+	thisEvent.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),c4.Vect().X(),c4.Vect().Y(),c4.Vect().Z(),c4.E()-fParticles[1]->GetPDGMass()/GeV));
+	return thisEvent;
 }

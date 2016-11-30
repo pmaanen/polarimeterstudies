@@ -71,6 +71,7 @@ public:
 			else{
 				fOutFile=new TFile("generator.root","RECREATE");
 			}
+			fOutFile->cd();
 			fOutTree = new TTree("gen","Generated Events");
 			fOutTree->Branch("events","genevent_t",&fGenEvent);
 
@@ -78,13 +79,11 @@ public:
 
 		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
 			for(auto iEvent:someEvents){
-				if(fCurrentEventId==fNEvents)
+				if(fCurrentEventId++>fNEvents)
 					return false;
-				fGenEvent=new genevent_t(iEvent);
+				fGenEvent=&iEvent;
 				fGenEvent->eventid=fCurrentEventId;
 				fOutTree->Fill();
-				delete fGenEvent;
-				fCurrentEventId++;
 			}
 			return true;
 		};

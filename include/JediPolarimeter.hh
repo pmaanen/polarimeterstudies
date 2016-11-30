@@ -76,23 +76,23 @@ public:
 	virtual void ConstructSDandField();
 	//Setters for properties
 	void setBeampipeRadius(G4double beampipeRadius) {this->fBeampipeRadius = beampipeRadius;	fChangedParameters=true;	}
-	void setCrystalLength(G4double crystalLength) {	this->fCrystalLength = crystalLength;fChangedParameters=true;	}
-	void setCrystalWidth(G4double crystalWidth) {this->fCrystalWidth = crystalWidth;fChangedParameters=true;}
+	void setCrystalLength(G4double crystalLength) {	this->fHCalSizeXY = crystalLength;fChangedParameters=true;	}
+	void setCrystalWidth(G4double crystalWidth) {this->fHCalSizeZ = crystalWidth;fChangedParameters=true;}
 	void setThetaMax(G4double thetaMax) {this->fThetaMax = thetaMax; fChangedParameters=true;}
 	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
 	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
 	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
 	virtual void UpdateGeometry();
 	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
-		auto oldName=fScintillatorMaterial->GetName();
+		auto oldName=fHCalMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 		if(!newMat){
 			G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
 			return;
 		}
-		fScintillatorMaterial=newMat;
+		fHCalMaterial=newMat;
 		fScintillatorMaterialName=scintillatorMaterialName;
-		G4cout<<"Changing Material from "<<oldName<<" to "<<fScintillatorMaterial->GetName()<<G4endl;
+		G4cout<<"Changing Material from "<<oldName<<" to "<<fHCalMaterial->GetName()<<G4endl;
 		return;
 	}
 
@@ -148,6 +148,18 @@ public:
 		return fDeltaELength;
 	}
 
+	G4double getHCalSizeXY() const {
+		return fHCalSizeXY;
+	}
+
+	G4double getHCalSizeZ() const {
+		return fHCalSizeZ;
+	}
+
+	G4Material* getHCalMaterial() const {
+		return fHCalMaterial;
+	}
+
 protected:
 
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
@@ -163,12 +175,12 @@ protected:
 
 	//Geometry parameters
 	G4double fThetaMin, fThetaMax;
-	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength,  fCrystalLength, fCrystalWidth,
+	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength,  fHCalSizeXY, fHCalSizeZ,
 	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
 	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
 	G4String fScintillatorMaterialName,fWorldMaterialName;
 	G4int fMinCrystal,fMaxCrystal;
-	G4Material* fScintillatorMaterial;
+	G4Material* fHCalMaterial;
 
 	G4bool fChangedParameters;
 	SensitiveDetectorMap fSensitiveDetectors;

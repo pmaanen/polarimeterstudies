@@ -1,0 +1,10 @@
+/analysis/Enable
+/gun/position 0 -40 0 cm
+/gun/direction 0 1 0
+/gun/particle deuteron
+/gun/energy 270 MeV
+#/PolarimeterStudies/detector/triggerlength 3 cm
+#/PolarimeterStudies/detector/trgOffsetY 10 cm
+/control/macroPath scripts/
+/control/add Leff 30 0
+/control/foreach de-dx-singlerun.mac theta "90. 121.0 131.4 138.2 143.1 147.1 150. 152.5 154.8 156.4 158.2 159.3 160.6 161.6 162.7"

@@ -1,0 +1,7 @@
+/analysis/Enable
+/gun/particle deuteron
+/gun/position 0 0 -50 cm
+/gun/direction 0 0 1
+/gun/energy 10 GeV
+/run/beamOn 1000
+/run/beamOn 1000
