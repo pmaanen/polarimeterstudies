@@ -1,5 +1,0 @@
-/analysis/setFileName deuterons_{Ekin}_{Leff}.root
-/PolarimeterStudies/detector/theta {theta} deg
-/PolarimeterStudies/detector/update
-/run/beamOn 1000
-/control/add Leff {Leff} 5

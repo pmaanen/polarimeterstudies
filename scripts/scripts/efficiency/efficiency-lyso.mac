@@ -1,6 +1,0 @@
-/analysis/Enable
-/gun/particle deuteron
-/PolarimeterStudies/detector/calolength 10 cm
-/PolarimeterStudies/detector/calowidth 3 cm
-/PolarimeterStudies/detector/update
-/control/foreach scripts/efficiency-lyso-singlerun.mac generator "dcelastic dcbreakup"

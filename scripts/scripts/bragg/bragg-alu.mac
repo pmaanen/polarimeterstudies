@@ -1,4 +1,0 @@
-/analysis/setFileName bragg/{pname}-alu-{Ekin}.root
-/PolarimeterStudies/detector/material G4_Al
-/PolarimeterStudies/detector/update
-/control/execute scripts/bragg-singlerun.mac

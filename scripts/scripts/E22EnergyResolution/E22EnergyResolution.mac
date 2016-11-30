@@ -1,9 +1,0 @@
-/analysis/Enable
-/PolarimeterStudies/target/x 2 cm
-/PolarimeterStudies/target/z 5 mm
-/gun/particle deuteron
-/PolarimeterStudies/generator/setGenerator dcelastic
-/PolarimeterStudies/dcelastic/beamposition 0 0 0 mm
-/PolarimeterStudies/dcelastic/beamsize 5 5 5 mm
-/PolarimeterStudies/detector/update
-/control/foreach scripts/E22EnergyResolution/Thickness.mac Ekin "100 150 200 250 270"

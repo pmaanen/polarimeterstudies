@@ -1,3 +1,0 @@
-/control/alias iron G4_Fe
-/control/alias tungsten G4_W
-/control/foreach scripts/classifyAbsorber-singlerun.mac material "iron tungsten"

@@ -1,9 +1,0 @@
-/PolarimeterStudies/dcelastic/energy {Ekin} MeV
-/analysis/setFileName {Ekin}_wMaterial.root
-/PolarimeterStudies/detector/support 1
-/PolarimeterStudies/detector/update
-/run/beamOn 1000000
-/analysis/setFileName {Ekin}_woMaterial.root
-/PolarimeterStudies/detector/support 0
-/PolarimeterStudies/detector/update
-/run/beamOn 1000000

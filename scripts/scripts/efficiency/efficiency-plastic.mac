@@ -1,6 +1,0 @@
-/analysis/Enable
-/PolarimeterStudies/detector/calolength 50 mm
-/PolarimeterStudies/detector/absorberlength 39.5 mm
-/PolarimeterStudies/detector/calowidth 3 cm
-/PolarimeterStudies/detector/update
-/control/foreach scripts/efficiency-plastic-singlerun.mac generator "dcelastic dcbreakup"

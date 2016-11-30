@@ -1,1 +1,0 @@
-/control/foreach scripts/E22EnergyLossInTarget/run.mac Material "G4_Al G4_C G4_Galactic"

@@ -16,6 +16,7 @@
 #include "G4GenericMessenger.hh"
 #include <G4Event.hh>
 #include <G4ParticleGun.hh>
+#include <G4GeneralParticleSource.hh>
 #include <G4DecayTable.hh>
 #include <G4RunManager.hh>
 #include <G4PhaseSpaceDecayChannel.hh>
@@ -56,6 +57,7 @@ FileReader* PrimaryGeneratorAction::fgFileReader = 0;
 PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),fInfileName(""),fInstream("",std::ifstream::in) {
 	G4int Nparticle = 1 ;
 	fParticleGun =std::unique_ptr<G4ParticleGun>(new G4ParticleGun(Nparticle));
+	fGeneralParticleSource=std::unique_ptr<G4GeneralParticleSource>(new G4GeneralParticleSource);
 	fIlluminationAngle=-1;
 	DefineCommands();
 	fEvtGenerators["muon"]=std::unique_ptr<CosmicMuonGenerator>(new CosmicMuonGenerator());
@@ -173,9 +175,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 		illuminateAngle(E);
 		return;
 	}
-	if(fGeneratorName=="gun"){
+	if(fGeneratorName=="gun")
 		generateEventFromGun(E);
-	}
+	else if(fGeneratorName=="gps")
+		generateEventFromGPS(E);
 	else if(fGeneratorName=="file"){
 		generateEventFromInput(E);
 	}
@@ -213,7 +216,7 @@ void PrimaryGeneratorAction::DefineCommands()
 	G4GenericMessenger::Command& generator
 	= fMessenger->DeclareProperty("setGenerator",fGeneratorName,"Set generator name");
 
-	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime, beam");
+	generator.SetGuidance("Possible values are:gun, file, muon, dcelastic, dcbreakup, dcelastictime, beam, gps");
 
 	fMessenger->DeclareProperty("setFilename",fInfileName,"Set input file name");
 	fMessenger->DeclarePropertyWithUnit("illuminateAngle","deg",fIlluminationAngle,"illuminateAngle");
@@ -246,6 +249,10 @@ void PrimaryGeneratorAction::generateEventFromGun(G4Event* E) {
 	aParticle.E=fParticleGun->GetParticleEnergy()/CLHEP::GeV;
 	fGenEvent.particles.push_back(aParticle);
 	fParticleGun->GeneratePrimaryVertex(E) ;
+}
+
+void PrimaryGeneratorAction::generateEventFromGPS(G4Event* E) {
+	fGeneralParticleSource->GeneratePrimaryVertex(E) ;
 }
 // eof
 

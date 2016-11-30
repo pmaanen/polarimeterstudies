@@ -1,6 +1,0 @@
-/analysis/setFileName {Material}-{Ekin}-{Thickness}.root
-/PolarimeterStudies/target/material {Material}
-/PolarimeterStudies/beam/energy {Ekin} MeV
-/PolarimeterStudies/target/z {Thickness} mm
-/PolarimeterStudies/detector/update
-/run/beamOn 1000
