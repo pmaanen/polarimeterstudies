@@ -1,15 +1,19 @@
+/PolarimeterStudies/detector/left 0
+/PolarimeterStudies/detector/armangle 0
+/PolarimeterStudies/detector/armlength 30 cm
+/PolarimeterStudies/detector/target 0
+/PolarimeterStudies/detector/triggerthickness 8 mm
+/PolarimeterStudies/detector/calolength 20 cm
+/PolarimeterStudies/TriggerR/SetType calo
+/PolarimeterStudies/detector/update
 /analysis/Enable
-/analysis/setFileName 270.root
+/analysis/setFileName deuteron.root
 /gun/particle deuteron
-/gun/position 0 0 -50 cm
+/gun/position 0 0 0 cm
 /gun/direction 0 0 1
 /gun/energy 270 MeV
-/run/beamOn 100
-/PolarimeterStudies/detector/update
-/PolarimeterStudies/detector/update
-/analysis/setFileName 50.root
-/gun/energy 50 MeV
-/run/beamOn 100
-/analysis/setFileName 500.root
-/gun/energy 500 MeV
-/run/beamOn 100
+/run/beamOn 10000
+/analysis/setFileName proton.root
+/gun/particle proton
+/gun/energy 270 MeV
+/run/beamOn 10000
