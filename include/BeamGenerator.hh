@@ -15,9 +15,7 @@
 class BeamGenerator: public EventGenerator {
 public:
 	BeamGenerator(G4ParticleGun* gun);
-	virtual ~BeamGenerator();
-
-	virtual void Generate(G4Event*);
+	virtual ~BeamGenerator()=default;
 	virtual genevent_t Generate();
 	virtual void Initialize() {
 	}
@@ -31,9 +29,8 @@ public:
 		fSpotsize = spotsize;
 	}
 
-	;
-
 private:
+	G4ParticleGun* fParticleGun;
 	G4ThreeVector fPosition, fSpotsize;
 	G4double fXPrime,fYPrime, fEnergy;
 	VVertexGenerator* fVertexGenerator;

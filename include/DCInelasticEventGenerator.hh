@@ -12,10 +12,9 @@
 class inelastic_scattering_model;
 class DCInelasticEventGenerator: public PhaseSpaceGenerator {
 public:
-	DCInelasticEventGenerator(G4ParticleGun* pgun=0);
-	//virtual ~DCInelasticEventGenerator();
+	DCInelasticEventGenerator();
+	virtual ~DCInelasticEventGenerator()=default;
 	virtual void Initialize();
-	virtual void Generate(G4Event* E);
 	virtual genevent_t Generate();
 private:
 	Double_t fBeamPolarization;

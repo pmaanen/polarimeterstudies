@@ -8,6 +8,7 @@
 #ifndef DCELASTICEVENTGENERATOR_HH_
 #define DCELASTICEVENTGENERATOR_HH_
 #include "PhaseSpaceGenerator.hh"
+#include "DeuteronCarbonElasticScatteringModel.hh"
 #include <G4ThreeVector.hh>
 #include "TF2.h"
 #include "TGenPhaseSpace.h"
@@ -20,11 +21,10 @@
 #include <G4UnitsTable.hh>
 class G4ParticleDefinition;
 class G4GenericMessenger;
-class DeuteronCarbonElasticScatteringModel;
 class DCElasticEventGenerator : public PhaseSpaceGenerator {
 public:
-	DCElasticEventGenerator(G4ParticleGun* pgun=0);
-	virtual ~DCElasticEventGenerator();
+	DCElasticEventGenerator();
+	virtual ~DCElasticEventGenerator()=default;
 	virtual void Initialize();
 	virtual genevent_t Generate();
 	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);	fInitialized=false;};

@@ -18,11 +18,9 @@ class G4GenericMessenger;
 class function_helper;
 class CosmicMuonGenerator: public EventGenerator{
 public:
-	CosmicMuonGenerator(G4ParticleGun* pgun=0);
+	CosmicMuonGenerator();
 	virtual ~CosmicMuonGenerator();
 
-
-	virtual void Generate(G4Event* E);
 	virtual genevent_t Generate();
 	virtual void Initialize();
 	G4ThreeVector fPosition, fSpotsize;

@@ -12,12 +12,11 @@
 class time_functions;
 class DCElasticTimeDependentGenerator: public DCElasticEventGenerator {
 public:
-	DCElasticTimeDependentGenerator(G4ParticleGun* pgun=0);
-	virtual ~DCElasticTimeDependentGenerator();
+	DCElasticTimeDependentGenerator();
+	virtual ~DCElasticTimeDependentGenerator()=default;
 
 
 	virtual genevent_t Generate();
-	virtual void Generate(G4Event* E);
 	virtual void DefineCommands();
 
 	void setMax(G4double max) {

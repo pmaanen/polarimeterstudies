@@ -18,6 +18,7 @@
 class G4GenericMessenger;
 class G4Event;
 class G4ParticleGun;
+class G4GeneralParticleSource;
 #include "FileReader.hh"
 #include "hit.hh"
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
@@ -28,6 +29,7 @@ public:
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGenerator(G4Event* E);
 	void generateEventFromGun(G4Event* E);
+	void generateEventFromGPS(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
 
@@ -45,6 +47,7 @@ public:
 private:
 	void DefineCommands();
 	std::unique_ptr<G4ParticleGun> fParticleGun ;
+	std::unique_ptr<G4GeneralParticleSource> fGeneralParticleSource ;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;

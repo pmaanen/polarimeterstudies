@@ -17,21 +17,16 @@ class G4Event;
 #include "hit.hh"
 class G4GenericMessenger;
 
-class G4ParticleGun;
 class EventGenerator {
 public:
-	EventGenerator(G4ParticleGun* pgun=0);
-	virtual ~EventGenerator();
+	EventGenerator();
+	virtual ~EventGenerator()=default;
 
-	virtual void Generate(G4Event*)=0;
 	virtual genevent_t Generate()=0;
 	virtual void Initialize()=0;
 
 protected:
-
-	G4ParticleGun* fParticleGun;
 	G4bool fRunInitialized;
-
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 };
 
