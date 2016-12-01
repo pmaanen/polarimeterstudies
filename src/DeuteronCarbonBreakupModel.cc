@@ -1,52 +1,13 @@
 /*
- * DeuteronCarbonBreakupModel.h
+ * DeuteronCarbonBreakupModel.cc
  *
- *  Created on: 05.07.2016
+ *  Created on: 02.12.2016
  *      Author: pmaanen
  */
-
-#ifndef INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
-#define INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
-#include "Rtypes.h"
-class DeuteronCarbonBreakupModel {
-public:
-	DeuteronCarbonBreakupModel();
-	virtual ~DeuteronCarbonBreakupModel(){};
-
-	Double_t sigma(Double_t theta, Double_t phi, Double_t Ex);
-	DeuteronCarbonBreakupModel(Double_t beamEnergy, Double_t beamPolarization):fBeamEnergy(beamEnergy),fBeamPolarization(beamPolarization){}
-
-	Double_t SigmaUnpol(Double_t, Double_t, Double_t);
-
-	void setBeamEnergy(Double_t beamEnergy) {
-		fBeamEnergy = beamEnergy;
-	}
-
-	void setBeamPolarization(Double_t beamPolarization) {
-		fBeamPolarization = beamPolarization;
-	}
-
-private:
-	Double_t fBeamEnergy,fBeamPolarization;
-	Double_t c1(Double_t theta, Double_t E);
-	Double_t c2(Double_t theta, Double_t E);
-	Double_t c3(Double_t theta);
-	Double_t c4(Double_t theta);
-	Double_t c5(Double_t theta);
-
-	Double_t Ay(Double_t, Double_t, Double_t);
-	Double_t d1(Double_t theta, Double_t E);
-	Double_t d2(Double_t theta, Double_t E);
-
-};
-
+#include "DeuteronCarbonBreakupModel.hh"
+#include "TMath.h"
 #include <math.h>
 Double_t DeuteronCarbonBreakupModel::sigma(Double_t theta, Double_t phi, Double_t Ex) {
-	/*
-	for(int i=0;i<100;i++){
-		G4cout<<0.8*i<<" "<<SigmaUnpol(113,18,0.8*i)<<G4endl;
-	}
-	 */
 	return SigmaUnpol(fBeamEnergy,theta,Ex)*(1+fBeamPolarization*Ay(fBeamEnergy,theta,Ex)*cos(phi));
 }
 
@@ -56,7 +17,29 @@ Double_t DeuteronCarbonBreakupModel::SigmaUnpol(Double_t E, Double_t theta,
 		return c1(theta,E)*exp(-pow(Ex-c2(theta,E),2)/(2*c3(theta)*c3(theta)));
 	else
 		return c1(theta,E)*exp(-c4(theta)*c4(theta)/2.)*exp(-(c5(theta)*(c2(theta,E)-c4(theta)*c3(theta)-Ex))/c3(theta));
+}
 
+Double_t DeuteronCarbonBreakupModel::ThetaEx(Double_t* x, Double_t* par) {
+	/*
+	 * x[0]=theta
+	 * x[1]=Ex
+	 * par[0]=E
+	 */
+	if(x[1]>(c2(x[0],par[0])-c3(x[0])*c4(x[0])))
+		return c1(x[0],par[0])*exp(-pow(x[1]-c2(x[0],par[0]),2)/(2*c3(x[0])*c3(x[0])));
+	else
+		return c1(x[0],par[0])*exp(-c4(x[0])*c4(x[0])/2.)*exp(-(c5(x[0])*(c2(x[0],par[0])-c4(x[0])*c3(x[0])-x[1]))/c3(x[0]));
+}
+
+double DeuteronCarbonBreakupModel::Phi(Double_t* x, Double_t* par) {
+	/*
+	 * x[0]=Phi
+	 * par[0]=Py
+	 * par[1]=E
+	 * par[2]=theta
+	 * par[3]=Ex
+	 */
+	return 1+par[0]*Ay(par[1],par[2]*TMath::RadToDeg(),par[3])*cos(x[0]);
 }
 
 Double_t DeuteronCarbonBreakupModel::c1(Double_t theta,Double_t E) {
@@ -93,4 +76,4 @@ Double_t DeuteronCarbonBreakupModel::d2(Double_t theta, Double_t E) {
 }
 
 
-#endif /* INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_ */
+
