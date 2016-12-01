@@ -61,10 +61,10 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fIlluminationAngle=-1;
 	DefineCommands();
 	fEvtGenerators["muon"]=std::unique_ptr<CosmicMuonGenerator>(new CosmicMuonGenerator());
-	fEvtGenerators["dcelastic"]=std::unique_ptr<DCElasticEventGenerator>(new DCElasticEventGenerator(fParticleGun.get()));
-	fEvtGenerators["dcbreakup"]=std::unique_ptr<DCBreakupEventGenerator>(new DCBreakupEventGenerator(fParticleGun.get()));
-	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator(fParticleGun.get()));
-	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator(fParticleGun.get()));
+	fEvtGenerators["dcelastic"]=std::unique_ptr<DCElasticEventGenerator>(new DCElasticEventGenerator());
+	fEvtGenerators["dcbreakup"]=std::unique_ptr<DCBreakupEventGenerator>(new DCBreakupEventGenerator());
+	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator());
+	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator());
 	fEvtGenerators["beam"]=std::unique_ptr<BeamGenerator>(new BeamGenerator(fParticleGun.get()));
 	fGeneratorName="gun";
 	fParticleGun->SetParticleEnergy(gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV);
