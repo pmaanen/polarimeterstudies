@@ -8,7 +8,6 @@
 #include "EventGenerator.hh"
 #include "G4ParticleGun.hh"
 #include <G4GenericMessenger.hh>
-EventGenerator::EventGenerator(G4ParticleGun* pgun):fParticleGun(pgun),fRunInitialized(false) {}
+EventGenerator::EventGenerator():fRunInitialized(false) {}
 
-EventGenerator::~EventGenerator() {}
 

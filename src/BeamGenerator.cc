@@ -14,7 +14,7 @@
 #include "VertexGeneratorU.hh"
 #include "VertexGeneratorA.hh"
 #include "VertexGeneratorO.hh"
-BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGeneratorU::GetInstance()) {
+BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGeneratorU::GetInstance()),fParticleGun(gun) {
 	fXPrime=fYPrime=0;
 	if(fParticleGun)
 		fEnergy=fParticleGun->GetParticleEnergy();
@@ -33,16 +33,6 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGenerato
 	formCmd.SetCandidates("uniform gaus parabola");
 	fMessenger->DeclareMethodWithUnit("energy","MeV",&BeamGenerator::SetEnergy,"energy of beam");
 
-}
-
-BeamGenerator::~BeamGenerator() {}
-
-void BeamGenerator::Generate(G4Event* E) {
-	auto event=Generate();
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
-	auto part=event.particles[0];
-	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(part.px,part.py,part.pz));
-	fParticleGun->GeneratePrimaryVertex(E);
 }
 
 genevent_t BeamGenerator::Generate() {

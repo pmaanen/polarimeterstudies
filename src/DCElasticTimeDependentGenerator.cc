@@ -10,16 +10,13 @@
 #include "G4ParticleGun.hh"
 #include "TF1.h"
 #include "Analysis.hh"
-DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator(G4ParticleGun* pgun):DCElasticEventGenerator(pgun) {
+DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator():DCElasticEventGenerator() {
 	fTmin=0;
 	fTmax=100;
 	fTau=25;
 	fTCur=0;
 	DefineCommands();
 	fInitialized=false;
-}
-
-DCElasticTimeDependentGenerator::~DCElasticTimeDependentGenerator() {
 }
 
 genevent_t DCElasticTimeDependentGenerator::Generate() {
@@ -41,17 +38,6 @@ genevent_t DCElasticTimeDependentGenerator::Generate() {
 	auto event=genevent_t(DCElasticEventGenerator::Generate());
 	event.time=fTCur;
 	return event;
-}
-
-void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
-	auto event=genevent_t(Generate());
-	fParticleGun->SetParticleTime(event.time*CLHEP::s);
-	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		fParticleGun->GeneratePrimaryVertex(E);
-	}
-	return;
 }
 
 void DCElasticTimeDependentGenerator::DefineCommands() {

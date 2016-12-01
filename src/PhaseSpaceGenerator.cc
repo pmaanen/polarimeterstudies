@@ -8,7 +8,7 @@
 
 #include "G4ParticleGun.hh"
 #include <PhaseSpaceGenerator.hh>
-PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun, G4String name):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamposition(0,0,0),fBeamsize(0,0,0),fName(name) {
+PhaseSpaceGenerator::PhaseSpaceGenerator(G4String name):fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamposition(0,0,0),fBeamsize(0,0,0),fName(name) {
 
 	if(gConfig.count("generator.beam_energy")){
 		fBeamEnergy=gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV;
@@ -30,7 +30,6 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4ParticleGun* gun, G4String name):fXPr
 
 	DefineCommands();
 	fInitialized=false;
-	fParticleGun=gun;
 }
 
 void PhaseSpaceGenerator::DefineCommands() {
@@ -45,7 +44,7 @@ void PhaseSpaceGenerator::DefineCommands() {
 
 	return;
 }
-
+/*
 void PhaseSpaceGenerator::Generate(G4Event* E) {
 
 	auto event=genevent_t(Generate());
@@ -57,3 +56,4 @@ void PhaseSpaceGenerator::Generate(G4Event* E) {
 	}
 	return;
 }
+*/

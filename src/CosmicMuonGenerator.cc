@@ -16,7 +16,7 @@
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
 #include "hit.hh"
-CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgun),fPosition(0,0,0),fSpotsize(0,0,0) {
+CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator(),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control"));
 
@@ -26,21 +26,6 @@ CosmicMuonGenerator::CosmicMuonGenerator(G4ParticleGun* pgun):EventGenerator(pgu
 }
 
 CosmicMuonGenerator::~CosmicMuonGenerator() {}
-
-void CosmicMuonGenerator::Generate(G4Event* E) {
-	if(!fRunInitialized)
-		Initialize();
-	auto event=Generate();
-	auto muon=event.particles[0];
-	auto momentum=G4ThreeVector(muon.px,muon.py,muon.pz);
-
-	fParticleGun->SetParticlePosition(G4ThreeVector(event.x,event.y,event.z));
-
-	fParticleGun->SetParticleMomentum(momentum) ;
-	fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(muon.id));
-	fParticleGun->GeneratePrimaryVertex(E);
-
-}
 
 genevent_t CosmicMuonGenerator::Generate() {
 	G4double yMom=1;

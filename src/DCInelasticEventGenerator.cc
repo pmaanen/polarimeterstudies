@@ -15,7 +15,7 @@
 #include "global.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
-DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun),fBeamPolarization(0) {
+DCInelasticEventGenerator::DCInelasticEventGenerator():PhaseSpaceGenerator("dcinelastic"),fBeamPolarization(0) {
 	fBeamEnergy=270.*CLHEP::MeV;
 	fInitialized=false;
 
@@ -24,16 +24,6 @@ DCInelasticEventGenerator::DCInelasticEventGenerator(G4ParticleGun* pgun):PhaseS
 	fScatteringModel=std::unique_ptr<inelastic_scattering_model>(new inelastic_scattering_model(fBeamPolarization));
 	//DefineCommands();
 
-}
-
-void DCInelasticEventGenerator::Generate(G4Event* E) {
-	auto event=genevent_t(Generate());
-	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		fParticleGun->GeneratePrimaryVertex(E);
-	}
-	return;
 }
 
 genevent_t DCInelasticEventGenerator::Generate() {

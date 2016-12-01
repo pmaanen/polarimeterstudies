@@ -27,7 +27,7 @@
 using namespace CLHEP;
 
 #include "DeuteronCarbonElasticScatteringModel.hh"
-DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpaceGenerator(pgun,"dcelastic"){
+DCElasticEventGenerator::DCElasticEventGenerator():PhaseSpaceGenerator("dcelastic"){
 
 	if(gConfig.count("generator.beam_polarization")){
 		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
@@ -37,9 +37,6 @@ DCElasticEventGenerator::DCElasticEventGenerator(G4ParticleGun* pgun):PhaseSpace
 
 	DefineCommands();
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-DCElasticEventGenerator::~DCElasticEventGenerator() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void DCElasticEventGenerator::Initialize() {
