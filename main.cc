@@ -44,6 +44,7 @@
 namespace CLHEP {}
 using namespace CLHEP;
 G4VModularPhysicsList* choosePhysList();
+extern void initializeConfiguration(int,char**);
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv) {

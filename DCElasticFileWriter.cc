@@ -32,6 +32,8 @@
 namespace CLHEP {}
 using namespace CLHEP;
 
+extern void initializeConfiguration(int,char**);
+
 class FileWriterActionInitialization: public G4VUserActionInitialization {
 public:
 	FileWriterActionInitialization(G4int nEvents,G4String generator="",G4String filename=""){this->fNEvents=nEvents;this->fFilename=filename;this->fGenerator=generator;};
