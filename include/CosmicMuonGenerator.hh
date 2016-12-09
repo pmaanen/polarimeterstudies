@@ -8,28 +8,33 @@
 #ifndef INCLUDE_COSMICMUONGENERATOR_HH_
 #define INCLUDE_COSMICMUONGENERATOR_HH_
 
-#include <PrimaryGeneratorAction.hh>
-#include "TF1.h"
+#include "PrimaryGeneratorAction.hh"
 #include "EventGenerator.hh"
-#include <cmath>
 #include "hit.hh"
-#include "G4ThreeVector.hh"
+#include <G4ThreeVector.hh>
+#include <TF1.h>
+#include <cmath>
+#include <memory>
 class G4GenericMessenger;
-class function_helper;
+class cosmic_functions;
 class CosmicMuonGenerator: public EventGenerator{
 public:
 	CosmicMuonGenerator();
-	virtual ~CosmicMuonGenerator();
+	virtual ~CosmicMuonGenerator()=default;
 
 	virtual genevent_t Generate();
 	virtual void Initialize();
 	G4ThreeVector fPosition, fSpotsize;
 
+	std::unique_ptr<TF1> fTheta;
+	std::unique_ptr<TF1> fMomentum;
+	std::unique_ptr<cosmic_functions> fHelperFunctions;
+
 };
 class cosmic_functions{
 	public:
-		static G4double angle(G4double theta){return cos(theta)*cos(theta);};
-		static G4double momentum(G4double momAmp){if(momAmp/CLHEP::GeV<3.35) return std::pow(3.35,-2.7); else return std::pow(momAmp/CLHEP::GeV,-2.7);};
+		Double_t angle(Double_t* x,Double_t* p){return cos(x[0])*cos(x[0]);};
+		Double_t momentum(Double_t* x,Double_t* p){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
 	};
 
 #endif /* INCLUDE_COSMICMUONGENERATOR_HH_ */

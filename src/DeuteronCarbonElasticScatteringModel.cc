@@ -8,27 +8,18 @@
 
 #include "DeuteronCarbonElasticScatteringModel.hh"
 
-DeuteronCarbonElasticScatteringModel::DeuteronCarbonElasticScatteringModel(Double_t beamEnergy,Double_t beamPolarization):fBeamEnergy(beamEnergy),fBeamPolarization(beamPolarization){}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-Double_t DeuteronCarbonElasticScatteringModel::sigma(TLorentzVector in, TLorentzVector out) {
-	auto q=sqrt(-(out-in).M2());
-	auto phi=out.Vect().Phi();
-	auto theta=out.Vect().Theta();
-	return SigmaUnpol(fBeamEnergy,q)*(1+fBeamPolarization*Ay(fBeamEnergy,theta*180./3.1415)*cos(phi));
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/*
 double DeuteronCarbonElasticScatteringModel::SigmaUnpol(Double_t E,Double_t q) {
 	double w=log(E);
 	return pow(10,a1(w)+a2(w)*q+(1+a5(w)*q)*(a3(w)*sin(a6(w)*q)+a4(w)*cos(a6(w)*q)));
 }
+*/
 
 double DeuteronCarbonElasticScatteringModel::q(Double_t* x, Double_t* par) {
 	double w=log(par[0]);
 	return pow(10,a1(w)+a2(w)*x[0]+(1+a5(w)*x[0])*(a3(w)*sin(a6(w)*x[0])+a4(w)*cos(a6(w)*x[0])));
 }
-
 double DeuteronCarbonElasticScatteringModel::Phi(Double_t* x, Double_t* par) {
 	return 1+par[1]*Ay(par[0],par[2]*180./TMath::Pi())*cos(x[0]);
 }

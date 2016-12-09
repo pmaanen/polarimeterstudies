@@ -59,9 +59,9 @@ genevent_t BeamGenerator::Generate() {
 			mom=sqrt(e*e-mass*mass);
 		}
 		id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
-		e=fParticleGun->GetParticleEnergy()/CLHEP::GeV;
+		e=fParticleGun->GetParticleEnergy()/CLHEP::MeV;
 	}
-	res.particles.push_back(particle_t(id,mom*direction.getX(),mom*direction.getY(),mom*direction.getZ(),0));
+	res.particles.push_back(particle_t(id,mom*direction.getX(),mom*direction.getY(),mom*direction.getZ(),e));
 	return res;
 
 }

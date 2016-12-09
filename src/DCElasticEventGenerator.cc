@@ -60,14 +60,8 @@ void DCElasticEventGenerator::Initialize() {
 	fMomentumCMS=temp.Vect().Mag();
 	fPhaseSpace.SetDecay(fCms, 2, masses);
 	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<DeuteronCarbonElasticScatteringModel>(new DeuteronCarbonElasticScatteringModel(fBeamEnergy/CLHEP::MeV,fBeamPolarization));
-	else{
-		fScatteringModel->setBeamEnergy(fBeamEnergy/CLHEP::MeV);
-		fScatteringModel->setBeamPolarization(fBeamPolarization);
+		fScatteringModel=std::unique_ptr<DeuteronCarbonElasticScatteringModel>(new DeuteronCarbonElasticScatteringModel());
 
-	}
-	fMaxY=2*fScatteringModel->SigmaUnpol(fBeamEnergy/CLHEP::MeV,sin(fThetaMin/2.)*2*fMomentumCMS/CLHEP::GeV);
-	fInitialized=true;
 
 	// TF1 * f = new TF1("f",fptr,&MyFunction::Evaluate,0,1,npar,"MyFunction","Evaluate");   // create TF1 class.
 	fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&DeuteronCarbonElasticScatteringModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
@@ -83,6 +77,8 @@ void DCElasticEventGenerator::Initialize() {
 	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX()/CLHEP::mm,fBeamsize.getY()/CLHEP::mm,fBeamsize.getZ()/CLHEP::mm);
 	VertexGeneratorU::GetInstance()->setBeamposition(0,0,fBeamposition.getZ()/CLHEP::mm);
 	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ()/CLHEP::mm);
+
+	fInitialized=true;
 
 }
 
@@ -116,7 +112,7 @@ genevent_t DCElasticEventGenerator::Generate() {
 	d4lab.SetPhi(phi);
 	auto c4=TLorentzVector(-d4.Vect(),sqrt(fMomentumCMS*fMomentumCMS+fParticles[1]->GetPDGMass()/GeV*fParticles[1]->GetPDGMass()/GeV));
 	c4.Boost(fCms.BoostVector());
-	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),d4lab.Vect().X(),d4lab.Vect().Y(),d4lab.Vect().Z(),d4lab.E()-fParticles[0]->GetPDGMass()/GeV));
-	thisEvent.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),c4.Vect().X(),c4.Vect().Y(),c4.Vect().Z(),c4.E()-fParticles[1]->GetPDGMass()/GeV));
+	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),d4lab.Vect().X(),d4lab.Vect().Y(),d4lab.Vect().Z(),d4lab.E()*GeV/MeV-fParticles[0]->GetPDGMass()/MeV));
+	thisEvent.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),c4.Vect().X(),c4.Vect().Y(),c4.Vect().Z(),c4.E()*GeV/MeV-fParticles[1]->GetPDGMass()/MeV));
 	return thisEvent;
 }

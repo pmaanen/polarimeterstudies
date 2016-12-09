@@ -20,13 +20,13 @@ PhaseSpaceGenerator::PhaseSpaceGenerator(G4String name):fXPrime(0),fYPrime(0),fT
 		fThetaMin=gConfig["generator.thetamin"].as<double>()*CLHEP::deg;
 	}
 	else
-		fThetaMin=0*CLHEP::deg;
+		fThetaMin=3*CLHEP::deg;
 
 	if(gConfig.count("generator.thetamax")){
 		fThetaMax=gConfig["generator.thetamax"].as<double>()*CLHEP::deg;
 	}
 	else
-		fThetaMax=180*CLHEP::deg;
+		fThetaMax=30*CLHEP::deg;
 
 	DefineCommands();
 	fInitialized=false;

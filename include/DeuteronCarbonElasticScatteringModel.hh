@@ -18,28 +18,14 @@
 
 class DeuteronCarbonElasticScatteringModel{
 public:
-	DeuteronCarbonElasticScatteringModel(Double_t,Double_t);
-	DeuteronCarbonElasticScatteringModel() :
-		fBeamEnergy(0), fBeamPolarization(0) {
-	}
-
+	DeuteronCarbonElasticScatteringModel() = default;
 	virtual ~DeuteronCarbonElasticScatteringModel()=default;
-	Double_t sigma(TLorentzVector,TLorentzVector);
-	Double_t SigmaUnpol(Double_t, Double_t);
+	//Double_t sigma(TLorentzVector,TLorentzVector);
+	//Double_t SigmaUnpol(Double_t, Double_t);
 	Double_t q(Double_t*, Double_t*);
 	Double_t Phi(Double_t*, Double_t*);
-	void setBeamEnergy(Double_t beamEnergy) {
-		fBeamEnergy = beamEnergy;
-	}
-
-	void setBeamPolarization(Double_t beamPolarization) {
-		fBeamPolarization = beamPolarization;
-	}
 
 private:
-
-	Double_t fBeamEnergy,fBeamPolarization;
-
 	//Parameters for ds/dOmega. x is ln(E)
 	double a1(Double_t x);
 	double a2(Double_t x);

@@ -16,6 +16,9 @@
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
 #include "hit.hh"
+#include "TMath.h"
+
+using namespace CLHEP;
 CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator(),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control"));
@@ -23,46 +26,35 @@ CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator(),fPosition(0,0,0),fSp
 	fMessenger->DeclarePropertyWithUnit("spotsize","mm", fSpotsize, "spotsize of muon gun");
 
 	fMessenger->DeclarePropertyWithUnit("position","mm", fPosition, "position of muon gun");
+
+	fHelperFunctions=std::unique_ptr<cosmic_functions>(new cosmic_functions);
+
+	fTheta=std::unique_ptr<TF1>(new TF1("Theta",fHelperFunctions.get(),&cosmic_functions::angle,0,90*TMath::DegToRad(),0));
+	fMomentum=std::unique_ptr<TF1>(new TF1("Momentum",fHelperFunctions.get(),&cosmic_functions::momentum,0,20,0,0));
 }
 
-CosmicMuonGenerator::~CosmicMuonGenerator() {}
 
 genevent_t CosmicMuonGenerator::Generate() {
-	G4double yMom=1;
-	G4double mom=0;
-	G4ThreeVector momentum;
-	G4double theta=0;
-	G4double phi=0;
+	auto phi=G4UniformRand()*2*CLHEP::pi*CLHEP::rad;
+
 	G4ParticleDefinition* part=0;
-	while(yMom>0){
-		while(1){
-			theta=G4UniformRand()*CLHEP::pi/2;
-			auto acc=cosmic_functions::angle(0)*G4UniformRand();
-			if(cosmic_functions::angle(theta)>acc)
-				break;
-		}
-		phi=G4UniformRand()*2*CLHEP::pi*CLHEP::rad;
-		auto charge=G4UniformRand()-0.5;
-		if(charge>0)
-			part=G4MuonPlus::MuonPlusDefinition();
-		else
-			part=G4MuonMinus::MuonMinusDefinition();
-		while(1){
-			mom=G4UniformRand()*20*CLHEP::GeV;
-			auto acc=cosmic_functions::momentum(0)*G4UniformRand();
-			if(cosmic_functions::momentum(mom)>acc)
-				break;
-		}
-		momentum=G4ThreeVector(mom*sin(theta)*cos(phi),mom*(-cos(theta)),mom*(sin(theta)*sin(phi)));
-		yMom=momentum.getY();
-	}
+	auto charge=G4UniformRand()-0.5;
+	if(charge>0)
+		part=G4MuonPlus::MuonPlusDefinition();
+	else
+		part=G4MuonMinus::MuonMinusDefinition();
+
+	G4double momentumAmp=fMomentum->GetRandom()*CLHEP::GeV;
+	G4double theta=fTheta->GetRandom(0,90*TMath::DegToRad());
+	auto momentum=G4ThreeVector(momentumAmp*sin(theta)*cos(phi),momentumAmp*(-cos(theta)),momentumAmp*(sin(theta)*sin(phi)));
+
 	auto vx=fPosition.getX()+fSpotsize.getX()*(G4UniformRand()-0.5);
 	auto vy=fPosition.getY()+fSpotsize.getY()*(G4UniformRand()-0.5);
 	auto vz=fPosition.getZ()+fSpotsize.getZ()*(G4UniformRand()-0.5);
 	genevent_t res(0,0,vx,vy,vz);
 	Double_t mass=part->GetPDGMass()/CLHEP::GeV;
-	Double_t e=sqrt(mom*mom+mass*mass);
-	res.particles.push_back(particle_t(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ(),e));
+	Double_t e=sqrt(momentumAmp*momentumAmp+mass*mass);
+	res.particles.push_back(particle_t(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ(),e*GeV/MeV));
 	return res;
 }
 

@@ -106,7 +106,7 @@ void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 				particle_t a_particle;
 			}
 			fParticleGun->SetParticleDefinition(part);
-			fParticleGun->SetParticleEnergy(ipart.E*CLHEP::GeV);
+			fParticleGun->SetParticleEnergy(ipart.E*CLHEP::MeV);
 			fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ipart.px*CLHEP::GeV,ipart.py*CLHEP::GeV,ipart.pz*CLHEP::GeV)) ;
 			fParticleGun->GeneratePrimaryVertex(E);
 		}

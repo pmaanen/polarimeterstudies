@@ -7,10 +7,6 @@
 #include "DeuteronCarbonBreakupModel.hh"
 #include "TMath.h"
 #include <math.h>
-Double_t DeuteronCarbonBreakupModel::sigma(Double_t theta, Double_t phi, Double_t Ex) {
-	return SigmaUnpol(fBeamEnergy,theta,Ex)*(1+fBeamPolarization*Ay(fBeamEnergy,theta,Ex)*cos(phi));
-}
-
 Double_t DeuteronCarbonBreakupModel::SigmaUnpol(Double_t E, Double_t theta,
 		Double_t Ex) {
 	if(Ex>(c2(theta,E)-c3(theta)*c4(theta)))
@@ -24,7 +20,14 @@ Double_t DeuteronCarbonBreakupModel::ThetaEx(Double_t* x, Double_t* par) {
 	 * x[0]=theta
 	 * x[1]=Ex
 	 * par[0]=E
+	 *
+	 * par[1,2]=Theta Min,Max
+	 * par[3,4]=Ex Min,Max
+	 *
+	 *
 	 */
+	if (x[0]<par[1] or x[0]>par[2] or x[1]<par[3] or x[1]>par[4])
+		return 0;
 	if(x[1]>(c2(x[0],par[0])-c3(x[0])*c4(x[0])))
 		return c1(x[0],par[0])*exp(-pow(x[1]-c2(x[0],par[0]),2)/(2*c3(x[0])*c3(x[0])));
 	else
