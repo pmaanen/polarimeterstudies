@@ -1,8 +1,7 @@
 /analysis/Enable
-
-
 /PolarimeterStudies/generator/setGenerator dcbreakup
-/PolarimeterStudies/dcbreakup/beamspot 0 0 -3 cm
-/PolarimeterStudies/dcbreakup/energy 270 MeV
-/PolarimeterStudies/dcelastic/thetamin 5 deg
-/run/beamOn 100000
+/PolarimeterStudies/dcbreakup/beamposition 0 0 -3 cm
+/PolarimeterStudies/dcbreakup/beamsize .5 .5 0 cm
+/PolarimeterStudies/dcbreakup/energy 200 MeV
+/PolarimeterStudies/dcbreakup/thetamin 3 deg
+/run/beamOn 10000

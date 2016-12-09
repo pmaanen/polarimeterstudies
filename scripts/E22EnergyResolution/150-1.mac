@@ -1,9 +1,33 @@
 /PolarimeterStudies/target/z 1 mm 
 /PolarimeterStudies/detector/update
 
-/analysis/setFileName 150-1-0.root
-/PolarimeterStudies/dcelastic/beamsize -0.065 -0.065 1.000 mm
+/analysis/setFileName 150-1-0.0.root
+/PolarimeterStudies/dcelastic/beamsize 5.000 5.000 0.200 mm
+/PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.100 mm
+/PolarimeterStudies/dcelastic/energy 148.451 MeV
+/run/beamOn {nevents}
+
+/analysis/setFileName 150-1-0.2.root
+/PolarimeterStudies/dcelastic/beamsize 5.000 5.000 0.200 mm
+/PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.300 mm
+/PolarimeterStudies/dcelastic/energy 147.570 MeV
+/run/beamOn {nevents}
+
+/analysis/setFileName 150-1-0.4.root
+/PolarimeterStudies/dcelastic/beamsize 5.000 5.000 0.200 mm
 /PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.500 mm
-/PolarimeterStudies/dcelastic/energy 160.708 MeV
+/PolarimeterStudies/dcelastic/energy 146.694 MeV
+/run/beamOn {nevents}
+
+/analysis/setFileName 150-1-0.6.root
+/PolarimeterStudies/dcelastic/beamsize 5.000 5.000 0.200 mm
+/PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.700 mm
+/PolarimeterStudies/dcelastic/energy 145.822 MeV
+/run/beamOn {nevents}
+
+/analysis/setFileName 150-1-0.8.root
+/PolarimeterStudies/dcelastic/beamsize 5.000 5.000 0.200 mm
+/PolarimeterStudies/dcelastic/beamposition 0.000 0.000 0.900 mm
+/PolarimeterStudies/dcelastic/energy 144.954 MeV
 /run/beamOn {nevents}
 

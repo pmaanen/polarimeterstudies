@@ -151,6 +151,7 @@ class CaloHit:
         self.edep=hit.edep
     def __str__(self):
         return str([self.event,self.detid,self.edep])
+
 def unpack(tree,HitClass):
     res=[]
     for evt in tree:
@@ -163,3 +164,24 @@ def getOneEvent(EventIndex,EventList):
     for hit in result:
         EventList.remove(hit)
     return result
+
+import ROOT
+class colors:
+    def __init__(self):
+        self.colors=[ROOT.kBlue,ROOT.kRed,ROOT.kYellow-3,ROOT.kSpring,ROOT.kOrange,ROOT.kMagenta]
+        self.pos=0
+    def next(self):
+        self.pos+=1
+        if self.pos==len(self.colors):
+            self.pos=0
+        return self.colors[self.pos]
+
+    def cur(self):
+        return self.colors[self.pos]
+
+    def addColor(self,color):
+        self.colors.append(color)
+        
+from numpy import asarray
+def asfloatarray(vec):
+    return asarray(map(lambda x:float(x),vec))
