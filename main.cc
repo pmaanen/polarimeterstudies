@@ -125,6 +125,7 @@ G4VModularPhysicsList* choosePhysList(){
 	if(gConfig["general.physics"].as<string>()=="QBBC")
 		the_physics=new QBBC(0);
 	the_physics->RegisterPhysics(new G4StepLimiterPhysics);
+	/*
 	auto em=G4EmParameters::Instance();
 	em->SetMscStepLimitType(fUseDistanceToBoundary);
 	em->SetMscRangeFactor(0.02);
@@ -132,5 +133,6 @@ G4VModularPhysicsList* choosePhysList(){
 	em->SetMaxEnergy(5*CLHEP::GeV);
 	em->SetNumberOfBins(400);
 	em->SetSpline(true);
+	*/
 	return the_physics;
 }

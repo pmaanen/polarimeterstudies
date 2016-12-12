@@ -43,9 +43,10 @@ G4Run* RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
+	/*
 	G4EmProcessOptions opt;
-
 	opt.SetSubCutoff(true);
+	*/
 	ROOT::EnableThreadSafety();
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	auto an=Analysis::Instance();
