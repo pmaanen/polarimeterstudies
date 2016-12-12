@@ -15,15 +15,20 @@
 #include <G4UserLimits.hh>
 #include "ExternalBeampipe.hh"
 #include "E22Target.hh"
-
+#include "G4SubtractionSolid.hh"
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
-E22::E22():E21(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(false),fMonitor(false),fRightDetector(true),fLeftDetector(true),fTarget(true),fBeampipe(true) {
-	fWorldSizeXY=3*CLHEP::m;
-	fWorldSizeZ=5*CLHEP::m;
+E22::E22():E21(),fArmLength(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fArmAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(false),fRightDetector(true),fLeftDetector(true),fTarget(true),fMonitor(false),fBeampipe(true),fTrigger(false), fVeto(false) {
+	fWorldSizeXY=2*CLHEP::m;
+	fWorldSizeZ=3*CLHEP::m;
+
+	fVetoSizeXY=5*CLHEP::cm;
+	fVetoSizeZ=5*CLHEP::mm;
+	fHoleSizeXY=2*CLHEP::cm;
+
 	fTargetMaterialName="G4_C";
 	fNx=6;
 	fNy=2;
@@ -40,11 +45,22 @@ G4VPhysicalVolume* E22::Construct() {
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
+	auto worldVisAttr=new G4VisAttributes();
+	worldVisAttr->SetForceWireframe(true);
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
-	fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
+	//fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	MakeSetup();
 
+	if(fVeto){
+		auto solidVetoBox=new G4Box("VetoBox",fVetoSizeXY/2,fVetoSizeXY/2,fVetoSizeZ/2);
+		auto solidVetoHole=new G4Tubs("VetoHole",0,fHoleSizeXY,fVetoSizeZ,0,360*CLHEP::deg);
+		auto solidVeto=new G4SubtractionSolid("Veto",solidVetoBox,solidVetoHole);
+		auto logicVeto=new G4LogicalVolume(solidVeto,plastic,"Veto");
+		logicVeto->SetVisAttributes(new G4VisAttributes(cyan));
+		fSensitiveDetectors.Update("Veto",SDtype::kCalorimeter,logVolVector{logicVeto});
+		new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ),logicVeto,"Veto",fLogicWorld,1,0,false);
+	}
 	if(fTarget)
 		MakeTarget();
 	if(fDetectorName=="effective")
@@ -229,6 +245,12 @@ void E22::DefineCommands() {
 
 	fMessenger->DeclarePropertyWithUnit("armangle","rad",E22::fArmAngle,"");
 
+	fMessenger->DeclarePropertyWithUnit("vetoSizeXY","mm",E22::fVetoSizeXY,"");
+
+	fMessenger->DeclarePropertyWithUnit("vetoSizeZ","mm",E22::fVetoSizeZ,"");
+
+	fMessenger->DeclarePropertyWithUnit("holeSizeXY","mm",E22::fHoleSizeXY,"");
+
 	fMessenger->DeclareProperty("support",E22::fSupport,"support beam on/off");
 
 	fMessenger->DeclareProperty("nx",E22::fNx,"number of detectors in x");
@@ -240,4 +262,8 @@ void E22::DefineCommands() {
 	fMessenger->DeclareProperty("right",E22::fRightDetector,"right detector on/off");
 
 	fMessenger->DeclareProperty("target",E22::fTarget,"target on/off");
+
+	fMessenger->DeclareProperty("veto",E22::fVeto,"veto on/off");
+
+	fMessenger->DeclareProperty("trigger",E22::fTrigger,"trigger on/off");
 }
