@@ -20,9 +20,6 @@ Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTrig
 	DefineCommands();
 }
 
-Testbench::~Testbench(){
-}
-
 G4VPhysicalVolume* Testbench::Construct() {
 	if(fChangedParameters)
 		ComputeParameters();

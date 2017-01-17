@@ -13,7 +13,7 @@
 class Testbench: public SingleCrystal {
 public:
 	Testbench();
-	virtual ~Testbench();
+	virtual ~Testbench()=default;
 
 	void setTriggerLength(G4double triggerLength) {
 		this->fTriggerHeight = triggerLength;
