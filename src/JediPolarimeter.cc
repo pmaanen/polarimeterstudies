@@ -9,68 +9,68 @@
 #include <InternalBeampipe.hh>
 #include <G4UnionSolid.hh>
 #include <fstream>
-static G4Colour
-white   (1.0, 1.0, 1.0),  // white
-gray    (0.5, 0.5, 0.5), // gray
-black   (0.0, 0.0, 0.0), // black
-red     (1.0, 0.0, 0.0), // red
-green   (0.0, 1.0, 0.0), // green
-blue    (0.0, 0.0, 1.0), // blue
-cyan    (0.0, 1.0, 1.0), // cyan
-magenta (1.0, 0.0, 1.0), // magenta
-yellow  (1.0, 1.0, 0.0); // yellow
+#include "Colors.hh"
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
-	G4String el[]={"Lu","Y","Si","O","Ce"};
-	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
-	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
-	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
-	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-
-	try{
-		fScintillatorMaterialName=gConfig["detector.scintillatorMaterial"].as<std::string>();
-		fThetaMin=gConfig["detector.thetamin"].as<double>()*CLHEP::mm*CLHEP::deg;
-		fThetaMax=gConfig["detector.thetamax"].as<double>()*CLHEP::mm*CLHEP::deg;
-		fBeampipeRadius=gConfig["detector.beampipeRadius"].as<double>()*CLHEP::mm;
-		fBeampipeThickness=gConfig["detector.beampipeThickness"].as<double>()*CLHEP::mm;
-		fHCalSizeXY=gConfig["detector.crystalLength"].as<double>()*CLHEP::mm;
-		fHCalSizeZ=gConfig["detector.crystalWidth"].as<double>()*CLHEP::mm;
-	}
-	catch(const std::exception& e){
-		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
-		exit(1);
-	}
-	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 	fWorldMaterialName="G4_AIR";
 	fDeltaELength=1*CLHEP::cm;
-	fDeltaEWidth=fHCalSizeZ;
-
+	fDeltaEWidth=fHCalSizeXY;
 	fTargetChamberThickness=2*CLHEP::mm;
-
 	fWrappingThickness=100*CLHEP::um;
-	fSafetyDistance=.1*CLHEP::cm;
+	fSafetyDistance=1*CLHEP::mm;
 	fTargetThickness=1*CLHEP::cm;
 	fTargetWidth=1*CLHEP::cm;
-	fChangedParameters=true;
+
+
+	CopyPropertiesFromConfig();
+	DefineMaterials();
 	DefineCommands();
 	ComputeParameters();
 
+	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 }
 
 JediPolarimeter::~JediPolarimeter() {
 	delete fMessenger;
 }
 
+void JediPolarimeter::CopyPropertiesFromConfig() {
+
+	try{
+		fScintillatorMaterialName=gConfig["detector.scintillator_material"].as<std::string>();
+		fThetaMin=gConfig["detector.theta_min"].as<double>()*CLHEP::mm*CLHEP::deg;
+		fThetaMax=gConfig["detector.theta_max"].as<double>()*CLHEP::mm*CLHEP::deg;
+		fBeampipeRadius=gConfig["detector.beampipe_radius"].as<double>()*CLHEP::mm;
+		fBeampipeThickness=gConfig["detector.beampipe_thickness"].as<double>()*CLHEP::mm;
+		fHCalSizeXY=gConfig["detector.hcal_size_xy"].as<double>()*CLHEP::mm;
+		fHCalSizeZ=gConfig["detector.hcal_size_z"].as<double>()*CLHEP::mm;
+	}
+	catch(const std::exception& e){
+		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
+		throw e;
+	}
+	return;
+}
+
+void JediPolarimeter::DefineMaterials() {
+	G4String el[]={"Lu","Y","Si","O","Ce"};
+	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
+	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
+	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
+	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
+
+	return;
+}
+
 void JediPolarimeter::ComputeParameters() {
 
 	fDetectorZ = (fBeampipeRadius+fSafetyDistance) / tan( fThetaMin );
 
-	fInnerDetectorRadius=fDetectorZ*tan( fThetaMin );
-	fOuterDetectorRadius=(fDetectorZ+fHCalSizeXY)*tan( fThetaMax );
+	fInnerDetectorRadius=fBeampipeRadius+fSafetyDistance;
+	fOuterDetectorRadius=(fDetectorZ+fHCalSizeZ)*tan( fThetaMax );
 
-	fMaxCrystal=ceil(fOuterDetectorRadius/fHCalSizeZ);
-	fMinCrystal=ceil(fInnerDetectorRadius/fHCalSizeZ);
+	fMaxCrystal=ceil(fOuterDetectorRadius/fHCalSizeXY)+1;
 
 	fTargetChamberZ1=fBeampipeRadius/ tan(fThetaMax)-1*CLHEP::cm;
 	fTargetChamberZ2=fDetectorZ-fDeltaELength-1*CLHEP::cm;
@@ -78,11 +78,11 @@ void JediPolarimeter::ComputeParameters() {
 	fDeltaEZ=fDetectorZ-5*CLHEP::cm;
 
 	fWorldSizeXY=2*fOuterDetectorRadius+0.5*CLHEP::m;
-	fWorldSizeZ=2*(fDetectorZ+fHCalSizeXY+1*CLHEP::cm);
+	fWorldSizeZ=2*(fDetectorZ+fHCalSizeZ+1*CLHEP::cm);
 
-	fBeampipeLength=fWorldSizeZ/2;
+	fBeampipeLength=fWorldSizeZ;
 
-	fChangedParameters=false;
+	fGeometryHasBeenChanged=false;
 }
 
 void JediPolarimeter::DefineCommands() {
@@ -136,7 +136,7 @@ void JediPolarimeter::DefineCommands() {
 	crystalWidthCmd.SetRange("width>=0.");
 	crystalWidthCmd.SetDefaultValue("30.");
 
-	fMessenger->DeclareMethod("update",&JediPolarimeter::UpdateGeometry,"Update geometry");
+	fMessenger->DeclareMethod("update",&JediPolarimeter::GeometryHasChanged,"Update geometry");
 
 	fMessenger->DeclareMethod("check",&JediPolarimeter::checkGeometry,"check geometry for overlaps");
 
@@ -187,7 +187,7 @@ void JediPolarimeter::DefineCommands() {
 }
 
 G4VPhysicalVolume* JediPolarimeter::Construct() {
-	if(fChangedParameters)
+	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
@@ -229,7 +229,8 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 
 }
 
-void JediPolarimeter::UpdateGeometry(){
+void JediPolarimeter::GeometryHasChanged(){
+	ComputeParameters();
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 	G4RegionStore::GetInstance()->UpdateMaterialList(fPhysiWorld);
@@ -247,4 +248,18 @@ void JediPolarimeter::ConstructSDandField() {
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 		}
 	}
+}
+
+void JediPolarimeter::setCaloMaterialName(
+		const G4String& scintillatorMaterialName) {
+	auto oldName=fHCalMaterial->GetName();
+	auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
+	if(!newMat){
+		G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
+		return;
+	}
+	fHCalMaterial=newMat;
+	fScintillatorMaterialName=scintillatorMaterialName;
+	G4cout<<"Changing Material from "<<oldName<<" to "<<fHCalMaterial->GetName()<<G4endl;
+	return;
 }

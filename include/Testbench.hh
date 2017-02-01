@@ -17,32 +17,32 @@ public:
 
 	void setTriggerLength(G4double triggerLength) {
 		this->fTriggerHeight = triggerLength;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerThickness(G4double triggerThickness) {
 		this->fTriggerThickness = triggerThickness;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerWidth(G4double triggerWidth) {
 		this->fTriggerWidth = triggerWidth;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetX(G4double triggerOffsetX) {
 		this->fTriggerOffsetX = triggerOffsetX;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetY(G4double triggerOffsetY) {
 		this->fTriggerOffsetY = triggerOffsetY;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetZ(G4double triggerOffsetZ) {
 		this->fTriggerOffsetZ = triggerOffsetZ;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 protected:

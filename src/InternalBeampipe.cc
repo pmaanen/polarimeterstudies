@@ -27,7 +27,7 @@ InternalBeampipe::InternalBeampipe(G4RotationMatrix *pRot,
 	auto uhv = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 
 	auto solidBeampipe = new G4Tubs("Beampipe", fRadius - fThickness, fRadius,
-			fLength, 0 * CLHEP::deg, 360 * CLHEP::deg);
+			fLength/2, 0 * CLHEP::deg, 360 * CLHEP::deg);
 	auto logicBeampipe = new G4LogicalVolume(solidBeampipe, al, "Beampipe");
 
 	if (fBuildVacuumChamber) {

@@ -31,7 +31,7 @@ public:
 
 	void setNumLayers(G4double numLayers) {
 		fNumLayers = numLayers;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	G4double getAbsorberLength() const {
@@ -40,7 +40,7 @@ public:
 
 	void setAbsorberLength(G4double absorberLength) {
 		fAbsorberLength = absorberLength;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 

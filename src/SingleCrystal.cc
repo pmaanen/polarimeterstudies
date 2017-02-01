@@ -52,7 +52,7 @@ G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
 }
 
 G4VPhysicalVolume* SingleCrystal::Construct() {
-	if(fChangedParameters)
+	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
@@ -67,6 +67,12 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	rot->set(fPhi,fTheta,fPsi);
 	new G4PVPlacement (rot, G4ThreeVector(0,0,fHCalSizeXY/2), aCrystal, "Crystal", fLogicWorld, false, 0, false);
 	return fPhysiWorld;
+}
+
+G4LogicalVolume* SingleCrystal::MakeDetector(G4String name, G4Material* mat,G4double halfSizeX, G4double halfSizeY, G4double halfSizeZ) {
+	auto solidDetector= new G4Box("Detector",halfSizeX,halfSizeY,halfSizeZ);
+	auto logicDetector = new G4LogicalVolume(solidDetector,mat,name);
+	return logicDetector;
 }
 
 void SingleCrystal::DefineCommands() {

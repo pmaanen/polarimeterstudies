@@ -74,100 +74,51 @@ public:
 	//Dump world to gdml file.
 	void WriteWorldToFile(G4String filename="");
 	virtual void ConstructSDandField();
+
+	//Trigger geometry check
+	void checkGeometry(){fPhysiWorld->CheckOverlaps(2000);}
+
+
+
 	//Setters for properties
-	void setBeampipeRadius(G4double beampipeRadius) {this->fBeampipeRadius = beampipeRadius;	fChangedParameters=true;	}
-	void setCrystalLength(G4double crystalLength) {	this->fHCalSizeXY = crystalLength;fChangedParameters=true;	}
-	void setCrystalWidth(G4double crystalWidth) {this->fHCalSizeZ = crystalWidth;fChangedParameters=true;}
-	void setThetaMax(G4double thetaMax) {this->fThetaMax = thetaMax; fChangedParameters=true;}
-	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
-	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
-	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
-	virtual void UpdateGeometry();
-	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
-		auto oldName=fHCalMaterial->GetName();
-		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
-		if(!newMat){
-			G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
-			return;
-		}
-		fHCalMaterial=newMat;
-		fScintillatorMaterialName=scintillatorMaterialName;
-		G4cout<<"Changing Material from "<<oldName<<" to "<<fHCalMaterial->GetName()<<G4endl;
-		return;
-	}
+	void setBeampipeRadius(G4double beampipeRadius) {fBeampipeRadius = beampipeRadius;	GeometryHasChanged();	}
+	void setCrystalLength(G4double crystalLength) {	fHCalSizeZ = crystalLength;GeometryHasChanged();	}
+	void setCrystalWidth(G4double crystalWidth) {fHCalSizeXY = crystalWidth;GeometryHasChanged();}
+	void setThetaMax(G4double thetaMax) {fThetaMax = thetaMax; GeometryHasChanged();}
+	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin;GeometryHasChanged();}
+	void setDeltaElength(G4double deltaElength){fDeltaELength = deltaElength;GeometryHasChanged();}
+	void setDeltaEwidth(G4double deltaEwidth){fDeltaEWidth = deltaEwidth;GeometryHasChanged();}
+	void setInfile(const std::string& infile) {fInfileName = infile;}
+	void setTargetThickness(G4double targetThickness) {fTargetThickness = targetThickness;GeometryHasChanged();}
+	void setTargetWidth(G4double targetWidth) {fTargetWidth = targetWidth; GeometryHasChanged();}
+	void setCaloMaterialName(const G4String& scintillatorMaterialName);
 
-	void setInfile(const std::string& infile) {this->fInfileName = infile;}
+	//Getters for properties
+	G4double getBeampipeRadius() const {return fBeampipeRadius;}
+	G4double getBeampipeThickness() const {	return fBeampipeThickness;}
+	G4double getWorldSizeXy() const {return fWorldSizeXY;}
+	G4double getWorldSizeZ() const {return fWorldSizeZ;}
+	G4double getBeampipeLength() const {return fBeampipeLength;}
+	G4double getThetaMax() const {return fThetaMax;}
+	G4double getThetaMin() const {return fThetaMin;}
+	G4double getSafetyDistance() const {return fSafetyDistance;}
+	G4double getDeltaELength() const {return fDeltaELength;}
+	G4double getHCalSizeXY() const {return fHCalSizeXY;}
+	G4double getHCalSizeZ() const {return fHCalSizeZ;}
+	G4Material* getHCalMaterial() const {return fHCalMaterial;}
 
-	void setTargetThickness(G4double targetThickness) {
-		this->fTargetThickness = targetThickness;
-		fChangedParameters=true;
-	}
+	//Hook for changed geometry
+	virtual void GeometryHasChanged();
 
-	void setTargetWidth(G4double targetWidth) {
-		this->fTargetWidth = targetWidth;
-		fChangedParameters=true;
-	}
-
-	void checkGeometry(){
-		fPhysiWorld->CheckOverlaps(2000);
-	}
-
-	G4double getBeampipeRadius() const {
-		return fBeampipeRadius;
-	}
-
-	G4double getBeampipeThickness() const {
-		return fBeampipeThickness;
-	}
-
-	G4double getWorldSizeXy() const {
-		return fWorldSizeXY;
-	}
-
-	G4double getWorldSizeZ() const {
-		return fWorldSizeZ;
-	}
-
-	G4double getBeampipeLength() const {
-		return fBeampipeLength;
-	}
-
-	G4double getThetaMax() const {
-		return fThetaMax;
-	}
-
-	G4double getThetaMin() const {
-		return fThetaMin;
-	}
-
-	G4double getSafetyDistance() const {
-		return fSafetyDistance;
-	}
-
-	G4double getDeltaELength() const {
-		return fDeltaELength;
-	}
-
-	G4double getHCalSizeXY() const {
-		return fHCalSizeXY;
-	}
-
-	G4double getHCalSizeZ() const {
-		return fHCalSizeZ;
-	}
-
-	G4Material* getHCalMaterial() const {
-		return fHCalMaterial;
-	}
+private:
+	void CopyPropertiesFromConfig();
+	void DefineMaterials();
 
 protected:
 
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
-
 	virtual void DefineCommands();
 	virtual void ComputeParameters();
-
-	//virtual G4VPhysicalVolume* Construct()=0;
 
 	G4LogicalVolume* fLogicWorld;
 	G4VPhysicalVolume* fPhysiWorld;
@@ -175,19 +126,24 @@ protected:
 
 	//Geometry parameters
 	G4double fThetaMin, fThetaMax;
-	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength,  fHCalSizeXY, fHCalSizeZ,
-	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
-	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
+	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength, fHCalSizeXY,
+	fHCalSizeZ,	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,
+	fWrappingThickness, 	fTargetChamberThickness, fTargetChamberZ1,
+	fTargetChamberZ2, fWorldSizeXY, fWorldSizeZ, fDeltaELength,
+	fDeltaEWidth, fDeltaEZ, fTargetThickness, fTargetWidth, fSafetyDistance;
 	G4String fScintillatorMaterialName,fWorldMaterialName;
 	G4int fMinCrystal,fMaxCrystal;
 	G4Material* fHCalMaterial;
 
-	G4bool fChangedParameters;
+	G4bool fGeometryHasBeenChanged;
 	SensitiveDetectorMap fSensitiveDetectors;
 	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
 	std::vector<std::string> fGeomCache;
 	//Input file if constructed from file
 	std::string fInfileName;
+
+
+
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

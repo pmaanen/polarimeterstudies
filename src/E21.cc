@@ -12,28 +12,19 @@
 #include <JediSensitiveDetector.hh>
 #include "ExternalBeampipe.hh"
 E21::E21():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
-	fHCalSizeXY=8*CLHEP::cm;
-	fHCalSizeZ=3*CLHEP::cm;
-	fTriggerHeight=2.5*CLHEP::cm;
-	fTriggerWidth=1.5*CLHEP::cm;
-	fTriggerThickness=.2*CLHEP::cm;
+	fHCalSizeZ=8*CLHEP::cm;
+	fHCalSizeXY=3*CLHEP::cm;
+	fTriggerSizeY=2.5*CLHEP::cm;
+	fTriggerSizeX=1.5*CLHEP::cm;
+	fTriggerSizeZ=.2*CLHEP::cm;
 	fTrigger=true;
 	fScintillatorMaterialName="LYSO";
 	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 	DefineCommands();
 }
 
-E21::~E21(){
-}
-
-G4LogicalVolume* E21::MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double thickness) {
-	auto solidDetector= new G4Box(name,width/2,height/2,thickness/2);
-	auto logicDetector = new G4LogicalVolume(solidDetector,mat,name);
-	return logicDetector;
-}
-
 G4VPhysicalVolume* E21::Construct() {
-	if(fChangedParameters)
+	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
@@ -60,8 +51,8 @@ G4VPhysicalVolume* E21::Construct() {
 void E21::MakeSetup() {
 
 
-	if(fTriggerThickness>0 and fTriggerHeight>0 and fTriggerWidth>0){
-		G4Box* solidTrigger=new G4Box("Trigger",fTriggerWidth/2,fTriggerHeight/2,fTriggerThickness/2);
+	if(fTriggerSizeY>0 and fTriggerSizeX>0 and fTriggerSizeZ>0){
+		G4Box* solidTrigger=new G4Box("Trigger",fTriggerSizeX/2,fTriggerSizeY/2,fTriggerSizeZ/2);
 		auto logicStart=new G4LogicalVolume(solidTrigger,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Start");
 		fSensitiveDetectors.Update("Start",SDtype::kCalorimeter,logVolVector{logicStart});
 		logicStart->SetVisAttributes(new G4VisAttributes(blue));
@@ -72,11 +63,11 @@ void E21::MakeSetup() {
 		fSensitiveDetectors.Update("Stop",SDtype::kCalorimeter,logVolVector{logicStop});
 		new G4PVPlacement (0, G4ThreeVector(0,0,60*CLHEP::cm), logicStop, "Stop", fLogicWorld, false, 0, false);
 
-		auto solidKapton=new G4Box("Kapton",fTriggerWidth/2,fTriggerHeight/2,0.160/2*CLHEP::mm);
+		auto solidKapton=new G4Box("Kapton",fTriggerSizeX/2,fTriggerSizeY/2,0.160/2*CLHEP::mm);
 		auto logicKapton=new G4LogicalVolume(solidKapton,G4NistManager::Instance()->FindOrBuildMaterial("G4_KAPTON"),"Kapton");
 		new G4PVPlacement(0,G4ThreeVector(0,0,-8.1*CLHEP::cm-0.160/2*CLHEP::mm),logicKapton,"Kapton",fLogicWorld,false,0,false);
 
-		auto solidMylar=new G4Box("Mylar",fTriggerWidth/2,fTriggerHeight/2,0.5/2.*CLHEP::mm);
+		auto solidMylar=new G4Box("Mylar",fTriggerSizeX/2,fTriggerSizeY/2,0.5/2.*CLHEP::mm);
 		auto logicMylar=new G4LogicalVolume(solidMylar,G4NistManager::Instance()->FindOrBuildMaterial("G4_MYLAR"),"Mylar");
 		new G4PVPlacement(0,G4ThreeVector(0,0,-8.1*CLHEP::cm-0.160*CLHEP::mm-.5/2.*CLHEP::mm),logicMylar,"Mylar",fLogicWorld,false,0,false);
 	}
@@ -90,24 +81,17 @@ void E21::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
 
-	fMessenger->DeclareMethodWithUnit("triggerheight","mm",
-			&E21::setTriggerLength,
-			"trigger height (mm)");
+	fMessenger->DeclareMethodWithUnit("triggersizeX","mm",
+			&E21::setTriggerSizeX,
+			"trigger size x (mm)");
 
+	fMessenger->DeclareMethodWithUnit("triggersizeY","mm",
+			&E21::setTriggerSizeY,
+			"trigger size y (mm)");
 
-
-	fMessenger->DeclareMethodWithUnit("triggerthickness","mm",
-			&E21::setTriggerThickness,
-			"trigger thickness (mm)");
-
-	G4GenericMessenger::Command& triggerWidthCmd
-	= fMessenger->DeclareMethodWithUnit("triggerwidth","mm",
-			&E21::setTriggerWidth,
-			"trigger width (mm)");
-
-	triggerWidthCmd.SetParameterName("width", true);
-	triggerWidthCmd.SetRange("width>=0.");
-	triggerWidthCmd.SetDefaultValue("30.");
+	fMessenger->DeclareMethodWithUnit("triggersizeZ","mm",
+			&E21::setTriggerSizeY,
+			"trigger size z (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
 			&E21::setTriggerOffsetX,
@@ -137,8 +121,8 @@ void E21::Make2016ADetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto bigCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeZ,fHCalSizeZ,fHCalSizeXY);
-	auto smallCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeZ/2,fHCalSizeZ,fHCalSizeXY);
+	auto bigCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
+	auto smallCrystal=MakeDetector("lyso",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY,fHCalSizeZ);
 	fSensitiveDetectors.Update("Calorimeter",SDtype::kCalorimeter,logVolVector{bigCrystal,smallCrystal});
 	bigCrystal->SetVisAttributes(new G4VisAttributes(green));
 	smallCrystal->SetVisAttributes(new G4VisAttributes(green));

@@ -140,7 +140,7 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 
 void JediHexagonalPolarimeter::DefineCommands() {
 	fMessenger->DeclareMethod("update",
-			&JediHexagonalPolarimeter::UpdateGeometry,
+			&JediHexagonalPolarimeter::GeometryHasChanged,
 			"update geometry");
 }
 
