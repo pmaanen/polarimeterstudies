@@ -32,7 +32,7 @@ public:
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
-	std::unique_ptr<DeuteronCarbonElasticScatteringModel> fScatteringModel;
+	std::unique_ptr<JediElasticModel> fScatteringModel;
 	std::unique_ptr<TF1> fQ;
 	std::unique_ptr<TF1> fPhi;
 	virtual void DefineCommands();

@@ -23,7 +23,7 @@ protected:
 
 	virtual void DefineCommands();
 	Double_t fMomentum_cms,fBeamPolarization;
-	std::unique_ptr<DeuteronCarbonBreakupModel> fScatteringModel;
+	std::unique_ptr<JediBreakupModel> fScatteringModel;
 	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization); fRunInitialized=false;};
 	std::unique_ptr<TF2> fThetaEx;
 	std::unique_ptr<TF1> fPhi;

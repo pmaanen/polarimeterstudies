@@ -41,6 +41,7 @@
 #include <G4StepLimiterPhysics.hh>
 #include <G4HadronicProcessStore.hh>
 #include <TROOT.h>
+#include "Rtypes.h"
 namespace CLHEP {}
 using namespace CLHEP;
 G4VModularPhysicsList* choosePhysList();

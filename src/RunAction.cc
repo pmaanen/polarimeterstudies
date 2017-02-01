@@ -23,10 +23,14 @@ RunAction::RunAction()
 	Analysis::Instance();
 
 
+	// RANLUX seed
+	if(gConfig.count("random.seed"))
+		fSeed=gConfig["random.seed"].as<int>();
+	else
+		fSeed = -1;
 
-	fSeed = -1;      // RANLUX seed
 	fLuxury = 3;     // RANLUX luxury level (3 is default)
-	fSaveRndm = 0;
+	fSaveRndm = gConfig["random.save_random"].as<bool>();
 	fNEvents=0;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -46,7 +50,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	/*
 	G4EmProcessOptions opt;
 	opt.SetSubCutoff(true);
-	*/
+	 */
 	ROOT::EnableThreadSafety();
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	auto an=Analysis::Instance();
@@ -69,7 +73,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	}
 
 	// save Rndm status
-	if (fSaveRndm > 0)
+	if (fSaveRndm)
 		G4Random::saveEngineStatus("beginOfRun.rndm");
 
 	return;

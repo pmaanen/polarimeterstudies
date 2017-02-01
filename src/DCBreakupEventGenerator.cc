@@ -57,13 +57,13 @@ void DCBreakupEventGenerator::Initialize() {
 	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
 	fCms = fBeam + fTarget;
 	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<DeuteronCarbonBreakupModel>(new DeuteronCarbonBreakupModel());
+		fScatteringModel=std::unique_ptr<JediBreakupModel>(new JediBreakupModel());
 
 	auto Ex_max=fCms.M()*CLHEP::GeV-(fParticles[0]->GetPDGMass()+fParticles[1]->GetPDGMass());
 
 
 
-	fThetaEx=std::unique_ptr<TF2>(new TF2("ThetaEx",fScatteringModel.get(),&DeuteronCarbonBreakupModel::ThetaEx,0,180,0,Ex_max/CLHEP::MeV*0.8,5));
+	fThetaEx=std::unique_ptr<TF2>(new TF2("ThetaEx",fScatteringModel.get(),&JediBreakupModel::ThetaEx,0,180,0,Ex_max/CLHEP::MeV*0.8,5));
 
 	fThetaEx->SetParameter(0,fBeamEnergy/CLHEP::MeV);
 	fThetaEx->SetParameter(1,fThetaMin/CLHEP::deg);
@@ -71,7 +71,7 @@ void DCBreakupEventGenerator::Initialize() {
 	fThetaEx->SetParameter(3,0/CLHEP::deg);
 	fThetaEx->SetParameter(4,0.8*Ex_max/CLHEP::MeV);
 
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&DeuteronCarbonBreakupModel::Phi,0,2*TMath::Pi(),4,"DeuteronCarbonElasticScatteringModel","Phi"));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediBreakupModel::Phi,0,2*TMath::Pi(),4,"DeuteronCarbonElasticScatteringModel","Phi"));
 
 	fThetaEx->SetNpx(200);
 	fThetaEx->SetNpy(200);

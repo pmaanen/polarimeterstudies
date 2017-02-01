@@ -21,7 +21,7 @@ Testbench::Testbench():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTrig
 }
 
 G4VPhysicalVolume* Testbench::Construct() {
-	if(fChangedParameters)
+	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);

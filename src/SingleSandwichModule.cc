@@ -60,7 +60,7 @@ G4LogicalVolume* SingleSandwichModule::MakeCaloCrystal() {
 }
 
 G4VPhysicalVolume* SingleSandwichModule::Construct() {
-	if(fChangedParameters)
+	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");

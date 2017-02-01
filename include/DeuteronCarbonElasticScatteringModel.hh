@@ -16,10 +16,10 @@
 //Note: The root classes use GeV
 //Sigma=SigmaUnpol*(1+Ay*Py*cos(phi))
 
-class DeuteronCarbonElasticScatteringModel{
+class JediElasticModel{
 public:
-	DeuteronCarbonElasticScatteringModel() = default;
-	virtual ~DeuteronCarbonElasticScatteringModel()=default;
+	JediElasticModel() = default;
+	virtual ~JediElasticModel()=default;
 	//Double_t sigma(TLorentzVector,TLorentzVector);
 	//Double_t SigmaUnpol(Double_t, Double_t);
 	Double_t q(Double_t*, Double_t*);
