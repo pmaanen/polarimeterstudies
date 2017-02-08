@@ -1,13 +1,17 @@
+
 #define MAIN
 
 //global configuration
 #include "global.hh"
 
 //Geometries
-#include "DetectorConstruction.hh"
+#include <DetectorConstructionFactory.hh>
 
 //User defined actions
 #include "UserActionInitialization.hh"
+
+//Physics
+#include "JediPhysicsListFactory.hh"
 
 //Geant4 stuff
 #include <G4UImanager.hh>
@@ -28,23 +32,9 @@
 #include <G4RunManager.hh>
 #endif
 
-//Physics Lists
-#include <QGSP_INCLXX.hh>
-#include <QGSP_BIC.hh>
-#include <QGSP_BERT.hh>
-#include <QBBC.hh>
-
-//Additional Physics
-#include <G4EmParameters.hh>
-#include <G4OpticalPhysics.hh>
-#include <G4RadioactiveDecayPhysics.hh>
-#include <G4StepLimiterPhysics.hh>
-#include <G4HadronicProcessStore.hh>
 #include <TROOT.h>
 #include "Rtypes.h"
-namespace CLHEP {}
-using namespace CLHEP;
-G4VModularPhysicsList* choosePhysList();
+
 extern void initializeConfiguration(int,char**);
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -68,19 +58,21 @@ int main(int argc,char** argv) {
 
 
 	// set mandatory initialization classes
-	DetectorConstruction* detector = new DetectorConstruction;
+	G4VUserDetectorConstruction* detector =DetectorConstructionFactory::Create();
 	runManager->SetUserInitialization(detector);
 
 	// set physics list
-	G4VModularPhysicsList* the_physics=choosePhysList();
-
+	G4VModularPhysicsList* the_physics=JediPhysicsListFactory::Create();
 	runManager->SetUserInitialization(the_physics);
+
+	// all other user action
 	runManager->SetUserInitialization(new UserActionInitialization);
-	runManager->Initialize();
+
 	// get the pointer to the UI manager and set verbosities
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
+	UImanager->SetVerboseLevel(0);
 
-	#ifdef G4VIS_USE
+#ifdef G4VIS_USE
 	G4VisManager* visManager = nullptr;
 #endif
 
@@ -89,7 +81,8 @@ int main(int argc,char** argv) {
 	if(!gConfig.count("general.macro_file")){
 #ifdef G4VIS_USE
 		//visualization manager
-		visManager = new G4VisExecutive;
+		visManager = new G4VisExecutive();
+		visManager->SetVerboseLevel(gVerbose);
 		visManager->Initialize();
 #endif
 #ifdef G4UI_USE
@@ -113,27 +106,4 @@ int main(int argc,char** argv) {
 	// job termination
 	delete runManager;
 	return 0;
-}
-
-G4VModularPhysicsList* choosePhysList(){
-	G4VModularPhysicsList* the_physics=nullptr;
-	if(gConfig["general.physics"].as<string>()=="QGSP_BERT")
-		the_physics=new QGSP_BERT(0);
-	if(gConfig["general.physics"].as<string>()=="QGSP_BIC")
-		the_physics=new QGSP_BIC(0);
-	if(gConfig["general.physics"].as<string>()=="QGSP_INCLXX")
-		the_physics=new QGSP_INCLXX(0);
-	if(gConfig["general.physics"].as<string>()=="QBBC")
-		the_physics=new QBBC(0);
-	the_physics->RegisterPhysics(new G4StepLimiterPhysics);
-	/*
-	auto em=G4EmParameters::Instance();
-	em->SetMscStepLimitType(fUseDistanceToBoundary);
-	em->SetMscRangeFactor(0.02);
-	em->SetMinEnergy(1000*CLHEP::eV);
-	em->SetMaxEnergy(5*CLHEP::GeV);
-	em->SetNumberOfBins(400);
-	em->SetSpline(true);
-	*/
-	return the_physics;
 }

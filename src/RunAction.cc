@@ -15,13 +15,17 @@
 #include <ctime>
 #include "PrimaryGeneratorAction.hh"
 #include "JediRun.hh"
+#include "JediPolarimeter.hh"
+#include "JediPhysicsManager.hh"
 #include "G4AutoLock.hh"
 #include <G4EmProcessOptions.hh>
+#include <DetectorConstructionFactory.hh>
+#include "SingleCrystal.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-RunAction::RunAction()
+RunAction::RunAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager)
 {
 	Analysis::Instance();
-
+	ROOT::EnableThreadSafety();
 
 	// RANLUX seed
 	if(gConfig.count("random.seed"))
@@ -47,14 +51,18 @@ G4Run* RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
-	/*
-	G4EmProcessOptions opt;
-	opt.SetSubCutoff(true);
-	 */
-	ROOT::EnableThreadSafety();
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
-	auto an=Analysis::Instance();
-	an->BeginOfRun();
+	Analysis::Instance()->BeginOfRun();
+
+
+	G4RunManager *      runManager( G4RunManager::GetRunManager() );
+	const JediPolarimeter *  setup( static_cast< const JediPolarimeter * >(
+			runManager->GetUserDetectorConstruction() ) );
+	if(setup)
+		fPhysicsManager->GeometryHasChanged(setup);
+	else
+		G4Exception("RunAction::BeginOfRunAction","",FatalException,"Detector Construction not found.");
+
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
 		if(gVerbose>2)

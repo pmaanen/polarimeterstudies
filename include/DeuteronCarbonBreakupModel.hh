@@ -8,10 +8,10 @@
 #ifndef INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
 #define INCLUDE_DEUTERONCARBONBREAKUPMODEL_HH_
 #include "Rtypes.h"
-class JediBreakupModel {
+class JediBreakupModelOld {
 public:
-	JediBreakupModel()=default;
-	virtual ~JediBreakupModel()=default;
+	JediBreakupModelOld()=default;
+	virtual ~JediBreakupModelOld()=default;
 
 	Double_t sigma(Double_t theta, Double_t phi, Double_t Ex);
 	Double_t SigmaUnpol(Double_t, Double_t, Double_t);

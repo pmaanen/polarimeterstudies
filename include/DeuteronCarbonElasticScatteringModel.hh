@@ -16,10 +16,10 @@
 //Note: The root classes use GeV
 //Sigma=SigmaUnpol*(1+Ay*Py*cos(phi))
 
-class JediElasticModel{
+class JediElasticModelOld{
 public:
-	JediElasticModel() = default;
-	virtual ~JediElasticModel()=default;
+	JediElasticModelOld() = default;
+	virtual ~JediElasticModelOld()=default;
 	//Double_t sigma(TLorentzVector,TLorentzVector);
 	//Double_t SigmaUnpol(Double_t, Double_t);
 	Double_t q(Double_t*, Double_t*);
