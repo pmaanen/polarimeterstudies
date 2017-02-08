@@ -143,7 +143,7 @@ protected:
 	G4double fThetaMin, fThetaMax;
 	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength, fHCalSizeXY,
 	fHCalSizeZ,	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,
-	fWrappingThickness, 	fTargetChamberThickness, fTargetChamberZ1,
+	fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1,
 	fTargetChamberZ2, fWorldSizeXY, fWorldSizeZ, fDeltaELength,
 	fDeltaEWidth, fDeltaEZ, fTargetThickness, fTargetWidth, fSafetyDistance;
 	G4String fScintillatorMaterialName,fWorldMaterialName;

@@ -23,7 +23,7 @@ static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
 E22::E22():E21(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fBuildSupport(false),fRightDetector(true),fLeftDetector(true),fBuildTarget(true),fMonitor(false),fBeampipe(true),fTrigger(false), fVeto(false) {
 	fWorldSizeXY=2*CLHEP::m;
-	fWorldSizeZ=3*CLHEP::m;
+	fWorldSizeZ=5*CLHEP::m;
 
 	fVetoSizeXY=5*CLHEP::cm;
 	fVetoSizeZ=5*CLHEP::mm;
@@ -129,7 +129,7 @@ void E22::MakeSetup() {
 		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2+2*CLHEP::cm,fDistance/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
 	}
 	if(fBeampipe)
-		new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm),fLogicWorld,0,0,this);
+		new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm-10*CLHEP::cm),fLogicWorld,0,0,this);
 }
 
 G4LogicalVolume* E22::MakeScintillatorMatrix(G4String name) {

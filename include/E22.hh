@@ -24,21 +24,10 @@ public:
 	void MakeTarget();
 	virtual void DefineCommands();
 
-	G4double getTargetSizeX() const {
-		return fTargetSizeX;
-	}
-
-	G4double getTargetSizeY() const {
-		return fTargetSizeY;
-	}
-
-	G4double getTargetSizeZ() const {
-		return fTargetSizeZ;
-	}
-
-	const G4String& getTargetMaterialName() const {
-		return fTargetMaterialName;
-	}
+	G4double getTargetSizeX() const;
+	G4double getTargetSizeY() const;
+	G4double getTargetSizeZ() const;
+	const G4String& getTargetMaterialName() const;
 
 private:
 
@@ -49,5 +38,21 @@ private:
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 };
+
+inline G4double E22::getTargetSizeX() const {
+	return fTargetSizeX;
+}
+
+inline G4double E22::getTargetSizeY() const {
+	return fTargetSizeY;
+}
+
+inline G4double E22::getTargetSizeZ() const {
+	return fTargetSizeZ;
+}
+
+inline const G4String& E22::getTargetMaterialName() const {
+	return fTargetMaterialName;
+}
 
 #endif /* INCLUDE_E22_HH_ */
