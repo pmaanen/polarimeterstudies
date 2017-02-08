@@ -136,7 +136,7 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 	) );
 	theParticleChange.AddSecondary( outNucleus );
 
-	} while(outDeuteronMomentum.vect().getTheta()<=fThetaMax && outDeuteronMomentum.vect().getTheta()<=fThetaMin);
+	} while(outDeuteronMomentum.vect().getTheta()>=fThetaMax || outDeuteronMomentum.vect().getTheta()<=fThetaMin);
 
 	return &theParticleChange;
 }
