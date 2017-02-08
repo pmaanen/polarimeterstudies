@@ -8,7 +8,7 @@
 #include <DeuteronCarbonInelasticScatteringModel.hh>
 #include <math.h>
 Double_t DeuteronCarbonInelasticScatteringModel::QEx(Double_t* x,
-		Double_t* par) {
+		Double_t*) {
 	/*
 	 * x[0]=Ex
 	 * x[1]=q

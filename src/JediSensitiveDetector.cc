@@ -12,7 +12,7 @@
 #include "G4Threading.hh"
 #include <memory>
 #include "global.hh"
-JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype& type):fType(type),fName(name),G4VSensitiveDetector(name){
+JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype& type):G4VSensitiveDetector(name),fType(type),fName(name){
 	if(gVerbose>2)
 		G4cout<<"JediSensitiveDetector::JediSensitiveDetector("<<name<<","<<int(type)<<")"<<G4endl;
 	if(type==SDtype::kCalorimeter)
@@ -23,8 +23,10 @@ JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype&
 		fSD=std::unique_ptr<PerfectDetector>(new PerfectDetector(name));
 	else if(type==SDtype::kUndefined)
 		fSD=nullptr;
+	Analysis::Instance()->RegisterSD(this);
 	DefineCommands();
 }
+
 
 void JediSensitiveDetector::SetType_impl(SDtype type) {
 	if(fType!=type){
@@ -65,5 +67,3 @@ void JediSensitiveDetector::DefineCommands() {
 	auto cmd=fMessenger->DeclareMethod("SetType",&JediSensitiveDetector::SetType,"");
 	cmd.SetCandidates("perfect calo tracker");
 }
-
-void JediSensitiveDetector::Print() {}

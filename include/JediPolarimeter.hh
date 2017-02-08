@@ -23,7 +23,6 @@
 #include "G4CutTubs.hh"
 #include "G4Torus.hh"
 #include "G4Polyhedra.hh"
-//***** End of include basic geometry classes
 
 #include "G4Polycone.hh"
 #include "G4SubtractionSolid.hh"
@@ -36,8 +35,8 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4SolidStore.hh"
-
-
+#include <G4AffineTransform.hh>
+//***** End of include basic geometry classe
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 #include "G4ios.hh"
@@ -94,6 +93,13 @@ public:
 	void setCaloMaterialName(const G4String& scintillatorMaterialName);
 
 	//Getters for properties
+	virtual const G4LogicalVolume* GetTarget() const {
+		if(!fTarget)
+			G4Exception(" JediPolarimeter::GetTarget","",FatalException,
+					"Target ptr is null! Will probably crash now.");
+		return fTarget;};
+	virtual const G4AffineTransform GetTargetTransform() const {
+		return fTargetTransform;}
 	G4double getBeampipeRadius() const {return fBeampipeRadius;}
 	G4double getBeampipeThickness() const {	return fBeampipeThickness;}
 	G4double getWorldSizeXy() const {return fWorldSizeXY;}
@@ -117,12 +123,21 @@ private:
 protected:
 
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+	template<typename solid, typename... Params>
+	G4LogicalVolume* BuildDetector(const G4String detName, G4Material* mat, Params... parameters){
+		auto solidDet=new solid(detName, parameters...);
+		auto logicDetector = new G4LogicalVolume(solidDet,mat,detName);
+		return logicDetector;
+	}
 	virtual void DefineCommands();
 	virtual void ComputeParameters();
-
 	G4LogicalVolume* fLogicWorld;
 	G4VPhysicalVolume* fPhysiWorld;
 	G4GenericMessenger* fMessenger;
+
+
+	G4LogicalVolume* fTarget;
+	G4AffineTransform fTargetTransform;
 
 	//Geometry parameters
 	G4double fThetaMin, fThetaMax;
@@ -136,7 +151,7 @@ protected:
 	G4Material* fHCalMaterial;
 
 	G4bool fGeometryHasBeenChanged;
-	SensitiveDetectorMap fSensitiveDetectors;
+	SensitiveDetectorManager fSensitiveDetectors;
 	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
 	std::vector<std::string> fGeomCache;
 	//Input file if constructed from file

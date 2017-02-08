@@ -26,11 +26,11 @@ public:
 	std::vector<G4LogicalVolume*> fLogVol;
 };
 
-class SensitiveDetectorMap{
+class SensitiveDetectorManager{
 public:
 	void Update(G4String name,SDtype type,logVolVector vector);
 	void Update(G4String name,SDtype type);
-	std::map<G4String, SD > getMap(){return fSDmap;};
+	const std::map<G4String, SD >& getMap(){return fSDmap;};
 
 private:
 	std::map<G4String, SD> fSDmap;

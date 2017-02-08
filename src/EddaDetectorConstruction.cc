@@ -47,7 +47,12 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 EddaDetectorConstruction::EddaDetectorConstruction()
-:logicWorld(0), physiWorld(0), LogicalTube(0), PhysicalTube(0), LogicalSiPM(0), PhysicalSiPM(0), LogicalTarget(0), PhysicalTarget(0)
+:logicWorld(nullptr), physiWorld(nullptr),LogicalBarrel_1(nullptr),LogicalBarrel_2(nullptr),
+ Pethylene(nullptr),PMMA(nullptr),LogicalEdda(nullptr), PhysicalBarrel_1(nullptr), PhysicalBarrel_2(nullptr),
+ LogicalTubs1(nullptr), LogicalTubs2(nullptr), Vacuum(nullptr), Pstyrene(nullptr), LogicalTorus1(nullptr),
+ LogicalTorus2(nullptr), LogicalTarget(nullptr), fPethylene(nullptr), PhysicalTarget(nullptr),pScint(nullptr),
+ SiPMMaterial(nullptr),PhysicalEdda(nullptr),LogicalBar(nullptr),MirrorMaterial(nullptr),TargetMaterial(nullptr),
+ MPTPStyrene(nullptr),Air(nullptr)
 {;}
 
 
@@ -354,7 +359,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 
 	double upZ[29] = 	{64.670, 73.550, 82.440, 91.320, 100.200, 109.090, 117.970, 126.850, 136.314, 150.944, 167.164, 185.148, 205.087, 227.194, 251.704, 278.878, 309.007, 342.411, 379.447, 420.509, 466.035, 516.510, 572.472, 634.519, 703.311, 779.581, 864.143, 957.898, 977.898};
 
-	double posZ[29] = {55.790, 64.670,  73.550, 82.440, 91.320, 100.200, 109.090, 117.970, 126.850, 136.314, 150.944, 167.164, 185.148, 205.087, 227.194, 251.704, 278.878, 309.007, 342.411, 379.447, 420.509, 466.035, 516.510, 572.472, 634.519, 703.311, 779.581, 864.143, 957.898};
+	//double posZ[29] = {55.790, 64.670,  73.550, 82.440, 91.320, 100.200, 109.090, 117.970, 126.850, 136.314, 150.944, 167.164, 185.148, 205.087, 227.194, 251.704, 278.878, 309.007, 342.411, 379.447, 420.509, 466.035, 516.510, 572.472, 634.519, 703.311, 779.581, 864.143, 957.898};
 
 
 	G4double EddaStart = 55.790*mm;
@@ -374,10 +379,6 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	yellow(1.0,1.0,0.0),
 	red(1.0,0.0,0.0),
 	white(1.0,1.0,1.0);
-
-
-	//Setting SensitiveDetectors
-	G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
 	G4String SDname;
 	G4VisAttributes *visLogicalRingL1 = new G4VisAttributes(G4Color(0.5, 0.75, 0));
@@ -422,8 +423,8 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 	G4double dz = tan(angleStep)*dx1/2.;
 
 	G4Trd *solidBar = new G4Trd("solidBar", dx1/2., dx2/2., dy1/2., dy2/2., dz/2.);
-	G4VisAttributes *visLogicalBar1 = new G4VisAttributes(G4Color(0., 0., 0.78));
-	G4VisAttributes *visLogicalBar2 = new G4VisAttributes(G4Color(0., 0.25, 0.5));
+	//G4VisAttributes *visLogicalBar1 = new G4VisAttributes(G4Color(0., 0., 0.78));
+	//G4VisAttributes *visLogicalBar2 = new G4VisAttributes(G4Color(0., 0.25, 0.5));
 	LogicalBar = new G4LogicalVolume(solidBar, Pstyrene, "LogicalBar");
 	for(int i=0;i<32;i++){
 		G4RotationMatrix *rot1 = new G4RotationMatrix((angleStep)*i+90.*deg+angleStep/2., 90*deg,0 );

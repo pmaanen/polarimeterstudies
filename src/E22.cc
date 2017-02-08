@@ -21,7 +21,7 @@ static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
-E22::E22():E21(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fSupport(false),fRightDetector(true),fLeftDetector(true),fTarget(true),fMonitor(false),fBeampipe(true),fTrigger(false), fVeto(false) {
+E22::E22():E21(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fBuildSupport(false),fRightDetector(true),fLeftDetector(true),fBuildTarget(true),fMonitor(false),fBeampipe(true),fTrigger(false), fVeto(false) {
 	fWorldSizeXY=2*CLHEP::m;
 	fWorldSizeZ=3*CLHEP::m;
 
@@ -61,7 +61,8 @@ G4VPhysicalVolume* E22::Construct() {
 		fSensitiveDetectors.Update("Veto",SDtype::kCalorimeter,logVolVector{logicVeto});
 		new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ),logicVeto,"Veto",fLogicWorld,1,0,false);
 	}
-	if(fTarget)
+
+	if(fBuildTarget)
 		MakeTarget();
 	if(fDetectorName=="effective")
 		MakeEffectiveDetector();
@@ -74,7 +75,7 @@ G4VPhysicalVolume* E22::Construct() {
 
 void E22::MakeSetup() {
 
-	if(fSupport){
+	if(fBuildSupport){
 		auto solidSupport=new G4SubtractionSolid("Support",
 				new G4Box("",fArmWidth/2,fArmWidth/2.,fDistance/2+fHCalSizeZ/2),
 				new G4Box("",fArmWidth/4,fArmWidth/4.,fDistance)
@@ -189,7 +190,15 @@ void E22::MakeSandwichDetector() {
 
 void E22::MakeTarget() {
 
-	new E22Target(0,G4ThreeVector(0,0,fTargetSizeZ/2),fLogicWorld,false,0,this);
+	auto rot=new G4RotationMatrix();
+	auto physiTarget=new E22Target(rot,G4ThreeVector(0,0,fTargetSizeZ/2),fLogicWorld,false,0,this);
+	if(!physiTarget->GetLogicalVolume())
+		G4Exception("E22::MakeTarget()","",FatalException,"Target has no LogicalVolume.");
+
+
+	fTargetTransform.SetNetTranslation( physiTarget->GetTranslation() );
+	fTargetTransform.SetNetRotation( *physiTarget->GetRotation() );
+	fTarget=physiTarget->GetLogicalVolume();
 }
 
 void E22::Make2016BDetector() {
@@ -253,7 +262,7 @@ void E22::DefineCommands() {
 
 	fMessenger->DeclarePropertyWithUnit("holeSizeXY","mm",E22::fHoleSizeXY,"");
 
-	fMessenger->DeclareProperty("support",E22::fSupport,"support beam on/off");
+	fMessenger->DeclareProperty("support",E22::fBuildSupport,"support beam on/off");
 
 	fMessenger->DeclareProperty("nx",E22::fNx,"number of detectors in x");
 
@@ -263,7 +272,7 @@ void E22::DefineCommands() {
 
 	fMessenger->DeclareProperty("right",E22::fRightDetector,"right detector on/off");
 
-	fMessenger->DeclareProperty("target",E22::fTarget,"target on/off");
+	fMessenger->DeclareProperty("target",E22::fBuildTarget,"target on/off");
 
 	fMessenger->DeclareProperty("veto",E22::fVeto,"veto on/off");
 

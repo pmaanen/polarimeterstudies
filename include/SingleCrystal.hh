@@ -28,6 +28,7 @@ public:
 		this->fTheta = theta;
 		fGeometryHasBeenChanged=true;
 	}
+
 protected:
 	virtual G4LogicalVolume* MakeCaloCrystal();
 	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double halfSizeX, G4double halfSizeY, G4double halfSizeZ);

@@ -11,6 +11,10 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
+#include "JediPhysicsManager.hh"
+
+
 #include "EventAction.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -24,7 +28,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction():G4UserEventAction()
+EventAction::EventAction(std::shared_ptr<JediPhysicsManager> physicsManager):G4UserEventAction(),fPhysicsManager(physicsManager)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -40,6 +44,7 @@ EventAction::~EventAction()
 void EventAction::BeginOfEventAction(const G4Event* /*evt*/)
 {
 	Analysis::Instance()->BeginOfEvent();
+	//fPhysicsManager->Reset
 }
 
 

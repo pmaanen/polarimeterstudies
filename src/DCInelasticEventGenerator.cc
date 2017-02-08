@@ -17,7 +17,7 @@
 #include "VertexGeneratorU.hh"
 
 #include "TF1.h"
-DCInelasticEventGenerator::DCInelasticEventGenerator():PhaseSpaceGenerator("dcinelastic"),fBeamPolarization(0) {
+DCInelasticEventGenerator::DCInelasticEventGenerator():PhaseSpaceGenerator("dcinelastic") {
 	fBeamEnergy=270.*CLHEP::MeV;
 	fInitialized=false;
 

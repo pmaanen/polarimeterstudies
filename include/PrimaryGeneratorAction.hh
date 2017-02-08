@@ -23,7 +23,7 @@ class G4GeneralParticleSource;
 #include "hit.hh"
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 public:
-	~PrimaryGeneratorAction();
+	virtual ~PrimaryGeneratorAction()=default;
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);

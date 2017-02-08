@@ -1,23 +1,23 @@
 /*
- * G4Exception.hh
+ * JediException.hh
  *
  *  Created on: Oct 22, 2014
  *      Author: maanen
  */
 
-#ifndef G4EXCEPTION_HH_
-#define G4EXCEPTION_HH_
+#ifndef JediEXCEPTION_HH_
+#define JediEXCEPTION_HH_
 #include "G4ExceptionSeverity.hh"
 #include <exception>
 #include <string>
-class myG4Exception: public std::exception {
+class JediException: public std::exception {
 public:
-	myG4Exception(const char* originOfException,
+	JediException(const char* originOfException,
 				  const char* exceptionCode,
 				  G4ExceptionSeverity severity,
 				  const char* description
 	);
-	virtual ~myG4Exception() throw(){};
+	virtual ~JediException() throw(){};
 
 	virtual const char * what() const throw()
 	        		{return fWhat.c_str();}

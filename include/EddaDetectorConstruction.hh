@@ -26,18 +26,18 @@ class G4MaterialPropertiesTable;
 
 class EddaDetectorConstruction : public G4VUserDetectorConstruction
 {
-	public:
-		EddaDetectorConstruction();
-		~EddaDetectorConstruction();
+public:
+	EddaDetectorConstruction();
+	~EddaDetectorConstruction();
 
 	G4VPhysicalVolume* Construct();
 
-	private:
+private:
 	//***********  World
 
 	G4LogicalVolume* logicWorld;
 	G4VPhysicalVolume* physiWorld;
-		
+
 	// Edda
 	G4LogicalVolume* LogicalEdda;
 	G4VPhysicalVolume* PhysicalEdda;
@@ -65,14 +65,14 @@ class EddaDetectorConstruction : public G4VUserDetectorConstruction
 
 	//Bars
 	G4LogicalVolume *LogicalBar;
-	// Fibers
+	/* Fibers
 	G4LogicalVolume* LogicalTube;
 	G4VPhysicalVolume* PhysicalTube;
-	
+
 	// SiPms
 	G4LogicalVolume* LogicalSiPM;
 	G4VPhysicalVolume* PhysicalSiPM;
-
+	 */
 	//Target
 	G4LogicalVolume* LogicalTarget;
 	G4VPhysicalVolume* PhysicalTarget;
@@ -92,13 +92,13 @@ class EddaDetectorConstruction : public G4VUserDetectorConstruction
 	//*********** Material properties
 	G4MaterialPropertiesTable* MPTPStyrene;
 
-	private:
-		void DefineMaterials();
-		void DefineMaterialProperties();
-		G4VPhysicalVolume* ConstructSetUp();
-		G4LogicalVolume* ConstructFiber(G4double Rmax, G4double Lz, G4double RCladding);
+private:
+	void DefineMaterials();
+	void DefineMaterialProperties();
+	G4VPhysicalVolume* ConstructSetUp();
+	G4LogicalVolume* ConstructFiber(G4double Rmax, G4double Lz, G4double RCladding);
 
-		virtual void ConstructSDandField();
+	virtual void ConstructSDandField();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

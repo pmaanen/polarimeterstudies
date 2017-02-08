@@ -57,13 +57,13 @@ void DCBreakupEventGenerator::Initialize() {
 	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
 	fCms = fBeam + fTarget;
 	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<JediBreakupModel>(new JediBreakupModel());
+		fScatteringModel=std::unique_ptr<JediBreakupModelOld>(new JediBreakupModelOld());
 
 	auto Ex_max=fCms.M()*CLHEP::GeV-(fParticles[0]->GetPDGMass()+fParticles[1]->GetPDGMass());
 
 
 
-	fThetaEx=std::unique_ptr<TF2>(new TF2("ThetaEx",fScatteringModel.get(),&JediBreakupModel::ThetaEx,0,180,0,Ex_max/CLHEP::MeV*0.8,5));
+	fThetaEx=std::unique_ptr<TF2>(new TF2("ThetaEx",fScatteringModel.get(),&JediBreakupModelOld::ThetaEx,0,180,0,Ex_max/CLHEP::MeV*0.8,5));
 
 	fThetaEx->SetParameter(0,fBeamEnergy/CLHEP::MeV);
 	fThetaEx->SetParameter(1,fThetaMin/CLHEP::deg);
@@ -71,7 +71,7 @@ void DCBreakupEventGenerator::Initialize() {
 	fThetaEx->SetParameter(3,0/CLHEP::deg);
 	fThetaEx->SetParameter(4,0.8*Ex_max/CLHEP::MeV);
 
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediBreakupModel::Phi,0,2*TMath::Pi(),4,"DeuteronCarbonElasticScatteringModel","Phi"));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediBreakupModelOld::Phi,0,2*TMath::Pi(),4,"DeuteronCarbonElasticScatteringModel","Phi"));
 
 	fThetaEx->SetNpx(200);
 	fThetaEx->SetNpy(200);
@@ -114,15 +114,15 @@ genevent_t DCBreakupEventGenerator::Generate() {
 	Double_t Phi=fPhi->GetRandom();
 
 	//G4cout<<G4BestUnit(fBeamEnergy,"Energy")<<G4endl;
-	auto s=fCms.M2();
+	auto msq=fCms.M2();
 	auto md=G4Deuteron::DeuteronDefinition()->GetPDGMass()/CLHEP::GeV;
 	auto mc12=G4IonTable::GetIonTable()->GetIon(6,12)->GetPDGMass()/CLHEP::GeV;
 
 	auto mp=fParticles[0]->GetPDGMass()/CLHEP::GeV;
 	auto mc=mc12+G4Neutron::NeutronDefinition()->GetPDGMass()/CLHEP::GeV+Ex/1000.;
-	auto pcm=sqrt(((s-mp*mp-mc*mc)*(s-mp*mp-mc*mc)-4*mp*mp*mc*mc)/4/s);
+	auto pcm=sqrt(((msq-mp*mp-mc*mc)*(msq-mp*mp-mc*mc)-4*mp*mp*mc*mc)/4/msq);
 
-	auto pcm_1=sqrt(((s-mc12*mc12-md*md)*(s-mc12*mc12-md*md)-4*md*md*mc12*mc12)/4/s);
+	auto pcm_1=sqrt(((msq-mc12*mc12-md*md)*(msq-mc12*mc12-md*md)-4*md*md*mc12*mc12)/4/msq);
 	auto rap=log((pcm_1+sqrt(mc12*mc12+pcm_1*pcm_1))/mc12);
 	auto t=Theta*TMath::DegToRad();
 	auto pp=(sqrt(mp*mp+pcm*pcm)*cos(t)*sinh(rap)+cosh(rap)*sqrt(pcm*pcm-mp*mp*sin(t)*sin(t)*sinh(rap)*sinh(rap))) / (1+sinh(rap)*sinh(rap)*sin(t)*sin(t));

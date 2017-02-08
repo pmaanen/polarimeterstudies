@@ -60,12 +60,12 @@ void DCElasticEventGenerator::Initialize() {
 	fMomentumCMS=temp.Vect().Mag();
 	fPhaseSpace.SetDecay(fCms, 2, masses);
 	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<JediElasticModel>(new JediElasticModel());
+		fScatteringModel=std::unique_ptr<JediElasticModelOld>(new JediElasticModelOld());
 
 
 	// TF1 * f = new TF1("f",fptr,&MyFunction::Evaluate,0,1,npar,"MyFunction","Evaluate");   // create TF1 class.
-	fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&JediElasticModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediElasticModel::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
+	fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&JediElasticModelOld::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediElasticModelOld::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
 	fQ->SetParameter(0,fBeamEnergy/MeV);
 	fPhi->SetParameter(0,fBeamEnergy/MeV);
 	fPhi->SetParameter(1,fBeamPolarization);

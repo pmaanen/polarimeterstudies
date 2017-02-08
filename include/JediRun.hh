@@ -10,7 +10,6 @@
 
 #include <G4Run.hh>
 #include "hit.hh"
-
 #include <map>
 #include <vector>
 class JediRun: public G4Run {
@@ -31,6 +30,7 @@ public:
 
 	std::vector<simevent_t> fSimEvents;
 	std::vector<genevent_t> fGenEvents;
+
 };
 
 #endif /* JEDIRUN_HH_ */

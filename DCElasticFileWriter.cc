@@ -2,7 +2,7 @@
 #define FILEWRITER
 #define MAIN
 #include "global.hh"
-#include "DetectorConstruction.hh"
+#include <DetectorConstructionFactory.hh>
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else

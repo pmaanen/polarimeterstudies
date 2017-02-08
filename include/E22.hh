@@ -42,9 +42,10 @@ public:
 
 private:
 
-	G4double fDistance,fArmWidth,fAngle,fDetectorHeight,fMinDistance,fTargetSizeX,fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY;
+	G4double fDistance,fArmWidth,fAngle,fDetectorHeight,fMinDistance,fTargetSizeX,
+	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY;
 	G4int fNx,fNy;
-	G4bool fSupport,fRightDetector,fLeftDetector,fTarget,fMonitor, fBeampipe, fTrigger, fVeto;
+	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 };

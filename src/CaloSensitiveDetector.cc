@@ -6,10 +6,10 @@
  */
 
 #include <CaloSensitiveDetector.hh>
+#include "JediRun.hh"
 #include "G4String.hh"
 #include "Analysis.hh"
 #include <G4Event.hh>
-#include "G4Exception.hh"
 #include "TNtuple.h"
 #include "global.hh"
 #include "G4EventManager.hh"
@@ -20,6 +20,7 @@
 #include <G4Transform3D.hh>
 #include <G4VisManager.hh>
 #include <G4UnitsTable.hh>
+#include <JediException.hh>
 #include "G4AutoLock.hh"
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
 	Analysis::Instance()->RegisterCaloSD(this);
@@ -46,7 +47,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 		G4TouchableHistory*) {
 	if(gVerbose>4)
-			G4cout<<fName<<": "<<"CaloSensitiveDetector::ProcessHits"<<G4endl;
+		G4cout<<fName<<": "<<"CaloSensitiveDetector::ProcessHits"<<G4endl;
 	if(!Analysis::Instance()->isEnabled())
 		return false;
 	// energy deposit
@@ -70,3 +71,18 @@ CaloSensitiveDetector::~CaloSensitiveDetector() {
 	Analysis::Instance()->UnRegisterCaloSD(this);
 }
 
+void CaloSensitiveDetector::WriteHitsToFile(TTree& aTree,
+		const G4Run* aRun) const {
+
+	if(gVerbose>2)
+		G4cout<<"CaloSensitiveDetector::WriteHitsToFile "<<fName<<G4endl;
+
+	auto SimEvents=&dynamic_cast<const JediRun*>(aRun)->getSimEvents();
+	const std::vector<calorhit_t> *hitPointer=nullptr;
+	//auto myBranch=aTree.Branch(fName,&hitPointer);
+
+	for(const auto &evt : *SimEvents){
+		hitPointer=&evt.calorimeter.at(fName);
+		aTree.Fill();
+	}
+}

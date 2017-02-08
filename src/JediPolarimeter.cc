@@ -27,7 +27,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	DefineMaterials();
 	DefineCommands();
 	ComputeParameters();
-
+	fTarget=nullptr;
 	fHCalMaterial=G4NistManager::Instance()->FindOrBuildMaterial(fScintillatorMaterialName);
 }
 
@@ -241,7 +241,7 @@ void JediPolarimeter::ConstructSDandField() {
 	if(gVerbose>2)
 		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
 
-	for (auto & iSD : fSensitiveDetectors.getMap()){
+	for (const auto & iSD : fSensitiveDetectors.getMap()){
 		if (!fSD[iSD.first].Get())
 			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
 		for(auto & iVol: iSD.second.fLogVol){
