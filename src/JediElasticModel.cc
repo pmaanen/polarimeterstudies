@@ -14,7 +14,7 @@
 #include "G4ios.hh"
 #include "TVector3.h"
 #include <math.h>
-JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fNucleusMass(0),fNucleus(nullptr),fBeamPolarization(0) {
+JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
 	fIncidentParticle=G4Deuteron::DeuteronDefinition();
 	fQ=std::unique_ptr<TF1>(new TF1("q",this,&JediElasticModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
 	fPhi=std::unique_ptr<TF1>(new TF1("Phi",this,&JediElasticModel::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
@@ -33,6 +33,8 @@ JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fNucleus
 
 	fQmin=0.04;
 	fQmax=4;
+
+	DefineCommands();
 }
 
 G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
@@ -99,9 +101,10 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 	fQ->SetParameter(0,kinEnergy/CLHEP::MeV);
 
 	auto fMomentumCMS=fIncidentParticleMomentumCMS.vect().mag();
+	G4LorentzVector outDeuteronMomentum;
+	do{
+
 	auto q=fQ->GetRandom(fQmin,fQmax)*CLHEP::GeV;
-
-
 	G4LorentzVector outDeuteronMomentumCMS(fMomentumCMS,0,0,sqrt(fMomentumCMS*fMomentumCMS+fIncidentParticleMass*fIncidentParticleMass));
 	auto thetaCMS=2*TMath::ASin(q/2/fMomentumCMS);
 	outDeuteronMomentumCMS.setTheta(thetaCMS);
@@ -113,13 +116,8 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 	fPhi->SetParameter(2,thetaLab);
 	auto phi=fPhi->GetRandom(0,2*CLHEP::pi);
 
-
 	outDeuteronMomentumLAB.setPhi(phi);
-	auto outDeuteronMomentum=outDeuteronMomentumLAB;
-	//outDeuteronMomentum.transform(projToLab.inverse());
-	//G4cout<<"phi="<<outDeuteronMomentumLAB.phi()/CLHEP::deg<<" "<<outDeuteronMomentum.phi()/CLHEP::deg<<G4endl;
-	//G4cout<<incidentParticleMomentum<<" "<<fIncidentParticleMomentumLAB<<G4endl;
-
+	outDeuteronMomentum=outDeuteronMomentumLAB;
 
 	auto outNucleusMomentum=G4LorentzVector(-outDeuteronMomentumCMS.vect(),
 			sqrt(fMomentumCMS*fMomentumCMS+fNucleusMass*fNucleusMass));
@@ -137,13 +135,16 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 			outNucleusMomentum
 	) );
 	theParticleChange.AddSecondary( outNucleus );
+
+	} while(outDeuteronMomentum.vect().getTheta()<=fThetaMax && outDeuteronMomentum.vect().getTheta()<=fThetaMin);
+
 	return &theParticleChange;
-
-
 }
 
 void JediElasticModel::DefineCommands() {
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/jedi/elastic/",""));
+	fMessenger->DeclarePropertyWithUnit("theta_min","rad",JediElasticModel::fThetaMin,"");
+	fMessenger->DeclarePropertyWithUnit("theta_max","rad",JediElasticModel::fThetaMax,"");
 }
 
 
