@@ -17,6 +17,7 @@ class G4GenericMessenger;
 #include <G4Deuteron.hh>
 #include <G4DynamicParticle.hh>
 #include <G4Material.hh>
+#include <memory>
 class JediElasticCrossSectionData: public G4VCrossSectionDataSet {
 public:
 	JediElasticCrossSectionData(G4double factor=1);

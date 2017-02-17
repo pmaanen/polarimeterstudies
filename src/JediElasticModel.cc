@@ -14,6 +14,7 @@
 #include "G4ios.hh"
 #include "TVector3.h"
 #include <math.h>
+#include <TMath.h>
 JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
 	fIncidentParticle=G4Deuteron::DeuteronDefinition();
 	fQ=std::unique_ptr<TF1>(new TF1("q",this,&JediElasticModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
