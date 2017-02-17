@@ -24,7 +24,7 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 	auto iron = G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
 
 
-	auto beampipeSizeZ=20*CLHEP::cm;
+	auto beampipeSizeZ=200*CLHEP::cm;
 	auto solidBeampipe=new G4Tubs("Beampipe",0,5*CLHEP::cm,beampipeSizeZ/2,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicBeampipe=new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 

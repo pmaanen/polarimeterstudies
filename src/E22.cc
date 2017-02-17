@@ -16,6 +16,8 @@
 #include "ExternalBeampipe.hh"
 #include "E22Target.hh"
 #include "G4SubtractionSolid.hh"
+
+extern G4LogicalVolume* buildCollimator();
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
@@ -32,6 +34,9 @@ E22::E22():E21(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),fAngle(10*CLHEP::
 	fTargetMaterialName="G4_C";
 	fNx=6;
 	fNy=2;
+
+	fApertureSize=40*CLHEP::mm;
+	fAperturePosition=G4ThreeVector(0,0,-200*CLHEP::mm);
 	fTargetSizeX=fTargetSizeY=fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
 	DefineCommands();
@@ -41,13 +46,13 @@ G4VPhysicalVolume* E22::Construct() {
 	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 
-	fWorldSizeZ=fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+3*CLHEP::m;
+	//fWorldSizeZ=fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+3*CLHEP::m;
 
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
 	auto worldVisAttr=new G4VisAttributes();
 	worldVisAttr->SetForceWireframe(true);
-	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	//fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 	//fLogicWorld->SetUserLimits(new G4UserLimits(100.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));
 	MakeSetup();
@@ -129,7 +134,23 @@ void E22::MakeSetup() {
 		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2+2*CLHEP::cm,fDistance/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
 	}
 	if(fBeampipe)
-		new ExternalBeampipe(0,G4ThreeVector(0,0,-20*CLHEP::cm-10*CLHEP::cm),fLogicWorld,0,0,this);
+		new ExternalBeampipe(0,G4ThreeVector(0,0,-100*CLHEP::cm-565*CLHEP::mm),fLogicWorld,0,0,this);
+
+	auto logicColl=buildCollimator();
+
+	auto rotLeft=new G4RotationMatrix();
+	rotLeft->rotateY(180*CLHEP::deg);
+	auto rotRight=new G4RotationMatrix();
+
+	auto posX=fApertureSize/2+27.5*CLHEP::mm;
+	G4double posZl,posZr;
+	for(int i=0;i<4;i++){
+		posZl=2*i*25*CLHEP::mm-565*CLHEP::mm+12.5*CLHEP::mm+330*CLHEP::mm;
+		posZr=(2*i+1)*25*CLHEP::mm-565*CLHEP::mm+12.5*CLHEP::mm+330*CLHEP::mm;
+		new G4PVPlacement(rotLeft,G4ThreeVector(-posX,0,posZl)+fAperturePosition,logicColl,"CollimatorLeft",fLogicWorld,0,2*i,0);
+		new G4PVPlacement(rotRight,G4ThreeVector(posX,0,posZr)+fAperturePosition,logicColl,"CollimatorRight",fLogicWorld,0,2*i+1,0);
+	}
+
 }
 
 G4LogicalVolume* E22::MakeScintillatorMatrix(G4String name) {
@@ -262,6 +283,8 @@ void E22::DefineCommands() {
 
 	fMessenger->DeclarePropertyWithUnit("holeSizeXY","mm",E22::fHoleSizeXY,"");
 
+	fMessenger->DeclarePropertyWithUnit("aperture","mm",E22::fApertureSize,"");
+
 	fMessenger->DeclareProperty("support",E22::fBuildSupport,"support beam on/off");
 
 	fMessenger->DeclareProperty("nx",E22::fNx,"number of detectors in x");
@@ -277,4 +300,40 @@ void E22::DefineCommands() {
 	fMessenger->DeclareProperty("veto",E22::fVeto,"veto on/off");
 
 	fMessenger->DeclareProperty("trigger",E22::fTrigger,"trigger on/off");
+}
+
+G4LogicalVolume* buildCollimator(){
+
+
+	auto coll_mat=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
+
+	auto collSizeX=135*CLHEP::mm;
+	auto collSizeY=154*CLHEP::mm;
+	auto collSizeZ=25*CLHEP::mm;
+	auto box1=new G4Box("box1",collSizeX/2,collSizeY/2,collSizeZ/2);
+
+
+	auto rot=new G4RotationMatrix();
+	rot->rotateZ(45*CLHEP::deg);
+
+
+	G4double holeSize=sqrt(2)*40*CLHEP::mm;
+	auto box2=new G4Box("box2",holeSize/2,holeSize/2,57/2*CLHEP::mm);
+
+	G4double holeSize1=sqrt(2)*60*CLHEP::mm;
+	auto box3=new G4Box("box2",holeSize1/2,holeSize1/2,30/2*CLHEP::mm);
+
+	auto solidColl1=new G4SubtractionSolid("collimator",box1,box2,rot,G4ThreeVector(-collSizeX/2,0,0));
+	auto solidColl2=new G4SubtractionSolid("collimator",solidColl1,box3,rot,G4ThreeVector(collSizeX/2,-collSizeY/2,0));
+
+	auto logicColl=new G4LogicalVolume(solidColl2,coll_mat,"collimator");
+	return logicColl;
+}
+
+void E22::ComputeParameters() {
+
+	JediPolarimeter::ComputeParameters();
+	G4cout<<"E22::ComputerParameters: "<<fGeometryHasBeenChanged<<G4endl;
+	fWorldSizeZ=6*CLHEP::m;
+	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
 }

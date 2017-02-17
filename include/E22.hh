@@ -29,11 +29,14 @@ public:
 	G4double getTargetSizeZ() const;
 	const G4String& getTargetMaterialName() const;
 
-private:
+protected:
 
+
+	virtual void ComputeParameters();
 	G4double fDistance,fArmWidth,fAngle,fDetectorHeight,fMinDistance,fTargetSizeX,
-	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY;
+	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize;
 	G4int fNx,fNy;
+	G4ThreeVector fAperturePosition;
 	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;

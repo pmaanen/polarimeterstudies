@@ -56,12 +56,12 @@ G4LogicalVolume* E22Target::BuildBox() {
 }
 
 G4LogicalVolume* E22Target::BuildDisc() {
-	auto solidTarget=new G4Tubs("Target",0,fSizeX,fSizeZ,0,2*CLHEP::pi);
+	auto solidTarget=new G4Tubs("Target",0,fSizeX/2,fSizeZ/2,0,2*CLHEP::pi);
 	return new G4LogicalVolume(solidTarget,fMaterial,"Target");
 
 }
 
 G4LogicalVolume* E22Target::BuildSphere() {
-	auto solidTarget=new G4Sphere("Target",0,fSizeX,0,2*CLHEP::pi,0,CLHEP::pi);
+	auto solidTarget=new G4Sphere("Target",0,fSizeX/2,0,2*CLHEP::pi,0,CLHEP::pi);
 	return new G4LogicalVolume(solidTarget,fMaterial,"Target");
 }
