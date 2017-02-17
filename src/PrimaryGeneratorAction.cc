@@ -71,8 +71,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fParticleGun->SetParticleDefinition(G4Deuteron::DeuteronDefinition());
 }
 
-PrimaryGeneratorAction::~PrimaryGeneratorAction() {}
-
 void PrimaryGeneratorAction::generateEventFromGenerator(G4Event *E)
 {
 	fGeneratorName.toLower();

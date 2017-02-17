@@ -4,6 +4,7 @@
 #
 # Sets some default verbose
 #
+/run/initialize
 /run/verbose 0
 /control/verbose 0
 #

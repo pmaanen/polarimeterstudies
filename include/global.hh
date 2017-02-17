@@ -17,7 +17,7 @@
 #define EXTERN extern
 #endif
 EXTERN boost::program_options::variables_map gConfig;
-class SensitiveDetectorMap;
+class SensitiveDetectorManager;
 EXTERN int gVerbose;
 /*
  * Verbosity
@@ -56,9 +56,9 @@ void initializeConfiguration(int argc,char** argv){
     ("detector.beampipe_thickness", po::value<double>()->default_value(2),"beampipe thickness in mm")
     ("detector.scintillator_material", po::value<std::string>()->default_value("LYSO"),"scintillator material name")
     ("detector.hcal_size_z", po::value<double>()->default_value(80.),"hcal element length(z) in mm")
-    ("detector.hcal_sizexy", po::value<double>()->default_value(30.),"hcal element size(x,y)  in mm")
+    ("detector.hcal_size_xy", po::value<double>()->default_value(30.),"hcal element size(x,y)  in mm")
     ("detector.theta_min", po::value<double>()->default_value(5),"acceptance theta min in deg")
-    ("detector.theta_max", po::value<double>()->default_value(19.5),"acceptance theta max in deg")
+    ("detector.theta_max", po::value<double>()->default_value(20),"acceptance theta max in deg")
 
 	//Generator
     ("generator.theta_min", po::value<double>(),"theta min in deg")

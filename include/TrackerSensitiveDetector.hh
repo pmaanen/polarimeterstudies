@@ -67,6 +67,7 @@ public:
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 	const std::vector<trackerhit_t>* getVect() {		return fHits.get();	}
+	virtual void WriteHitsToFile(TTree& outFile, const G4Run* aRun) const;
 protected:
 
 	std::vector<DetectorHit> fHitBuffer;

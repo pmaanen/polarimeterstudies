@@ -13,14 +13,15 @@
 #include "hit.hh"
 #include "TFile.h"
 #include <sstream>
-#include "G4Exception.hh"
 #include "G4RootAnalysisManager.hh"
 #include "G4Threading.hh"
 #include <G4GenericMessenger.hh>
+#include <JediException.hh>
 #include "G4Cache.hh"
 #include <algorithm>
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
+class JediSensitiveDetector;
 /*
  * \brief Analysis class
  * This class contains the code to collect information from
@@ -61,16 +62,19 @@ public:
 		fFileName = fileName;
 	}
 
-	TTree* getOutTree();
 	void BeginOfRun();
 	void EndOfRun(const G4Run* run);
 
-	void BeginOfEvent();
+	void BeginOfEvent(){};
 	void EndOfEvent(const G4Event* evt);
 
-	void FillTree(){};
 	void RegisterTrackerSD(TrackerSensitiveDetector*);
 	void UnRegisterTrackerSD(TrackerSensitiveDetector*);
+
+	void RegisterSD(JediSensitiveDetector*);
+	void UnRegisterSD(JediSensitiveDetector*);
+
+
 	void RegisterCaloSD(CaloSensitiveDetector*);
 	void UnRegisterCaloSD(CaloSensitiveDetector*);
 	const std::vector<simevent_t>* getSimEvents() const {
@@ -98,16 +102,12 @@ private:
 
 	G4String fFileName;
 	static G4String fGeneratorName;
-	std::map<G4String,TBranch*> fOutBranches;
 
-
+	std::vector<JediSensitiveDetector*> fSD;
 
 	std::vector<CaloSensitiveDetector*> fCaloSD;
 	std::vector<TrackerSensitiveDetector*> fTrackerSD;
 
-	std::vector<G4String> fCaloSDNames;
-	std::vector<G4String> fTrackerSDNames;
-	std::vector<G4String> fGeneratorNames;
 
 	std::vector<genevent_t>* fGenEvents;
 	std::vector<simevent_t>* fSimEvents;

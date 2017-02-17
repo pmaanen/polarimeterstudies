@@ -24,9 +24,10 @@
 #include "Randomize.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
-using namespace CLHEP;
 
-#include "DeuteronCarbonElasticScatteringModel.hh"
+#include "JediScatteringHelperFunctions.hh"
+using namespace CLHEP;
+using namespace JediScatteringHelperFunctions::elastic;
 DCElasticEventGenerator::DCElasticEventGenerator():PhaseSpaceGenerator("dcelastic"){
 
 	if(gConfig.count("generator.beam_polarization")){
@@ -49,29 +50,24 @@ void DCElasticEventGenerator::Initialize() {
 	}
 	if(gVerbose>2)
 		G4cout<<"Theta_Min="<<fThetaMin/CLHEP::deg<<" Theta_Max="<<fThetaMax/CLHEP::deg<<G4endl;
-	Double_t m_target = fParticles[1]->GetPDGMass()/GeV;
-	Double_t m_beam = fParticles[0]->GetPDGMass()/GeV;
-	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
+	G4double m_target = fParticles[1]->GetPDGMass();
+	G4double m_beam = fParticles[0]->GetPDGMass();
+	fTarget.set(0,0,0,m_target);
 	Double_t masses[2] = {m_beam, m_target} ;
-	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
+	fBeam.set(0, 0, sqrt(fBeamEnergy*(fBeamEnergy+2*m_beam)), fBeamEnergy+m_beam);
 	fCms = fBeam + fTarget;
-	TLorentzVector temp=fBeam;
-	temp.Boost(-fCms.BoostVector());
-	fMomentumCMS=temp.Vect().Mag();
-	fPhaseSpace.SetDecay(fCms, 2, masses);
-	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<JediElasticModel>(new JediElasticModel());
+	G4LorentzVector temp=fBeam;
 
-
-	// TF1 * f = new TF1("f",fptr,&MyFunction::Evaluate,0,1,npar,"MyFunction","Evaluate");   // create TF1 class.
-	fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&JediElasticModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&JediElasticModel::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
+	temp.boost(-fCms.boostVector());
+	fMomentumCMS=temp.vect().mag();
+	fQ=std::unique_ptr<TF1>(new TF1("q",q,0,TMath::Pi(),1));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",phi,0,2*TMath::Pi(),3));
 	fQ->SetParameter(0,fBeamEnergy/MeV);
 	fPhi->SetParameter(0,fBeamEnergy/MeV);
 	fPhi->SetParameter(1,fBeamPolarization);
 
-	fQmin=2*fMomentumCMS*sin(fThetaMin/2);
-	fQmax=2*fMomentumCMS*sin(fThetaMax/2);
+	fQmin=2*fMomentumCMS/GeV*sin(fThetaMin/2);
+	fQmax=2*fMomentumCMS/GeV*sin(fThetaMax/2);
 
 	VertexGeneratorO::GetInstance()->setBeamposition(fBeamposition.getX()/CLHEP::mm,fBeamposition.getY()/CLHEP::mm,fBeamposition.getZ()/CLHEP::mm);
 	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX()/CLHEP::mm,fBeamsize.getY()/CLHEP::mm,fBeamsize.getZ()/CLHEP::mm);
@@ -98,21 +94,32 @@ genevent_t DCElasticEventGenerator::Generate() {
 	thisEvent.x=pos.x();
 	thisEvent.y=pos.y();
 	thisEvent.z=pos.z();
-	auto q=fQ->GetRandom(fQmin,fQmax);
-	TLorentzVector d4;
-	d4.SetPxPyPzE(fMomentumCMS,0,0,sqrt(fMomentumCMS*fMomentumCMS+fParticles[0]->GetPDGMass()/GeV*fParticles[0]->GetPDGMass()/GeV));
+	auto q=fQ->GetRandom(fQmin,fQmax)*CLHEP::GeV;
+	G4LorentzVector d_momentum_cms;
+
+	d_momentum_cms.set(fMomentumCMS,0,0,sqrt(fMomentumCMS*fMomentumCMS+fParticles[0]->GetPDGMass()*fParticles[0]->GetPDGMass()));
 	auto thetaCMS=2*TMath::ASin(q/2/fMomentumCMS);
-	d4.SetTheta(thetaCMS);
-	auto d4lab=TLorentzVector(d4);
-	d4lab.Boost(fCms.BoostVector());
-	auto thetaLab=d4lab.Theta();
-	fPhi->SetParameter(2,thetaLab);
-	auto phi=fPhi->GetRandom(0,2*CLHEP::pi);
-	d4.SetPhi(phi);
-	d4lab.SetPhi(phi);
-	auto c4=TLorentzVector(-d4.Vect(),sqrt(fMomentumCMS*fMomentumCMS+fParticles[1]->GetPDGMass()/GeV*fParticles[1]->GetPDGMass()/GeV));
-	c4.Boost(fCms.BoostVector());
-	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),d4lab.Vect().X(),d4lab.Vect().Y(),d4lab.Vect().Z(),d4lab.E()*GeV/MeV-fParticles[0]->GetPDGMass()/MeV));
-	thisEvent.particles.push_back(particle_t(fParticles[1]->GetPDGEncoding(),c4.Vect().X(),c4.Vect().Y(),c4.Vect().Z(),c4.E()*GeV/MeV-fParticles[1]->GetPDGMass()/MeV));
+
+	d_momentum_cms.setTheta(thetaCMS);
+	auto d_momentum_lab=d_momentum_cms;
+	d_momentum_lab.boost(fCms.boostVector());
+
+	auto thetaLab=d_momentum_lab.theta();
+	fPhi->SetParameter(2,thetaLab/CLHEP::deg);
+	auto phi=fPhi->GetRandom(0,2*CLHEP::pi)*CLHEP::deg;
+
+	d_momentum_cms.setPhi(phi);
+	d_momentum_lab.setPhi(phi);
+
+	auto carbon_momentum_cms=G4LorentzVector(-d_momentum_cms.vect(),sqrt(fMomentumCMS*fMomentumCMS+fParticles[1]->GetPDGMass()*fParticles[1]->GetPDGMass()));
+	auto carbon_momentum_lab=carbon_momentum_cms;
+	carbon_momentum_cms.boost(fCms.boostVector());
+
+	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),
+			carbon_momentum_cms.x()/GeV,carbon_momentum_lab.y()/GeV,carbon_momentum_lab.z()/GeV,
+			carbon_momentum_lab.e()/GeV-fParticles[1]->GetPDGMass()/GeV));
+	thisEvent.particles.push_back(particle_t(fParticles[0]->GetPDGEncoding(),
+			d_momentum_lab.x()/GeV,d_momentum_lab.y()/GeV,d_momentum_lab.z()/GeV,
+			d_momentum_lab.e()/GeV-fParticles[0]->GetPDGMass()/GeV));
 	return thisEvent;
 }

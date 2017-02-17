@@ -14,6 +14,7 @@
 #include <vector>
 #include <memory>
 #include "hit.hh"
+class G4Run;
 class CaloSensitiveDetector: public JediSensitiveDetector_impl {
 public:
 	CaloSensitiveDetector(const G4String& name);
@@ -21,10 +22,8 @@ public:
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 
 	virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* history);
-
-	std::vector<calorhit_t>* getVect() {
-		return vect.get();
-	}
+	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const;
+	std::vector<calorhit_t>* getVect() {return vect.get();}
 
 private:
 	std::map<G4int, G4double> fHitMap;

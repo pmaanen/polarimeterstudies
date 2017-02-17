@@ -8,7 +8,6 @@
 #ifndef DCELASTICEVENTGENERATOR_HH_
 #define DCELASTICEVENTGENERATOR_HH_
 #include "PhaseSpaceGenerator.hh"
-#include "DeuteronCarbonElasticScatteringModel.hh"
 #include <G4ThreeVector.hh>
 #include "TF2.h"
 #include "TGenPhaseSpace.h"
@@ -32,7 +31,6 @@ public:
 protected:
 
 	Double_t fMomentumCMS,fBeamPolarization;
-	std::unique_ptr<JediElasticModel> fScatteringModel;
 	std::unique_ptr<TF1> fQ;
 	std::unique_ptr<TF1> fPhi;
 	virtual void DefineCommands();

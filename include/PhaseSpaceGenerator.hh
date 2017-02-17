@@ -11,23 +11,20 @@
 #include <G4Deuteron.hh>
 #include "G4IonTable.hh"
 #include "G4ios.hh"
-#include "TCanvas.h"
-#include "TH1.h"
 #include "Randomize.hh"
 #include "G4GenericMessenger.hh"
 #include "Analysis.hh"
-#include "TVector3.h"
 #include "G4GenericMessenger.hh"
 #include <math.h>
 #include <G4ThreeVector.hh>
+#include <G4LorentzVector.hh>
 #include "TF2.h"
-#include "TGenPhaseSpace.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "globals.hh"
+#include "global.hh"
 #include <TMath.h>
 #include <utility>
 #include <vector>
-#include "global.hh"
 #include <G4UnitsTable.hh>
 
 #include "EventGenerator.hh"
@@ -60,9 +57,8 @@ public:
 protected:
 	G4double fBeamEnergy,fMaxY,fThetaMin,fThetaMax;
 	G4bool fInitialized;
-	TGenPhaseSpace fPhaseSpace;
 
-	TLorentzVector fCms,fBeam,fTarget;
+	G4LorentzVector fCms,fBeam,fTarget;
 
 	//Definition of particles. particles[0] carries the kinetic energy.
 	std::vector<G4ParticleDefinition*> fParticles;

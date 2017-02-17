@@ -14,6 +14,9 @@
 #include "globals.hh"
 
 #include <vector>
+#include <memory>
+
+class JediPhysicsManager;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Run;
@@ -22,7 +25,7 @@ class RunAction: public G4UserRunAction
 {
 public:
 
-	RunAction();
+	RunAction(std::shared_ptr<JediPhysicsManager> physicsManager);
 	virtual ~RunAction();
 	G4int fNEvents;
 
@@ -32,6 +35,7 @@ public:
 	inline G4int GetNEvents() { return fNEvents; };
 
 private:
+	std::shared_ptr<JediPhysicsManager> fPhysicsManager;
 	G4bool fSaveRndm;
 	G4int fLuxury;
 	G4int fSeed;

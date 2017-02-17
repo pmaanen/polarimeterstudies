@@ -33,8 +33,8 @@ public:
 };
 class cosmic_functions{
 	public:
-		Double_t angle(Double_t* x,Double_t* p){return cos(x[0])*cos(x[0]);};
-		Double_t momentum(Double_t* x,Double_t* p){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
+		Double_t angle(Double_t* x,Double_t*){return cos(x[0])*cos(x[0]);};
+		Double_t momentum(Double_t* x,Double_t*){if(x[0]<3.35) return std::pow(3.35,-2.7); else return std::pow(x[0],-2.7);};
 	};
 
 #endif /* INCLUDE_COSMICMUONGENERATOR_HH_ */

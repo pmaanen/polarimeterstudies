@@ -14,7 +14,7 @@
 #include "VertexGeneratorU.hh"
 #include "VertexGeneratorA.hh"
 #include "VertexGeneratorO.hh"
-BeamGenerator::BeamGenerator(G4ParticleGun* gun):fVertexGenerator(VertexGeneratorU::GetInstance()),fParticleGun(gun) {
+BeamGenerator::BeamGenerator(G4ParticleGun* gun):fParticleGun(gun),fVertexGenerator(VertexGeneratorU::GetInstance()) {
 	fXPrime=fYPrime=0;
 	if(fParticleGun)
 		fEnergy=fParticleGun->GetParticleEnergy();

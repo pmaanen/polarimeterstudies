@@ -170,4 +170,25 @@ void E21::MakeEffectiveDetector() {
 
 }
 
-
+void E21::MakeSandwichDetector() {
+	G4RotationMatrix* rot = new G4RotationMatrix();
+	rot->set(fPhi, fTheta, fPsi);
+	auto logicHodoscope = MakeDetector("Hodoscope",
+			G4NistManager::Instance()->FindOrBuildMaterial(
+					"G4_PLASTIC_SC_VINYLTOLUENE"), fHCalSizeZ, fHCalSizeZ,
+			1 * CLHEP::cm);
+	fSensitiveDetectors.Update("Hodoscope", SDtype::kCalorimeter,
+			logVolVector { logicHodoscope });
+	auto logicAbsorber = MakeDetector("Detector",
+			G4NistManager::Instance()->FindOrBuildMaterial("G4_W"),
+			fHCalSizeZ, fHCalSizeZ, fHCalSizeXY);
+	fSensitiveDetectors.Update("Detector", SDtype::kTracker, logVolVector {
+			logicAbsorber });
+	new G4PVPlacement(rot,
+			fCalorimeterPosition + G4ThreeVector(0, 0, -.5 * CLHEP::cm),
+			logicHodoscope, "Trigger", fLogicWorld, false, 0, false);
+	new G4PVPlacement(rot,
+			fCalorimeterPosition + G4ThreeVector(0, 0, fHCalSizeXY / 2),
+			logicAbsorber, "Detector", fLogicWorld, false, 0, false);
+	return;
+}
