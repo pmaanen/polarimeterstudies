@@ -13,8 +13,6 @@
 
 
 #include <DetectorConstructionFactory.hh>
-#include "E21.hh"
-#include "E22.hh"
 #include "Testbench.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
@@ -25,7 +23,8 @@
 #include "global.hh"
 
 #include <G4GenericMessenger.hh>
-
+#include <Testbeam2016a.hh>
+#include <Testbeam2016b.hh>
 #include <map>
 
 using namespace CLHEP;
@@ -58,13 +57,13 @@ G4VUserDetectorConstruction* DetectorConstructionFactory::Create() {
 	else if(name=="edda"){
 		Geometry= new EddaDetectorConstruction();
 	}
-	else if(name=="testbeam")
+	else if(name=="testbeam2016a")
 	{
-		Geometry= new E21();
+		Geometry= new Testbeam2016a();
 	}
 	else if(name=="testbeam2016b")
 	{
-		Geometry= new E22();
+		Geometry= new Testbeam2016b();
 	}
 	if(!Geometry){
 		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");

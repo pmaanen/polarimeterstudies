@@ -35,7 +35,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
-	fTarget=BuildDetector<G4Box>("Target",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
+	fTarget=BuildVolume<G4Box>("Target",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
 	//		auto worldRegion = new G4Region("calorimeter");
 	//		worldRegion->AddRootLogicalVolume(aCrystal);
 	//		worldRegion->SetUserLimits(new G4UserLimits(10.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));

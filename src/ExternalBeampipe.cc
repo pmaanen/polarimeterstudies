@@ -24,13 +24,11 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 	auto iron = G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
 
 
-	auto beampipeSizeZ=200*CLHEP::cm;
+	auto beampipeSizeZ=dc->getBeampipeLength();
 	auto solidBeampipe=new G4Tubs("Beampipe",0,5*CLHEP::cm,beampipeSizeZ/2,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicBeampipe=new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 
 	auto windowThickness=0.1*CLHEP::mm;
-
-
 	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm-2*CLHEP::mm,beampipeSizeZ/2-windowThickness,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicVacuum=new G4LogicalVolume(solidVacuum,uhv,"Vacuum");
 	logicVacuum->SetVisAttributes(new G4VisAttributes(tyellow));
@@ -43,8 +41,3 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 
 	SetLogicalVolume(logicBeampipe);
 }
-
-ExternalBeampipe::~ExternalBeampipe() {
-	// TODO Auto-generated destructor stub
-}
-

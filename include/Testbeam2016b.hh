@@ -5,15 +5,15 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_E22_HH_
-#define INCLUDE_E22_HH_
+#ifndef INCLUDE_TESTBEAM2016B_HH_
+#define INCLUDE_TESTBEAM2016B_HH_
 
-#include <E21.hh>
+#include <Testbeam2016a.hh>
 
-class E22: public E21 {
+class Testbeam2016b: public Testbeam2016a {
 public:
-	E22();
-	virtual ~E22()=default;
+	Testbeam2016b();
+	virtual ~Testbeam2016b()=default;
 
 	virtual G4VPhysicalVolume* Construct();
 	void MakeSetup();
@@ -31,31 +31,30 @@ public:
 
 protected:
 
-
 	virtual void ComputeParameters();
 	G4double fDistance,fArmWidth,fAngle,fDetectorHeight,fMinDistance,fTargetSizeX,
-	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize;
+	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance;
 	G4int fNx,fNy;
 	G4ThreeVector fAperturePosition;
-	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto;
+	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto,fStart;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 };
 
-inline G4double E22::getTargetSizeX() const {
+inline G4double Testbeam2016b::getTargetSizeX() const {
 	return fTargetSizeX;
 }
 
-inline G4double E22::getTargetSizeY() const {
+inline G4double Testbeam2016b::getTargetSizeY() const {
 	return fTargetSizeY;
 }
 
-inline G4double E22::getTargetSizeZ() const {
+inline G4double Testbeam2016b::getTargetSizeZ() const {
 	return fTargetSizeZ;
 }
 
-inline const G4String& E22::getTargetMaterialName() const {
+inline const G4String& Testbeam2016b::getTargetMaterialName() const {
 	return fTargetMaterialName;
 }
 
-#endif /* INCLUDE_E22_HH_ */
+#endif /* INCLUDE_TESTBEAM2016B_HH_ */

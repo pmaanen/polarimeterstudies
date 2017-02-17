@@ -5,13 +5,13 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_E21_HH_
-#define INCLUDE_E21_HH_
+#ifndef INCLUDE_TESTBEAM2016A_HH_
+#define INCLUDE_TESTBEAM2016A_HH_
 #include "SingleCrystal.hh"
-class E21: public SingleCrystal {
+class Testbeam2016a: public SingleCrystal {
 public:
-	E21();
-	virtual ~E21()=default;
+	Testbeam2016a();
+	virtual ~Testbeam2016a()=default;
 
 	void setTriggerSizeX(G4double x) {
 			this->fTriggerSizeX = x;
@@ -66,4 +66,4 @@ protected:
 
 };
 
-#endif /* INCLUDE_E21_HH_ */
+#endif /* INCLUDE_TESTBEAM2016A_HH_ */

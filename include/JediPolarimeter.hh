@@ -124,9 +124,9 @@ protected:
 
 	virtual G4LogicalVolume* MakeCaloCrystal()=0;
 	template<typename solid, typename... Params>
-	G4LogicalVolume* BuildDetector(const G4String detName, G4Material* mat, Params... parameters){
-		auto solidDet=new solid(detName, parameters...);
-		auto logicDetector = new G4LogicalVolume(solidDet,mat,detName);
+	G4LogicalVolume* BuildVolume(const G4String volName, G4Material* mat, Params... parameters){
+		auto solidDet=new solid(volName, parameters...);
+		auto logicDetector = new G4LogicalVolume(solidDet,mat,volName);
 		return logicDetector;
 	}
 	virtual void DefineCommands();

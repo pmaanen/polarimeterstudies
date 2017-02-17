@@ -5,13 +5,13 @@
  *      Author: pmaanen
  */
 
-#include <E21.hh>
 #include "Analysis.hh"
 #include "Colors.hh"
 #include <G4UserLimits.hh>
 #include <JediSensitiveDetector.hh>
+#include <Testbeam2016a.hh>
 #include "ExternalBeampipe.hh"
-E21::E21():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
+Testbeam2016a::Testbeam2016a():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0),fTriggerOffsetZ(0),fCalorimeterPosition(0,0,0),fDetectorName("default") {
 	fHCalSizeZ=8*CLHEP::cm;
 	fHCalSizeXY=3*CLHEP::cm;
 	fTriggerSizeY=2.5*CLHEP::cm;
@@ -23,7 +23,7 @@ E21::E21():SingleCrystal(),fLogicTrigger(0),fTriggerOffsetX(0),fTriggerOffsetY(0
 	DefineCommands();
 }
 
-G4VPhysicalVolume* E21::Construct() {
+G4VPhysicalVolume* Testbeam2016a::Construct() {
 	if(fGeometryHasBeenChanged)
 		ComputeParameters();
 
@@ -48,7 +48,7 @@ G4VPhysicalVolume* E21::Construct() {
 	return fPhysiWorld;
 }
 
-void E21::MakeSetup() {
+void Testbeam2016a::MakeSetup() {
 
 
 	if(fTriggerSizeY>0 and fTriggerSizeX>0 and fTriggerSizeZ>0){
@@ -77,46 +77,46 @@ void E21::MakeSetup() {
 
 }
 
-void E21::DefineCommands() {
+void Testbeam2016a::DefineCommands() {
 
 	SingleCrystal::DefineCommands();
 
 	fMessenger->DeclareMethodWithUnit("triggersizeX","mm",
-			&E21::setTriggerSizeX,
+			&Testbeam2016a::setTriggerSizeX,
 			"trigger size x (mm)");
 
 	fMessenger->DeclareMethodWithUnit("triggersizeY","mm",
-			&E21::setTriggerSizeY,
+			&Testbeam2016a::setTriggerSizeY,
 			"trigger size y (mm)");
 
 	fMessenger->DeclareMethodWithUnit("triggersizeZ","mm",
-			&E21::setTriggerSizeY,
+			&Testbeam2016a::setTriggerSizeY,
 			"trigger size z (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetX","mm",
-			&E21::setTriggerOffsetX,
+			&Testbeam2016a::setTriggerOffsetX,
 			"trigger offset in x dir. (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetY","mm",
-			&E21::setTriggerOffsetY,
+			&Testbeam2016a::setTriggerOffsetY,
 			"trigger offset in y dir. (mm)");
 
 fMessenger->DeclareMethodWithUnit("trgOffsetZ","mm",
-			&E21::setTriggerOffsetZ,
+			&Testbeam2016a::setTriggerOffsetZ,
 			"trigger offset in z dir. (mm)");
 
 	fMessenger->DeclarePropertyWithUnit("position","mm",
-			E21::fCalorimeterPosition,
+			Testbeam2016a::fCalorimeterPosition,
 			"calorimeter position");
 
 
-	auto detCmd=fMessenger->DeclareProperty("detector",E21::fDetectorName,"detector type.");
+	auto detCmd=fMessenger->DeclareProperty("detector",Testbeam2016a::fDetectorName,"detector type.");
 	detCmd.SetCandidates("default sandwich effective");
 
 
 }
 
-void E21::Make2016ADetector() {
+void Testbeam2016a::Make2016ADetector() {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
@@ -154,7 +154,7 @@ void E21::Make2016ADetector() {
 	return;
 }
 
-void E21::MakeEffectiveDetector() {
+void Testbeam2016a::MakeEffectiveDetector() {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
@@ -170,7 +170,7 @@ void E21::MakeEffectiveDetector() {
 
 }
 
-void E21::MakeSandwichDetector() {
+void Testbeam2016a::MakeSandwichDetector() {
 	G4RotationMatrix* rot = new G4RotationMatrix();
 	rot->set(fPhi, fTheta, fPsi);
 	auto logicHodoscope = MakeDetector("Hodoscope",
