@@ -79,7 +79,7 @@ void CaloSensitiveDetector::WriteHitsToFile(TTree& aTree,
 
 	auto SimEvents=&dynamic_cast<const JediRun*>(aRun)->getSimEvents();
 	const std::vector<calorhit_t> *hitPointer=nullptr;
-	//auto myBranch=aTree.Branch(fName,&hitPointer);
+	aTree.Branch(fName,&hitPointer);
 
 	for(const auto &evt : *SimEvents){
 		hitPointer=&evt.calorimeter.at(fName);

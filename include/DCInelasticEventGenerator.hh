@@ -10,7 +10,6 @@
 
 #include <PhaseSpaceGenerator.hh>
 #include <memory>
-#include "DeuteronCarbonInelasticScatteringModel.hh"
 class TF1;
 class TF2;
 class DCInelasticEventGenerator: public PhaseSpaceGenerator {
@@ -21,7 +20,6 @@ public:
 	virtual genevent_t Generate();
 private:
 	//Double_t fBeamPolarization;
-	std::unique_ptr<DeuteronCarbonInelasticScatteringModel> fScatteringModel;
 	std::unique_ptr<TF2> fQEx;
 	std::unique_ptr<TF1> fPhi;
 };

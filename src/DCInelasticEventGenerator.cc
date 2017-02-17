@@ -6,6 +6,8 @@
  */
 
 #include <DCInelasticEventGenerator.hh>
+#include "JediScatteringHelperFunctions.hh"
+
 #include "G4Deuteron.hh"
 #include "G4Neutron.hh"
 #include "G4Gamma.hh"
@@ -15,17 +17,16 @@
 #include "global.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
-
 #include "TF1.h"
+
+using namespace JediScatteringHelperFunctions::inelastic;
 DCInelasticEventGenerator::DCInelasticEventGenerator():PhaseSpaceGenerator("dcinelastic") {
 	fBeamEnergy=270.*CLHEP::MeV;
 	fInitialized=false;
 
 	fThetaMin=2.0*CLHEP::deg;
 	fThetaMax=180.*CLHEP::deg;
-	fScatteringModel=std::unique_ptr<DeuteronCarbonInelasticScatteringModel>(new DeuteronCarbonInelasticScatteringModel);
 	DefineCommands();
-
 }
 
 genevent_t DCInelasticEventGenerator::Generate() {
@@ -48,26 +49,16 @@ void DCInelasticEventGenerator::Initialize() {
 	fParticles.push_back(G4Deuteron::DeuteronDefinition());
 	fParticles.push_back(G4IonTable::GetIonTable()->GetIon(6,12));
 
-	/*
-	for(const auto& ipart : fParticles){
-		if(*ipart==nullptr)
-			G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","",FatalException,"beam particle not found.");
-	}
-	 */
-	Double_t m_target = G4IonTable::GetIonTable()->GetIon(6,12)->GetPDGMass()/CLHEP::GeV;
-	Double_t m_beam = G4Deuteron::DeuteronDefinition()->GetPDGMass()/CLHEP::GeV;
-	fTarget.SetPxPyPzE(0.0, 0.0, 0.0, m_target);
-	fBeam.SetPxPyPzE(0, 0, sqrt(fBeamEnergy/CLHEP::GeV*(fBeamEnergy/CLHEP::GeV+2*m_beam)), fBeamEnergy/CLHEP::GeV+m_beam);
+	G4double m_target = G4IonTable::GetIonTable()->GetIon(6,12)->GetPDGMass()/CLHEP::GeV;
+	G4double m_beam = G4Deuteron::DeuteronDefinition()->GetPDGMass()/CLHEP::GeV;
+	fTarget.set(0.0, 0.0, 0.0, m_target);
+	fBeam.set(0, 0, sqrt(fBeamEnergy*(fBeamEnergy+2*m_beam)), fBeamEnergy+m_beam);
 	fCms = fBeam + fTarget;
-	if(!fScatteringModel)
-		fScatteringModel=std::unique_ptr<DeuteronCarbonInelasticScatteringModel>(new DeuteronCarbonInelasticScatteringModel());
-
 	VertexGeneratorO::GetInstance()->setBeamposition(fBeamposition.getX(),fBeamposition.getY(),fBeamposition.getZ());
 	VertexGeneratorO::GetInstance()->setBeamsize(fBeamsize.getX(),fBeamsize.getY(),fBeamsize.getZ());
 	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ());
-	//fQ=std::unique_ptr<TF1>(new TF1("q",fScatteringModel.get(),&DeuteronCarbonElasticScatteringModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
-	fQEx=std::unique_ptr<TF2>(new TF2("qEx",fScatteringModel.get(),&DeuteronCarbonInelasticScatteringModel::QEx,0,5,0,100,1));
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",fScatteringModel.get(),&DeuteronCarbonInelasticScatteringModel::Phi,0,2*TMath::Pi(),3));
+	fQEx=std::unique_ptr<TF2>(new TF2("qEx",q_ex,0,5,0,100,1));
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",phi,0,2*TMath::Pi(),3));
 
 	fInitialized=true;
 }
