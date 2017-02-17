@@ -18,7 +18,6 @@
 
 
 #include <math.h>
-extern G4LogicalVolume* buildCollimator();
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
@@ -149,7 +148,7 @@ void Testbeam2016b::MakeSetup() {
 	if(fBeampipe)
 		new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
 
-	auto logicColl=buildCollimator();
+	auto logicColl=BuildCollimator();
 
 	auto rotLeft=new G4RotationMatrix();
 	rotLeft->rotateY(180*CLHEP::deg);
@@ -326,7 +325,7 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclareProperty("trigger",Testbeam2016b::fTrigger,"trigger on/off");
 }
 
-G4LogicalVolume* buildCollimator(){
+G4LogicalVolume* Testbeam2016b::BuildCollimator(){
 
 
 	auto coll_mat=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");

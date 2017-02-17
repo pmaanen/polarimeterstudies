@@ -39,6 +39,9 @@ protected:
 	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto,fStart;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
+
+private:
+	G4LogicalVolume* BuildCollimator();
 };
 
 inline G4double Testbeam2016b::getTargetSizeX() const {
