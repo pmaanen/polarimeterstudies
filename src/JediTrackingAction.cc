@@ -11,7 +11,7 @@
 #include "JediTrackInfo.hh"
 #include <G4RunManager.hh>
 #include <G4Deuteron.hh>
-JediTrackingAction::JediTrackingAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager)
+JediTrackingAction::JediTrackingAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager)
 {}
 
 void JediTrackingAction::PreUserTrackingAction(const G4Track* track) {

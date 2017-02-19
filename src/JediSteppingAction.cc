@@ -12,7 +12,7 @@
 #include <G4RunManager.hh>
 #include "global.hh"
 #include "SingleCrystal.hh"
-JediSteppingAction::JediSteppingAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager) {}
+JediSteppingAction::JediSteppingAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager) {}
 
 void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 	G4Track *         track( step->GetTrack() );

@@ -10,8 +10,8 @@
 
 #include <G4VPhysicsConstructor.hh>
 #include <JediBreakupModel.hh>
-#include <JediElasticModel.hh>
 #include <G4GenericMessenger.hh>
+#include <JediDeuteronElastic.hh>
 
 
 #include <memory>
@@ -33,7 +33,7 @@ protected:
 
 protected:
 
-	std::unique_ptr<JediElasticModel> fElastic;
+	std::unique_ptr<JediDeuteronElastic> fElastic;
 	std::unique_ptr<JediBreakupModel> fBreakup;
 
 private:

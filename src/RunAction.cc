@@ -22,7 +22,7 @@
 #include <DetectorConstructionFactory.hh>
 #include "SingleCrystal.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-RunAction::RunAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager)
+RunAction::RunAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager)
 {
 	Analysis::Instance();
 	ROOT::EnableThreadSafety();

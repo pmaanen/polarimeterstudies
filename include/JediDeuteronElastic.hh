@@ -5,8 +5,8 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_JEDIELASTICMODEL_HH_
-#define INCLUDE_JEDIELASTICMODEL_HH_
+#ifndef INCLUDE_JEDIDEUTERONELASTIC_HH_
+#define INCLUDE_JEDIDEUTERONELASTIC_HH_
 
 
 #include <G4HadronicInteraction.hh>
@@ -15,10 +15,10 @@
 
 #include <memory>
 
-class JediElasticModel: public G4HadronicInteraction {
+class JediDeuteronElastic: public G4HadronicInteraction {
 public:
-	JediElasticModel();
-	virtual ~JediElasticModel(){theParticleChange.Clear();};
+	JediDeuteronElastic();
+	virtual ~JediDeuteronElastic(){theParticleChange.Clear();};
 
 	G4HadFinalState * ApplyYourself(const G4HadProjectile & aTrack, G4Nucleus & targetNucleus);
 	void setBeamPolarization(G4double xBeamPolarization) {fBeamPolarization = Double_t(xBeamPolarization);};
@@ -28,8 +28,13 @@ private:
 	G4double SampleQ(G4double kinEnergy);
 
 	Double_t fBeamPolarization;
-	TF1* fQ;
-	TF1* fPhi;
+	/*
+	 * TF1->GetRandom is not used for now because it introduces a major slowdown
+	 * =>maybe some kind of global lock in root?
+	 * 	TF1* fQ;
+	 *	TF1* fPhi;
+	 */
+
 	G4double fQmin,fQmax,fThetaMin,fThetaMax;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4ParticleDefinition *    fIncidentParticle,*fNucleus;
@@ -38,4 +43,4 @@ private:
 	G4double fNucleusMass,fIncidentParticleMass;
 };
 
-#endif /* INCLUDE_JEDIELASTICMODEL_HH_ */
+#endif /* INCLUDE_JEDIDEUTERONELASTIC_HH_ */

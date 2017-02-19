@@ -5,18 +5,17 @@
  *      Author: pmaanen
  */
 
-#ifndef INCLUDE_JEDIELASTICPROCESS_HH_
-#define INCLUDE_JEDIELASTICPROCESS_HH_
+#ifndef INCLUDE_JEDIDEUTERONELASTICPROCESS_HH_
+#define INCLUDE_JEDIDEUTERONELASTICPROCESS_HH_
 
 #include <G4HadronicProcess.hh>
 #include <memory>
 #include <Rtypes.h>
-class TGenPhaseSpace;
-class JediElasticModel;
-class JediElasticProcess: public G4HadronicProcess {
+class JediDeuteronElastic;
+class JediDeuteronElasticProcess: public G4HadronicProcess {
 public:
-	explicit JediElasticProcess();
-	virtual ~JediElasticProcess();
+	explicit JediDeuteronElasticProcess();
+	virtual ~JediDeuteronElasticProcess();
 
 
 public:
@@ -25,13 +24,13 @@ public:
 
 	G4bool  IsApplicable( const G4ParticleDefinition &  particle );
 
-	void    RegisterModel( JediElasticModel *  model );
+	void    RegisterModel( JediDeuteronElastic *  model );
 
-	JediElasticModel *   fModel;
+	JediDeuteronElastic *   fModel;
 
 	G4ParticleChange *      theTotalResult;
 
 	G4Nucleus               targetNucleus;
 };
 
-#endif /* INCLUDE_JEDIELASTICPROCESS_HH_ */
+#endif /* INCLUDE_JEDIDEUTERONELASTICPROCESS_HH_ */

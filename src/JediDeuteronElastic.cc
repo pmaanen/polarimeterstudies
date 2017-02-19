@@ -5,7 +5,6 @@
  *      Author: pmaanen
  */
 
-#include <JediElasticModel.hh>
 #include "global.hh"
 #include <G4Deuteron.hh>
 #include "G4ParticleDefinition.hh"
@@ -17,10 +16,11 @@
 #include <TMath.h>
 #include "JediScatteringHelperFunctions.hh"
 #include <G4NucleiProperties.hh>
+#include <JediDeuteronElastic.hh>
 #include <TROOT.h>
 #include <TMath.h>
 #include <TRandom3.h>
-JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
+JediDeuteronElastic::JediDeuteronElastic():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
 	ROOT::EnableThreadSafety();
 	theMinEnergy=30*CLHEP::MeV;
 	SetRecoilEnergyThreshold(10*CLHEP::keV);
@@ -29,16 +29,6 @@ JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPol
 	fQmin=0.04*CLHEP::GeV;
 	fQmax=.4*CLHEP::GeV;
 
-	TRandom3 gen(G4Threading::G4GetThreadId());
-	fQ=new TF1("q",JediScatteringHelperFunctions::elastic::q,fQmin/CLHEP::GeV,fQmax/CLHEP::GeV,1);
-
-	fPhi=new TF1("Phi",JediScatteringHelperFunctions::elastic::phi,0,2*TMath::Pi(),3);
-	fThetaMax=13*CLHEP::deg;
-
-	fQ->SetNpx(1000);
-	fPhi->SetNpx(1000);
-
-	//G4cout<<"JediElasticModel::JediElasticModel() thread id: "<<G4Threading::G4GetThreadId()<<G4endl;
 	if(!fIncidentParticle)
 		G4Exception("JediElasticModel::JediElasticModel","",FatalException,"no deuteron definition found");
 	fIncidentParticleMass=fIncidentParticle->GetPDGMass();
@@ -47,7 +37,7 @@ JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPol
 	DefineCommands();
 }
 
-G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
+G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrack,
 		G4Nucleus& targetNucleus) {
 	theParticleChange.Clear();
 
@@ -145,7 +135,16 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 			nlv1 = G4LorentzVector(0.0,0.0,0.0,m1);
 
 		} else {
-			theParticleChange.SetMomentumChange(nlv1.vect().unit());
+			auto outdir=nlv1.vect().unit();
+			if(std::fabs(outdir.mag2()-1)>0.01){
+				G4ExceptionDescription d;
+				d<<"Momentum change is not unit vector! "
+						<<outdir;
+				G4Exception("JediElasticModel::ApplyYourself","",JustWarning,d.str().c_str());
+				outdir*=1/outdir.mag();
+
+			}
+			theParticleChange.SetMomentumChange(outdir);
 			theParticleChange.SetEnergyChange(eFinal);
 		}
 
@@ -157,7 +156,7 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 					<< G4endl;
 		}
 
-		if(erec > 10*CLHEP::keV) {
+		if(erec > 100*CLHEP::keV and false) {
 			G4ParticleDefinition * theDef = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(Z,A,0.0);
 			G4DynamicParticle * aSec = new G4DynamicParticle(theDef, lv);
 			theParticleChange.AddSecondary(aSec);
@@ -170,38 +169,43 @@ G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
 
 }
 
-void JediElasticModel::DefineCommands() {
+void JediDeuteronElastic::DefineCommands() {
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/jedi/elastic/",""));
-	fMessenger->DeclarePropertyWithUnit("theta_min","rad",JediElasticModel::fThetaMin,"");
-	fMessenger->DeclarePropertyWithUnit("theta_max","rad",JediElasticModel::fThetaMax,"");
+	fMessenger->DeclarePropertyWithUnit("theta_min","rad",JediDeuteronElastic::fThetaMin,"");
+	fMessenger->DeclarePropertyWithUnit("theta_max","rad",JediDeuteronElastic::fThetaMax,"");
 }
 
-G4double JediElasticModel::SampleQ(G4double kinEnergy) {
+G4double JediDeuteronElastic::SampleQ(G4double kinEnergy) {
 
-	/*
-	auto ymax=JediScatteringHelperFunctions::elastic::q(fQmin,kinEnergy/CLHEP::MeV);
+	auto ymax=JediScatteringHelperFunctions::elastic::q(fQmin/CLHEP::GeV,kinEnergy/CLHEP::MeV);
 	G4double xrand,yrand;
 	while(true){
 
 		xrand=(fQmax/CLHEP::GeV-fQmin/CLHEP::GeV)*G4UniformRand()+fQmin/CLHEP::GeV;
 		yrand=G4UniformRand()*ymax;
-		//G4cout<<"ymax" <<ymax<<" xrand "<<xrand<<" yrand "<<yrand<<" y(xrand) "<<JediScatteringHelperFunctions::elastic::q(xrand,kinEnergy/CLHEP::MeV)<<G4endl;
 		if(yrand<JediScatteringHelperFunctions::elastic::q(xrand,kinEnergy/CLHEP::MeV))
 			break;
 	}
 
 	auto q=xrand*CLHEP::GeV;
 
-	 */
-	fQ->SetParameter(0,kinEnergy/CLHEP::MeV);
-	auto q=fQ->GetRandom(fQmin/CLHEP::GeV,fQmax/CLHEP::GeV)*CLHEP::GeV;
 	return q;
 }
 
-G4double JediElasticModel::SamplePhi(G4double kinEnergy, G4double pol, G4double thetaLab) {
-	//G4cout<<"Setting parameters to "<<kinEnergy/CLHEP::MeV<<" "<<pol<<" "<<thetaLab/CLHEP::deg<<G4endl;
-	fPhi->SetParameters(kinEnergy/CLHEP::MeV,pol,thetaLab/CLHEP::deg);
-	G4double phi=fPhi->GetRandom();
-	phi*=CLHEP::rad;
+G4double JediDeuteronElastic::SamplePhi(G4double kinEnergy, G4double pol, G4double thetaLab) {
+	//pol=0.5;
+	//kinEnergy=270*CLHEP::MeV;
+	//thetaLab=20*CLHEP::deg;
+	//G4cout<<JediScatteringHelperFunctions::elastic::phi(0.,pol,kinEnergy/CLHEP::MeV,thetaLab/CLHEP::deg)<<G4endl;
+	//G4cout<<JediScatteringHelperFunctions::elastic::phi(CLHEP::pi,pol,kinEnergy/CLHEP::MeV,thetaLab/CLHEP::deg)<<G4endl;
+	auto ymax=1+std::abs(pol)*JediScatteringHelperFunctions::elastic::ay(kinEnergy/CLHEP::MeV,thetaLab/CLHEP::deg);
+	G4double xrand,yrand;
+	while(true){
+		xrand=G4UniformRand()*CLHEP::twopi;
+		yrand=G4UniformRand()*ymax;
+		if(yrand<JediScatteringHelperFunctions::elastic::phi(xrand,pol,kinEnergy/CLHEP::MeV,thetaLab/CLHEP::deg))
+			break;
+	}
+	G4double phi=xrand*CLHEP::rad;
 	return phi;
 }

@@ -19,6 +19,7 @@
 #include <JediException.hh>
 #include "G4Cache.hh"
 #include <algorithm>
+#include "G4ThreadLocalSingleton.hh"
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
 class JediSensitiveDetector;
@@ -35,16 +36,10 @@ class calorhit_t;
 class trackerhit_t;
 class Analysis {
 public:
-	//! Singleton
+	friend class G4ThreadLocalSingleton<Analysis>;
 	static Analysis* Instance() {
-		{
-			if ( fgInstance == 0 ) {
-				G4bool isMaster = ! G4Threading::IsWorkerThread();
-				fgInstance = new Analysis(isMaster);
-			}
-
-			return fgInstance;
-		}
+		static G4ThreadLocalSingleton<Analysis> theInstance;
+		return theInstance.Instance();
 	}
 	virtual ~Analysis() {};
 	void setEnabled(bool xenable){fEnabled=xenable;};
@@ -91,10 +86,7 @@ public:
 
 private:
 	//! Private constructor: part of singleton pattern
-	Analysis(G4bool isMaster=true);
-	//! Singleton static instance
-	static Analysis* fgMasterInstance;
-	static G4ThreadLocal Analysis* fgInstance;
+	Analysis();
 
 	G4GenericMessenger* fAnalysisMessenger;
 

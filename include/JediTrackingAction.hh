@@ -16,7 +16,7 @@ class G4LogicalVolume;
 #include <memory>
 class JediTrackingAction: public G4UserTrackingAction {
 public:
-	explicit JediTrackingAction(std::shared_ptr<JediPhysicsManager> physicsManager);
+	explicit JediTrackingAction(JediPhysicsManager* physicsManager);
 	virtual ~JediTrackingAction()=default;
 
 public:
@@ -24,7 +24,7 @@ public:
 
 private:
 
-	std::shared_ptr<JediPhysicsManager> fPhysicsManager;
+	JediPhysicsManager* fPhysicsManager;
 
 };
 #endif /* JEDITRACKINGACTION_H_ */

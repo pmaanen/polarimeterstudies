@@ -6,19 +6,17 @@
  */
 
 #include <JediHadronicPhysics.hh>
-#include "JediElasticProcess.hh"
 #include "JediBreakupProcess.hh"
 #include <G4ProcessManager.hh>
 #include <JediFakeCrossSectionData.hh>
 #include <JediElasticCrossSectionData.hh>
 #include <JediBreakupCrossSectionData.hh>
 #include <G4IonTable.hh>
+#include <JediDeuteronElasticProcess.hh>
 #include "JediStudiedProcess.hh"
 #include "global.hh"
 JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false) {
 
-	fElastic=std::unique_ptr<JediElasticModel>(new JediElasticModel);
-	fBreakup=std::unique_ptr<JediBreakupModel>(new JediBreakupModel);
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/PolarimeterStudies/hadronic/"));
 
 	verboseLevel=ver;
@@ -39,9 +37,8 @@ void JediHadronicPhysics::ConstructParticle() {
 }
 
 void JediHadronicPhysics::ConstructProcess() {
-
-	auto elasticProcess=new JediElasticProcess;
-	elasticProcess->RegisterModel(fElastic.get());
+	auto elasticProcess=new JediDeuteronElasticProcess;
+	elasticProcess->RegisterModel(new JediDeuteronElastic);
 	JediStudiedProcess* wrapperProcess=nullptr;
 	if(fUseFastSim){
 		elasticProcess->AddDataSet(new JediFakeCrossSectionData);

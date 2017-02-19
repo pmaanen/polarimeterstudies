@@ -18,13 +18,10 @@
 #include "Rtypes.h"
 #include "global.hh"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
-
 void UserActionInitialization::Build() const {
-	ROOT::EnableThreadSafety();
-	auto physicsManager=std::make_shared<JediPhysicsManager>();
 
 	SetUserAction(new PrimaryGeneratorAction);
-
+	auto physicsManager=JediPhysicsManager::GetInstance();
 	//Calls InitializeGeometry at begin of every run
 	SetUserAction(new RunAction(physicsManager));
 
@@ -39,5 +36,7 @@ void UserActionInitialization::Build() const {
 }
 
 void UserActionInitialization::BuildForMaster() const {
-	SetUserAction(new RunAction(std::make_shared<JediPhysicsManager>()));
+	auto physicsManager=JediPhysicsManager::GetInstance();
+
+	SetUserAction(new RunAction(physicsManager));
 }
