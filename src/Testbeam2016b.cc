@@ -233,7 +233,15 @@ void Testbeam2016b::MakeTarget() {
 	}
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
 	auto pos=G4ThreeVector(0,0,fTargetSizeZ/2);
-	new G4PVPlacement(rot,G4ThreeVector(0,0,fTargetSizeZ/2),logicTarget,"Target",fLogicWorld,false,0);
+	new G4PVPlacement(rot,pos,logicTarget,"Target",fLogicWorld,false,0);
+
+	auto logicObs=BuildVolume<G4Tubs>("Target",G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),0,2*fTargetSizeX/2,1*CLHEP::mm,0,2*CLHEP::pi);
+	auto visAttr=new G4VisAttributes(cyan);
+	logicObs->SetVisAttributes(visAttr);
+	auto posObs=G4ThreeVector(0,0,fTargetSizeZ/2+10*CLHEP::cm);
+	fSensitiveDetectors.Update("Observer",SDtype::kPerfect,logVolVector{logicObs});
+	new G4PVPlacement(rot,posObs,logicObs,"Target",fLogicWorld,false,0);
+
 
 	fTargetTransform.SetNetTranslation( pos );
 	fTargetTransform.SetNetRotation( *rot );

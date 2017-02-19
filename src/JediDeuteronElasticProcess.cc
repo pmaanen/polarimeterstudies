@@ -5,8 +5,6 @@
  *      Author: pmaanen
  */
 
-#include <JediElasticProcess.hh>
-#include <JediElasticModel.hh>
 #include <G4ParticleChange.hh>
 #include <G4ParticleDefinition.hh>
 #include <G4HadronicInteraction.hh>
@@ -16,6 +14,8 @@
 #include <G4StableIsotopes.hh>
 #include <G4IonTable.hh>
 #include <G4TrackStatus.hh>
+#include <JediDeuteronElastic.hh>
+#include <JediDeuteronElasticProcess.hh>
 #include <TGenPhaseSpace.h>
 #include <TLorentzVector.h>
 #include "global.hh"
@@ -33,15 +33,15 @@
 
 
 
-JediElasticProcess::JediElasticProcess():G4HadronicProcess( "dcelastic" ), fModel( nullptr ), theTotalResult( nullptr ) {
+JediDeuteronElasticProcess::JediDeuteronElasticProcess():G4HadronicProcess( "dcelastic" ), fModel( nullptr ), theTotalResult( nullptr ) {
 	theTotalResult = new G4ParticleChange();
 }
 
-JediElasticProcess::~JediElasticProcess() {
+JediDeuteronElasticProcess::~JediDeuteronElasticProcess() {
 	delete theTotalResult;
 }
 
-G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
+G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track,
 		const G4Step&) {
 	theTotalResult->Clear();
 	theTotalResult->Initialize(track);
@@ -87,10 +87,10 @@ G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 
 	if(verboseLevel>1) {
 		G4cout << "Efin= " << result->GetEnergyChange()
-														   << " de= " << result->GetLocalEnergyDeposit()
-														   << " nsec= " << result->GetNumberOfSecondaries()
-														   << " dir= " << outdir
-														   << G4endl;
+																		   << " de= " << result->GetLocalEnergyDeposit()
+																		   << " nsec= " << result->GetNumberOfSecondaries()
+																		   << " dir= " << outdir
+																		   << G4endl;
 	}
 
 	// energies
@@ -99,16 +99,11 @@ G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 	if(efinal < 0.0) { efinal = 0.0; }
 	if(edep < 0.0)   { edep = 0.0; }
 
-	// NOTE:  Very low energy scatters were causing numerical (FPE) errors
-	//        in earlier releases; these limits have not been changed since.
-	if(efinal <= 30*CLHEP::MeV) {
-		edep += efinal;
-		efinal = 0.0;
-	}
-
 	// primary change
 	theTotalResult->ProposeEnergy(efinal);
-	auto phi=fModel->SamplePhi(kineticEnergy,track.GetPolarization().getY(),outdir.getTheta())*CLHEP::rad;
+	auto phi=fModel->SamplePhi(kineticEnergy,track.GetPolarization().getY(),outdir.getTheta());
+	//phi=G4UniformRand()*90*CLHEP::deg-45*CLHEP::deg;
+	//G4cout<<"phi:"<<phi/CLHEP::rad<<G4endl;
 	G4TrackStatus status = track.GetTrackStatus();
 	if(efinal > 0.0) {
 		outdir.rotate(phi,indir);
@@ -124,13 +119,11 @@ G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 
 	theTotalResult->SetNumberOfSecondaries(0);
 
-
-	//G4cout<<"outdir:"<<outdir.getTheta()/CLHEP::deg<<" "<<outdir.getPhi()/CLHEP::deg<<G4endl;
 	// recoil
 	if(result->GetNumberOfSecondaries() > 0) {
 		G4DynamicParticle* p = result->GetSecondary(0)->GetParticle();
 
-		if(p->GetKineticEnergy() > 100*CLHEP::MeV) {
+		if(p->GetKineticEnergy() > 100*CLHEP::keV) {
 			theTotalResult->SetNumberOfSecondaries(1);
 			G4ThreeVector pdir = p->GetMomentumDirection();
 			// G4cout << "recoil " << pdir << G4endl;
@@ -149,7 +142,6 @@ G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 
 		} else {
 			edep += p->GetKineticEnergy();
-			delete p;
 		}
 	}
 	theTotalResult->ProposeLocalEnergyDeposit(edep);
@@ -158,14 +150,14 @@ G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 	return theTotalResult;
 }
 
-G4bool JediElasticProcess::IsApplicable(const G4ParticleDefinition& particle) {
+G4bool JediDeuteronElasticProcess::IsApplicable(const G4ParticleDefinition& particle) {
 	G4bool res=false;
 	if(particle.GetPDGEncoding()==G4Deuteron::DeuteronDefinition()->GetPDGEncoding())
 		res=true;
 	return res;
 }
 
-void JediElasticProcess::RegisterModel(JediElasticModel* model) {
+void JediDeuteronElasticProcess::RegisterModel(JediDeuteronElastic* model) {
 	fModel = model;
 	G4HadronicProcess::RegisterMe( dynamic_cast< G4HadronicInteraction * >( fModel ) );
 }
