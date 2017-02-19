@@ -19,16 +19,15 @@ class  G4VParticleChange;
 class JediStudiedProcess: public G4WrapperProcess {
 public:
 public:
-      explicit  JediStudiedProcess( G4ProcessType  processType = fUserDefined );
-
+	explicit  JediStudiedProcess();
   	virtual ~JediStudiedProcess()=default;
 
   public:
-      G4double  PostStepGetPhysicalInteractionLength( const G4Track &  track,
-                  G4double  previousStepSize, G4ForceCondition *  condition );
+  	virtual G4double PostStepGetPhysicalInteractionLength (const G4Track &, G4double, G4ForceCondition *);
 
-      G4VParticleChange *  PostStepDoIt( const G4Track &  track,
+      virtual G4VParticleChange *  PostStepDoIt( const G4Track &  track,
                                          const G4Step &  step );
+
 };
 
 #endif /* INCLUDE_JEDISTUDIEDPROCESS_HH_ */

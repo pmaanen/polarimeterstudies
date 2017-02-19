@@ -43,7 +43,7 @@ G4VModularPhysicsList *  JediPhysicsListFactory::Create()
 	}
 	the_physics->SetVerboseLevel(0);
 	the_physics->RegisterPhysics(new JediHadronicPhysics(gVerbose));
-	the_physics->RegisterPhysics(new G4StepLimiterPhysics);
+	//the_physics->RegisterPhysics(new G4StepLimiterPhysics);
 	/*
 		auto em=G4EmParameters::Instance();
 		em->SetMscStepLimitType(fUseDistanceToBoundary);

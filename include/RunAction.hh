@@ -26,7 +26,7 @@ class RunAction: public G4UserRunAction
 public:
 
 	RunAction(std::shared_ptr<JediPhysicsManager> physicsManager);
-	virtual ~RunAction();
+	virtual ~RunAction()=default;
 	G4int fNEvents;
 
 	void BeginOfRunAction(const G4Run*);

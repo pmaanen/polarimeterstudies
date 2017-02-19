@@ -44,7 +44,7 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(1
 	fTargetSizeX=fTargetSizeY=50*CLHEP::mm;
 	fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
-	fBeampipeLength=2*CLHEP::m;
+	fBeampipeLength=1*CLHEP::m;
 	DefineCommands();
 	ComputeParameters();
 }
@@ -54,7 +54,7 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
-	auto worldVisAttr=new G4VisAttributes(G4VisAttributes::Invisible);
+	auto worldVisAttr=new G4VisAttributes();
 	worldVisAttr->SetForceWireframe(true);
 	fLogicWorld->SetVisAttributes(worldVisAttr);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
@@ -94,8 +94,8 @@ void Testbeam2016b::MakeSetup() {
 
 	if(fBuildSupport){
 		auto solidSupport=new G4SubtractionSolid("Support",
-				new G4Box("",fArmWidth/2,fArmWidth/2.,fDistance/2+fHCalSizeZ/2),
-				new G4Box("",fArmWidth/4,fArmWidth/4.,fDistance)
+				new G4Box("Support1",fArmWidth/2,fArmWidth/2.,fDistance/2+fHCalSizeZ/2),
+				new G4Box("Support2",fArmWidth/4,fArmWidth/4.,fDistance)
 		);
 
 		auto logicHorizontalSupport=new G4LogicalVolume(solidSupport,al,"Support");
@@ -148,19 +148,20 @@ void Testbeam2016b::MakeSetup() {
 	if(fBeampipe)
 		new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
 
-	auto logicColl=BuildCollimator();
+	if(fCollimator){
+		auto logicColl=BuildCollimator();
+		auto rotLeft=new G4RotationMatrix();
+		rotLeft->rotateY(180*CLHEP::deg);
+		auto rotRight=new G4RotationMatrix();
 
-	auto rotLeft=new G4RotationMatrix();
-	rotLeft->rotateY(180*CLHEP::deg);
-	auto rotRight=new G4RotationMatrix();
-
-	auto posX=fApertureSize/2+27.5*CLHEP::mm;
-	G4double posZl,posZr;
-	for(int i=0;i<4;i++){
-		posZl=2*i*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
-		posZr=(2*i+1)*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
-		new G4PVPlacement(rotLeft,G4ThreeVector(-posX,0,posZl)+fAperturePosition,logicColl,"CollimatorLeft",fLogicWorld,0,2*i,0);
-		new G4PVPlacement(rotRight,G4ThreeVector(posX,0,posZr)+fAperturePosition,logicColl,"CollimatorRight",fLogicWorld,0,2*i+1,0);
+		auto posX=fApertureSize/2+27.5*CLHEP::mm;
+		G4double posZl,posZr;
+		for(int i=0;i<4;i++){
+			posZl=2*i*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
+			posZr=(2*i+1)*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
+			new G4PVPlacement(rotLeft,G4ThreeVector(-posX,0,posZl)+fAperturePosition,logicColl,"CollimatorLeft",fLogicWorld,0,2*i,0);
+			new G4PVPlacement(rotRight,G4ThreeVector(posX,0,posZr)+fAperturePosition,logicColl,"CollimatorRight",fLogicWorld,0,2*i+1,0);
+		}
 	}
 
 }
@@ -176,15 +177,15 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 
 	auto solidMother=new G4Box("Detector",motherSizeX/2,motherSizeY/2,motherSizeZ/2);
 	auto logicMother=new G4LogicalVolume(solidMother,man->FindOrBuildMaterial("G4_Galactic"),"Detector");
-	auto logicCrystal=MakeDetector("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
+	auto logicCrystal=BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
 	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{logicCrystal});
 	logicCrystal->SetVisAttributes(new G4VisAttributes(green));
 
 	G4int index=0;
 	for(G4int iX=0;iX<fNx;iX++){
 		for(G4int iY=0;iY<fNy;iY++){
-			index=iX+1000*iY;
-			new G4PVPlacement (rot, G4ThreeVector(-motherSizeX/2+(iX+0.5)*fHCalSizeXY,-motherSizeY/2+(iY+0.5)*fHCalSizeXY,0), logicCrystal, "", logicMother, false,index , false);
+			index=iX+10*iY;
+			new G4PVPlacement (rot, G4ThreeVector(-motherSizeX/2+(iX+0.5)*fHCalSizeXY,-motherSizeY/2+(iY+0.5)*fHCalSizeXY,0), logicCrystal, "hcalelement", logicMother, false,index , false);
 		}
 	}
 
@@ -231,12 +232,12 @@ void Testbeam2016b::MakeTarget() {
 		G4Exception("Testbeam2016b::MakeTarget()","",FatalException,message.str().c_str());
 	}
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
-	auto physiTarget=new G4PVPlacement(rot,G4ThreeVector(0,0,fTargetSizeZ/2),logicTarget,"Target",fLogicWorld,false,0);
-	if(!physiTarget->GetLogicalVolume())
-		G4Exception("E22::MakeTarget()","",FatalException,"Target has no LogicalVolume.");
-	fTargetTransform.SetNetTranslation( physiTarget->GetTranslation() );
-	fTargetTransform.SetNetRotation( *physiTarget->GetRotation() );
-	fTarget=physiTarget->GetLogicalVolume();
+	auto pos=G4ThreeVector(0,0,fTargetSizeZ/2);
+	new G4PVPlacement(rot,G4ThreeVector(0,0,fTargetSizeZ/2),logicTarget,"Target",fLogicWorld,false,0);
+
+	fTargetTransform.SetNetTranslation( pos );
+	fTargetTransform.SetNetRotation( *rot );
+	fTarget=logicTarget;
 }
 
 void Testbeam2016b::Make2016BDetector() {
@@ -275,17 +276,6 @@ void Testbeam2016b::Make2016BDetector() {
 
 void Testbeam2016b::DefineCommands() {
 
-
-	fTargetMessenger =std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,
-			"/PolarimeterStudies/target/",
-			"target control"));
-
-	fTargetMessenger->DeclareProperty("material",Testbeam2016b::fTargetMaterialName,"");
-
-	fTargetMessenger->DeclarePropertyWithUnit("x","mm",Testbeam2016b::fTargetSizeX,"");
-	fTargetMessenger->DeclarePropertyWithUnit("y","mm",Testbeam2016b::fTargetSizeY,"");
-	fTargetMessenger->DeclarePropertyWithUnit("z","mm",Testbeam2016b::fTargetSizeZ,"");
-
 	fMessenger->DeclarePropertyWithUnit("armlength","mm",Testbeam2016b::fDistance,"");
 
 	fMessenger->DeclarePropertyWithUnit("height","mm",Testbeam2016b::fDetectorHeight,"");
@@ -314,7 +304,7 @@ void Testbeam2016b::DefineCommands() {
 
 	fMessenger->DeclareProperty("target",Testbeam2016b::fBuildTarget,"target on/off");
 
-	fMessenger->DeclareProperty("start",Testbeam2016b::fStart,"target on/off");
+	fMessenger->DeclareProperty("start",Testbeam2016b::fStart,"start on/off");
 
 	fMessenger->DeclarePropertyWithUnit("targetSizeZ","mm",Testbeam2016b::fTargetSizeZ,"size of target in z.");
 
@@ -323,6 +313,8 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclareProperty("veto",Testbeam2016b::fVeto,"veto on/off");
 
 	fMessenger->DeclareProperty("trigger",Testbeam2016b::fTrigger,"trigger on/off");
+
+	fMessenger->DeclareProperty("collimator",Testbeam2016b::fCollimator,"collimator on/off");
 }
 
 G4LogicalVolume* Testbeam2016b::BuildCollimator(){
@@ -356,10 +348,9 @@ G4LogicalVolume* Testbeam2016b::BuildCollimator(){
 void Testbeam2016b::ComputeParameters() {
 
 	JediPolarimeter::ComputeParameters();
-	fBeampipeLength=2*CLHEP::m;
-	G4cout<<"E22::ComputerParameters: "<<fGeometryHasBeenChanged<<G4endl;
+	fBeampipeLength=1*CLHEP::m;
 	G4double Zmax=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
 	G4double Zmin=fTargetDistance+fBeampipeLength+10*CLHEP::cm;
 	fWorldSizeZ=2*std::max(Zmin,Zmax);
-	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
+	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+50*CLHEP::cm;
 }

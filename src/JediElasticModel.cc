@@ -15,131 +15,158 @@
 #include "TVector3.h"
 #include <math.h>
 #include <TMath.h>
+#include "JediScatteringHelperFunctions.hh"
+#include <G4NucleiProperties.hh>
+#include <TROOT.h>
+#include <TMath.h>
 JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
+	ROOT::EnableThreadSafety();
+	theMinEnergy=30*CLHEP::MeV;
+	SetRecoilEnergyThreshold(10*CLHEP::keV);
 	fIncidentParticle=G4Deuteron::DeuteronDefinition();
-	fQ=std::unique_ptr<TF1>(new TF1("q",this,&JediElasticModel::q,0,TMath::Pi(),1,"DeuteronCarbonElasticScatteringModel","q"));
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",this,&JediElasticModel::Phi,0,2*TMath::Pi(),3,"DeuteronCarbonElasticScatteringModel","Phi"));
-	fThetaMin=3*CLHEP::deg;
-	fThetaMax=30*CLHEP::deg;
 
+	fQmin=0.04*CLHEP::GeV;
+	fQmax=.4*CLHEP::GeV;
+
+	fQ=std::unique_ptr<TF1>(new TF1("q",JediScatteringHelperFunctions::elastic::q,fQmin/CLHEP::GeV,fQmax/CLHEP::GeV,1));
+
+	fPhi=std::unique_ptr<TF1>(new TF1("Phi",JediScatteringHelperFunctions::elastic::phi,0,2*TMath::Pi(),3));
+	fThetaMin=3*CLHEP::deg;
+	fThetaMax=13*CLHEP::deg;
+
+	fQ->SetNpx(200);
+	fPhi->SetNpx(200);
 
 	//G4cout<<"JediElasticModel::JediElasticModel() thread id: "<<G4Threading::G4GetThreadId()<<G4endl;
 	if(!fIncidentParticle)
 		G4Exception("JediElasticModel::JediElasticModel","",FatalException,"no deuteron definition found");
 	fIncidentParticleMass=fIncidentParticle->GetPDGMass();
-
-
 	fOutParticles.push_back(fIncidentParticle);
-
-
-	fQmin=0.04;
-	fQmax=4;
-
+	verboseLevel=gVerbose;
 	DefineCommands();
 }
 
 G4HadFinalState* JediElasticModel::ApplyYourself(const G4HadProjectile& aTrack,
-		G4Nucleus&) {
+		G4Nucleus& targetNucleus) {
 	theParticleChange.Clear();
 
+	const G4HadProjectile* aParticle = &aTrack;
+	G4double ekin = aParticle->GetKineticEnergy();
+	if(ekin <= theMinEnergy) {
+		theParticleChange.SetEnergyChange(ekin);
+		theParticleChange.SetMomentumChange(aTrack.Get4Momentum().vect().unit());
+		return &theParticleChange;
+	}
+	G4int A = targetNucleus.GetA_asInt();
+	G4int Z = targetNucleus.GetZ_asInt();
 
-	if(gVerbose>2)
-		G4cout<<"JediElasticModel::ApplyYourself"<<G4endl;
-	//G4Exception("JediElasticModel::ApplyYourself","",FatalException,"");
-	/*
-	fMomentumCMS=
+	G4double plab = aParticle->GetTotalMomentum();
 
-			fQmin=2*fMomentumCMS*sin(fThetaMin/2);
-	fQmax=2*fMomentumCMS*sin(fThetaMax/2);
-	 */
+	// Scattered particle referred to axis of incident particle
+	const G4ParticleDefinition* theParticle = aParticle->GetDefinition();
+	G4double m1 = theParticle->GetPDGMass();
 
-	if(!fNucleus){
-		fNucleus=G4IonTable::GetIonTable()->GetIon(6,12);
-		if(!fNucleus)
-			G4Exception("JediElasticModel::JediElasticModel","",FatalException,"no nucleus definition found");
-		fNucleusMass=fNucleus->GetPDGMass();
-		fOutParticles.push_back(fNucleus);
-
+	if (verboseLevel>1) {
+		G4cout << "JediElasticProcess: "
+				<< aParticle->GetDefinition()->GetParticleName()
+				<< " Plab(GeV/c)= " << plab/CLHEP::GeV
+				<< " Ekin(MeV) = " << ekin/CLHEP::MeV
+				<< " scattered off Z= " << Z
+				<< " A= " << A
+				<< G4endl;
 	}
 
-	G4double           kinEnergy( aTrack.GetKineticEnergy() );
-	G4HadProjectile &  theProjectile( const_cast< G4HadProjectile & >(
-			aTrack ) );
-	const G4LorentzRotation &  projToLab(
-			const_cast< const G4LorentzRotation & >(
-					theProjectile.GetTrafoToLab() ) );
-	G4LorentzVector incidentParticleMomentum = aTrack.Get4Momentum();
+	G4double mass2 = G4NucleiProperties::GetNuclearMass(A, Z);
+	G4LorentzVector lv1 = aParticle->Get4Momentum();
+	G4LorentzVector lv(0.0,0.0,0.0,mass2);
+	lv += lv1;
 
-	fIncidentParticleMomentumLAB=incidentParticleMomentum;
-	fIncidentParticleMomentumLAB.transform( projToLab );
-	fNucleusMomentumLAB.setPx( 0 );
-	fNucleusMomentumLAB.setPy( 0 );
-	fNucleusMomentumLAB.setPz( 0 );
-	fNucleusMomentumLAB.setE( fNucleusMass );
+	G4ThreeVector bst = lv.boostVector();
+	lv1.boost(-bst);
 
-	/*
-	if ( fermiMotionIsOn )
-	{
-		G4ThreeVector  targetNucleusMomentum(
-				targetNucleus.GetFermiMomentum() );
-		G4double       targetNucleusEnergy(
-				std::sqrt( targetNucleusMomentum.mag2() +
-						nucleusParticleMass * nucleusParticleMass ) );
-		productionModelData.nucleusParticleLAB = G4LorentzVector(
-				targetNucleusMomentum, targetNucleusEnergy );
-	}
-	 */
+	G4ThreeVector p1 = lv1.vect();
+	G4double momentumCMS = p1.mag();
 
-	fNucleusMomentumLAB.transform( projToLab );
-	G4LorentzVector inVecSum= fIncidentParticleMomentumLAB + fNucleusMomentumLAB ;
-	G4ThreeVector    boostVec( inVecSum.boostVector() );
 
-	fIncidentParticleMomentumCMS = fIncidentParticleMomentumLAB;
-	fNucleusMomentumCMS = fNucleusMomentumLAB;
-
-	fIncidentParticleMomentumCMS.boost( -boostVec );
-	fNucleusMomentumCMS.boost( -boostVec );
-	fQ->SetParameter(0,kinEnergy/CLHEP::MeV);
-
-	auto fMomentumCMS=fIncidentParticleMomentumCMS.vect().mag();
-	G4LorentzVector outDeuteronMomentum;
+	G4double thetaLab=0;
 	do{
+		theParticleChange.Clear();
+		// Sampling in CM system
+		G4double q    = SampleQ(ekin);
+		G4double theta = 2*TMath::ASin(q/2/momentumCMS)*CLHEP::rad;
+		G4double phi  = 0.;
+		// problem in sampling
+		if( q<fQmin || q> fQmax ) {
+			//if(verboseLevel > 0) {
+			G4cout << "JediElasticModel WARNING q= " << q
+					<< " after scattering of "
+					<< aParticle->GetDefinition()->GetParticleName()
+					<< " p(GeV/c)= " << plab/CLHEP::GeV
+					<< " on an ion Z= " << Z << " A= " << A
+					<< G4endl;
+			//}
+			theta=0;
+			// normal situation
+		}
+		if (verboseLevel>1) {
+			G4cout << " q(GeV)= " << q/CLHEP::GeV
+					<< " Pcms(GeV)= " << momentumCMS/CLHEP::GeV
+					<< " theta=" << theta/CLHEP::deg << G4endl;
+		}
+		//v1=3-Momentum in CMS, nlv1=4-Mom ins cms
+		G4ThreeVector v1(std::sin(theta)*std::cos(phi),std::sin(theta)*std::sin(phi),std::cos(theta));
+		v1 *= momentumCMS;
+		G4LorentzVector nlv1(v1.x(),v1.y(),v1.z(),
+				std::sqrt(momentumCMS*momentumCMS + m1*m1));
 
-	auto q=fQ->GetRandom(fQmin,fQmax)*CLHEP::GeV;
-	G4LorentzVector outDeuteronMomentumCMS(fMomentumCMS,0,0,sqrt(fMomentumCMS*fMomentumCMS+fIncidentParticleMass*fIncidentParticleMass));
-	auto thetaCMS=2*TMath::ASin(q/2/fMomentumCMS);
-	outDeuteronMomentumCMS.setTheta(thetaCMS);
-	auto outDeuteronMomentumLAB=outDeuteronMomentumCMS;
-	outDeuteronMomentumLAB.boost(boostVec);
-	auto thetaLab=outDeuteronMomentumLAB.theta();
-	fPhi->SetParameter(0,kinEnergy/CLHEP::MeV);
-	fPhi->SetParameter(1,fBeamPolarization);
-	fPhi->SetParameter(2,thetaLab);
-	auto phi=fPhi->GetRandom(0,2*CLHEP::pi);
 
-	outDeuteronMomentumLAB.setPhi(phi);
-	outDeuteronMomentum=outDeuteronMomentumLAB;
+		//boost 4-mom to lab system
+		nlv1.boost(bst);
 
-	auto outNucleusMomentum=G4LorentzVector(-outDeuteronMomentumCMS.vect(),
-			sqrt(fMomentumCMS*fMomentumCMS+fNucleusMass*fNucleusMass));
 
-	outNucleusMomentum.boost(boostVec);
-	outNucleusMomentum.transform(projToLab.inverse());
+		G4double eFinal = nlv1.e() - m1;
+		if (verboseLevel > 1) {
+			G4cout <<" m= " << m1 << " Efin(MeV)= " << eFinal
+					<< " Proj: 4-mom " << lv1 << " Final: " << nlv1
+					<< G4endl;
+		}
 
-	G4DynamicParticle  outDeuteron(fIncidentParticle,outDeuteronMomentum);
+		if(eFinal <= theMinEnergy) {
+			if(eFinal < 0.0 && verboseLevel > 0) {
+				G4cout << "JediElastic WARNING Efinal= " << eFinal
+						<< " after scattering of "
+						<< aParticle->GetDefinition()->GetParticleName()
+						<< " p(GeV/c)= " << plab/CLHEP::GeV
+						<< " on an ion Z= " << Z << " A= " << A
+						<< G4endl;
+			}
+			theParticleChange.SetEnergyChange(0.0);
+			nlv1 = G4LorentzVector(0.0,0.0,0.0,m1);
 
-	theParticleChange.SetMomentumChange(outDeuteron.GetMomentumDirection());
-	theParticleChange.SetEnergyChange(outDeuteron.GetKineticEnergy());
+		} else {
+			theParticleChange.SetMomentumChange(nlv1.vect().unit());
+			theParticleChange.SetEnergyChange(eFinal);
+		}
 
-	G4DynamicParticle *  outNucleus( new G4DynamicParticle(
-			fNucleus,
-			outNucleusMomentum
-	) );
-	theParticleChange.AddSecondary( outNucleus );
+		lv -= nlv1;
+		G4double erec =  lv.e() - mass2;
+		if (verboseLevel > 1) {
+			G4cout << "Recoil: " <<" m= " << mass2 << " Erec(MeV)= " << erec
+					<< " 4-mom: " << lv
+					<< G4endl;
+		}
 
-	} while(outDeuteronMomentum.vect().getTheta()>=fThetaMax || outDeuteronMomentum.vect().getTheta()<=fThetaMin);
-
+		if(erec > 10*CLHEP::keV) {
+			G4ParticleDefinition * theDef = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(Z,A,0.0);
+			G4DynamicParticle * aSec = new G4DynamicParticle(theDef, lv);
+			theParticleChange.AddSecondary(aSec);
+		} else if(erec > 0.0) {
+			theParticleChange.SetLocalEnergyDeposit(erec);
+		}
+		thetaLab=nlv1.vect().getTheta();
+	} while(thetaLab<fThetaMin or thetaLab>fThetaMax);
 	return &theParticleChange;
+
 }
 
 void JediElasticModel::DefineCommands() {
@@ -148,81 +175,32 @@ void JediElasticModel::DefineCommands() {
 	fMessenger->DeclarePropertyWithUnit("theta_max","rad",JediElasticModel::fThetaMax,"");
 }
 
+G4double JediElasticModel::SampleQ(G4double kinEnergy) {
 
-double JediElasticModel::q(Double_t* x, Double_t* par) {
-	double w=log(par[0]);
-	return pow(10,a1(w)+a2(w)*x[0]+(1+a5(w)*x[0])*(a3(w)*sin(a6(w)*x[0])+a4(w)*cos(a6(w)*x[0])));
-}
-double JediElasticModel::Phi(Double_t* x, Double_t* par) {
-	return 1+par[1]*Ay(par[0],par[2]*180./TMath::Pi())*cos(x[0]);
-}
+	/*
+	auto ymax=JediScatteringHelperFunctions::elastic::q(fQmin,kinEnergy/CLHEP::MeV);
+	G4double xrand,yrand;
+	while(true){
 
-double JediElasticModel::a1(Double_t x) {
-	return -79.173+46.741*x-8.662*x*x+0.52986*x*x*x;
-}
+		xrand=(fQmax/CLHEP::GeV-fQmin/CLHEP::GeV)*G4UniformRand()+fQmin/CLHEP::GeV;
+		yrand=G4UniformRand()*ymax;
+		//G4cout<<"ymax" <<ymax<<" xrand "<<xrand<<" yrand "<<yrand<<" y(xrand) "<<JediScatteringHelperFunctions::elastic::q(xrand,kinEnergy/CLHEP::MeV)<<G4endl;
+		if(yrand<JediScatteringHelperFunctions::elastic::q(xrand,kinEnergy/CLHEP::MeV))
+			break;
+	}
 
-double JediElasticModel::a2(Double_t x) {
-	return 78.051-34.263*x+3.341*x*x;
+	auto q=xrand*CLHEP::GeV;
 
-}
-
-double JediElasticModel::a3(Double_t x) {
-	return -38.231+19.774*x-3.1487*x*x+0.14791*x*x*x;
-}
-
-double JediElasticModel::a4(Double_t x) {
-	return 9.1111-3.2832*x+0.28525*x*x;
+	 */
+	fQ->SetParameter(0,kinEnergy/CLHEP::MeV);
+	auto q=fQ->GetRandom(fQmin/CLHEP::GeV,fQmax/CLHEP::GeV)*CLHEP::GeV;
+	return q;
 }
 
-double JediElasticModel::a5(Double_t x) {
-	return -3.6126+0.18644*x;
-}
-
-double JediElasticModel::a6(Double_t x) {
-	return 23.91+0.66962*x;
-}
-
-double JediElasticModel::Ay(Double_t E, Double_t theta) {
-	return (1/(1+900./pow(theta,4)))*
-			(b4(E)-b1(E)/(1+exp((theta-b2(E))/b3(E)))+b5(E)*(1-theta/b6(E))*sin(b7(E)+b8(E)*theta));
-}
-
-double JediElasticModel::b1(Double_t E) {
-	return  1.1556+0.007182*(E-150)+1.3524e-5*pow(( E-150),2)-5.5448e-7*pow(( E-150),3);
-
-}
-
-double JediElasticModel::b2(Double_t E) {
-	return 16.029-0.24658*(E-150)+8.6972e-4*pow((E-150),2);
-
-}
-
-double JediElasticModel::b3(Double_t E) {
-	return 6.8319+0.052974*( E-150)+6.4864e-4*pow(E-150,2)-4.7648e-6*pow(E-150,3);
-
-}
-
-double JediElasticModel::b4(Double_t E) {
-	return 0.94964+8.2885e-4*( E-150)-5.4014e-6*pow(E-150,2);
-
-}
-
-double JediElasticModel::b5(Double_t E) {
-	return 0.21588+1.3908e-4*( E-150);
-
-}
-
-double JediElasticModel::b6(Double_t E) {
-	return 42.467-0.25468*( E-150)+0.0033973*pow(E-150,2);
-
-}
-
-double JediElasticModel::b7(Double_t E) {
-	return 58.573-0.41812*( E-150);
-
-}
-
-double JediElasticModel::b8(Double_t E) {
-	return 25.698+0.091205*( E-150)-1.8594e-4*pow(E-150,2);
-
+G4double JediElasticModel::SamplePhi(G4double kinEnergy, G4double pol, G4double thetaLab) {
+	//G4cout<<"Setting parameters to "<<kinEnergy/CLHEP::MeV<<" "<<pol<<" "<<thetaLab/CLHEP::deg<<G4endl;
+	fPhi->SetParameters(kinEnergy/CLHEP::MeV,pol,thetaLab/CLHEP::deg);
+	G4double phi=fPhi->GetRandom();
+	phi*=CLHEP::rad;
+	return phi;
 }

@@ -20,10 +20,21 @@
 #include <TLorentzVector.h>
 #include "global.hh"
 #include "G4Threading.hh"
+
+
+#include "G4HadronElasticProcess.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4Nucleus.hh"
+#include "G4ProcessManager.hh"
+#include "G4CrossSectionDataStore.hh"
+#include "G4ProductionCutsTable.hh"
+#include "G4HadronicException.hh"
+
+
+
+
 JediElasticProcess::JediElasticProcess():G4HadronicProcess( "dcelastic" ), fModel( nullptr ), theTotalResult( nullptr ) {
 	theTotalResult = new G4ParticleChange();
-	if(!G4Threading::IsWorkerThread())
-		G4cout<<"JediElasticProcess=x:y:z:px:py:pz:ekin:theta:phi"<<G4endl;
 }
 
 JediElasticProcess::~JediElasticProcess() {
@@ -32,26 +43,118 @@ JediElasticProcess::~JediElasticProcess() {
 
 G4VParticleChange* JediElasticProcess::PostStepDoIt(const G4Track& track,
 		const G4Step&) {
+	theTotalResult->Clear();
+	theTotalResult->Initialize(track);
+	G4double weight = track.GetWeight();
+	theTotalResult->ProposeWeight(weight);
 
-	G4TrackStatus  trackStatus( track.GetTrackStatus() );
+	// For elastic scattering, _any_ result is considered an interaction
+	ClearNumberOfInteractionLengthLeft();
 
-	if ( trackStatus != fAlive && trackStatus != fSuspend )
-	{
-		theTotalResult->Clear();
-		theTotalResult->Initialize( track );
+	G4double kineticEnergy = track.GetKineticEnergy();
+	const G4DynamicParticle* dynParticle = track.GetDynamicParticle();
+	const G4ParticleDefinition* part = dynParticle->GetDefinition();
 
-		return theTotalResult;
+	// NOTE: Low energies cause the model to vomit
+	if (kineticEnergy <= 30*CLHEP::MeV)   return theTotalResult;
+
+	// Initialize the hadronic projectile from the track
+	//  G4cout << "track " << track.GetDynamicParticle()->Get4Momentum()<<G4endl;
+	G4HadProjectile theProj(track);
+	G4HadFinalState* result = 0;
+	targetNucleus=G4Nucleus(12,6);
+	if(verboseLevel>1) {
+		G4cout << "JediElasticProcess::PostStepDoIt for "
+				<< part->GetParticleName()
+				<< G4endl;
 	}
-	targetNucleus.SetParameters( 12, 6 );
-	G4HadProjectile    projectile( track );
-	fModel->setBeamPolarization(track.GetPolarization().y());
-	G4HadFinalState *  result( fModel->ApplyYourself( projectile,
-			targetNucleus ) );
+	try
+	{
+		result = fModel->ApplyYourself( theProj, targetNucleus);
+	}
+	catch(const G4HadronicException &aR)
+	{
+		G4ExceptionDescription d;
+		d<<"Caught exception in model application for "
+				<<part->GetParticleName();
+		G4Exception("JediElasticProcess::PostStepDoIt","",EventMustBeAborted,d.str().c_str());
+	}
+
+	// directions
+	G4ThreeVector indir = track.GetMomentumDirection();
+	G4ThreeVector it(0., 0., 1.);
+	G4ThreeVector outdir = result->GetMomentumChange();
+
+	if(verboseLevel>1) {
+		G4cout << "Efin= " << result->GetEnergyChange()
+														   << " de= " << result->GetLocalEnergyDeposit()
+														   << " nsec= " << result->GetNumberOfSecondaries()
+														   << " dir= " << outdir
+														   << G4endl;
+	}
+
+	// energies
+	G4double edep = result->GetLocalEnergyDeposit();
+	G4double efinal = result->GetEnergyChange();
+	if(efinal < 0.0) { efinal = 0.0; }
+	if(edep < 0.0)   { edep = 0.0; }
+
+	// NOTE:  Very low energy scatters were causing numerical (FPE) errors
+	//        in earlier releases; these limits have not been changed since.
+	if(efinal <= 30*CLHEP::MeV) {
+		edep += efinal;
+		efinal = 0.0;
+	}
+
+	// primary change
+	theTotalResult->ProposeEnergy(efinal);
+	auto phi=fModel->SamplePhi(kineticEnergy,track.GetPolarization().getY(),outdir.getTheta())*CLHEP::rad;
+	G4TrackStatus status = track.GetTrackStatus();
+	if(efinal > 0.0) {
+		outdir.rotate(phi,indir);
+		//outdir.rotateUz(indir);
+		theTotalResult->ProposeMomentumDirection(outdir);
+
+	} else {
+		if(part->GetProcessManager()->GetAtRestProcessVector()->size() > 0)
+		{ status = fStopButAlive; }
+		else { status = fStopAndKill; }
+		theTotalResult->ProposeTrackStatus(status);
+	}
+
+	theTotalResult->SetNumberOfSecondaries(0);
 
 
-	result->SetTrafoToLab(projectile.GetTrafoToLab());
-	FillTotalResult( result, track );
+	//G4cout<<"outdir:"<<outdir.getTheta()/CLHEP::deg<<" "<<outdir.getPhi()/CLHEP::deg<<G4endl;
+	// recoil
+	if(result->GetNumberOfSecondaries() > 0) {
+		G4DynamicParticle* p = result->GetSecondary(0)->GetParticle();
 
+		if(p->GetKineticEnergy() > 100*CLHEP::MeV) {
+			theTotalResult->SetNumberOfSecondaries(1);
+			G4ThreeVector pdir = p->GetMomentumDirection();
+			// G4cout << "recoil " << pdir << G4endl;
+			//!! is not needed for models inheriting G4HadronElastic
+			pdir.rotate(phi, indir);
+			//pdir.rotateUz(indir);
+			// G4cout << "recoil rotated " << pdir << G4endl;
+			p->SetMomentumDirection(pdir);
+
+			// in elastic scattering time and weight are not changed
+			G4Track* t = new G4Track(p, track.GetGlobalTime(),
+					track.GetPosition());
+			t->SetWeight(weight);
+			t->SetTouchableHandle(track.GetTouchableHandle());
+			theTotalResult->AddSecondary(t);
+
+		} else {
+			edep += p->GetKineticEnergy();
+			delete p;
+		}
+	}
+	theTotalResult->ProposeLocalEnergyDeposit(edep);
+	theTotalResult->ProposeNonIonizingEnergyDeposit(edep);
+	result->Clear();
 	return theTotalResult;
 }
 
@@ -64,99 +167,5 @@ G4bool JediElasticProcess::IsApplicable(const G4ParticleDefinition& particle) {
 
 void JediElasticProcess::RegisterModel(JediElasticModel* model) {
 	fModel = model;
-	//interaction = dynamic_cast< G4HadronicInteraction * >( fModel );
-	/*
-		if ( ! interaction )
-			throw JediException( IncompatibleProductionModel );
-	 */
 	G4HadronicProcess::RegisterMe( dynamic_cast< G4HadronicInteraction * >( fModel ) );
-}
-
-void JediElasticProcess::CalculateTargetNucleus(const G4Material* material) {
-	G4int  numberOfElements( material->GetNumberOfElements() );
-	if ( numberOfElements > 1 )
-	{
-		G4cout <<"WARNING: Number of elements in target "
-				"material is more than 1.\n              Only the first "
-				"element will be chosen for target nucleus" << G4endl;
-	}
-
-	const G4Element *  element( material->GetElement( 0 ) );
-	G4double           ZZ( element->GetZ() );
-	G4int              Z( G4int( ZZ + 0.5 ) );
-
-	G4StableIsotopes  stableIsotopes;
-	G4int             index( stableIsotopes.GetFirstIsotope( Z ) );
-	G4double          AA( stableIsotopes.GetIsotopeNucleonCount( index ) );
-
-	targetNucleus.SetParameters( AA, ZZ );
-}
-
-void JediElasticProcess::FillTotalResult(G4HadFinalState* hadFinalState,
-		const G4Track& track) {
-
-	G4int  numberOfSecondaries( hadFinalState->GetNumberOfSecondaries() );
-	G4ThreeVector it(0.,0.,1.);
-	theTotalResult->Clear();
-	theTotalResult->Initialize( track );
-	theTotalResult->SetSecondaryWeightByProcess( true );
-	theTotalResult->ProposeLocalEnergyDeposit(
-			hadFinalState->GetLocalEnergyDeposit() );
-	theTotalResult->SetNumberOfSecondaries( numberOfSecondaries );
-	theTotalResult->ProposeTrackStatus( fAlive );
-	if ( hadFinalState->GetStatusChange() == stopAndKill )
-		theTotalResult->ProposeTrackStatus( fStopAndKill );
-
-	G4double ekin= hadFinalState->GetEnergyChange();
-	G4double mass = track.GetParticleDefinition()->GetPDGMass();
-	G4double etot = ekin + mass;
-	G4double newP = std::sqrt(ekin*(ekin + 2*mass));
-	G4ThreeVector newPV = newP*hadFinalState->GetMomentumChange();
-	G4LorentzVector newP4(etot, newPV);
-	newP4 *= hadFinalState->GetTrafoToLab();
-	theTotalResult->ProposeMomentumDirection(newP4.vect().unit());
-	ekin = newP4.e() - mass;
-	if(ekin<0.0)
-		ekin=0.0;
-	theTotalResult->ProposeEnergy(ekin);
-	theTotalResult->ProposeMomentumDirection(newP4.vect().unit());
-
-	if(gVerbose>2) {
-		G4cout <<"JediElasticProcess="
-				<<track.GetPosition().x()/CLHEP::mm<<" "
-				<<track.GetPosition().y()/CLHEP::mm<<" "
-				<<track.GetPosition().z()/CLHEP::mm<<" "
-				<<track.GetMomentum().x()/CLHEP::GeV<<" "
-				<<track.GetMomentum().y()/CLHEP::GeV<<" "
-				<<track.GetMomentum().z()/CLHEP::GeV<<" "
-				<<theTotalResult->GetEnergy()
-				<< " " << theTotalResult->GetMomentumDirection()->theta()/CLHEP::deg
-				<< " " << theTotalResult->GetMomentumDirection()->phi()/CLHEP::deg
-				<< G4endl;
-	}
-
-	for ( G4int  i( 0 ); i < numberOfSecondaries; ++i )
-	{
-		if(!hadFinalState->GetSecondary(i))
-			G4Exception("JediElasticProcess::FillTotalResult","",FatalException,"Number of secondaries not correct!");
-		G4double   time( hadFinalState->GetSecondary( i )->GetTime() );
-		if ( time < 0 )
-			time = track.GetGlobalTime();
-
-		G4LorentzVector secMom=hadFinalState->GetSecondary(i)->GetParticle()->Get4Momentum();
-		secMom*=hadFinalState->GetTrafoToLab();
-		hadFinalState->GetSecondary(i)->GetParticle()->Set4Momentum(secMom);
-
-		G4Track *  newTrack( new G4Track(
-				hadFinalState->GetSecondary( i )->GetParticle(),
-				time, track.GetPosition() ) );
-
-		G4double   newWeight( track.GetWeight() *
-				hadFinalState->GetSecondary( i )->GetWeight() );
-		newTrack->SetWeight( newWeight );
-		newTrack->SetTouchableHandle( track.GetTouchableHandle() );
-		theTotalResult->AddSecondary( newTrack );
-	}
-
-	hadFinalState->Clear();
 }

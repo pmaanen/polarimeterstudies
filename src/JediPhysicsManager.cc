@@ -56,9 +56,11 @@ void JediPhysicsManager::ResampleTrackLengthInTarget(const G4Track* track,
 
 	G4double  distanceInTarget( targetSolid->DistanceToOut( position,
 			direction ) );
+
 	trackInfo->ResetCurrentTrackLengthInTarget();
 	trackInfo->SetFinalTrackLengthInTarget( G4UniformRand() *
 			std::max( distanceInTarget, proposedMaxIL ) );
+
 	trackInfo->SetNeedsTrackLengthResampling( false );
 }
 

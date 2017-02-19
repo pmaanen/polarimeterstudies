@@ -17,12 +17,11 @@ class JediPhysicsManager;
 class JediSteppingAction: public G4UserSteppingAction {
 public:
 	explicit JediSteppingAction(std::shared_ptr<JediPhysicsManager> physicsManager);
-	virtual ~JediSteppingAction(){};
+	virtual ~JediSteppingAction()=default;
 
     virtual void  UserSteppingAction( const G4Step *  step );
 
 private:
-    const G4LogicalVolume *  targetVolume;
     std::shared_ptr<JediPhysicsManager> fPhysicsManager;
 
 };

@@ -165,11 +165,8 @@ void Analysis::UnRegisterSD(JediSensitiveDetector* sd) {
 void Analysis::EndOfEvent(const G4Event* evt) {
 	simevent_t thisSimEvent;
 	thisSimEvent.eventid=evt->GetEventID();
-	for(auto iSD:fCaloSD){
-		thisSimEvent.calorimeter[iSD->GetName()]=*iSD->getVect();
-	}
-	for(auto iSD:fTrackerSD){
-		thisSimEvent.tracker[iSD->GetName()]=*iSD->getVect();
+	for(const auto iSD : fSD){
+		iSD->CopyHitsToRun(thisSimEvent);
 	}
 	fSimEvents->push_back(thisSimEvent);
 	genevent_t thisGenEvent;

@@ -27,13 +27,6 @@ public:
 
 	void    RegisterModel( JediElasticModel *  model );
 
-private:
-	void    CalculateTargetNucleus( const G4Material *  material );
-
-	void    FillTotalResult( G4HadFinalState *  hadFinalState,
-			const G4Track &  track );
-
-private:
 	JediElasticModel *   fModel;
 
 	G4ParticleChange *      theTotalResult;

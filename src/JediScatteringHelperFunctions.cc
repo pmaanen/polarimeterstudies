@@ -18,9 +18,21 @@ Double_t JediScatteringHelperFunctions::elastic::q(Double_t* x, Double_t* par) {
 	Double_t w=log(par[0]);
 	return pow(10,a1(w)+a2(w)*x[0]+(1+a5(w)*x[0])*(a3(w)*sin(a6(w)*x[0])+a4(w)*cos(a6(w)*x[0])));
 }
-Double_t JediScatteringHelperFunctions::elastic::phi(Double_t* x, Double_t* par) {
-	return 1+par[1]*ay(par[0],par[2]*180./TMath::Pi())*cos(x[0]);
+
+Double_t JediScatteringHelperFunctions::elastic::q(Double_t q, Double_t e) {
+	Double_t w=log(e);
+	return pow(10,a1(w)+a2(w)*q+(1+a5(w)*q)*(a3(w)*sin(a6(w)*q)+a4(w)*cos(a6(w)*q)));
+
 }
+
+Double_t JediScatteringHelperFunctions::elastic::phi(Double_t* x, Double_t* par) {
+	return 1+par[1]*ay(par[0],par[2])*cos(x[0]);
+}
+
+Double_t JediScatteringHelperFunctions::elastic::phi(Double_t phi, Double_t py, Double_t e, Double_t theta) {
+	return 1+py*ay(e,theta)*cos(phi);
+}
+
 
 Double_t JediScatteringHelperFunctions::elastic::a1(Double_t x) {
 	return -79.173+46.741*x-8.662*x*x+0.52986*x*x*x;

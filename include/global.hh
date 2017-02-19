@@ -68,6 +68,11 @@ void initializeConfiguration(int argc,char** argv){
     ("generator.target_particle", po::value<int>()->default_value(0), "PDG id of target")
     ("generator.beam_energy", po::value<double>()->default_value(270),"energy of beam in MeV")
 	("generator.beam_polarization", po::value<double>()->default_value(0),"polarization of beam")
+
+	//Physics
+	 ("physics.theta_min", po::value<double>(),"theta min in deg")
+	 ("physics.theta_max", po::value<double>(),"theta max in deg")
+	 ("physics.use_fast_sim", po::bool_switch()->default_value(false),"use fast sim")
 ;
 
     std::ifstream cfg;

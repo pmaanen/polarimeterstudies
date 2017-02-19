@@ -47,7 +47,7 @@ private:
 		G4double deltaE=10; //MeV
 
 		if(particle->GetParticleDefinition()==G4Deuteron::DeuteronDefinition() and Z==6){
-			auto e=particle->GetKineticEnergy();
+			auto e=particle->GetKineticEnergy()/CLHEP::MeV;
 			auto bin=int(floor(e/deltaE));
 			auto dydx=(fCrossSectionData[bin+1]-fCrossSectionData[bin])/deltaE;
 			auto dx=e-bin*deltaE;

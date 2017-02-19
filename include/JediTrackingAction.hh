@@ -24,8 +24,6 @@ public:
 
 private:
 
-	const G4LogicalVolume *  targetVolume;
-
 	std::shared_ptr<JediPhysicsManager> fPhysicsManager;
 
 };

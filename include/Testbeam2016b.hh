@@ -36,7 +36,8 @@ protected:
 	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance;
 	G4int fNx,fNy;
 	G4ThreeVector fAperturePosition;
-	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor, fBeampipe, fTrigger, fVeto,fStart;
+	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor,
+	fBeampipe, fTrigger, fVeto,fStart, fCollimator;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 

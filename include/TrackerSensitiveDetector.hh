@@ -61,13 +61,13 @@ class TrackerSensitiveDetector : public JediSensitiveDetector_impl
 	friend JediSensitiveDetector;
 public:
 	TrackerSensitiveDetector(const G4String& name);
-	virtual ~TrackerSensitiveDetector();
+	virtual ~TrackerSensitiveDetector()=default;
 
 	// methods from base class
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
-	const std::vector<trackerhit_t>* getVect() {		return fHits.get();	}
 	virtual void WriteHitsToFile(TTree& outFile, const G4Run* aRun) const;
+	virtual void CopyHitsToRun(simevent_t& anEvent) const;
 protected:
 
 	std::vector<DetectorHit> fHitBuffer;

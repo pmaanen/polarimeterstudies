@@ -12,16 +12,7 @@
 #include <G4RunManager.hh>
 #include "global.hh"
 #include "SingleCrystal.hh"
-JediSteppingAction::JediSteppingAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager) {
-
-	G4RunManager *      runManager( G4RunManager::GetRunManager() );
-	const JediPolarimeter *  setup( static_cast< const JediPolarimeter * >(
-			runManager->GetUserDetectorConstruction() ) );
-	if(setup && setup->GetTarget())
-		targetVolume = setup->GetTarget();
-	else
-		G4Exception("JediSteppingAction::JediSteppingAction","",FatalException,"Detector Construction not found.");
-}
+JediSteppingAction::JediSteppingAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager) {}
 
 void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 	G4Track *         track( step->GetTrack() );
@@ -46,15 +37,18 @@ void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 				<<volume->GetLogicalVolume()->GetName()
 				<<": Activating process"
 				<<G4endl;
+			fPhysicsManager->SetMaxIL(track->GetMomentumDirection());
 			fPhysicsManager->ResampleTrackLengthInTarget( track, postStepPoint );
 			trackInfo->ActivateStudiedProcess();
 		}
 
 		if ( stepStatus != fGeomBoundary )
 		{
-			if ( trackInfo->NeedsTrackLengthResampling() )
+			if ( trackInfo->NeedsTrackLengthResampling() ){
+				fPhysicsManager->SetMaxIL(track->GetMomentumDirection());
 				fPhysicsManager->ResampleTrackLengthInTarget(
 						track, postStepPoint );
+			}
 			else{
 				trackInfo->AddTrackLengthInTarget( step->GetStepLength() );
 				if(gVerbose>3)
@@ -70,7 +64,7 @@ void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 	touchable = preStepPoint->GetTouchable();
 	volume = touchable->GetVolume();
 
-	if ( volume && volume->GetLogicalVolume() == targetVolume )
+	if ( volume && volume->GetLogicalVolume()->GetName() == "Target" )
 	{
 		if ( stepStatus == fGeomBoundary ){
 			if(gVerbose>3)

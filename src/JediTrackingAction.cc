@@ -11,16 +11,8 @@
 #include "JediTrackInfo.hh"
 #include <G4RunManager.hh>
 #include <G4Deuteron.hh>
-JediTrackingAction::JediTrackingAction(std::shared_ptr<JediPhysicsManager> physicsManager):targetVolume( nullptr ), fPhysicsManager(physicsManager)
-{
-	G4RunManager *      runManager( G4RunManager::GetRunManager() );
-	const JediPolarimeter *  setup( static_cast< const JediPolarimeter * >(
-			runManager->GetUserDetectorConstruction() ) );
-	if(setup && setup->GetTarget())
-		targetVolume = setup->GetTarget();
-	else
-		G4Exception("JediSteppingAction::JediSteppingAction","",FatalException,"Detector Construction not found.");
-}
+JediTrackingAction::JediTrackingAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager)
+{}
 
 void JediTrackingAction::PreUserTrackingAction(const G4Track* track) {
 
@@ -41,8 +33,9 @@ void JediTrackingAction::PreUserTrackingAction(const G4Track* track) {
 			theTrack->SetUserInformation( trackInfo );
 			G4VPhysicalVolume *  volume( track->GetVolume() );
 
-			if ( volume && volume->GetLogicalVolume() == targetVolume )
+			if ( volume && volume->GetLogicalVolume()->GetName() == "Target" )
 			{
+				fPhysicsManager->SetMaxIL(track->GetMomentumDirection());
 				fPhysicsManager->ResampleTrackLengthInTarget( track );
 				trackInfo->ActivateStudiedProcess();
 			}
@@ -55,8 +48,9 @@ void JediTrackingAction::PreUserTrackingAction(const G4Track* track) {
 			theTrack->SetUserInformation( trackInfo );
 			G4VPhysicalVolume *  volume( track->GetVolume() );
 
-			if ( volume && volume->GetLogicalVolume() == targetVolume )
+			if ( volume && volume->GetLogicalVolume()->GetName() == "Target" )
 			{
+				fPhysicsManager->SetMaxIL(track->GetMomentumDirection());
 				fPhysicsManager->ResampleTrackLengthInTarget( track );
 				trackInfo->ActivateStudiedProcess();
 			}

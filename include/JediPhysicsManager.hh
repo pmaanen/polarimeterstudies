@@ -61,7 +61,6 @@ protected:
 
 	G4bool    onlyBeamParticleCanTriggerStudiedProcess;
 
-
 private:
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 
@@ -95,7 +94,6 @@ inline G4double  JediPhysicsManager::GetProposedMaxIL( void ) const
 {
     return proposedMaxIL;
 }
-
 
 inline void  JediPhysicsManager::SetMaxIL( const G4ThreeVector &  direction )
 {

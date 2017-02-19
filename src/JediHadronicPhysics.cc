@@ -15,7 +15,7 @@
 #include <G4IonTable.hh>
 #include "JediStudiedProcess.hh"
 #include "global.hh"
-JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false),fUseFastSim(true) {
+JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false) {
 
 	fElastic=std::unique_ptr<JediElasticModel>(new JediElasticModel);
 	fBreakup=std::unique_ptr<JediBreakupModel>(new JediBreakupModel);
@@ -25,11 +25,8 @@ JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"
 
 	fMessenger->DeclareProperty("verboseLevel",JediHadronicPhysics::verboseLevel,"");
 
-	auto fastSimCmd=fMessenger->DeclareProperty("fastsim",JediHadronicPhysics::fUseFastSim,"");
-	//elaCmd.SetStates(G4State_PreInit, G4State_Idle);
-	//brkpCmd.SetStates(G4State_PreInit, G4State_Idle);
+	fUseFastSim=gConfig["physics.use_fast_sim"].as<bool>();
 
-	fastSimCmd.SetStates(G4State_PreInit);
 
 	if(gVerbose>2)
 		G4cout<<"JediHadronicPhysics::JediHadronicPhysics()"
@@ -43,18 +40,13 @@ void JediHadronicPhysics::ConstructParticle() {
 
 void JediHadronicPhysics::ConstructProcess() {
 
-	//if ( wasActivated )
-	//	return;
-
-	wasActivated = true;
 	auto elasticProcess=new JediElasticProcess;
-	G4VProcess* theProcess=nullptr;
 	elasticProcess->RegisterModel(fElastic.get());
+	JediStudiedProcess* wrapperProcess=nullptr;
 	if(fUseFastSim){
 		elasticProcess->AddDataSet(new JediFakeCrossSectionData);
-		auto wrapperProcess=new JediStudiedProcess();
+		wrapperProcess=new JediStudiedProcess;
 		wrapperProcess->RegisterProcess(elasticProcess);
-		theProcess=wrapperProcess;
 		if(gVerbose>2)
 			G4cout<<"JediHadronicPhysics::ConstructProcess()"
 			<<" using wrapper process"
@@ -62,25 +54,20 @@ void JediHadronicPhysics::ConstructProcess() {
 	}
 	else{
 		elasticProcess->AddDataSet(new JediElasticCrossSectionData(1));
-		theProcess=elasticProcess;
 		if(gVerbose>2)
 			G4cout<<"JediHadronicPhysics::ConstructProcess()"
 			<<" using elastic process"
 			<<G4endl;
 	}
 
-	/*
-
-	auto breakupProcess=new JediBreakupProcess;
-	breakupProcess->RegisterModel(fBreakup.get());
-	breakupProcess->AddDataSet(new JediBreakupCrossSectionData(0));
-	 */
 	auto particle=G4Deuteron::DeuteronDefinition();
 	if ( particle )
 	{
 		G4ProcessManager *  processManager( particle->GetProcessManager() );
-		processManager->AddDiscreteProcess( theProcess );
-		//processManager->AddDiscreteProcess( breakupProcess );
+		if(fUseFastSim)
+			processManager->AddDiscreteProcess( wrapperProcess );
+		else
+			processManager->AddDiscreteProcess(elasticProcess);
 	}
 
 }
