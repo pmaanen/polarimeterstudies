@@ -28,8 +28,8 @@ private:
 	G4double SampleQ(G4double kinEnergy);
 
 	Double_t fBeamPolarization;
-	std::unique_ptr<TF1> fQ;
-	std::unique_ptr<TF1> fPhi;
+	TF1* fQ;
+	TF1* fPhi;
 	G4double fQmin,fQmax,fThetaMin,fThetaMax;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4ParticleDefinition *    fIncidentParticle,*fNucleus;

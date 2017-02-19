@@ -28,10 +28,9 @@ JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPol
 	fQmin=0.04*CLHEP::GeV;
 	fQmax=.4*CLHEP::GeV;
 
-	fQ=std::unique_ptr<TF1>(new TF1("q",JediScatteringHelperFunctions::elastic::q,fQmin/CLHEP::GeV,fQmax/CLHEP::GeV,1));
+	fQ=new TF1("q",JediScatteringHelperFunctions::elastic::q,fQmin/CLHEP::GeV,fQmax/CLHEP::GeV,1);
 
-	fPhi=std::unique_ptr<TF1>(new TF1("Phi",JediScatteringHelperFunctions::elastic::phi,0,2*TMath::Pi(),3));
-	fThetaMin=3*CLHEP::deg;
+	fPhi=new TF1("Phi",JediScatteringHelperFunctions::elastic::phi,0,2*TMath::Pi(),3);
 	fThetaMax=13*CLHEP::deg;
 
 	fQ->SetNpx(200);
