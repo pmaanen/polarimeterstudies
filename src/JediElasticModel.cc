@@ -19,6 +19,7 @@
 #include <G4NucleiProperties.hh>
 #include <TROOT.h>
 #include <TMath.h>
+#include <TRandom3.h>
 JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPolarization(0),fNucleus(nullptr),fNucleusMass(0) {
 	ROOT::EnableThreadSafety();
 	theMinEnergy=30*CLHEP::MeV;
@@ -28,13 +29,14 @@ JediElasticModel::JediElasticModel():G4HadronicInteraction("dcelastic"),fBeamPol
 	fQmin=0.04*CLHEP::GeV;
 	fQmax=.4*CLHEP::GeV;
 
+	TRandom3 gen(G4Threading::G4GetThreadId());
 	fQ=new TF1("q",JediScatteringHelperFunctions::elastic::q,fQmin/CLHEP::GeV,fQmax/CLHEP::GeV,1);
 
 	fPhi=new TF1("Phi",JediScatteringHelperFunctions::elastic::phi,0,2*TMath::Pi(),3);
 	fThetaMax=13*CLHEP::deg;
 
-	fQ->SetNpx(200);
-	fPhi->SetNpx(200);
+	fQ->SetNpx(1000);
+	fPhi->SetNpx(1000);
 
 	//G4cout<<"JediElasticModel::JediElasticModel() thread id: "<<G4Threading::G4GetThreadId()<<G4endl;
 	if(!fIncidentParticle)
