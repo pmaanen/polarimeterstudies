@@ -19,7 +19,7 @@ SingleCrystal::~SingleCrystal() {
 	// TODO Auto-generated destructor stub
 }
 
-G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
+G4LogicalVolume* SingleCrystal::BuildCaloCrystal() {
 	auto solidDetector= new G4Box("Detector",fHCalSizeZ/2,fHCalSizeZ/2,fHCalSizeXY/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,fHCalMaterial,"Detector");
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);

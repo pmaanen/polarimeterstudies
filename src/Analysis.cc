@@ -38,7 +38,7 @@ namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 G4String Analysis::fGeneratorName=G4String("gen");
 Analysis::Analysis():fEnabled(false),fFileName("")
 {
-	fAnalysisMessenger=new G4GenericMessenger(this,"/analysis/","analysis control");
+	fAnalysisMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/analysis/","analysis control"));
 	fAnalysisMessenger->DeclareProperty("setFileName",Analysis::fFileName,"set file name");
 	fAnalysisMessenger->DeclareMethod("Enable",&Analysis::enable,"enable analysis");
 	fAnalysisMessenger->DeclareMethod("Disable",&Analysis::disable,"disable analysis");
@@ -121,39 +121,6 @@ void Analysis::EndOfRun(const G4Run* run) {
 		OutFile.Write();
 	}
 }
-
-void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::RegisterTrackerSD: "<<sd->GetName()<<G4endl;
-	if(std::find(fTrackerSD.begin(),fTrackerSD.end(),sd)==fTrackerSD.end())
-		fTrackerSD.push_back(sd);
-	return;
-}
-
-void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::RegisterCaloSD: "<<sd->GetName()<<G4endl;
-	if(std::find(fCaloSD.begin(),fCaloSD.end(),sd)==fCaloSD.end())
-		fCaloSD.push_back(sd);
-	return;
-}
-
-void Analysis::UnRegisterTrackerSD(TrackerSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::UnRegisterTrackerSD: "<<sd->GetName()<<G4endl;
-	auto pos=std::find(fTrackerSD.begin(),fTrackerSD.end(),sd);
-	if(pos!=fTrackerSD.end())
-		fTrackerSD.erase(pos);
-}
-
-void Analysis::UnRegisterCaloSD(CaloSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::UnRegisterCaloSD: "<<sd->GetName()<<G4endl;
-	auto pos=std::find(fCaloSD.begin(),fCaloSD.end(),sd);
-	if(pos!=fCaloSD.end())
-		fCaloSD.erase(pos);
-}
-
 
 void Analysis::RegisterSD(JediSensitiveDetector* sd) {
 	if(gVerbose>3)

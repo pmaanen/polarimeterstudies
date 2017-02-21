@@ -34,7 +34,7 @@ public:
 protected:
 
 	void DefineCommands();
-	virtual G4LogicalVolume* MakeCaloCrystal();
+	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual G4LogicalVolume* MakeDeltaECrystal();
 	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double halfSizeX, G4double halfSizeY, G4double halfSizeZ);
 	G4double distanceToEdge(G4double sizeXY, G4ThreeVector direction);
