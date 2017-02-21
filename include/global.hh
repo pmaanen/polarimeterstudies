@@ -37,7 +37,7 @@ void initializeConfiguration(int argc,char** argv){
 	//General
 	("general.output_file,o",po::value<std::string>(), "output filename")
 	("general.verbosity,v", po::value<int>()->default_value(0), "verbosity")
-    ("general.config_file,c", po::value<std::string>(), "config file")
+    ("general.config_file,c", po::value<std::string>()->default_value(".geantrc"), "config file")
     ("general.physics", po::value<std::string>()->default_value("QGSP_BERT"), "physics list")
     ("general.num_events,i", po::value<int>()->default_value(1), "number of events.")
 	("general.num_threads,n", po::value<int>()->default_value(1), "number of threads.")
@@ -72,7 +72,7 @@ void initializeConfiguration(int argc,char** argv){
 	//Physics
 	 ("physics.theta_min", po::value<double>(),"theta min in deg")
 	 ("physics.theta_max", po::value<double>(),"theta max in deg")
-	 ("physics.use_fast_sim", po::bool_switch()->default_value(false),"use fast sim")
+	 ("physics.use_fast_sim", po::value<bool>()->default_value(false)->implicit_value(true),"use fast sim")
 ;
 
     std::ifstream cfg;
@@ -82,7 +82,9 @@ void initializeConfiguration(int argc,char** argv){
         exit(1);
     }
     notify(gConfig);
-    if(gConfig.count("general.config_file")){
+
+    std::ifstream f(gConfig["general.config_file"].as<std::string>());
+    if(f.good()){
         cfg.open(gConfig["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
         po::store(po::parse_config_file(cfg, description), gConfig);
         notify(gConfig);

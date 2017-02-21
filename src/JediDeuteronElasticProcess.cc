@@ -47,7 +47,6 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 	theTotalResult->Initialize(track);
 	G4double weight = track.GetWeight();
 	theTotalResult->ProposeWeight(weight);
-
 	// For elastic scattering, _any_ result is considered an interaction
 	ClearNumberOfInteractionLengthLeft();
 
@@ -59,13 +58,16 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 	if (kineticEnergy <= 30*CLHEP::MeV)   return theTotalResult;
 
 	// Initialize the hadronic projectile from the track
-	//  G4cout << "track " << track.GetDynamicParticle()->Get4Momentum()<<G4endl;
 	G4HadProjectile theProj(track);
 	G4HadFinalState* result = 0;
-	targetNucleus=G4Nucleus(12,6);
+
+	CalculateTargetNucleus( track.GetMaterial() );
 	if(verboseLevel>1) {
 		G4cout << "JediElasticProcess::PostStepDoIt for "
 				<< part->GetParticleName()
+				<<" scattered of Z "
+				<<targetNucleus.GetZ_asInt()
+				<<" A "<<targetNucleus.GetA_asInt()
 				<< G4endl;
 	}
 	try
@@ -87,10 +89,10 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 
 	if(verboseLevel>1) {
 		G4cout << "Efin= " << result->GetEnergyChange()
-																		   << " de= " << result->GetLocalEnergyDeposit()
-																		   << " nsec= " << result->GetNumberOfSecondaries()
-																		   << " dir= " << outdir
-																		   << G4endl;
+		<< " de= " << result->GetLocalEnergyDeposit()
+		<< " nsec= " << result->GetNumberOfSecondaries()
+		<< " dir= " << outdir
+		<< G4endl;
 	}
 
 	// energies
@@ -160,4 +162,30 @@ G4bool JediDeuteronElasticProcess::IsApplicable(const G4ParticleDefinition& part
 void JediDeuteronElasticProcess::RegisterModel(JediDeuteronElastic* model) {
 	fModel = model;
 	G4HadronicProcess::RegisterMe( dynamic_cast< G4HadronicInteraction * >( fModel ) );
+}
+
+void JediDeuteronElasticProcess::CalculateTargetNucleus(
+		const G4Material* material) {
+	{
+		G4int  numberOfElements( material->GetNumberOfElements() );
+		if ( numberOfElements > 1 )
+		{
+			G4ExceptionDescription ed;
+			ed <<" Number of elements in target "
+			<<"material is more than 1.\n"
+			<<"Only the first element will be chosen for target nucleus";
+			G4Exception("JediDeuteronElasticProcess::CalculateTargetNucleus","",JustWarning,ed);
+		}
+
+		const G4Element *  element( material->GetElement( 0 ) );
+		G4double           ZZ( element->GetZ() );
+		G4int              Z( G4int( ZZ + 0.5 ) );
+
+		G4StableIsotopes  stableIsotopes;
+		G4int             index( stableIsotopes.GetFirstIsotope( Z ) );
+		G4double          AA( stableIsotopes.GetIsotopeNucleonCount( index ) );
+
+		targetNucleus.SetParameters( AA, ZZ );
+	}
+
 }

@@ -26,6 +26,9 @@ public:
 
 	void    RegisterModel( JediDeuteronElastic *  model );
 
+
+private:
+	void  CalculateTargetNucleus(  const G4Material *  material );
 	JediDeuteronElastic *   fModel;
 
 	G4ParticleChange *      theTotalResult;

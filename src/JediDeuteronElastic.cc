@@ -29,6 +29,32 @@ JediDeuteronElastic::JediDeuteronElastic():G4HadronicInteraction("dcelastic"),fB
 	fQmin=0.04*CLHEP::GeV;
 	fQmax=.4*CLHEP::GeV;
 
+	if(gConfig.count("generator.theta_min"))
+		fThetaMin=gConfig["generator.theta_min"].as<double>()*CLHEP::deg;
+	else
+		fThetaMin=3*CLHEP::deg;
+	if(gConfig.count("generator.theta_max"))
+		fThetaMax=gConfig["generator.theta_max"].as<double>()*CLHEP::deg;
+	else
+		fThetaMax=20*CLHEP::deg;
+
+	auto diff=fThetaMax-fThetaMin;
+	if(diff<0){
+		G4ExceptionDescription ed;
+					ed<<"theta_max<theta_min!"<<G4endl
+							<<" theta_max (deg) "<<fThetaMax/CLHEP::deg
+							<<" theta_min (deg) "<<fThetaMin/CLHEP::deg;
+					G4Exception("JediDeuteronElastic::ApplyYourself","",FatalException,ed);
+	}
+	if(diff<1*CLHEP::deg){
+		G4ExceptionDescription ed;
+					ed<<"Angle range is very small. Expect slow generation and consider upping nTryMax in case of crashes."<<G4endl
+							<<" theta_max (deg) "<<fThetaMax/CLHEP::deg
+							<<" theta_min (deg) "<<fThetaMin/CLHEP::deg;
+					G4Exception("JediDeuteronElastic::ApplyYourself","",JustWarning,ed);
+	}
+
+
 	if(!fIncidentParticle)
 		G4Exception("JediElasticModel::JediElasticModel","",FatalException,"no deuteron definition found");
 	fIncidentParticleMass=fIncidentParticle->GetPDGMass();
@@ -58,7 +84,7 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 	G4double m1 = theParticle->GetPDGMass();
 
 	if (verboseLevel>1) {
-		G4cout << "JediElasticProcess: "
+		G4cout << "JediDeuteronElastic: "
 				<< aParticle->GetDefinition()->GetParticleName()
 				<< " Plab(GeV/c)= " << plab/CLHEP::GeV
 				<< " Ekin(MeV) = " << ekin/CLHEP::MeV
@@ -71,7 +97,6 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 	G4LorentzVector lv1 = aParticle->Get4Momentum();
 	G4LorentzVector lv(0.0,0.0,0.0,mass2);
 	lv += lv1;
-
 	G4ThreeVector bst = lv.boostVector();
 	lv1.boost(-bst);
 
@@ -80,7 +105,22 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 
 
 	G4double thetaLab=0;
+	G4int nTry=0;
+	G4int nTryMax=1000;
 	do{
+		nTry++;
+		if(nTry>1000){
+			G4ExceptionDescription ed;
+			ed<<"nTry>nTryMax. Can not satisfy cut conditions!"<<G4endl
+					<<"nTryMax "<<nTryMax<<G4endl
+					<<" theta_max (deg) "<<fThetaMax/CLHEP::deg
+					<<" theta_min (deg) "<<fThetaMin/CLHEP::deg<<G4endl
+					<<" Projectile: "<<aTrack.GetDefinition()->GetParticleName()
+					<<" at "<<aTrack.GetKineticEnergy()/CLHEP::MeV<<" (MeV)"<<G4endl;
+
+			G4Exception("JediDeuteronElastic::ApplyYourself","",FatalException,ed);
+
+		}
 		theParticleChange.Clear();
 		// Sampling in CM system
 		G4double q    = SampleQ(ekin);
@@ -100,7 +140,8 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 			// normal situation
 		}
 		if (verboseLevel>1) {
-			G4cout << " q(GeV)= " << q/CLHEP::GeV
+			G4cout <<"JediDeuteronElastic::ApplyYourself:"
+					<<" q(GeV)= " << q/CLHEP::GeV
 					<< " Pcms(GeV)= " << momentumCMS/CLHEP::GeV
 					<< " theta=" << theta/CLHEP::deg << G4endl;
 		}
@@ -117,8 +158,8 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 
 		G4double eFinal = nlv1.e() - m1;
 		if (verboseLevel > 1) {
-			G4cout <<" m= " << m1 << " Efin(MeV)= " << eFinal
-					<< " Proj: 4-mom " << lv1 << " Final: " << nlv1
+			G4cout <<"Proj: m= " << m1 << " Efin(MeV)= " << eFinal
+					<< " 4-mom " << lv1 << " Final: " << nlv1
 					<< G4endl;
 		}
 
@@ -151,12 +192,12 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 		lv -= nlv1;
 		G4double erec =  lv.e() - mass2;
 		if (verboseLevel > 1) {
-			G4cout << "Recoil: " <<" m= " << mass2 << " Erec(MeV)= " << erec
+			G4cout << "Recoil: " <<" m= " << mass2 << " Erec(MeV)= " << erec/CLHEP::MeV
 					<< " 4-mom: " << lv
 					<< G4endl;
 		}
 
-		if(erec > 100*CLHEP::keV and false) {
+		if(erec > 100*CLHEP::keV) {
 			G4ParticleDefinition * theDef = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(Z,A,0.0);
 			G4DynamicParticle * aSec = new G4DynamicParticle(theDef, lv);
 			theParticleChange.AddSecondary(aSec);
