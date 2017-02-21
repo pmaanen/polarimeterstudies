@@ -20,7 +20,9 @@ namespace JediScatteringHelperFunctions {
 namespace elastic{
 Double_t sigma(Double_t*,Double_t*);
 Double_t q(Double_t*, Double_t*);
+Double_t q(Double_t q, Double_t e);
 Double_t phi(Double_t*, Double_t*);
+Double_t phi(Double_t phi, Double_t py, Double_t e, Double_t theta);
 
 //Parameters for ds/dOmega. x is ln(E)
 Double_t a1(Double_t x);

@@ -19,7 +19,7 @@ SingleCrystal::~SingleCrystal() {
 	// TODO Auto-generated destructor stub
 }
 
-G4LogicalVolume* SingleCrystal::MakeCaloCrystal() {
+G4LogicalVolume* SingleCrystal::BuildCaloCrystal() {
 	auto solidDetector= new G4Box("Detector",fHCalSizeZ/2,fHCalSizeZ/2,fHCalSizeXY/2);
 	auto logicDetector = new G4LogicalVolume(solidDetector,fHCalMaterial,"Detector");
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
@@ -35,7 +35,7 @@ G4VPhysicalVolume* SingleCrystal::Construct() {
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
-	fTarget=BuildVolume<G4Box>("Target",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
+	fTarget=BuildVolume<G4Box>("Target",G4NistManager::Instance()->FindOrBuildMaterial("G4_C"),fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
 	//		auto worldRegion = new G4Region("calorimeter");
 	//		worldRegion->AddRootLogicalVolume(aCrystal);
 	//		worldRegion->SetUserLimits(new G4UserLimits(10.0 * CLHEP::um,1000*CLHEP::mm,100*CLHEP::ns,0,0));

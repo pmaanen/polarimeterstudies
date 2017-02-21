@@ -26,9 +26,9 @@ public:
 	const G4String& GetName() const {return fName;}
 
 	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const=0;
+	virtual void CopyHitsToRun(simevent_t& anEvent) const=0;
 protected:
 	G4String fName;
-
 };
 
 class JediSensitiveDetector : public G4VSensitiveDetector {
@@ -45,7 +45,7 @@ public:
 	// methods from base class
 	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history){if(fSD) return fSD->ProcessHits(step,history); return false;};
 	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection){if(fSD) fSD->EndOfEvent(hitCollection);};
-
+	virtual void CopyHitsToRun(simevent_t& anEvent){if(fSD) fSD->CopyHitsToRun(anEvent);}
 private:
 	void SetType_impl(SDtype type);
 	std::unique_ptr<JediSensitiveDetector_impl> fSD;

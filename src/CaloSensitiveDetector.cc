@@ -23,12 +23,11 @@
 #include <JediException.hh>
 #include "G4AutoLock.hh"
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
-	Analysis::Instance()->RegisterCaloSD(this);
-	vect=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
+	fHits=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
-	vect->clear();
+	fHits->clear();
 	if(gVerbose>3)
 		G4cout<<fName<<": "<<"CaloSensitiveDetector::EndOfEvent"<<G4endl;
 	for(const auto &iHit : fHitMap){
@@ -39,7 +38,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 			G4int i=0;
 			G4cout<<fName<<" hit "<<i++<<": "<<G4BestUnit(hit.edep,"Energy")<<" in det no. "<<hit.detid<<G4endl;
 		}
-		vect->push_back(hit);
+		fHits->push_back(hit);
 	}
 	fHitMap.clear();
 }
@@ -67,22 +66,22 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 	return true;
 }
 
-CaloSensitiveDetector::~CaloSensitiveDetector() {
-	Analysis::Instance()->UnRegisterCaloSD(this);
-}
-
 void CaloSensitiveDetector::WriteHitsToFile(TTree& aTree,
 		const G4Run* aRun) const {
 
 	if(gVerbose>2)
 		G4cout<<"CaloSensitiveDetector::WriteHitsToFile "<<fName<<G4endl;
 
-	auto SimEvents=&dynamic_cast<const JediRun*>(aRun)->getSimEvents();
+	auto SimEvents=dynamic_cast<const JediRun*>(aRun)->getSimEvents();
 	const std::vector<calorhit_t> *hitPointer=nullptr;
-	aTree.Branch(fName,&hitPointer);
+	auto branch=aTree.Branch(fName,&hitPointer);
 
-	for(const auto &evt : *SimEvents){
+	for(const auto &evt : SimEvents){
 		hitPointer=&evt.calorimeter.at(fName);
-		aTree.Fill();
+		branch->Fill();
 	}
+	}
+
+void CaloSensitiveDetector::CopyHitsToRun(simevent_t& anEvent) const {
+	anEvent.calorimeter[GetName()]=*fHits.get();
 }

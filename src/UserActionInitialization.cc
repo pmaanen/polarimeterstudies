@@ -14,25 +14,29 @@
 #include "JediTrackingAction.hh"
 #include <memory>
 #include <G4GenericMessenger.hh>
+#include <TROOT.h>
+#include "Rtypes.h"
+#include "global.hh"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
-
 void UserActionInitialization::Build() const {
 
-	auto physicsManager=std::make_shared<JediPhysicsManager>();
 	SetUserAction(new PrimaryGeneratorAction);
-
+	auto physicsManager=JediPhysicsManager::GetInstance();
 	//Calls InitializeGeometry at begin of every run
 	SetUserAction(new RunAction(physicsManager));
 
 	//Needs physicsManager for sampling of interaction length
-	SetUserAction(new JediSteppingAction(physicsManager));
-
+	if(gConfig["physics.use_fast_sim"].as<bool>()){
+		SetUserAction(new JediSteppingAction(physicsManager));
+		SetUserAction(new JediTrackingAction(physicsManager));
+	}
 	//Needed for reset of physicsManager at begin of every event
 	SetUserAction(new EventAction(physicsManager));
 
-	SetUserAction(new JediTrackingAction(physicsManager));
 }
 
 void UserActionInitialization::BuildForMaster() const {
-	SetUserAction(new RunAction(std::make_shared<JediPhysicsManager>()));
+	auto physicsManager=JediPhysicsManager::GetInstance();
+
+	SetUserAction(new RunAction(physicsManager));
 }

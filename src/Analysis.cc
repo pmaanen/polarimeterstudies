@@ -34,24 +34,11 @@
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"
 #include "PrimaryGeneratorAction.hh"
-//namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
+namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 G4String Analysis::fGeneratorName=G4String("gen");
-Analysis* Analysis::fgMasterInstance = nullptr;
-G4ThreadLocal Analysis* Analysis::fgInstance = nullptr;
-Analysis::Analysis(G4bool isMaster):fEnabled(false),fFileName("")
+Analysis::Analysis():fEnabled(false),fFileName("")
 {
-	if ( ( isMaster && fgMasterInstance ) || ( fgInstance ) ) {
-		G4ExceptionDescription description;
-		description
-		<< "      "
-		<< "Analysis already exists."
-		<< "Cannot create another instance.";
-		G4Exception("Analysis::Analysis()",
-				"Analysis_F001", FatalException, description);
-	}
-	if ( isMaster ) fgMasterInstance = this;
-	fgInstance = this;
-	fAnalysisMessenger=new G4GenericMessenger(this,"/analysis/","analysis control");
+	fAnalysisMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/analysis/","analysis control"));
 	fAnalysisMessenger->DeclareProperty("setFileName",Analysis::fFileName,"set file name");
 	fAnalysisMessenger->DeclareMethod("Enable",&Analysis::enable,"enable analysis");
 	fAnalysisMessenger->DeclareMethod("Disable",&Analysis::disable,"disable analysis");
@@ -93,58 +80,47 @@ void Analysis::EndOfRun(const G4Run* run) {
 		//TTree InfoTree("info","run information");
 		auto myRun=static_cast<const JediRun*> (run);
 
-		std::map<G4String,TBranch*> OutBranches;
+		std::map<G4String,const std::vector<calorhit_t> *> calohitPointer;
+		std::map<G4String,const std::vector<trackerhit_t> *> trackerhitPointer;
+
+
+		for(const auto& iSD:fSD){
+			if(iSD->GetType()==SDtype::kCalorimeter){
+				calohitPointer[iSD->GetName()]=nullptr;
+				SimTree.Branch(iSD->GetName(),&calohitPointer[iSD->GetName()]);
+			}
+			else if(iSD->GetType()==SDtype::kPerfect or iSD->GetType()==SDtype::kPerfect){
+				trackerhitPointer[iSD->GetName()]=nullptr;
+				SimTree.Branch(iSD->GetName(),&trackerhitPointer[iSD->GetName()]);
+			}
+
+		}
+		auto SimEvents=myRun->getSimEvents();
+		for(const auto &evt : SimEvents){
+			for(const auto& iSD:fSD){
+				if(iSD->GetType()==SDtype::kCalorimeter){
+					calohitPointer[iSD->GetName()]=&evt.calorimeter.at(iSD->GetName());
+				}
+				else if(iSD->GetType()==SDtype::kPerfect or iSD->GetType()==SDtype::kPerfect){
+					trackerhitPointer[iSD->GetName()]=&evt.tracker.at(iSD->GetName());
+				}
+			}
+			SimTree.Fill();
+		}
+
 		// Write events from generator to file
 		auto GenEvents=myRun->getGenEvents();
 		genevent_t* thisEvent=nullptr;
 		if(gVerbose>2)
 			G4cout<<"generator name:"<<fGeneratorName<<G4endl;
-		OutBranches["gen"]=GenTree.Branch("events","genevent_t",&thisEvent);
+		GenTree.Branch("events","genevent_t",&thisEvent);
 		for(auto iEvent : GenEvents){
 			thisEvent=&iEvent;
 			GenTree.Fill();
 		}
-		for(const auto idet: fSD)
-			idet->WriteHitsToFile(SimTree,myRun);
-
 		OutFile.Write();
 	}
-
-
 }
-
-void Analysis::RegisterTrackerSD(TrackerSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::RegisterTrackerSD: "<<sd->GetName()<<G4endl;
-	if(std::find(fTrackerSD.begin(),fTrackerSD.end(),sd)==fTrackerSD.end())
-		fTrackerSD.push_back(sd);
-	return;
-}
-
-void Analysis::RegisterCaloSD(CaloSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::RegisterCaloSD: "<<sd->GetName()<<G4endl;
-	if(std::find(fCaloSD.begin(),fCaloSD.end(),sd)==fCaloSD.end())
-		fCaloSD.push_back(sd);
-	return;
-}
-
-void Analysis::UnRegisterTrackerSD(TrackerSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::UnRegisterTrackerSD: "<<sd->GetName()<<G4endl;
-	auto pos=std::find(fTrackerSD.begin(),fTrackerSD.end(),sd);
-	if(pos!=fTrackerSD.end())
-		fTrackerSD.erase(pos);
-}
-
-void Analysis::UnRegisterCaloSD(CaloSensitiveDetector* sd) {
-	if(gVerbose>3)
-		G4cout<<"Analysis::UnRegisterCaloSD: "<<sd->GetName()<<G4endl;
-	auto pos=std::find(fCaloSD.begin(),fCaloSD.end(),sd);
-	if(pos!=fCaloSD.end())
-		fCaloSD.erase(pos);
-}
-
 
 void Analysis::RegisterSD(JediSensitiveDetector* sd) {
 	if(gVerbose>3)
@@ -165,11 +141,8 @@ void Analysis::UnRegisterSD(JediSensitiveDetector* sd) {
 void Analysis::EndOfEvent(const G4Event* evt) {
 	simevent_t thisSimEvent;
 	thisSimEvent.eventid=evt->GetEventID();
-	for(auto iSD:fCaloSD){
-		thisSimEvent.calorimeter[iSD->GetName()]=*iSD->getVect();
-	}
-	for(auto iSD:fTrackerSD){
-		thisSimEvent.tracker[iSD->GetName()]=*iSD->getVect();
+	for(const auto iSD : fSD){
+		iSD->CopyHitsToRun(thisSimEvent);
 	}
 	fSimEvents->push_back(thisSimEvent);
 	genevent_t thisGenEvent;

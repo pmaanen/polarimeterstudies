@@ -76,7 +76,7 @@ JediCubicPolarimeter::JediCubicPolarimeter(std::string infile):JediPolarimeter(i
 	DefineCommands();
 }
 
-G4LogicalVolume* JediCubicPolarimeter::MakeCaloCrystal() {
+G4LogicalVolume* JediCubicPolarimeter::BuildCaloCrystal() {
 	auto logicDetector=MakeDetector("Detector",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ);
 	auto detectorVisAttr=new G4VisAttributes(green);
 	logicDetector->SetVisAttributes(detectorVisAttr);

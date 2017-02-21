@@ -23,14 +23,14 @@ class EventAction : public G4UserEventAction
 {
 	public:
 		virtual ~EventAction();
-		EventAction(std::shared_ptr<JediPhysicsManager> physicsManager);
+		EventAction(JediPhysicsManager* physicsManager);
 		virtual void   BeginOfEventAction(const G4Event*);
 		virtual void   EndOfEventAction(const G4Event* evt);
 
 		G4int GetEventno();
 	private:
 
-		std::shared_ptr<JediPhysicsManager> fPhysicsManager;
+		JediPhysicsManager* fPhysicsManager;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

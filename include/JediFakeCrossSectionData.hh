@@ -28,20 +28,23 @@ class  JediFakeCrossSectionData : public G4VCrossSectionDataSet
 public:
 	JediFakeCrossSectionData();
 
-	virtual G4bool IsElementApplicable( const G4DynamicParticle *, G4int, const G4Material*)
-	{
-		return false;
-	}
+public:
+     virtual G4bool    IsApplicable( const G4DynamicParticle *, const G4Element * )
+       {
+           return false;
+       }
 
-	virtual G4double GetElementCrossSection( const G4DynamicParticle *, G4int, const G4Material*){
-		return 0;
-	}
+     virtual G4double  GetCrossSection( const G4DynamicParticle *,
+                                  const G4Element *, G4double )
+       {
+           return 0;
+       }
 
-	void      BuildPhysicsTable( const G4ParticleDefinition & )
-	{}
+       void      BuildPhysicsTable( const G4ParticleDefinition & )
+       {}
 
-	void      DumpPhysicsTable( const G4ParticleDefinition & )
-	{}
+       void      DumpPhysicsTable( const G4ParticleDefinition & )
+       {}
 };
 
 

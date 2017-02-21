@@ -106,7 +106,7 @@ genevent_t DCElasticEventGenerator::Generate() {
 
 	auto thetaLab=d_momentum_lab.theta();
 	fPhi->SetParameter(2,thetaLab/CLHEP::deg);
-	auto phi=fPhi->GetRandom(0,2*CLHEP::pi)*CLHEP::deg;
+	auto phi=fPhi->GetRandom(0,2*CLHEP::pi);
 
 	d_momentum_cms.setPhi(phi);
 	d_momentum_lab.setPhi(phi);

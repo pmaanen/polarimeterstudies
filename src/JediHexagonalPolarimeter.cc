@@ -71,7 +71,7 @@ using namespace CLHEP;
 JediHexagonalPolarimeter::JediHexagonalPolarimeter(std::string infile):JediPolarimeter(infile) {
 	DefineCommands();
 }
-G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
+G4LogicalVolume* JediHexagonalPolarimeter::BuildCaloCrystal() {
 	G4double rOuter[]={0,fHCalSizeZ/sqrt(3),fHCalSizeZ/sqrt(3),0};
 	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,fHCalSizeXY,fHCalSizeXY};
 	G4Polyhedra* solidDetector= new G4Polyhedra("Detector", 0*CLHEP::deg, 360*CLHEP::deg, 6, 4, rOuter, z);
@@ -111,7 +111,7 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 
 
 	int ii=0;
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
+	G4LogicalVolume* aCrystal=BuildCaloCrystal();
 	G4cout<<"Geometry START"<<G4endl;
 	for(int iCrystalX=-fMaxCrystal-20; iCrystalX<fMaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-fMaxCrystal-20; iCrystalY<fMaxCrystal+20;iCrystalY++){

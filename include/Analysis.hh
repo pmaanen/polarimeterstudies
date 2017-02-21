@@ -19,6 +19,8 @@
 #include <JediException.hh>
 #include "G4Cache.hh"
 #include <algorithm>
+#include <memory>
+#include "G4ThreadLocalSingleton.hh"
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
 class JediSensitiveDetector;
@@ -35,22 +37,15 @@ class calorhit_t;
 class trackerhit_t;
 class Analysis {
 public:
-	//! Singleton
+	friend class G4ThreadLocalSingleton<Analysis>;
 	static Analysis* Instance() {
-		{
-			if ( fgInstance == 0 ) {
-				G4bool isMaster = ! G4Threading::IsWorkerThread();
-				fgInstance = new Analysis(isMaster);
-			}
-
-			return fgInstance;
-		}
+		static G4ThreadLocalSingleton<Analysis> theInstance;
+		return theInstance.Instance();
 	}
-	virtual ~Analysis() {};
-	void setEnabled(bool xenable){fEnabled=xenable;};
+	virtual ~Analysis()=default;
 
-	void enable(){fEnabled=true;};
-	void disable(){fEnabled=false;};
+	void Enable(bool xenable=true){fEnabled=xenable;};
+
 	G4bool isEnabled() const {
 		return fEnabled;
 	}
@@ -68,35 +63,21 @@ public:
 	void BeginOfEvent(){};
 	void EndOfEvent(const G4Event* evt);
 
-	void RegisterTrackerSD(TrackerSensitiveDetector*);
-	void UnRegisterTrackerSD(TrackerSensitiveDetector*);
-
 	void RegisterSD(JediSensitiveDetector*);
 	void UnRegisterSD(JediSensitiveDetector*);
 
 
-	void RegisterCaloSD(CaloSensitiveDetector*);
-	void UnRegisterCaloSD(CaloSensitiveDetector*);
-	const std::vector<simevent_t>* getSimEvents() const {
-		return fSimEvents;
-	}
-
-	const std::vector<genevent_t>* getGenEvents() const {
-		return fGenEvents;
-	}
-
-	const std::map<G4String, std::vector<trackerhit_t> *>& getTrackerHits() const {
-		return fTrackerHits;
-	}
+	 const std::vector<simevent_t>* getSimEvents() const;
+	 const std::vector<genevent_t>* getGenEvents() const;
 
 private:
-	//! Private constructor: part of singleton pattern
-	Analysis(G4bool isMaster=true);
-	//! Singleton static instance
-	static Analysis* fgMasterInstance;
-	static G4ThreadLocal Analysis* fgInstance;
+	Analysis();
 
-	G4GenericMessenger* fAnalysisMessenger;
+
+	void enable(){Enable(true);}
+	void disable(){Enable(false);}
+
+	std::unique_ptr<G4GenericMessenger> fAnalysisMessenger;
 
 	bool fEnabled;
 
@@ -104,11 +85,6 @@ private:
 	static G4String fGeneratorName;
 
 	std::vector<JediSensitiveDetector*> fSD;
-
-	std::vector<CaloSensitiveDetector*> fCaloSD;
-	std::vector<TrackerSensitiveDetector*> fTrackerSD;
-
-
 	std::vector<genevent_t>* fGenEvents;
 	std::vector<simevent_t>* fSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;
@@ -116,4 +92,13 @@ private:
 
 
 };
+
+inline const std::vector<simevent_t>* Analysis::getSimEvents() const {
+		return fSimEvents;
+	}
+
+inline	const std::vector<genevent_t>* Analysis::getGenEvents() const {
+		return fGenEvents;
+	}
+
 #endif /* ANALYSIS_HH_ */

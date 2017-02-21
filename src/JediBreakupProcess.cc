@@ -29,6 +29,8 @@ JediBreakupProcess::~JediBreakupProcess() {
 G4VParticleChange* JediBreakupProcess::PostStepDoIt(const G4Track& track,
 		const G4Step&) {
 	//G4cout<<"JediBreakupProcess::PostStepDoIt\n";
+
+
 	theTotalResult->Clear();
 	G4TrackStatus  trackStatus( track.GetTrackStatus() );
 	if ( trackStatus != fAlive && trackStatus != fSuspend )

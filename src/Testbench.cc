@@ -29,7 +29,7 @@ G4VPhysicalVolume* Testbench::Construct() {
 	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
+	G4LogicalVolume* aCrystal=BuildCaloCrystal();
 	//fSensitiveDetectors.Update("Detector",SDtype::kCalorimeter,{aCrystal});
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);

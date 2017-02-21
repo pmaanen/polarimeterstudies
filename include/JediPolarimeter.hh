@@ -122,7 +122,7 @@ private:
 
 protected:
 
-	virtual G4LogicalVolume* MakeCaloCrystal()=0;
+	virtual G4LogicalVolume* BuildCaloCrystal()=0;
 	template<typename solid, typename... Params>
 	G4LogicalVolume* BuildVolume(const G4String volName, G4Material* mat, Params... parameters){
 		auto solidDet=new solid(volName, parameters...);

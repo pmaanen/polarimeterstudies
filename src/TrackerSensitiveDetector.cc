@@ -53,15 +53,8 @@ using namespace CLHEP;
 TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name)
 : JediSensitiveDetector_impl(name)
 {
-	Analysis::Instance()->RegisterTrackerSD(this);
 	fHits=std::unique_ptr<std::vector<trackerhit_t>>(new std::vector<trackerhit_t>);
 }
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-TrackerSensitiveDetector::~TrackerSensitiveDetector(){
-	Analysis::Instance()->UnRegisterTrackerSD(this);
-}
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool TrackerSensitiveDetector::ProcessHits(G4Step* aStep, 
@@ -139,5 +132,9 @@ void TrackerSensitiveDetector::WriteHitsToFile(TTree& aTree,
 		hitPointer=&evt.tracker.at(fName);
 		myBranch->Fill();
 	}
+	}
+
+void TrackerSensitiveDetector::CopyHitsToRun(simevent_t& anEvent) const {
+	anEvent.tracker[GetName()]=*fHits.get();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

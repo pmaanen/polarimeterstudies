@@ -11,11 +11,10 @@
 #include <G4Track.hh>
 #include <G4Deuteron.hh>
 #include "global.hh"
-JediStudiedProcess::JediStudiedProcess( G4ProcessType  processType):G4WrapperProcess("studiedProcess", fUserDefined) {}
+JediStudiedProcess::JediStudiedProcess():G4WrapperProcess("dcelastic-faststim", fUserDefined) {}
 
 G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(
-		const G4Track& track, G4double previousStepSize,
-		G4ForceCondition* condition) {
+		const G4Track& track, G4double , G4ForceCondition* condition) {
 
 	*condition = NotForced;
 
@@ -54,8 +53,7 @@ G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(
 G4VParticleChange* JediStudiedProcess::PostStepDoIt(const G4Track& track,
 		const G4Step& step) {
 
-	G4VParticleChange *  particleChange( pRegProcess->PostStepDoIt( track,
-			step ) );
+	G4VParticleChange *  particleChange( pRegProcess->PostStepDoIt( track,step ) );
 
 	auto theTrackInfo=dynamic_cast<JediTrackInfo*>(track.GetUserInformation());
 	theTrackInfo->AllowStudiedProcess(false);

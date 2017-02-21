@@ -30,7 +30,7 @@ public:
 	}
 
 protected:
-	virtual G4LogicalVolume* MakeCaloCrystal();
+	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double halfSizeX, G4double halfSizeY, G4double halfSizeZ);
 	virtual G4VPhysicalVolume* Construct();
 	virtual void DefineCommands();

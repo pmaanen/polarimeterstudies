@@ -28,7 +28,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction(std::shared_ptr<JediPhysicsManager> physicsManager):G4UserEventAction(),fPhysicsManager(physicsManager)
+EventAction::EventAction(JediPhysicsManager* physicsManager):G4UserEventAction(),fPhysicsManager(physicsManager)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

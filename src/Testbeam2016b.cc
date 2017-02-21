@@ -22,7 +22,6 @@ static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
-
 Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),
 		fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fBuildSupport(false),
 		fRightDetector(true),fLeftDetector(true),fBuildTarget(true),fMonitor(false),fBeampipe(true),
@@ -34,17 +33,25 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(1
 	fVetoSizeZ=5*CLHEP::mm;
 	fHoleSizeXY=2*CLHEP::cm;
 
-	fTargetMaterialName="G4_C";
-	fNx=6;
-	fNy=2;
+	fTargetMaterialName="G4_GRAPHITE";
+	fNx=1;
+	fNy=1;
 
 	fApertureSize=40*CLHEP::mm;
-	fAperturePosition=G4ThreeVector(0,0,-200*CLHEP::mm);
-	fTargetDistance=565*CLHEP::mm;
+	fCollimatorPosition=G4ThreeVector(0,0,-25*CLHEP::mm);
+	fTargetDistance=610*CLHEP::mm;
 	fTargetSizeX=fTargetSizeY=50*CLHEP::mm;
 	fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
-	fBeampipeLength=2*CLHEP::m;
+	fBeampipeLength=50*CLHEP::cm;
+
+	//Tedlar= Brand name for DuPont® polyvinyl fluoride
+	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
+	fTedlar=new G4Material("Tedlar",tedlarDens,3);
+	fTedlar->AddElement(man->FindOrBuildElement("H"),int(3));
+	fTedlar->AddElement(man->FindOrBuildElement("C"),int(2));
+	fTedlar->AddElement(man->FindOrBuildElement("F"),int(1));
+
 	DefineCommands();
 	ComputeParameters();
 }
@@ -54,93 +61,35 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
-	auto worldVisAttr=new G4VisAttributes(G4VisAttributes::Invisible);
+	auto worldVisAttr=new G4VisAttributes();
 	worldVisAttr->SetForceWireframe(true);
 	fLogicWorld->SetVisAttributes(worldVisAttr);
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
-	MakeSetup();
 
-	if(fVeto){
-		auto solidVetoBox=new G4Box("VetoBox",fVetoSizeXY/2,fVetoSizeXY/2,fVetoSizeZ/2);
-		auto solidVetoHole=new G4Tubs("VetoHole",0,fHoleSizeXY,fVetoSizeZ,0,360*CLHEP::deg);
-		auto solidVeto=new G4SubtractionSolid("Veto",solidVetoBox,solidVetoHole);
-		auto logicVeto=new G4LogicalVolume(solidVeto,plastic,"Veto");
-		logicVeto->SetVisAttributes(new G4VisAttributes(cyan));
-		fSensitiveDetectors.Update("Veto",SDtype::kCalorimeter,logVolVector{logicVeto});
-		new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ),logicVeto,"Veto",fLogicWorld,1,0,false);
-	}
-
-	if(fStart){
-		auto solidStart=new G4Box("VetoBox",fVetoSizeXY/2,fVetoSizeXY/2,fVetoSizeZ/2);
-		auto logicStart=new G4LogicalVolume(solidStart,plastic,"Start");
-		logicStart->SetVisAttributes(new G4VisAttributes(cyan));
-		fSensitiveDetectors.Update("Start",SDtype::kCalorimeter,logVolVector{logicStart});
-		new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ/2),logicStart,"Veto",fLogicWorld,1,0,false);
-	}
-
-
-	if(fBuildTarget)
-		MakeTarget();
 	if(fDetectorName=="effective")
 		MakeEffectiveDetector();
-	if(fDetectorName=="default")
+	else if(fDetectorName=="default")
 		Make2016BDetector();
-	if(fDetectorName=="sandwich")
+	else if(fDetectorName=="sandwich")
 		MakeSandwichDetector();
+	else if(fDetectorName=="calibration")
+		BuildCalibrationSetup();
+	else{
+		G4ExceptionDescription ed;
+		ed<<"Scenario with name "<<fDetectorName<<" is now known!";
+		G4Exception("Testbeam2016b::Construct","",FatalException,ed);
+	}
 	return fPhysiWorld;
 }
 
 void Testbeam2016b::MakeSetup() {
 
-	if(fBuildSupport){
-		auto solidSupport=new G4SubtractionSolid("Support",
-				new G4Box("",fArmWidth/2,fArmWidth/2.,fDistance/2+fHCalSizeZ/2),
-				new G4Box("",fArmWidth/4,fArmWidth/4.,fDistance)
-		);
+	if(fBuildTarget)
+		MakeTarget();
 
-		auto logicHorizontalSupport=new G4LogicalVolume(solidSupport,al,"Support");
+	if(fBuildSupport)
+		BuildSupportElements();
 
-
-		auto rot1=new G4RotationMatrix;
-		auto rot2=new G4RotationMatrix;
-
-		rot1->rotateY(fAngle);
-		rot2->rotateY(-fAngle);
-
-		if(fRightDetector)
-			new G4PVPlacement(rot1,G4ThreeVector(0,-1*CLHEP::m,fDistance/2+fHCalSizeZ/2).rotateY(-fAngle),logicHorizontalSupport,"Support",fLogicWorld,0,0,false);
-		if(fLeftDetector)
-			new G4PVPlacement(rot2,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2,fDistance/2).rotateY(fAngle),logicHorizontalSupport,"Support",fLogicWorld,1,0,false);
-
-		auto solidShortSupport=new G4SubtractionSolid("Support",
-				new G4Box("",fArmWidth/2,fArmWidth/2.,fDistance/4),
-				new G4Box("",fArmWidth/4,fArmWidth/4.,fDistance)
-		);
-
-		auto logicShortSupport=new G4LogicalVolume(solidShortSupport,man->FindOrBuildMaterial("G4_Al"),"Support");
-
-
-		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth/2-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2,fDistance/4),logicShortSupport,"Support",fLogicWorld,1,0,false);
-
-
-		auto solidLongVerticalSupport=new G4SubtractionSolid("VerticalSupport",
-				new G4Box("",fArmWidth/2,(fArmWidth+fMinDistance)/2,fArmWidth/2),
-				new G4Box("",fArmWidth/4,(fArmWidth+fMinDistance),fArmWidth/4)
-		);
-
-		auto solidShortVerticalSupport=new G4SubtractionSolid("VerticalSupport",
-				new G4Box("",fArmWidth/2,fMinDistance/2,fArmWidth/2),
-				new G4Box("",fArmWidth/4,fMinDistance,fArmWidth/4)
-		);
-
-		auto logicLongVerticalSupport=new G4LogicalVolume(solidLongVerticalSupport,man->FindOrBuildMaterial("G4_Al"),"VerticalSupport");
-		auto logicShortVerticalSupport=new G4LogicalVolume(solidShortVerticalSupport,man->FindOrBuildMaterial("G4_Al"),"VerticalSupport");
-
-		if(fRightDetector)
-			new G4PVPlacement(rot1,G4ThreeVector(0,-3./2.*fArmWidth-fMinDistance+fDetectorHeight+fArmWidth/2+(fArmWidth+fMinDistance)/2-fNy*fHCalSizeZ/2,fDistance-fArmWidth/2).rotateY(-fAngle),logicLongVerticalSupport,"Support",fLogicWorld,0,0,false);
-		if(fLeftDetector)
-			new G4PVPlacement(rot2,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance/2-fNy*fHCalSizeZ/2,fDistance-fArmWidth/2).rotateY(fAngle),logicShortVerticalSupport,"Support",fLogicWorld,0,0,false);
-	}
 	if(fMonitor){
 		auto logicMonitor=MakeDetector("Monitor",man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),4*CLHEP::cm,4*CLHEP::cm,5*CLHEP::mm);
 		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2+2*CLHEP::cm,fDistance/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
@@ -148,19 +97,38 @@ void Testbeam2016b::MakeSetup() {
 	if(fBeampipe)
 		new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
 
-	auto logicColl=BuildCollimator();
+	if(fCollimator){
+		auto logicColl=BuildCollimator();
+		auto rotLeft=new G4RotationMatrix();
+		rotLeft->rotateY(180*CLHEP::deg);
+		auto rotRight=new G4RotationMatrix();
 
-	auto rotLeft=new G4RotationMatrix();
-	rotLeft->rotateY(180*CLHEP::deg);
-	auto rotRight=new G4RotationMatrix();
+		auto posX=fApertureSize/2+27.5*CLHEP::mm;
+		G4double posZl,posZr;
+		for(int i=0;i<4;i++){
+			posZl=2*i*26*CLHEP::mm+12.5*CLHEP::mm-207*CLHEP::mm;
+			posZr=(2*i+1)*26*CLHEP::mm+12.5*CLHEP::mm-207*CLHEP::mm;
+			new G4PVPlacement(rotLeft,G4ThreeVector(-posX,0,posZl)+fCollimatorPosition,logicColl,"CollimatorLeft",fLogicWorld,0,2*i,0);
+			new G4PVPlacement(rotRight,G4ThreeVector(posX,0,posZr)+fCollimatorPosition,logicColl,"CollimatorRight",fLogicWorld,0,2*i+1,0);
+		}
 
-	auto posX=fApertureSize/2+27.5*CLHEP::mm;
-	G4double posZl,posZr;
-	for(int i=0;i<4;i++){
-		posZl=2*i*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
-		posZr=(2*i+1)*25*CLHEP::mm-fTargetDistance+12.5*CLHEP::mm+330*CLHEP::mm;
-		new G4PVPlacement(rotLeft,G4ThreeVector(-posX,0,posZl)+fAperturePosition,logicColl,"CollimatorLeft",fLogicWorld,0,2*i,0);
-		new G4PVPlacement(rotRight,G4ThreeVector(posX,0,posZr)+fAperturePosition,logicColl,"CollimatorRight",fLogicWorld,0,2*i+1,0);
+		if(fVeto){
+			auto solidVetoBox=new G4Box("VetoBox",fVetoSizeXY/2,fVetoSizeXY/2,fVetoSizeZ/2);
+			auto solidVetoHole=new G4Tubs("VetoHole",0,fHoleSizeXY,fVetoSizeZ,0,360*CLHEP::deg);
+			auto solidVeto=new G4SubtractionSolid("Veto",solidVetoBox,solidVetoHole);
+			auto logicVeto=new G4LogicalVolume(solidVeto,plastic,"Veto");
+			logicVeto->SetVisAttributes(new G4VisAttributes(cyan));
+			fSensitiveDetectors.Update("Veto",SDtype::kCalorimeter,logVolVector{logicVeto});
+			new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ),logicVeto,"Veto",fLogicWorld,1,0,false);
+		}
+
+		if(fStart){
+			auto solidStart=new G4Box("VetoBox",fVetoSizeXY/2,fVetoSizeXY/2,fVetoSizeZ/2);
+			auto logicStart=new G4LogicalVolume(solidStart,plastic,"Start");
+			logicStart->SetVisAttributes(new G4VisAttributes(cyan));
+			fSensitiveDetectors.Update("Start",SDtype::kCalorimeter,logVolVector{logicStart});
+			new G4PVPlacement(0,G4ThreeVector(0,0,-fVetoSizeZ/2),logicStart,"Veto",fLogicWorld,1,0,false);
+		}
 	}
 
 }
@@ -176,33 +144,39 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 
 	auto solidMother=new G4Box("Detector",motherSizeX/2,motherSizeY/2,motherSizeZ/2);
 	auto logicMother=new G4LogicalVolume(solidMother,man->FindOrBuildMaterial("G4_Galactic"),"Detector");
-	auto logicCrystal=MakeDetector("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
-	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{logicCrystal});
+	auto logicCrystal=BuildCaloCrystal();
+	/*
+	 * Use BuildCaloCrystal for now
+	 * BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
+	 */
+
+	auto sensDet=logicCrystal->GetDaughter(0)->GetLogicalVolume()
+											->GetDaughter(0)->GetLogicalVolume()
+											->GetDaughter(0)->GetLogicalVolume();
+	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{sensDet});
 	logicCrystal->SetVisAttributes(new G4VisAttributes(green));
 
 	G4int index=0;
 	for(G4int iX=0;iX<fNx;iX++){
 		for(G4int iY=0;iY<fNy;iY++){
-			index=iX+1000*iY;
-			new G4PVPlacement (rot, G4ThreeVector(-motherSizeX/2+(iX+0.5)*fHCalSizeXY,-motherSizeY/2+(iY+0.5)*fHCalSizeXY,0), logicCrystal, "", logicMother, false,index , false);
+			index=iX+10*iY;
+			new G4PVPlacement (rot, G4ThreeVector(-motherSizeX/2+(iX+0.5)*fHCalSizeXY,-motherSizeY/2+(iY+0.5)*fHCalSizeXY,0), logicCrystal, "hcalelement", logicMother, false,index , false);
 		}
 	}
 
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
 	return logicMother;
-
-
 }
 
 void Testbeam2016b::MakeEffectiveDetector() {
+
+	MakeSetup();
 
 	auto rot1=new G4RotationMatrix;
 	auto rot2=new G4RotationMatrix;
 
 	rot1->rotateY(fAngle);
 	rot2->rotateY(-fAngle);
-
-
 
 	auto logicRight=MakeDetector("Right",vacuum,fNx*fHCalSizeZ,fNy*fHCalSizeZ,1*CLHEP::mm);
 	fSensitiveDetectors.Update("Right",SDtype::kPerfect,logVolVector{logicRight});
@@ -219,6 +193,7 @@ void Testbeam2016b::MakeEffectiveDetector() {
 }
 
 void Testbeam2016b::MakeSandwichDetector() {
+	G4Exception(" Testbeam2016b::MakeSandwichDetector","",FatalException," Testbeam2016b::MakeSandwichDetector is not yet implemented!");
 }
 
 void Testbeam2016b::MakeTarget() {
@@ -231,15 +206,27 @@ void Testbeam2016b::MakeTarget() {
 		G4Exception("Testbeam2016b::MakeTarget()","",FatalException,message.str().c_str());
 	}
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
-	auto physiTarget=new G4PVPlacement(rot,G4ThreeVector(0,0,fTargetSizeZ/2),logicTarget,"Target",fLogicWorld,false,0);
-	if(!physiTarget->GetLogicalVolume())
-		G4Exception("E22::MakeTarget()","",FatalException,"Target has no LogicalVolume.");
-	fTargetTransform.SetNetTranslation( physiTarget->GetTranslation() );
-	fTargetTransform.SetNetRotation( *physiTarget->GetRotation() );
-	fTarget=physiTarget->GetLogicalVolume();
+	auto pos=G4ThreeVector(0,0,fTargetSizeZ/2);
+	new G4PVPlacement(rot,pos,logicTarget,"Target",fLogicWorld,false,0);
+
+
+	if(false){
+		auto logicObs=BuildVolume<G4Tubs>("Observer",G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),0,2*fTargetSizeX/2,1*CLHEP::mm,0,2*CLHEP::pi);
+		auto visAttr=new G4VisAttributes(cyan);
+		logicObs->SetVisAttributes(visAttr);
+		auto posObs=G4ThreeVector(0,0,fTargetSizeZ/2+10*CLHEP::cm);
+		fSensitiveDetectors.Update("Observer",SDtype::kPerfect,logVolVector{logicObs});
+		new G4PVPlacement(rot,posObs,logicObs,"Target",fLogicWorld,false,0);
+	}
+
+	fTargetTransform.SetNetTranslation( pos );
+	fTargetTransform.SetNetRotation( *rot );
+	fTarget=logicTarget;
 }
 
 void Testbeam2016b::Make2016BDetector() {
+
+	MakeSetup();
 
 	auto rot1=new G4RotationMatrix;
 	auto rot2=new G4RotationMatrix;
@@ -276,15 +263,7 @@ void Testbeam2016b::Make2016BDetector() {
 void Testbeam2016b::DefineCommands() {
 
 
-	fTargetMessenger =std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,
-			"/PolarimeterStudies/target/",
-			"target control"));
-
-	fTargetMessenger->DeclareProperty("material",Testbeam2016b::fTargetMaterialName,"");
-
-	fTargetMessenger->DeclarePropertyWithUnit("x","mm",Testbeam2016b::fTargetSizeX,"");
-	fTargetMessenger->DeclarePropertyWithUnit("y","mm",Testbeam2016b::fTargetSizeY,"");
-	fTargetMessenger->DeclarePropertyWithUnit("z","mm",Testbeam2016b::fTargetSizeZ,"");
+	fMessenger->DeclareProperty("scenario",Testbeam2016b::fDetectorName,"");
 
 	fMessenger->DeclarePropertyWithUnit("armlength","mm",Testbeam2016b::fDistance,"");
 
@@ -314,7 +293,7 @@ void Testbeam2016b::DefineCommands() {
 
 	fMessenger->DeclareProperty("target",Testbeam2016b::fBuildTarget,"target on/off");
 
-	fMessenger->DeclareProperty("start",Testbeam2016b::fStart,"target on/off");
+	fMessenger->DeclareProperty("start",Testbeam2016b::fStart,"start on/off");
 
 	fMessenger->DeclarePropertyWithUnit("targetSizeZ","mm",Testbeam2016b::fTargetSizeZ,"size of target in z.");
 
@@ -323,6 +302,34 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclareProperty("veto",Testbeam2016b::fVeto,"veto on/off");
 
 	fMessenger->DeclareProperty("trigger",Testbeam2016b::fTrigger,"trigger on/off");
+
+	fMessenger->DeclareProperty("collimator",Testbeam2016b::fCollimator,"collimator on/off");
+
+	fMessenger->DeclareProperty("target_material",Testbeam2016b::fTargetMaterialName,"target material");
+}
+
+G4LogicalVolume* Testbeam2016b::BuildCaloCrystal() {
+	G4double teflonThick=150*CLHEP::um;
+	G4double tedlarThick=teflonThick;
+	G4double kaptonThick=50*CLHEP::um;
+
+	auto motherSizeZ=2*teflonThick+2*tedlarThick+2*kaptonThick+fHCalSizeZ;
+	auto motherSizeXY=2*teflonThick+2*tedlarThick+2*kaptonThick+fHCalSizeXY;
+
+	auto teflon=man->FindOrBuildMaterial("G4_TEFLON");
+	auto kapton=man->FindOrBuildMaterial("G4_KAPTON");
+
+	auto logicKapton=BuildVolume<G4Box>("Detector",kapton,motherSizeXY/2,motherSizeXY/2,motherSizeZ/2);
+	auto logicTedlar=BuildVolume<G4Box>("Wrap1",fTedlar,motherSizeXY/2-kaptonThick,motherSizeXY/2-kaptonThick,motherSizeZ/2-kaptonThick);
+	auto logicTeflon=BuildVolume<G4Box>("Wrap2",teflon,motherSizeXY/2-kaptonThick-tedlarThick,motherSizeXY/2-kaptonThick-tedlarThick,motherSizeZ/2-kaptonThick-tedlarThick);
+	auto logicCrystal=BuildVolume<G4Box>("Crystal",fHCalMaterial,motherSizeXY/2-kaptonThick,motherSizeXY/2-kaptonThick,motherSizeZ/2-kaptonThick);
+
+	auto pos=G4ThreeVector(0,0,0);
+	new G4PVPlacement(0,pos,logicTedlar,"Wrap1",logicKapton,0,0,0);
+	new G4PVPlacement(0,pos,logicTeflon,"Wrap2",logicTedlar,0,0,0);
+	new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicTeflon,0,0,0);
+
+	return logicKapton;
 }
 
 G4LogicalVolume* Testbeam2016b::BuildCollimator(){
@@ -356,10 +363,94 @@ G4LogicalVolume* Testbeam2016b::BuildCollimator(){
 void Testbeam2016b::ComputeParameters() {
 
 	JediPolarimeter::ComputeParameters();
-	fBeampipeLength=2*CLHEP::m;
-	G4cout<<"E22::ComputerParameters: "<<fGeometryHasBeenChanged<<G4endl;
+	fBeampipeLength=1*CLHEP::m;
 	G4double Zmax=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
 	G4double Zmin=fTargetDistance+fBeampipeLength+10*CLHEP::cm;
 	fWorldSizeZ=2*std::max(Zmin,Zmax);
-	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
+	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+50*CLHEP::cm;
+}
+
+void Testbeam2016b::BuildSupportElements() {
+	auto solidSupport=new G4SubtractionSolid("Support",
+			new G4Box("Support1",fArmWidth/2,fArmWidth/2.,fDistance/2+fHCalSizeZ/2),
+			new G4Box("Support2",fArmWidth/4,fArmWidth/4.,fDistance)
+	);
+
+	auto logicHorizontalSupport=new G4LogicalVolume(solidSupport,al,"Support");
+
+
+	auto rot1=new G4RotationMatrix;
+	auto rot2=new G4RotationMatrix;
+
+	rot1->rotateY(fAngle);
+	rot2->rotateY(-fAngle);
+
+	if(fRightDetector)
+		new G4PVPlacement(rot1,
+				G4ThreeVector(0,-1*CLHEP::m,fDistance/2+fHCalSizeZ/2).rotateY(-fAngle),
+				logicHorizontalSupport,"Support",fLogicWorld,0,0,false);
+	if(fLeftDetector)
+		new G4PVPlacement(rot2,
+				G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2,fDistance/2).rotateY(fAngle),
+				logicHorizontalSupport,"Support",fLogicWorld,1,0,false);
+
+	auto solidShortSupport=new G4SubtractionSolid("Support",
+			new G4Box("",fArmWidth/2,fArmWidth/2.,fDistance/4),
+			new G4Box("",fArmWidth/4,fArmWidth/4.,fDistance)
+	);
+
+	auto logicShortSupport=new G4LogicalVolume(solidShortSupport,man->FindOrBuildMaterial("G4_Al"),"Support");
+
+
+	new G4PVPlacement(0,G4ThreeVector(0,fArmWidth/2-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2,fDistance/4),
+			logicShortSupport,"Support",fLogicWorld,1,0,false);
+
+
+	auto solidLongVerticalSupport=new G4SubtractionSolid("VerticalSupport",
+			new G4Box("",fArmWidth/2,(fArmWidth+fMinDistance)/2,fArmWidth/2),
+			new G4Box("",fArmWidth/4,(fArmWidth+fMinDistance),fArmWidth/4)
+	);
+
+	auto solidShortVerticalSupport=new G4SubtractionSolid("VerticalSupport",
+			new G4Box("",fArmWidth/2,fMinDistance/2,fArmWidth/2),
+			new G4Box("",fArmWidth/4,fMinDistance,fArmWidth/4)
+	);
+
+	auto logicLongVerticalSupport=new G4LogicalVolume(solidLongVerticalSupport,man->FindOrBuildMaterial("G4_Al"),"VerticalSupport");
+	auto logicShortVerticalSupport=new G4LogicalVolume(solidShortVerticalSupport,man->FindOrBuildMaterial("G4_Al"),"VerticalSupport");
+
+	if(fRightDetector)
+		new G4PVPlacement(rot1,
+				G4ThreeVector(0,-3./2.*fArmWidth-fMinDistance+fDetectorHeight+fArmWidth/2+(fArmWidth+fMinDistance)/2-fNy*fHCalSizeZ/2,
+						fDistance-fArmWidth/2).rotateY(-fAngle),logicLongVerticalSupport,"Support",fLogicWorld,0,0,false);
+	if(fLeftDetector)
+		new G4PVPlacement(rot2,
+				G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance/2-fNy*fHCalSizeZ/2,
+						fDistance-fArmWidth/2).rotateY(fAngle),logicShortVerticalSupport,"Support",fLogicWorld,0,0,false);
+}
+
+void Testbeam2016b::BuildCalibrationSetup() {
+
+	fRightDetector=false;
+	fCollimator=false;
+	fNx=1;
+	fNy=1;
+
+	MakeSetup();
+
+	auto rot1=new G4RotationMatrix();
+	rot1->rotateY(fAngle);
+
+	auto logicDet=MakeScintillatorMatrix("Detector");
+	auto trigVisAttr=new G4VisAttributes(cyan);
+
+	if(fTrigger){
+		auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+		logicTrigger->SetVisAttributes(trigVisAttr);
+		fSensitiveDetectors.Update("TriggerR",SDtype::kCalorimeter,logVolVector{logicTrigger});
+		new G4PVPlacement(rot1,G4ThreeVector(0,0,fDistance-fTriggerSizeZ/2).rotateY(-fAngle),
+				logicTrigger,"Trigger",fLogicWorld,0,0,false);
+	}
+	new G4PVPlacement(rot1,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(-fAngle),
+			logicDet,"Detector",fLogicWorld,0,0,false);
 }

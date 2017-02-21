@@ -22,7 +22,7 @@
 #include <DetectorConstructionFactory.hh>
 #include "SingleCrystal.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-RunAction::RunAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysicsManager(physicsManager)
+RunAction::RunAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager)
 {
 	Analysis::Instance();
 	ROOT::EnableThreadSafety();
@@ -38,11 +38,6 @@ RunAction::RunAction(std::shared_ptr<JediPhysicsManager> physicsManager):fPhysic
 	fNEvents=0;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-RunAction::~RunAction()
-{}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 G4Run* RunAction::GenerateRun()
 { return new JediRun; }
 //*********************************************************************************
@@ -51,6 +46,7 @@ G4Run* RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
+	ROOT::EnableThreadSafety();
 	fNEvents=aRun->GetNumberOfEventToBeProcessed();
 	Analysis::Instance()->BeginOfRun();
 
