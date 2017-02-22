@@ -24,7 +24,7 @@ public:
 
 protected:
 
-	virtual G4LogicalVolume* BuildCaloCrystal();
+	virtual G4LogicalVolume* BuildCaloCrystal(G4String detName);
 	virtual void ComputeParameters();
 
 	G4double fDistance,fArmWidth,fAngle,fAngleLeft,fAngleRight,fDetectorHeight,fMinDistance,fTargetSizeX,

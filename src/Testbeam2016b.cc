@@ -153,16 +153,11 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 
 	auto solidMother=new G4Box("Detector",motherSizeX/2,motherSizeY/2,motherSizeZ/2);
 	auto logicMother=new G4LogicalVolume(solidMother,man->FindOrBuildMaterial("G4_Galactic"),"Detector");
-	auto logicCrystal=BuildCaloCrystal();
+	auto logicCrystal=BuildCaloCrystal(name);
 	/*
 	 * Use BuildCaloCrystal for now
 	 * BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
 	 */
-
-	auto sensDet=logicCrystal->GetDaughter(0)->GetLogicalVolume()
-																									->GetDaughter(0)->GetLogicalVolume()
-																									->GetDaughter(0)->GetLogicalVolume();
-	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{sensDet});
 	logicCrystal->SetVisAttributes(new G4VisAttributes(green));
 
 	G4int index=0;
@@ -215,6 +210,8 @@ void Testbeam2016b::MakeTarget() {
 		G4Exception("Testbeam2016b::MakeTarget()","",FatalException,message.str().c_str());
 	}
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
+	if(fDetectorName=="calibration")
+		fSensitiveDetectors.Update("Target",SDtype::kPerfect,logVolVector{logicTarget});
 	auto pos=G4ThreeVector(0,0,fTargetSizeZ/2);
 	new G4PVPlacement(rot,pos,logicTarget,"Target",fLogicWorld,false,0);
 
@@ -321,7 +318,7 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclareProperty("target_material",Testbeam2016b::fTargetMaterialName,"target material");
 }
 
-G4LogicalVolume* Testbeam2016b::BuildCaloCrystal() {
+G4LogicalVolume* Testbeam2016b::BuildCaloCrystal(G4String detName) {
 	G4double teflonThick=150*CLHEP::um;
 	G4double tedlarThick=teflonThick;
 	G4double kaptonThick=50*CLHEP::um;
@@ -332,26 +329,28 @@ G4LogicalVolume* Testbeam2016b::BuildCaloCrystal() {
 	auto teflon=man->FindOrBuildMaterial("G4_TEFLON");
 	auto kapton=man->FindOrBuildMaterial("G4_KAPTON");
 	auto tedlar=man->FindOrBuildMaterial("Tedlar");
-	auto logicKapton=BuildVolume<G4Box>("Detector",kapton,motherSizeXY/2,motherSizeXY/2,motherSizeZ/2);
+	auto logicKapton=BuildVolume<G4Box>(detName,kapton,motherSizeXY/2,motherSizeXY/2,motherSizeZ/2);
+
 	auto logicTedlar=BuildVolume<G4Box>("Wrap1",tedlar,motherSizeXY/2-kaptonThick,
 			motherSizeXY/2-kaptonThick,
 			motherSizeZ/2-kaptonThick);
 	auto logicTeflon=BuildVolume<G4Box>("Wrap2",teflon,motherSizeXY/2-kaptonThick-tedlarThick,
 			motherSizeXY/2-kaptonThick-tedlarThick,
 			motherSizeZ/2-kaptonThick-tedlarThick);
-	auto logicCrystal=BuildVolume<G4Box>("Crystal",fHCalMaterial,motherSizeXY/2-kaptonThick-tedlarThick-teflonThick,
+	auto logicDetector=BuildVolume<G4Box>(detName+"_SD",fHCalMaterial,motherSizeXY/2-kaptonThick-tedlarThick-teflonThick,
 			motherSizeXY/2-kaptonThick-tedlarThick-teflonThick,
 			motherSizeZ/2-kaptonThick-tedlarThick-teflonThick);
 
 	auto pos=G4ThreeVector(0,0,0);
 	new G4PVPlacement(0,pos,logicTedlar,"Wrap1",logicKapton,0,0,0);
 	new G4PVPlacement(0,pos,logicTeflon,"Wrap2",logicTedlar,0,0,0);
-	new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicTeflon,0,0,0);
+	new G4PVPlacement(0,pos,logicDetector,"Crystal",logicTeflon,0,0,0);
 	if(fDetectorName=="calibration"){
 		fSensitiveDetectors.Update("Kapton",SDtype::kCalorimeter,logVolVector{logicKapton});
 		fSensitiveDetectors.Update("Teflon",SDtype::kCalorimeter,logVolVector{logicTeflon});
 		fSensitiveDetectors.Update("Tedlar",SDtype::kCalorimeter,logVolVector{logicTedlar});
 	}
+	fSensitiveDetectors.Update(detName,SDtype::kCalorimeter,logVolVector{logicDetector});
 	return logicKapton;
 }
 
@@ -468,7 +467,7 @@ void Testbeam2016b::BuildCalibrationSetup() {
 	auto trigVisAttr=new G4VisAttributes(cyan);
 
 	if(fTrigger){
-		auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+		auto logicTrigger=MakeDetector("Trigger",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
 		logicTrigger->SetVisAttributes(trigVisAttr);
 		fSensitiveDetectors.Update("TriggerR",SDtype::kCalorimeter,logVolVector{logicTrigger});
 		new G4PVPlacement(rot1,G4ThreeVector(0,0,fDistance-fTriggerSizeZ/2).rotateY(-fAngle),
