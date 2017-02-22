@@ -11,11 +11,15 @@
 /PolarimeterStudies/beam/position 0 0 -75 cm
 /PolarimeterStudies/beam/spotsize 2.5 3 0 mm
 /PolarimeterStudies/detector/targetSizeXY 50 mm
-/PolarimeterStudies/angle 0 deg
+/PolarimeterStudies/detector/angle 0 deg
 /control/alias thickness 5
 /PolarimeterStudies/detector/update
 /control/execute scripts/TestBeam2016BEnergyCalibration/material.mac
 
 /control/alias material G4_GRAPHITE
 /control/alias thickness 10
+/control/execute scripts/TestBeam2016BEnergyCalibration/energy.mac
+
+/PolarimeterStudies/target 0
+/control/alias material G4_AIR
 /control/execute scripts/TestBeam2016BEnergyCalibration/energy.mac
