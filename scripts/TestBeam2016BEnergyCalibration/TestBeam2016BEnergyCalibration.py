@@ -42,7 +42,7 @@ def asfloatarray(vec):
 c1=ROOT.TCanvas("graph","graph",1600,900)
 def fitDir(infile,h,dirname):
     histo=infile.Get(dirname+"/h"+h).Clone()
-    histo.SetName("hEdep-Zoomed")
+    histo.SetName("h"+h+"-Zoomed")
     infile.cd(dirname)
     if histo.GetEntries()<1000:
         return None,None,None
@@ -54,7 +54,7 @@ def fitDir(infile,h,dirname):
     histo.GetXaxis().SetRangeUser(max(0,maximumLoc-5*width),maximumLoc+5*width)
     histo.GetYaxis().SetRangeUser(0,1.2*maximum)
     histo.GetXaxis().SetTitle("E_{dep} [MeV]")
-    histo.GetYaxis().SetTitle("rel. freq.")
+    histo.GetYaxis().SetTitle("rel. freq./25keV")
     fitfunc=ROOT.TF1("Gaussian","[0]*TMath::Gaus(x,[1],[2])",maximumLoc-4*width,maximumLoc+4*width)
     fitfunc.SetParName(0,"Constant")
     fitfunc.SetParName(1,"Mean")
@@ -63,7 +63,8 @@ def fitDir(infile,h,dirname):
     fitfunc.SetNpx(1000)
     histo.Fit(fitfunc,"RQ")
     if fitfunc.GetChisquare()/fitfunc.GetNDF()>1000:
-        return histo.GetMean(),histo.GetRMS()/sqrt(histo.GetEntries()),histo.GetFWHM()
+        print "Fit did not work for "+dirname+"/h"+h+", returning MPV"
+        return maximumLoc,histo.GetRMS()/sqrt(histo.GetEntries()),getFWHM(histo)
     histo.SetTitle(dirname+" MeV")
     histo.Draw()
     histo.Write()
@@ -74,54 +75,55 @@ def fitDir(infile,h,dirname):
     return e,de,w
 
 def makePlots(title,x,y,w):
-        gEdep=ROOT.TGraph(len(x))
-        gEdep.SetName(title[:-1])
-        gEdep.SetTitle("")
-        for ix in range(len(x)):
-            gEdep.SetPoint(ix,x[ix],y[ix])
-        gEdep.SetLineColor(colors[iCol % len(colors)])
-        gEdep.SetMarkerColor(colors[(iCol +1 )% len(colors)])
-        gEdep.SetFillColor(colors[iCol % len(colors)])
-        gEdep.SetLineWidth(3)
-        gEdep.SetTitle("")
-        gEdep.Draw("ALP")
-        gEdep.GetYaxis().SetTitle("E_{dep} [MeV]")
-        gEdep.GetXaxis().SetTitle("T_{d} [MeV]")
-        gEdep.Draw()
-        c1.Print(title+"energy.pdf")
-        #c1.Print(title+"energy.root")
-        gEdep.Write()
-        gFWHM=ROOT.TGraph(len(x))
-        gFWHM.SetName(title[:-1])
-        gFWHM.SetTitle(title[:-1])
-        gFWHM.SetLineColor(colors[iCol % len(colors)])
-        gFWHM.SetMarkerColor(colors[(iCol +1 )% len(colors)])
-        gFWHM.SetFillColor(colors[iCol % len(colors)])
-        gFWHM.SetLineWidth(3)
-        for ix in range(len(x)):
-            gFWHM.SetPoint(ix,x[ix],w[ix])
-        gFWHM.GetXaxis().SetTitle("T_{d} [MeV]")
-        gFWHM.GetYaxis().SetTitle("#Delta E (FWHM) [MeV]")
-        gFWHM.Draw("ALP")
-        c1.Print(title+"FWHM.pdf") 
-        #c1.Print(title+"FWHM.root")
-        gFWHM.Write()
+    return
+    gEdep=ROOT.TGraph(len(x))
+    gEdep.SetName(title[:-1])
+    gEdep.SetTitle("")
+    for ix in range(len(x)):
+        gEdep.SetPoint(ix,x[ix],y[ix])
+    gEdep.SetLineColor(colors[iCol % len(colors)])
+    gEdep.SetMarkerColor(colors[(iCol +1 )% len(colors)])
+    gEdep.SetFillColor(colors[iCol % len(colors)])
+    gEdep.SetLineWidth(3)
+    gEdep.SetTitle("")
+    gEdep.Draw("ALP")
+    gEdep.GetYaxis().SetTitle("E_{dep} [MeV]")
+    gEdep.GetXaxis().SetTitle("T_{d} [MeV]")
+    gEdep.Draw()
+    c1.Print(title+"energy.pdf")
+    #c1.Print(title+"energy.root")
+    gEdep.Write()
+    gFWHM=ROOT.TGraph(len(x))
+    gFWHM.SetName(title[:-1])
+    gFWHM.SetTitle(title[:-1])
+    gFWHM.SetLineColor(colors[iCol % len(colors)])
+    gFWHM.SetMarkerColor(colors[(iCol +1 )% len(colors)])
+    gFWHM.SetFillColor(colors[iCol % len(colors)])
+    gFWHM.SetLineWidth(3)
+    for ix in range(len(x)):
+        gFWHM.SetPoint(ix,x[ix],w[ix])
+    gFWHM.GetXaxis().SetTitle("T_{d} [MeV]")
+    gFWHM.GetYaxis().SetTitle("#Delta E (FWHM) [MeV]")
+    gFWHM.Draw("ALP")
+    c1.Print(title+"FWHM.pdf") 
+    #c1.Print(title+"FWHM.root")
+    gFWHM.Write()
 class exampleAnalysis(AnalysisBase):
     def Init(self):
         return
     
-def doDetector(histo, detector):
+def doDetector(detector):
     sum=0
     for hit in detector:
         sum+=hit.edep
-    histo.Fill(edep)
+    return sum
 def analysis(filename,myWorker):
     try:
         histos={}
         for h in histonames:
-            histos[h]=ROOT.TH1F("h"+h,"E_{dep} in "+h,3000,0,300)
+            histos[h]=ROOT.TH1F("h"+h,"E_{dep} in "+h,12000,0,300)
             histos[h].GetXaxis().SetTitle("E_{dep} [MeV]")
-            histos[h].GetYaxis().SetTitle("rel. freq.")
+            histos[h].GetYaxis().SetTitle("#/25keV")
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
@@ -129,17 +131,19 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            doDetector(histos["hDetector"],event.Detector)
-            doDetector(histos["hKapton"],event.Kapton)
-            doDetector(histos["hTedlar"],event.Tedlar)
-            doDetector(histos["hTeflar"],event.Teflar)
+            sum=doDetector(event.Detector)
+            if sum>5:
+                histos["hDetector"].Fill(sum)
+                histos["hKapton"].Fill(doDetector(event.Kapton))
+                histos["hTedlar"].Fill(doDetector(event.Tedlar))
+                histos["hTeflon"].Fill(doDetector(event.Teflon))
         for h in histos.itervalues():
             h.Write()
         outfile.Write()
         outfile.Close()
     except Exception as e:
         print "Problem in file:",filename,str(e)
-        return e
+        raise e
     return (filename[:-5])
     
 if __name__=="__main__":

@@ -19,3 +19,9 @@
 /control/alias material G4_GRAPHITE
 /control/alias thickness 10
 /control/execute scripts/TestBeam2016BEnergyCalibration/energy.mac
+
+/PolarimeterStudies/detector/target 0
+#Set target material even if not build because setFileName expects values
+/control/alias material G4_AIR
+/control/alias thickness 5
+/control/execute scripts/TestBeam2016BEnergyCalibration/energy.mac
