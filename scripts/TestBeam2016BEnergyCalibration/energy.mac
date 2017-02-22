@@ -1,1 +1,1 @@
-/control/foreach scripts/Testbeam2016bEnergyCalibration/run.mac ekin "100 135 150 200 250 270"
+/control/foreach scripts/TestBeam2016BEnergyCalibration/run.mac ekin "100 135 150 200 250 270"

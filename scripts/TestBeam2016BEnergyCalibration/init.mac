@@ -1,5 +1,9 @@
 /PolarimeterStudies/detector/scenario calibration
 /run/initialize
+/particle/select deuteron
+/particle/process/inactivate 3
+/particle/process/inactivate 4
+/particle/process/inactivate 5
 /jedi/elastic/theta_min 2 deg
 /jedi/elastic/theta_max 10 deg
 /analysis/Enable
@@ -9,8 +13,8 @@
 /PolarimeterStudies/detector/targetSizeXY 50 mm
 /control/alias thickness 5
 /PolarimeterStudies/detector/update
-/control/execute scripts/Testbeam2016bEnergyCalibration/material.mac
+/control/execute scripts/TestBeam2016BEnergyCalibration/material.mac
 
 /control/alias material G4_C
 /control/alias thickness 10
-/control/execute scripts/Testbeam2016bEnergyCalibration/energy.mac
+/control/execute scripts/TestBeam2016BEnergyCalibration/energy.mac
