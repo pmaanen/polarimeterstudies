@@ -27,7 +27,7 @@ protected:
 	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual void ComputeParameters();
 
-	G4double fDistance,fArmWidth,fAngle,fDetectorHeight,fMinDistance,fTargetSizeX,
+	G4double fDistance,fArmWidth,fAngle,fAngleLeft,fAngleRight,fDetectorHeight,fMinDistance,fTargetSizeX,
 	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance;
 	G4int fNx,fNy;
 	G4ThreeVector fCollimatorPosition;
