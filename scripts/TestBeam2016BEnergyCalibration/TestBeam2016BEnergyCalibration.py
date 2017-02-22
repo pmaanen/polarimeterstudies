@@ -15,6 +15,9 @@ gStyle.SetTitleSize(.05,"xy")
 gStyle.SetTitleOffset(1,"xy")
 gStyle.SetOptFit(1)
 
+
+histonames=["Air","Kapton","Teflon","Tedlar","Detector"]
+
 class exampleAnalysis(AnalysisBase):
     def Init(self):
         return
@@ -37,8 +40,8 @@ def asfloatarray(vec):
     return numpy.asarray(map(lambda x:float(x),vec))
 
 c1=ROOT.TCanvas("graph","graph",1600,900)
-def fitDir(infile,dirname):
-    histo=infile.Get(dirname+"/hEdep").Clone()
+def fitDir(infile,h,dirname):
+    histo=infile.Get(dirname+"/h"+h).Clone()
     histo.SetName("hEdep-Zoomed")
     infile.cd(dirname)
     if histo.GetEntries()<1000:
@@ -59,8 +62,8 @@ def fitDir(infile,dirname):
     fitfunc.SetParameters(maximum,maximumLoc,width)
     fitfunc.SetNpx(1000)
     histo.Fit(fitfunc,"RQ")
-    if fitfunc.GetChisquare()/fitfunc.GetNDF()>1e6:
-        return None,None,None
+    if fitfunc.GetChisquare()/fitfunc.GetNDF()>1000:
+        return histo.GetMean(),histo.GetRMS()/sqrt(histo.GetEntries()),histo.GetFWHM()
     histo.SetTitle(dirname+" MeV")
     histo.Draw()
     histo.Write()
@@ -107,11 +110,18 @@ class exampleAnalysis(AnalysisBase):
     def Init(self):
         return
     
+def doDetector(histo, detector):
+    sum=0
+    for hit in detector:
+        sum+=hit.edep
+    histo.Fill(edep)
 def analysis(filename,myWorker):
     try:
-        hSum=ROOT.TH1F("hEdep","E_{dep}",3000,0,300)
-        hSum.GetXaxis().SetTitle("E_{dep} [MeV]")
-        hSum.GetYaxis().SetTitle("rel. freq.")
+        histos={}
+        for h in histonames:
+            histos[h]=ROOT.TH1F("h"+h,"E_{dep} in "+h,3000,0,300)
+            histos[h].GetXaxis().SetTitle("E_{dep} [MeV]")
+            histos[h].GetYaxis().SetTitle("rel. freq.")
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
@@ -119,12 +129,12 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            sum=0
-            for hit in event.Detector:
-                sum+=hit.edep
-            if(sum>5.):
-                hSum.Fill(sum)
-        hSum.Write()
+            doDetector(histos["hDetector"],event.Detector)
+            doDetector(histos["hKapton"],event.Kapton)
+            doDetector(histos["hTedlar"],event.Tedlar)
+            doDetector(histos["hTeflar"],event.Teflar)
+        for h in histos.itervalues():
+            h.Write()
         outfile.Write()
         outfile.Close()
     except Exception as e:
@@ -150,7 +160,8 @@ if __name__=="__main__":
         ed=[]
         w=[]
         for e in energies:
-            ie,ide,iw=fitDir(infile, material+"-"+str(e)+"-5")
+            for h in histonames:
+                ie,ide,iw=fitDir(infile,h, material+"-"+str(e)+"-5")
             if ie!=None:
                 t.append(e)
                 ed.append(ie)
