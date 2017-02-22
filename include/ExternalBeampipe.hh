@@ -9,6 +9,7 @@
 #define INCLUDE_EXTERNALBEAMPIPE_HH_
 #include <G4PVPlacement.hh>
 class JediPolarimeter;
+class G4LogicalVolume;
 class ExternalBeampipe : public G4PVPlacement {
 public:
 	ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &tlate,
@@ -16,10 +17,22 @@ public:
 			JediPolarimeter* dc);
 	virtual ~ExternalBeampipe()=default;
 
+	G4LogicalVolume* getExitWindow();
+	G4LogicalVolume* getLateral();
 private:
 
 	JediPolarimeter* fPolarimeter;
+	G4LogicalVolume *fExitWindow,*fLateral;
 	void CopyValues();
+
 };
+
+inline G4LogicalVolume* ExternalBeampipe::getExitWindow(){
+	return fExitWindow;
+}
+
+inline G4LogicalVolume* ExternalBeampipe::getLateral(){
+	return fLateral;
+}
 
 #endif /* INCLUDE_EXTERNALBEAMPIPE_HH_ */

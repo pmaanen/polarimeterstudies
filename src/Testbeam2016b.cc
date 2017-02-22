@@ -47,10 +47,14 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(1
 
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
+	/*
 	fTedlar=new G4Material("Tedlar",tedlarDens,3);
 	fTedlar->AddElement(man->FindOrBuildElement("H"),int(3));
 	fTedlar->AddElement(man->FindOrBuildElement("C"),int(2));
 	fTedlar->AddElement(man->FindOrBuildElement("F"),int(1));
+	 */
+
+	man->ConstructNewMaterial("Tedlar",std::vector<G4String>{"H","C","F"},std::vector<G4int>{3,2,1},tedlarDens);
 
 	DefineCommands();
 	ComputeParameters();
@@ -64,6 +68,7 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 	auto worldVisAttr=new G4VisAttributes();
 	worldVisAttr->SetForceWireframe(true);
 	fLogicWorld->SetVisAttributes(worldVisAttr);
+	fSensitiveDetectors.Update("Air",SDtype::kCalorimeter,logVolVector{fLogicWorld});
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
 	if(fDetectorName=="effective")
@@ -94,9 +99,11 @@ void Testbeam2016b::MakeSetup() {
 		auto logicMonitor=MakeDetector("Monitor",man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),4*CLHEP::cm,4*CLHEP::cm,5*CLHEP::mm);
 		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2+2*CLHEP::cm,fDistance/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
 	}
-	if(fBeampipe)
-		new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
-
+	if(fBeampipe){
+		auto bp=new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
+		if(fDetectorName=="calibration")
+			fSensitiveDetectors.Update("ExitWindow",SDtype::kCalorimeter,logVolVector{bp->getExitWindow()});
+	}
 	if(fCollimator){
 		auto logicColl=BuildCollimator();
 		auto rotLeft=new G4RotationMatrix();
@@ -151,8 +158,8 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 	 */
 
 	auto sensDet=logicCrystal->GetDaughter(0)->GetLogicalVolume()
-											->GetDaughter(0)->GetLogicalVolume()
-											->GetDaughter(0)->GetLogicalVolume();
+																							->GetDaughter(0)->GetLogicalVolume()
+																							->GetDaughter(0)->GetLogicalVolume();
 	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{sensDet});
 	logicCrystal->SetVisAttributes(new G4VisAttributes(green));
 
@@ -318,9 +325,9 @@ G4LogicalVolume* Testbeam2016b::BuildCaloCrystal() {
 
 	auto teflon=man->FindOrBuildMaterial("G4_TEFLON");
 	auto kapton=man->FindOrBuildMaterial("G4_KAPTON");
-
+	auto tedlar=man->FindOrBuildMaterial("Tedlar");
 	auto logicKapton=BuildVolume<G4Box>("Detector",kapton,motherSizeXY/2,motherSizeXY/2,motherSizeZ/2);
-	auto logicTedlar=BuildVolume<G4Box>("Wrap1",fTedlar,motherSizeXY/2-kaptonThick,motherSizeXY/2-kaptonThick,motherSizeZ/2-kaptonThick);
+	auto logicTedlar=BuildVolume<G4Box>("Wrap1",tedlar,motherSizeXY/2-kaptonThick,motherSizeXY/2-kaptonThick,motherSizeZ/2-kaptonThick);
 	auto logicTeflon=BuildVolume<G4Box>("Wrap2",teflon,motherSizeXY/2-kaptonThick-tedlarThick,motherSizeXY/2-kaptonThick-tedlarThick,motherSizeZ/2-kaptonThick-tedlarThick);
 	auto logicCrystal=BuildVolume<G4Box>("Crystal",fHCalMaterial,motherSizeXY/2-kaptonThick,motherSizeXY/2-kaptonThick,motherSizeZ/2-kaptonThick);
 
@@ -328,7 +335,11 @@ G4LogicalVolume* Testbeam2016b::BuildCaloCrystal() {
 	new G4PVPlacement(0,pos,logicTedlar,"Wrap1",logicKapton,0,0,0);
 	new G4PVPlacement(0,pos,logicTeflon,"Wrap2",logicTedlar,0,0,0);
 	new G4PVPlacement(0,pos,logicCrystal,"Crystal",logicTeflon,0,0,0);
-
+	if(fDetectorName=="calibration"){
+		fSensitiveDetectors.Update("Kapton",SDtype::kCalorimeter,logVolVector{logicKapton});
+		fSensitiveDetectors.Update("Teflon",SDtype::kCalorimeter,logVolVector{logicTeflon});
+		fSensitiveDetectors.Update("Tedlar",SDtype::kCalorimeter,logVolVector{logicTedlar});
+	}
 	return logicKapton;
 }
 

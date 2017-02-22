@@ -26,18 +26,18 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 
 	auto beampipeSizeZ=dc->getBeampipeLength();
 	auto solidBeampipe=new G4Tubs("Beampipe",0,5*CLHEP::cm,beampipeSizeZ/2,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicBeampipe=new G4LogicalVolume(solidBeampipe,al,"Beampipe");
+	fLateral=new G4LogicalVolume(solidBeampipe,al,"Beampipe");
 
 	auto windowThickness=0.075*CLHEP::mm;
 	auto solidVacuum=new G4Tubs("Vacuum",0,5*CLHEP::cm-2*CLHEP::mm,beampipeSizeZ/2-windowThickness,0,2*CLHEP::pi*CLHEP::rad);
 	auto logicVacuum=new G4LogicalVolume(solidVacuum,uhv,"Vacuum");
 	logicVacuum->SetVisAttributes(new G4VisAttributes(tyellow));
-	new G4PVPlacement(0,G4ThreeVector(0,0,-windowThickness),logicVacuum,"Vacuum",logicBeampipe,false,0,false);
+	new G4PVPlacement(0,G4ThreeVector(0,0,-windowThickness),logicVacuum,"Vacuum",fLateral,false,0,false);
 
 	auto solidExitWindow=new G4Tubs("exitWindow",0,5*CLHEP::cm-2*CLHEP::mm,windowThickness,0,2*CLHEP::pi*CLHEP::rad);
-	auto logicExitWindow=new G4LogicalVolume(solidExitWindow,steel,"exitWindow");
-	logicExitWindow->SetVisAttributes(new G4VisAttributes(tgray));
-	new G4PVPlacement(0,G4ThreeVector(0,0,beampipeSizeZ/2-windowThickness),logicExitWindow,"exitWindow",logicBeampipe,false,0,false);
+	fExitWindow=new G4LogicalVolume(solidExitWindow,steel,"exitWindow");
+	fExitWindow->SetVisAttributes(new G4VisAttributes(tgray));
+	new G4PVPlacement(0,G4ThreeVector(0,0,beampipeSizeZ/2-windowThickness),fExitWindow,"exitWindow",fLateral,false,0,false);
 
-	SetLogicalVolume(logicBeampipe);
+	SetLogicalVolume(fLateral);
 }
