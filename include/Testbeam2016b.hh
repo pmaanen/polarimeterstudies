@@ -30,7 +30,7 @@ protected:
 	G4double fDistance,fArmWidth,fAngle,fAngleLeft,fAngleRight,fDetectorHeight,fMinDistance,fTargetSizeX,
 	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance;
 	G4int fNx,fNy;
-	G4ThreeVector fCollimatorPosition;
+	G4ThreeVector fCollimatorPosition,fTargetPos;
 	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor,
 	fBeampipe, fTrigger, fVeto,fStart, fCollimator;
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;

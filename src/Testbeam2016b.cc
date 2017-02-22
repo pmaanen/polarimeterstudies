@@ -22,6 +22,7 @@ static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+static auto air=man->FindOrBuildMaterial("G4_Air");
 Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),
 		fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fBuildSupport(false),
 		fRightDetector(true),fLeftDetector(true),fBuildTarget(true),fMonitor(false),fBeampipe(true),
@@ -46,7 +47,7 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(1
 	fTargetSizeZ=1*CLHEP::cm;
 	fDetectorName="default";
 	fBeampipeLength=50*CLHEP::cm;
-
+	fTargetPos=G4ThreeVector(0,0,0);
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
 	/*
@@ -70,7 +71,8 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 	auto worldVisAttr=new G4VisAttributes();
 	worldVisAttr->SetForceWireframe(true);
 	fLogicWorld->SetVisAttributes(worldVisAttr);
-	fSensitiveDetectors.Update("Air",SDtype::kCalorimeter,logVolVector{fLogicWorld});
+	if(fDetectorName=="calibration")
+		fSensitiveDetectors.Update("Air",SDtype::kCalorimeter,logVolVector{fLogicWorld});
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
 	if(fDetectorName=="effective")
@@ -147,13 +149,16 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto motherSizeX=fNx*fHCalSizeXY;
-	auto motherSizeY=fNy*fHCalSizeXY;
-	auto motherSizeZ=fHCalSizeZ;
-
-	auto solidMother=new G4Box("Detector",motherSizeX/2,motherSizeY/2,motherSizeZ/2);
-	auto logicMother=new G4LogicalVolume(solidMother,man->FindOrBuildMaterial("G4_Galactic"),"Detector");
 	auto logicCrystal=BuildCaloCrystal(name);
+
+	auto solidCrystal=dynamic_cast<G4Box*>(logicCrystal->GetSolid());
+	if(!solidCrystal)
+		G4Exception("Testbeam2016b::MakeScintillatorMatrix","",FatalException,"solidCrystal==nullptr. Dynamic cast failed!");
+	auto motherSizeX=2*fNx*solidCrystal->GetXHalfLength();
+	auto motherSizeY=2*fNy*solidCrystal->GetYHalfLength();
+	auto motherSizeZ=2*solidCrystal->GetZHalfLength();
+
+	auto logicMother=BuildVolume<G4Box>("Detector",man->FindOrBuildMaterial("G4_Galactic"),motherSizeX/2,motherSizeY/2,motherSizeZ/2);
 	/*
 	 * Use BuildCaloCrystal for now
 	 * BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
@@ -164,7 +169,10 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 	for(G4int iX=0;iX<fNx;iX++){
 		for(G4int iY=0;iY<fNy;iY++){
 			index=iX+10*iY;
-			new G4PVPlacement (rot, G4ThreeVector(-motherSizeX/2+(iX+0.5)*fHCalSizeXY,-motherSizeY/2+(iY+0.5)*fHCalSizeXY,0), logicCrystal, "hcalelement", logicMother, false,index , false);
+			new G4PVPlacement (rot,
+					G4ThreeVector(-motherSizeX/2+(iX+0.5)*2*solidCrystal->GetXHalfLength(),
+							-motherSizeY/2+(iY+0.5)*2*solidCrystal->GetYHalfLength(),0),
+							logicCrystal, "hcalelement", logicMother, false,index , false);
 		}
 	}
 
@@ -212,7 +220,11 @@ void Testbeam2016b::MakeTarget() {
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
 	if(fDetectorName=="calibration")
 		fSensitiveDetectors.Update("Target",SDtype::kPerfect,logVolVector{logicTarget});
-	auto pos=G4ThreeVector(0,0,fTargetSizeZ/2);
+	auto pos=G4ThreeVector(0,0,0);
+	if(fTargetPos==G4ThreeVector(0,0,0))
+		pos=G4ThreeVector(0,0,fTargetSizeZ/2);
+	else
+		pos=fTargetPos;
 	new G4PVPlacement(rot,pos,logicTarget,"Target",fLogicWorld,false,0);
 
 
@@ -276,6 +288,8 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclarePropertyWithUnit("height","mm",Testbeam2016b::fDetectorHeight,"");
 
 	fMessenger->DeclarePropertyWithUnit("armwidth","mm",Testbeam2016b::fArmWidth,"");
+
+	fMessenger->DeclareProperty("target_position",Testbeam2016b::fTargetPos,"");
 
 	fMessenger->DeclarePropertyWithUnit("angle","rad",Testbeam2016b::fAngle,"");
 
