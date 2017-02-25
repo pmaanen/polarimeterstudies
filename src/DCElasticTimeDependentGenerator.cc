@@ -19,7 +19,7 @@ DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator():DCElasticEven
 	fInitialized=false;
 }
 
-genevent_t DCElasticTimeDependentGenerator::Generate() {
+genvertex_t DCElasticTimeDependentGenerator::Generate() {
 	if(!fRunInitialized)
 		Initialize();
 
@@ -35,8 +35,9 @@ genevent_t DCElasticTimeDependentGenerator::Generate() {
 	//t_cur+=delta_t;
 	//TODO
 	setBeamPolarization(time_functions::polarization_time_dependence(fTCur,fM));
-	auto event=genevent_t(DCElasticEventGenerator::Generate());
+	auto event=DCElasticEventGenerator::Generate();
 	event.time=fTCur;
+
 	return event;
 }
 

@@ -34,7 +34,7 @@ protected:
 class JediSensitiveDetector : public G4VSensitiveDetector {
 public:
 	JediSensitiveDetector(const G4String& name, const SDtype& type);
-	virtual ~JediSensitiveDetector(){Analysis::Instance()->UnRegisterSD(this);};
+	virtual ~JediSensitiveDetector(){Analysis::Instance()->UnRegisterMe(this);};
 
 	void Print() {};
 	void SetType(G4String command);

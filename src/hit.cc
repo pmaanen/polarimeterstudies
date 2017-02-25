@@ -10,3 +10,4 @@ ClassImp(trackerhit_t);
 ClassImp(simevent_t);
 ClassImp(particle_t);
 ClassImp(genevent_t);
+ClassImp(genvertex_t);

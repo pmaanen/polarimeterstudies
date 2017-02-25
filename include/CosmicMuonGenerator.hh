@@ -10,6 +10,7 @@
 
 #include "PrimaryGeneratorAction.hh"
 #include "EventGenerator.hh"
+#include "GenEventProducer.hh"
 #include "hit.hh"
 #include <G4ThreeVector.hh>
 #include <TF1.h>
@@ -22,7 +23,7 @@ public:
 	CosmicMuonGenerator();
 	virtual ~CosmicMuonGenerator()=default;
 
-	virtual genevent_t Generate();
+	virtual genvertex_t Generate();
 	virtual void Initialize();
 	G4ThreeVector fPosition, fSpotsize;
 

@@ -16,7 +16,7 @@ class BeamGenerator: public EventGenerator {
 public:
 	BeamGenerator(G4ParticleGun* gun);
 	virtual ~BeamGenerator()=default;
-	virtual genevent_t Generate();
+	virtual genvertex_t Generate();
 	virtual void Initialize() {
 	}
 	void setPosition(const G4ThreeVector& position) {

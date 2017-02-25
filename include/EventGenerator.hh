@@ -15,14 +15,15 @@ class G4Event;
 #include <vector>
 #include <memory>
 #include "hit.hh"
+#include "GenEventProducer.hh"
 class G4GenericMessenger;
 
 class EventGenerator {
 public:
-	EventGenerator();
+	EventGenerator(G4String name);
 	virtual ~EventGenerator()=default;
 
-	virtual genevent_t Generate()=0;
+	virtual genvertex_t Generate()=0;
 	virtual void Initialize()=0;
 
 protected:

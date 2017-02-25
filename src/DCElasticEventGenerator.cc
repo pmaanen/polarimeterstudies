@@ -85,10 +85,10 @@ void DCElasticEventGenerator::DefineCommands()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-genevent_t DCElasticEventGenerator::Generate() {
+genvertex_t DCElasticEventGenerator::Generate() {
 	if(!fInitialized)
 		Initialize();
-	genevent_t thisEvent;
+	genvertex_t thisEvent;
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	thisEvent.x=pos.x();

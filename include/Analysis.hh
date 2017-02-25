@@ -24,6 +24,7 @@
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
 class JediSensitiveDetector;
+class GenEventProducer;
 /*
  * \brief Analysis class
  * This class contains the code to collect information from
@@ -63,9 +64,11 @@ public:
 	void BeginOfEvent(){};
 	void EndOfEvent(const G4Event* evt);
 
-	void RegisterSD(JediSensitiveDetector*);
-	void UnRegisterSD(JediSensitiveDetector*);
+	void RegisterMe(JediSensitiveDetector*);
+	void UnRegisterMe(JediSensitiveDetector*);
 
+	void RegisterMe(GenEventProducer*);
+	void UnRegisterMe(GenEventProducer*);
 
 	 const std::vector<simevent_t>* getSimEvents() const;
 	 const std::vector<genevent_t>* getGenEvents() const;
@@ -85,6 +88,7 @@ private:
 	static G4String fGeneratorName;
 
 	std::vector<JediSensitiveDetector*> fSD;
+	std::vector<GenEventProducer*> fGenerators;
 	std::vector<genevent_t>* fGenEvents;
 	std::vector<simevent_t>* fSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;

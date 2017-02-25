@@ -68,7 +68,6 @@ protected:
 	G4ThreeVector fBeamposition, fBeamsize;
 	G4String fName;
 
-	virtual genevent_t Generate()=0;
 	virtual void DefineCommands();
 	//Returns a the TF2 for hit and miss.
 	virtual void Initialize()=0;

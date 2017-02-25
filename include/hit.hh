@@ -51,24 +51,23 @@ public:
 	ClassDef(particle_t,5)
 };
 
+class genvertex_t : public TObject{
+public:
+	genvertex_t():x(0),y(0),z(0),time(0){};
+	genvertex_t(Double_t tt, Double_t vvx, Double_t vvy, Double_t vvz):x(vvx),y(vvy),z(vvz),time(tt){;};
+	Double_t x,y,z,time;
+	std::vector<particle_t > particles;
+	ClassDef(genvertex_t,2);
+};
+
 class genevent_t: public TObject {
 public:
-	genevent_t():TObject(),eventid(0),time(0),x(0),y(0),z(0){;};
-	genevent_t(Int_t iid, Int_t tt, Double_t vvx, Double_t vvy, Double_t vvz):eventid(iid),time(tt),x(vvx),y(vvy),z(vvz){;};
-	//std::vector<particle_t>::iterator begin(){return particles.begin();}
-	//std::vector<particle_t>::iterator end(){return particles.end();}
-	/*
-	 * :TObject(),eventid(iid),time(tt),x(vvx),y(vvy),z(vvz)
-	friend std::ostream& operator<< (std::ostream& stream, const genevent_t& event){
-		for(auto ipart: event.particles){
-			stream<<ipart<<event.x/CLHEP::mm<<" "<<event.y/CLHEP::mm<<" "<<event.z/CLHEP::mm<<" "<<event.time/CLHEP::s;
-		}
-		return stream;
-	};
-	*/
+	genevent_t():TObject(),eventid(0),time(0){;};
+	genevent_t(Int_t iid, Double_t ttime):eventid(iid),time(ttime){;};
+
 	Int_t eventid;
-	Double_t time,x,y,z;
-	std::vector<particle_t> particles;
-	ClassDef(genevent_t,2);
+	Double_t time;
+	std::map<std::string, std::vector<genvertex_t> > generators;
+	ClassDef(genevent_t,5);
 };
 #endif /* HIT_HH_ */
