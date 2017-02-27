@@ -23,31 +23,13 @@ static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 static auto air=man->FindOrBuildMaterial("G4_Air");
-Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(10*CLHEP::cm),
-		fAngle(10*CLHEP::deg),fDetectorHeight(0),fMinDistance(25*CLHEP::cm),fBuildSupport(false),
-		fRightDetector(true),fLeftDetector(true),fBuildTarget(true),fMonitor(false),fBeampipe(true),
-		fTrigger(false), fVeto(false),fStart(false) {
-	fWorldSizeXY=2*CLHEP::m;
-	fWorldSizeZ=5*CLHEP::m;
+Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 
-	fVetoSizeXY=5*CLHEP::cm;
-	fVetoSizeZ=5*CLHEP::mm;
-	fHoleSizeXY=2*CLHEP::cm;
 
-	fTargetMaterialName="G4_GRAPHITE";
-	fNx=1;
-	fNy=1;
-	fAngleLeft=fAngle;
-	fAngleRight=fAngle;
 
-	fApertureSize=40*CLHEP::mm;
-	fCollimatorPosition=G4ThreeVector(0,0,-25*CLHEP::mm);
-	fTargetDistance=610*CLHEP::mm;
-	fTargetSizeX=fTargetSizeY=50*CLHEP::mm;
-	fTargetSizeZ=1*CLHEP::cm;
-	fDetectorName="default";
-	fBeampipeLength=50*CLHEP::cm;
-	fTargetPos=G4ThreeVector(0,0,0);
+	Reset();
+
+
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
 	/*
@@ -62,6 +44,53 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a(),fDistance(1*CLHEP::m),fArmWidth(1
 	DefineCommands();
 	ComputeParameters();
 }
+
+
+void Testbeam2016b::Reset() {
+	fDistance=1*CLHEP::m;
+	fArmWidth=10*CLHEP::cm;
+
+	fAngle=10*CLHEP::deg;
+	fDetectorHeight=0;
+	fMinDistance=25*CLHEP::cm;
+	fBuildSupport=false;
+
+	fRightDetector=true;
+	fLeftDetector=true;
+	fBuildTarget=true;
+	fMonitor=false;
+	fBeampipe=true;
+	fTrigger=false;
+	fVeto=false;
+	fStart=false;
+
+	fWorldSizeXY=2*CLHEP::m;
+	fWorldSizeZ=5*CLHEP::m;
+
+	fVetoSizeXY=5*CLHEP::cm;
+	fVetoSizeZ=5*CLHEP::mm;
+	fHoleSizeXY=2*CLHEP::cm;
+
+	fTargetMaterialName="G4_GRAPHITE";
+	fNx=6;
+	fNy=2;
+	fAngleLeft=fAngle;
+	fAngleRight=fAngle;
+
+	fApertureSize=40*CLHEP::mm;
+	fCollimatorPosition=G4ThreeVector(0,0,-25*CLHEP::mm);
+	fTargetDistance=610*CLHEP::mm;
+	fTargetSizeX=fTargetSizeY=50*CLHEP::mm;
+	fTargetSizeZ=1*CLHEP::cm;
+	fDetectorName="default";
+	fBeampipeLength=50*CLHEP::cm;
+	fTargetPos=G4ThreeVector(0,0,0);
+
+	fTriggerSizeLeftZ=10*CLHEP::mm;
+	fTriggerSizeRightZ=5*CLHEP::mm;
+}
+
+
 
 G4VPhysicalVolume* Testbeam2016b::Construct() {
 	if(fGeometryHasBeenChanged)
@@ -83,6 +112,8 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 		MakeSandwichDetector();
 	else if(fDetectorName=="calibration")
 		BuildCalibrationSetup();
+	else if(fDetectorName=="isolation")
+		BuildIsolationSetup();
 	else{
 		G4ExceptionDescription ed;
 		ed<<"Scenario with name "<<fDetectorName<<" is now known!";
@@ -110,6 +141,7 @@ void Testbeam2016b::MakeSetup() {
 	}
 	if(fCollimator){
 		auto logicColl=BuildCollimator();
+		logicColl->SetVisAttributes(new G4VisAttributes(gray));
 		auto rotLeft=new G4RotationMatrix();
 		rotLeft->rotateY(180*CLHEP::deg);
 		auto rotRight=new G4RotationMatrix();
@@ -218,6 +250,8 @@ void Testbeam2016b::MakeTarget() {
 		G4Exception("Testbeam2016b::MakeTarget()","",FatalException,message.str().c_str());
 	}
 	auto logicTarget=BuildVolume<G4Tubs>("Target",targetMat,0,fTargetSizeX/2,fTargetSizeZ/2,0,2*CLHEP::pi);
+
+	logicTarget->SetVisAttributes(new G4VisAttributes(G4Color::Brown()));
 	if(fDetectorName=="calibration")
 		fSensitiveDetectors.Update("Target",SDtype::kPerfect,logVolVector{logicTarget});
 	auto pos=G4ThreeVector(0,0,0);
@@ -280,6 +314,7 @@ void Testbeam2016b::Make2016BDetector() {
 
 void Testbeam2016b::DefineCommands() {
 
+	fMessenger->DeclareMethod("reset",&Testbeam2016b::Reset,"");
 
 	fMessenger->DeclareProperty("scenario",Testbeam2016b::fDetectorName,"");
 
@@ -296,6 +331,10 @@ void Testbeam2016b::DefineCommands() {
 	fMessenger->DeclarePropertyWithUnit("angle_left","rad",Testbeam2016b::fAngleLeft,"");
 
 	fMessenger->DeclarePropertyWithUnit("angle_right","rad",Testbeam2016b::fAngleRight,"");
+
+	fMessenger->DeclarePropertyWithUnit("trigger_thick_left","mm",Testbeam2016b::fTriggerSizeLeftZ,"");
+
+	fMessenger->DeclarePropertyWithUnit("trigger_thick_right","mm",Testbeam2016b::fTriggerSizeRightZ,"");
 
 	fMessenger->DeclarePropertyWithUnit("vetoSizeXY","mm",Testbeam2016b::fVetoSizeXY,"");
 
@@ -365,6 +404,10 @@ G4LogicalVolume* Testbeam2016b::BuildCaloCrystal(G4String detName) {
 		fSensitiveDetectors.Update("Tedlar",SDtype::kCalorimeter,logVolVector{logicTedlar});
 	}
 	fSensitiveDetectors.Update(detName,SDtype::kCalorimeter,logVolVector{logicDetector});
+
+	logicTedlar->SetVisAttributes(G4VisAttributes::Invisible);
+	logicTeflon->SetVisAttributes(G4VisAttributes::Invisible);
+	logicDetector->SetVisAttributes(G4VisAttributes::Invisible);
 	return logicKapton;
 }
 
@@ -399,7 +442,7 @@ G4LogicalVolume* Testbeam2016b::BuildCollimator(){
 void Testbeam2016b::ComputeParameters() {
 
 	JediPolarimeter::ComputeParameters();
-	fBeampipeLength=1*CLHEP::m;
+	fBeampipeLength=25*CLHEP::cm;
 	G4double Zmax=fDistance+fTriggerSizeZ+fHCalSizeZ+10*CLHEP::cm;
 	G4double Zmin=fTargetDistance+fBeampipeLength+10*CLHEP::cm;
 	fWorldSizeZ=2*std::max(Zmin,Zmax);
@@ -489,4 +532,58 @@ void Testbeam2016b::BuildCalibrationSetup() {
 	}
 	new G4PVPlacement(rot1,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(-fAngle),
 			logicDet,"Detector",fLogicWorld,0,0,false);
+}
+
+void Testbeam2016b::BuildIsolationSetup(){
+
+
+	fStart=false;
+	MakeSetup();
+
+	G4double startSizeX=15*CLHEP::mm;
+	G4double startSizeY=20*CLHEP::mm;
+	G4double startSizeZ=2*CLHEP::mm;
+	auto logicStart=BuildVolume<G4Box>("Start",plastic,startSizeX/2,startSizeY/2,startSizeZ);
+	fSensitiveDetectors.Update("Start",SDtype::kCalorimeter,{logicStart});
+	logicStart->SetVisAttributes(new G4VisAttributes(blue));
+	auto startRot=new G4RotationMatrix();
+	startRot->rotateZ(45*CLHEP::deg);
+
+	auto startPos=G4ThreeVector(0,0,-37.5*CLHEP::mm);
+
+	auto rotRight=new G4RotationMatrix;
+	auto rotLeft=new G4RotationMatrix;
+
+	startPos.rotateZ(45*CLHEP::deg);
+
+	new G4PVPlacement(startRot,startPos,logicStart,"Start",fLogicWorld,0,0,0);
+
+	rotRight->rotateY(fAngleRight);
+	rotLeft->rotateY(-fAngleLeft);
+
+	auto logicRight=MakeScintillatorMatrix("Right");
+	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto trigVisAttr=new G4VisAttributes(cyan);
+
+	if(fRightDetector){
+		if(fTrigger){
+			auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+			logicTrigger->SetVisAttributes(trigVisAttr);
+			fSensitiveDetectors.Update("TriggerR",SDtype::kCalorimeter,logVolVector{logicTrigger});
+			new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance-fTriggerSizeLeftZ/2).rotateY(-fAngleRight),logicTrigger,"TriggerRight",fLogicWorld,0,0,false);
+		}
+		new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(-fAngleRight),logicRight,"Right",fLogicWorld,0,0,false);
+	}
+	if(fLeftDetector){
+		if(fTrigger){
+			auto logicTrigger=MakeDetector("TriggerL",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeRightZ/2);
+			logicTrigger->SetVisAttributes(trigVisAttr);
+			fSensitiveDetectors.Update("TriggerL",SDtype::kCalorimeter,logVolVector{logicTrigger});
+			new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance-fTriggerSizeRightZ/2).rotateY(fAngleLeft),logicTrigger,"TriggerLeft",fLogicWorld,0,0,false);
+
+		}
+		new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(fAngleLeft),logicLeft,"Left",fLogicWorld,0,0,false);
+	}
+
+
 }
