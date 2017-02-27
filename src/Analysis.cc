@@ -87,7 +87,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 
 		for(const auto& iSD:fSD){
-			if(gVerbose>3)
+			if(gVerbose>2)
 				G4cout<<"Creating branch for "<<iSD->GetName()<<G4endl;
 			if(iSD->GetType()==SDtype::kCalorimeter){
 				calohitPointer[iSD->GetName()]=nullptr;
@@ -116,13 +116,14 @@ void Analysis::EndOfRun(const G4Run* run) {
 		std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 
 		auto GenEvents=myRun->getGenEvents();
-
-		G4cout<<"GenEvents has "<<GenEvents.size()<<" entries. "<<G4endl;
+		if(gVerbose>2){
+			G4cout<<"GenEvents has "<<GenEvents.size()<<" entries. "<<G4endl;
 		if(GenEvents.size()){
-			G4cout<<"Looking at first event:"<<G4endl;
+			G4cout<<"The following generators are in the first event: "<<G4endl;
 			for(auto iGen:GenEvents[0].generators)
 				G4cout<<iGen.first<<" ";
 			G4cout<<G4endl;
+		}
 		}
 		if(!GenEvents.size())
 			G4Exception("Analysis::EndOfRun","",FatalException,"GenEvents are empty!");
@@ -132,7 +133,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 
 		for(const auto& iGen:generatorNames){
-			if(gVerbose>3)
+			if(gVerbose>2)
 				G4cout<<"Creating branch for "<<iGen<<G4endl;
 			genVertexPointer[iGen]=nullptr;
 			GenTree.Branch(iGen,&genVertexPointer[iGen]);
@@ -150,7 +151,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 }
 
 void Analysis::RegisterMe(JediSensitiveDetector* sd) {
-	if(gVerbose>3)
+	if(gVerbose>2)
 		G4cout<<"Analysis::RegisterSD: "<<sd->GetName()<<G4endl;
 	if(std::find(fSD.begin(),fSD.end(),sd)==fSD.end())
 		fSD.push_back(sd);
@@ -158,7 +159,7 @@ void Analysis::RegisterMe(JediSensitiveDetector* sd) {
 }
 
 void Analysis::UnRegisterMe(JediSensitiveDetector* sd) {
-	if(gVerbose>3)
+	if(gVerbose>2)
 		G4cout<<"Analysis::UnRegisterSD: "<<sd->GetName()<<G4endl;
 	auto pos=std::find(fSD.begin(),fSD.end(),sd);
 	if(pos!=fSD.end())
@@ -181,7 +182,7 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 }
 
 void Analysis::RegisterMe(GenEventProducer* pd) {
-	if(gVerbose>3)
+	if(gVerbose>2)
 		G4cout<<"Analysis::RegisterMe: "<<pd->getName()<<G4endl;
 	if(std::find(fGenerators.begin(),fGenerators.end(),pd)==fGenerators.end())
 		fGenerators.push_back(pd);
@@ -189,7 +190,7 @@ void Analysis::RegisterMe(GenEventProducer* pd) {
 }
 
 void Analysis::UnRegisterMe(GenEventProducer*pd) {
-	if(gVerbose>3)
+	if(gVerbose>2)
 		G4cout<<"Analysis::UnRegisterMe: "<<pd->getName()<<G4endl;
 	auto pos=std::find(fGenerators.begin(),fGenerators.end(),pd);
 	if(pos!=fGenerators.end())
