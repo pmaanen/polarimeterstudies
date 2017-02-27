@@ -188,9 +188,9 @@ void JediDeuteronElasticProcess::CalculateTargetNucleus(
 		if ( numberOfElements > 1 )
 		{
 			G4ExceptionDescription ed;
-			ed <<" Number of elements in target "
-					<<"material is more than 1.\n"
-					<<"Only the first element will be chosen for target nucleus";
+			ed <<" Number of elements in "
+					<<"material "<<material->GetName()<<" is more than 1.\n"
+					<<"Only the first element "<<material->GetElement(0)->GetName()<<" will be chosen for target nucleus";
 			G4Exception("JediDeuteronElasticProcess::CalculateTargetNucleus","",JustWarning,ed);
 		}
 

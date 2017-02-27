@@ -28,7 +28,8 @@ protected:
 	virtual void ComputeParameters();
 
 	G4double fDistance,fArmWidth,fAngle,fAngleLeft,fAngleRight,fDetectorHeight,fMinDistance,fTargetSizeX,
-	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance;
+	fTargetSizeY,fTargetSizeZ,fVetoSizeXY,fVetoSizeZ,fHoleSizeXY,fApertureSize,fTargetDistance,fStartSizeX,
+	fStartSizeY,fStartSizeZ,fTriggerSizeLeftZ,fTriggerSizeRightZ;
 	G4int fNx,fNy;
 	G4ThreeVector fCollimatorPosition,fTargetPos;
 	G4bool fBuildSupport,fRightDetector,fLeftDetector,fBuildTarget,fMonitor,
@@ -47,6 +48,8 @@ private:
 	void MakeTarget();
 	virtual void DefineCommands();
 	void BuildCalibrationSetup();
+	void BuildIsolationSetup();
+	void Reset();
 };
 
 inline G4double Testbeam2016b::getTargetSizeX() const {

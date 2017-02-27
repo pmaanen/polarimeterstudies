@@ -23,7 +23,6 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 	auto uhv = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 	auto steel = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
-
 	auto beampipeSizeZ=dc->getBeampipeLength();
 	auto solidBeampipe=new G4Tubs("Beampipe",0,5*CLHEP::cm,beampipeSizeZ/2,0,2*CLHEP::pi*CLHEP::rad);
 	fLateral=new G4LogicalVolume(solidBeampipe,al,"Beampipe");

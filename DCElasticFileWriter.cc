@@ -21,7 +21,7 @@
 #endif
 
 #include "SingleCrystal.hh"
-
+#include <JediSensitiveDetector.hh>
 #include <FTFP_BERT.hh>
 
 #include <FileWriterPrimaryGeneratorAction.hh>

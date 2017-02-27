@@ -5,13 +5,26 @@
  *      Author: pmaanen
  */
 
-#include <JediPolarimeter.hh>
 #include <InternalBeampipe.hh>
+#include "JediPolarimeter.hh"
+#include "Colors.hh"
 #include <G4UnionSolid.hh>
+#include <G4AutoLock.hh>
+#include "global.hh"
+#include <G4WorkerRunManager.hh>
 #include <fstream>
 #include "Colors.hh"
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
+namespace { G4Mutex PolarimeterMutex = G4MUTEX_INITIALIZER; }
+
+JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
+	if(gVerbose>3)
+		G4cout<<"JediPolarimeter::JediPolarimeter()"<<G4endl;
+	G4String el[]={"Lu","Y","Si","O","Ce"};
+	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
+	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
+	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 
 	fWorldMaterialName="G4_AIR";
 	fDeltaELength=1*CLHEP::cm;
@@ -32,6 +45,8 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 }
 
 JediPolarimeter::~JediPolarimeter() {
+	if(gVerbose>3)
+		G4cout<<"JediPolarimeter::~JediPolarimeter()"<<G4endl;
 	delete fMessenger;
 }
 
@@ -182,6 +197,9 @@ void JediPolarimeter::DefineCommands() {
 
 	dumpCmd.SetParameterName("filename",true);
 
+	fMessenger->DeclareMethod("setCalorimeter",&JediPolarimeter::SetCalorimeter,"Set volume to ");
+	fMessenger->DeclareMethod("setTracker",&JediPolarimeter::SetTracker,"dump geometry to file");
+	fMessenger->DeclareMethod("setPerfect",&JediPolarimeter::SetPerfect,"dump geometry to file");
 	return;
 
 }
@@ -229,7 +247,7 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 
 }
 
-void JediPolarimeter::GeometryHasChanged(){
+    void JediPolarimeter::GeometryHasChanged(){
 	this->ComputeParameters();
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 	G4RunManager::GetRunManager()->PhysicsHasBeenModified();

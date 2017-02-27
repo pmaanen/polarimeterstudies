@@ -60,9 +60,9 @@
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
+#include "SensitiveDetectorConfiguration.hh"
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"
-
 #include <map>
 class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
@@ -72,12 +72,12 @@ public:
 
 	//Dump world to gdml file.
 	void WriteWorldToFile(G4String filename="");
+
+	//SD
 	virtual void ConstructSDandField();
 
 	//Trigger geometry check
 	void checkGeometry(){fPhysiWorld->CheckOverlaps(2000);}
-
-
 
 	//Setters for properties
 	void setBeampipeRadius(G4double beampipeRadius) {fBeampipeRadius = beampipeRadius;	GeometryHasChanged();	}
@@ -154,6 +154,7 @@ protected:
 	SensitiveDetectorManager fSensitiveDetectors;
 	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
 	std::vector<std::string> fGeomCache;
+
 	//Input file if constructed from file
 	std::string fInfileName;
 
