@@ -1,0 +1,1 @@
+/control/foreach scripts/TestBeam2016BEnergyCalibration/energy.mac material "G4_GRAPHITE G4_Mg G4_Al G4_Si"
