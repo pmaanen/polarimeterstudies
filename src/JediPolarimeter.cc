@@ -16,9 +16,6 @@
 #include "Colors.hh"
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
-namespace { G4Mutex PolarimeterMutex = G4MUTEX_INITIALIZER; }
-
-JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 	if(gVerbose>3)
 		G4cout<<"JediPolarimeter::JediPolarimeter()"<<G4endl;
 	G4String el[]={"Lu","Y","Si","O","Ce"};
@@ -197,9 +194,6 @@ void JediPolarimeter::DefineCommands() {
 
 	dumpCmd.SetParameterName("filename",true);
 
-	fMessenger->DeclareMethod("setCalorimeter",&JediPolarimeter::SetCalorimeter,"Set volume to ");
-	fMessenger->DeclareMethod("setTracker",&JediPolarimeter::SetTracker,"dump geometry to file");
-	fMessenger->DeclareMethod("setPerfect",&JediPolarimeter::SetPerfect,"dump geometry to file");
 	return;
 
 }

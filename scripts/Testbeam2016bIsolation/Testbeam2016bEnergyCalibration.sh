@@ -1,13 +1,13 @@
 #!/bin/bash
 N="4"
-NAME=TestBeam2016BEnergyCalibration
+NAME=TestBeam2016bIsolation
 if [ $# -eq 1 ]
   then
     N="$1"
 fi
 DIR=../$NAME-$(date "+%Y-%m-%d")
 mkdir -p $DIR
-nice -n 15 ./polarimeterstudies -g testbeam2016b -m scripts/$NAME/init.mac -n $N 1>out.log 2>err.log
+nice -n 15 ./polarimeterstudies -g testbeam2016b --physics.use_fast_sim -m scripts/$NAME/init.mac -n $N 1>out.log 2>err.log
 mv *.root $DIR/
 mv *log* $/DIR/
 cp 

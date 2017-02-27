@@ -60,7 +60,7 @@
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
-#include "SensitiveDetectorConfiguration.hh"
+#include "SensitiveDetectorManager.hh"
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"
 #include <map>

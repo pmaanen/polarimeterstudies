@@ -18,24 +18,6 @@ void SensitiveDetectorManager::Update(G4String name, SDtype type, logVolVector v
 	else{
 		fSDmap[name].fType=type;
 		fSDmap[name].fLogVol=vector;
-		/*
-		std::stringstream cmd;
-		cmd<<"/PolarimeterStudies/"<<name<<"SetType ";
-		switch(type){
-		case SDtype::kCalorimeter:
-			cmd<<"calo";
-			break;
-		case SDtype::kPerfect:
-			cmd<<"perfect";
-			break;
-		case SDtype::kTracker:
-			cmd<<"tracker";
-			break;
-		default:
-			return;
-		}
-		G4UImanager::GetUIpointer()->ApplyCommand(cmd.str().c_str());
-		*/
 	}
 }
 
