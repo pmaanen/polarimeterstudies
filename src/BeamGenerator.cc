@@ -14,7 +14,7 @@
 #include "VertexGeneratorU.hh"
 #include "VertexGeneratorA.hh"
 #include "VertexGeneratorO.hh"
-BeamGenerator::BeamGenerator(G4ParticleGun* gun):fParticleGun(gun),fVertexGenerator(VertexGeneratorU::GetInstance()) {
+BeamGenerator::BeamGenerator(G4ParticleGun* gun):EventGenerator("beam"),fParticleGun(gun),fVertexGenerator(VertexGeneratorU::GetInstance()) {
 	fXPrime=fYPrime=0;
 	if(fParticleGun)
 		fEnergy=fParticleGun->GetParticleEnergy();
@@ -35,7 +35,7 @@ BeamGenerator::BeamGenerator(G4ParticleGun* gun):fParticleGun(gun),fVertexGenera
 
 }
 
-genevent_t BeamGenerator::Generate() {
+genvertex_t BeamGenerator::Generate() {
 	fVertexGenerator->setBeamsize(fSpotsize.x()/CLHEP::mm,fSpotsize.y()/CLHEP::mm,fSpotsize.z()/CLHEP::mm);
 	fVertexGenerator->setBeamposition(fPosition.x()/CLHEP::mm,fPosition.y()/CLHEP::mm,fPosition.z()/CLHEP::mm);
 
@@ -47,7 +47,7 @@ genevent_t BeamGenerator::Generate() {
 	if(fYPrime>0)
 		direction.rotateY(G4RandGauss::shoot(0,fYPrime));
 
-	genevent_t res(0,0,pos.x(),pos.y(),pos.z());
+	genvertex_t res(0,pos.x(),pos.y(),pos.z());
 	auto id=0;
 	G4double e=0;
 	G4double mom=0;

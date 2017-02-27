@@ -50,6 +50,8 @@ Analysis::Analysis():fEnabled(false),fFileName("")
 void Analysis::BeginOfRun() {
 	fSimEvents->clear();
 	fGenEvents->clear();
+	for(auto iGen:fGenerators)
+		iGen->BeginOfRun();
 }
 void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
@@ -85,6 +87,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 
 		for(const auto& iSD:fSD){
+			if(gVerbose>2)
+				G4cout<<"Creating branch for "<<iSD->GetName()<<G4endl;
 			if(iSD->GetType()==SDtype::kCalorimeter){
 				calohitPointer[iSD->GetName()]=nullptr;
 				SimTree.Branch(iSD->GetName(),&calohitPointer[iSD->GetName()]);
@@ -109,29 +113,53 @@ void Analysis::EndOfRun(const G4Run* run) {
 		}
 
 		// Write events from generator to file
+		std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
+
 		auto GenEvents=myRun->getGenEvents();
-		genevent_t* thisEvent=nullptr;
-		if(gVerbose>2)
-			G4cout<<"generator name:"<<fGeneratorName<<G4endl;
-		GenTree.Branch("events","genevent_t",&thisEvent);
-		for(auto iEvent : GenEvents){
-			thisEvent=&iEvent;
+		if(gVerbose>2){
+			G4cout<<"GenEvents has "<<GenEvents.size()<<" entries. "<<G4endl;
+		if(GenEvents.size()){
+			G4cout<<"The following generators are in the first event: "<<G4endl;
+			for(auto iGen:GenEvents[0].generators)
+				G4cout<<iGen.first<<" ";
+			G4cout<<G4endl;
+		}
+		}
+		if(!GenEvents.size())
+			G4Exception("Analysis::EndOfRun","",FatalException,"GenEvents are empty!");
+		std::vector<G4String> generatorNames;
+		for(auto iGen:GenEvents[0].generators)
+			generatorNames.push_back(iGen.first);
+
+
+		for(const auto& iGen:generatorNames){
+			if(gVerbose>2)
+				G4cout<<"Creating branch for "<<iGen<<G4endl;
+			genVertexPointer[iGen]=nullptr;
+			GenTree.Branch(iGen,&genVertexPointer[iGen]);
+		}
+
+		for(const auto &evt : GenEvents){
+			for(const auto& iGen:generatorNames){
+				genVertexPointer[iGen]=&evt.generators.at(iGen);
+			}
+
 			GenTree.Fill();
 		}
 		OutFile.Write();
 	}
 }
 
-void Analysis::RegisterSD(JediSensitiveDetector* sd) {
-	if(gVerbose>3)
+void Analysis::RegisterMe(JediSensitiveDetector* sd) {
+	if(gVerbose>2)
 		G4cout<<"Analysis::RegisterSD: "<<sd->GetName()<<G4endl;
 	if(std::find(fSD.begin(),fSD.end(),sd)==fSD.end())
 		fSD.push_back(sd);
 	return;
 }
 
-void Analysis::UnRegisterSD(JediSensitiveDetector* sd) {
-	if(gVerbose>3)
+void Analysis::UnRegisterMe(JediSensitiveDetector* sd) {
+	if(gVerbose>2)
 		G4cout<<"Analysis::UnRegisterSD: "<<sd->GetName()<<G4endl;
 	auto pos=std::find(fSD.begin(),fSD.end(),sd);
 	if(pos!=fSD.end())
@@ -147,15 +175,24 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 	fSimEvents->push_back(thisSimEvent);
 	genevent_t thisGenEvent;
 	thisGenEvent.eventid=evt->GetEventID();
-	auto gen=static_cast<const PrimaryGeneratorAction*>(G4MTRunManager::GetRunManager()->GetUserPrimaryGeneratorAction());
-	if(gen==nullptr){
-		G4Exception("Analysis::EndOfEvent","",FatalException,"Could not find PrimaryGeneratorAction or pointer is invalid!");
+	for(const auto iGen: fGenerators){
+		iGen->CopyVerticesToRun(thisGenEvent);
 	}
-	if(evt->GetEventID()==0){
-		if(gVerbose>3)
-			G4cout<<"Analysis:: Generator Name is now: "<<gen->getGeneratorName()<<G4endl;
-		fGeneratorName=gen->getGeneratorName();
-	}
-	thisGenEvent=gen->getGenEvent();
 	fGenEvents->push_back(thisGenEvent);
+}
+
+void Analysis::RegisterMe(GenEventProducer* pd) {
+	if(gVerbose>2)
+		G4cout<<"Analysis::RegisterMe: "<<pd->getName()<<G4endl;
+	if(std::find(fGenerators.begin(),fGenerators.end(),pd)==fGenerators.end())
+		fGenerators.push_back(pd);
+	return;
+}
+
+void Analysis::UnRegisterMe(GenEventProducer*pd) {
+	if(gVerbose>2)
+		G4cout<<"Analysis::UnRegisterMe: "<<pd->getName()<<G4endl;
+	auto pos=std::find(fGenerators.begin(),fGenerators.end(),pd);
+	if(pos!=fGenerators.end())
+		fGenerators.erase(pos);
 }

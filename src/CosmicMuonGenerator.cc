@@ -19,7 +19,7 @@
 #include "TMath.h"
 
 using namespace CLHEP;
-CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator(),fPosition(0,0,0),fSpotsize(0,0,0) {
+CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator("cosmics"),fPosition(0,0,0),fSpotsize(0,0,0) {
 
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this, "/PolarimeterStudies/muon/", "muon generator control"));
 
@@ -34,7 +34,7 @@ CosmicMuonGenerator::CosmicMuonGenerator():EventGenerator(),fPosition(0,0,0),fSp
 }
 
 
-genevent_t CosmicMuonGenerator::Generate() {
+genvertex_t CosmicMuonGenerator::Generate() {
 	auto phi=G4UniformRand()*2*CLHEP::pi*CLHEP::rad;
 
 	G4ParticleDefinition* part=0;
@@ -51,7 +51,7 @@ genevent_t CosmicMuonGenerator::Generate() {
 	auto vx=fPosition.getX()+fSpotsize.getX()*(G4UniformRand()-0.5);
 	auto vy=fPosition.getY()+fSpotsize.getY()*(G4UniformRand()-0.5);
 	auto vz=fPosition.getZ()+fSpotsize.getZ()*(G4UniformRand()-0.5);
-	genevent_t res(0,0,vx,vy,vz);
+	genvertex_t res(0,vx,vy,vz);
 	Double_t mass=part->GetPDGMass()/CLHEP::GeV;
 	Double_t e=sqrt(momentumAmp*momentumAmp+mass*mass);
 	res.particles.push_back(particle_t(part->GetPDGEncoding(),momentum.getX(),momentum.getY(),momentum.getZ(),e*GeV/MeV));

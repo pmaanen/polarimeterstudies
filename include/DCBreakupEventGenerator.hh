@@ -17,7 +17,7 @@ public:
 
 protected:
 	virtual void Initialize();
-	virtual genevent_t Generate();
+	virtual genvertex_t Generate();
 	virtual void BeginOfRun(){};
 
 	virtual void DefineCommands();

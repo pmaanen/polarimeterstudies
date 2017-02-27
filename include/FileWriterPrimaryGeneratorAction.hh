@@ -22,7 +22,7 @@ public:
 	class FileWriter_impl{
 	public:
 		FileWriter_impl(G4int nEvents):fCurrentEventId(0),fNEvents(nEvents){};
-		virtual bool WriteEventsToFile(const std::vector<genevent_t> &someEvents)=0;
+		virtual bool WriteEventsToFile(const std::vector<genvertex_t> &someEvents)=0;
 		virtual ~FileWriter_impl(){};
 
 	protected:
@@ -43,7 +43,7 @@ public:
 
 		virtual ~FileWriter_ascii(){if(fOutFile.is_open())fOutFile.close();delete fOut;};
 
-		virtual bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
+		virtual bool WriteEventsToFile(const std::vector<genvertex_t> &someEvents){
 			for(auto iEvent:someEvents){
 				if(fCurrentEventId==fNEvents)
 					return false;
@@ -73,16 +73,16 @@ public:
 			}
 			fOutFile->cd();
 			fOutTree = new TTree("gen","Generated Events");
-			fOutTree->Branch("events","genevent_t",&fGenEvent);
+			fOutTree->Branch("events","genvertex_t",&fGenEvent);
 
 		};
 
-		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
+		bool WriteEventsToFile(const std::vector<genvertex_t> &someEvents){
 			for(auto iEvent:someEvents){
 				if(fCurrentEventId++>fNEvents)
 					return false;
 				fGenEvent=&iEvent;
-				fGenEvent->eventid=fCurrentEventId;
+				//fGenEvent->eventid=fCurrentEventId;
 				fOutTree->Fill();
 			}
 			return true;
@@ -91,7 +91,7 @@ public:
 	private:
 		TFile* fOutFile;
 		TTree* fOutTree;
-		genevent_t* fGenEvent;
+		genvertex_t* fGenEvent;
 	};
 	class FileWriter{
 	public:
@@ -102,7 +102,7 @@ public:
 			else
 				myFileWriter=new FileWriter_ascii(fileName,nEvents);
 		}
-		bool WriteEventsToFile(const std::vector<genevent_t> &someEvents){
+		bool WriteEventsToFile(const std::vector<genvertex_t> &someEvents){
 			return myFileWriter->WriteEventsToFile(someEvents);
 		}
 		virtual ~FileWriter(){delete myFileWriter;};
@@ -118,5 +118,6 @@ public:
 	private:
 	EventGenerator* fEvtGen;
 	static FileWriter* fgFileWriter;
+	G4int fNEvents;
 };
 #endif /* FILEWRITERPRIMARYGENERATORACTION_HH_ */

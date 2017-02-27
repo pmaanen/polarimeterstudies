@@ -17,7 +17,7 @@ public:
 	DCInelasticEventGenerator();
 	virtual ~DCInelasticEventGenerator()=default;
 	virtual void Initialize();
-	virtual genevent_t Generate();
+	virtual genvertex_t Generate();
 private:
 	//Double_t fBeamPolarization;
 	std::unique_ptr<TF2> fQEx;

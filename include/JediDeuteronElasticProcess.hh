@@ -7,12 +7,12 @@
 
 #ifndef INCLUDE_JEDIDEUTERONELASTICPROCESS_HH_
 #define INCLUDE_JEDIDEUTERONELASTICPROCESS_HH_
-
+#include "GenEventProducer.hh"
 #include <G4HadronicProcess.hh>
 #include <memory>
 #include <Rtypes.h>
 class JediDeuteronElastic;
-class JediDeuteronElasticProcess: public G4HadronicProcess {
+class JediDeuteronElasticProcess: public G4HadronicProcess, GenEventProducer {
 public:
 	explicit JediDeuteronElasticProcess();
 	virtual ~JediDeuteronElasticProcess();

@@ -16,7 +16,7 @@ public:
 	virtual ~DCElasticTimeDependentGenerator()=default;
 
 
-	virtual genevent_t Generate();
+	virtual genvertex_t Generate();
 	virtual void DefineCommands();
 
 	void setMax(G4double max) {

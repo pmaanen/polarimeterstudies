@@ -77,13 +77,13 @@ void DCBreakupEventGenerator::Initialize() {
 	fInitialized=true;
 }
 
-genevent_t DCBreakupEventGenerator::Generate() {
+genvertex_t DCBreakupEventGenerator::Generate() {
 
 	if(!fInitialized){
 		Initialize();
 	}
 
-	genevent_t thisEvent;
+	genvertex_t thisEvent;
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 

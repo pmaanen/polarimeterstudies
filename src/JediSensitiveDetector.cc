@@ -23,7 +23,7 @@ JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype&
 		fSD=std::unique_ptr<PerfectDetector>(new PerfectDetector(name));
 	else if(type==SDtype::kUndefined)
 		fSD=nullptr;
-	Analysis::Instance()->RegisterSD(this);
+	Analysis::Instance()->RegisterMe(this);
 	DefineCommands();
 }
 

@@ -22,10 +22,12 @@ void JediRun::Merge(const G4Run* aRun) {
 	auto simEvents=an->getSimEvents();
 	auto genEvents=an->getGenEvents();
 	if(gVerbose>2)
-		G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<simEvents->size()<<" events.";
+		G4cout<<"JediRun::Merge: Thread "<<G4Threading::G4GetThreadId()<<" has "<<simEvents->size()<<" sim events.";
 	for(auto iEvent : *simEvents){
 		fSimEvents.push_back(iEvent);
 	}
+	if(gVerbose>2)
+			G4cout<<"JediRun::Merge: Thread "<<G4Threading::G4GetThreadId()<<" has "<<genEvents->size()<<" gen events.";
 	for(auto iEvent : *genEvents){
 		fGenEvents.push_back(iEvent);
 	}

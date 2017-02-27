@@ -26,6 +26,8 @@
 #pragma link C++ class std::vector<particle_t> +;
 #pragma link C++ class genevent_t +;
 #pragma link C++ class std::vector<genevent_t> +;
+#pragma link C++ class genvertex_t +;
+#pragma link C++ class std::vector<genvertex_t> +;
 #endif
 /*
 #ifdef __CINT__

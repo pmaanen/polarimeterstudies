@@ -33,7 +33,7 @@
 
 
 
-JediDeuteronElasticProcess::JediDeuteronElasticProcess():G4HadronicProcess( "dcelastic" ), fModel( nullptr ), theTotalResult( nullptr ) {
+JediDeuteronElasticProcess::JediDeuteronElasticProcess():G4HadronicProcess( "dcelastic" ), GenEventProducer("dcelastic"), fModel( nullptr ), theTotalResult( nullptr ) {
 	theTotalResult = new G4ParticleChange();
 }
 
@@ -89,10 +89,10 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 
 	if(verboseLevel>1) {
 		G4cout << "Efin= " << result->GetEnergyChange()
-		<< " de= " << result->GetLocalEnergyDeposit()
-		<< " nsec= " << result->GetNumberOfSecondaries()
-		<< " dir= " << outdir
-		<< G4endl;
+										<< " de= " << result->GetLocalEnergyDeposit()
+										<< " nsec= " << result->GetNumberOfSecondaries()
+										<< " dir= " << outdir
+										<< G4endl;
 	}
 
 	// energies
@@ -149,6 +149,23 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 	theTotalResult->ProposeLocalEnergyDeposit(edep);
 	theTotalResult->ProposeNonIonizingEnergyDeposit(edep);
 	result->Clear();
+
+	genvertex_t thisEvent;
+	thisEvent.x=track.GetPosition().x();
+	thisEvent.y=track.GetPosition().y();
+	thisEvent.z=track.GetPosition().z();
+	particle_t deut;
+	deut.id=track.GetParticleDefinition()->GetPDGEncoding();
+
+	deut.E=efinal;
+	auto dmom=*(theTotalResult->GetMomentumDirection())*
+			sqrt(efinal*(efinal+2*theTotalResult->GetMass()));
+	deut.px=dmom.x();
+	deut.py=dmom.y();
+	deut.pz=dmom.z();
+
+	thisEvent.particles.push_back(deut);
+	fGenVertices->push_back(thisEvent);
 	return theTotalResult;
 }
 
@@ -172,8 +189,8 @@ void JediDeuteronElasticProcess::CalculateTargetNucleus(
 		{
 			G4ExceptionDescription ed;
 			ed <<" Number of elements in target "
-			<<"material is more than 1.\n"
-			<<"Only the first element will be chosen for target nucleus";
+					<<"material is more than 1.\n"
+					<<"Only the first element will be chosen for target nucleus";
 			G4Exception("JediDeuteronElasticProcess::CalculateTargetNucleus","",JustWarning,ed);
 		}
 

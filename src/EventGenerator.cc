@@ -8,6 +8,6 @@
 #include "EventGenerator.hh"
 #include "G4ParticleGun.hh"
 #include <G4GenericMessenger.hh>
-EventGenerator::EventGenerator():fRunInitialized(false) {}
+EventGenerator::EventGenerator(G4String name):fRunInitialized(false) {}
 
 

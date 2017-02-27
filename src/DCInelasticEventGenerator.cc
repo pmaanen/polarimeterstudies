@@ -29,19 +29,17 @@ DCInelasticEventGenerator::DCInelasticEventGenerator():PhaseSpaceGenerator("dcin
 	DefineCommands();
 }
 
-genevent_t DCInelasticEventGenerator::Generate() {
-
+genvertex_t DCInelasticEventGenerator::Generate() {
+	G4Exception("DCInelasticEventGenerator::Generate","",FatalException,"Not implemented!");
 
 	if(!fInitialized)
 		Initialize();
-	genevent_t thisEvent;
+	genvertex_t thisEvent;
 	auto pos=VertexGeneratorO::GetInstance()->generateVertex();
 	pos.setZ(VertexGeneratorU::GetInstance()->generateVertex().getZ());
 	thisEvent.x=pos.x();
 	thisEvent.y=pos.y();
 	thisEvent.z=pos.z();
-
-
 	return thisEvent;
 }
 
@@ -59,6 +57,5 @@ void DCInelasticEventGenerator::Initialize() {
 	VertexGeneratorU::GetInstance()->setBeamsize(0,0,fBeamsize.getZ());
 	fQEx=std::unique_ptr<TF2>(new TF2("qEx",q_ex,0,5,0,100,1));
 	fPhi=std::unique_ptr<TF1>(new TF1("Phi",phi,0,2*TMath::Pi(),3));
-
 	fInitialized=true;
 }
