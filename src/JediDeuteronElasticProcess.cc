@@ -55,7 +55,7 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 	const G4ParticleDefinition* part = dynParticle->GetDefinition();
 
 	// NOTE: Low energies cause the model to vomit
-	if (kineticEnergy <= 30*CLHEP::MeV)   return theTotalResult;
+	if (kineticEnergy <= 50*CLHEP::MeV)   return theTotalResult;
 
 	// Initialize the hadronic projectile from the track
 	G4HadProjectile theProj(track);
