@@ -23,12 +23,6 @@ class Gaus:
 class exampleAnalysis(AnalysisBase):
     def Init(self):
         return
-
-c1=ROOT.TCanvas("graph","graph",1600,900)
-
-class exampleAnalysis(AnalysisBase):
-    def Init(self):
-        return
     
 def getCluster(detector,id,mask):
     sum=0
@@ -41,24 +35,46 @@ def getCluster(detector,id,mask):
     return center,sum
 
 
+maskInner=[00,10,20,1,11,21,2,12,22]
+maskOuter=[21,22,23,11,12,23,1,2,3]
 def doDetector(detector,histos):
     #Inner
     # 02 12 22                                                                                                     
     # 01 11 21                                                                                                     
     # 00 10 20
-    mask=[00,10,20,1,11,21,2,12,22]
-    center,sum=getCluster(detector,11,mask)
+    center,sum=getCluster(detector,11,maskInner)
     if sum>5.:
         histos["hInnerVsCluster"].Fill(center,sum)
     #Outer
     # 21 22 23                                                                   
     # 11 12 23                                                                                                     
     # 01 02 03 
-    mask=[21,22,23,11,12,23,1,2,3]
-    center,sum=getCluster(detector,12,mask)
+    center,sum=getCluster(detector,12,maskOuter)
     if sum>5.:
         histos["hOuterVsCluster"].Fill(center,sum)
 
+
+def doLeft(histos,det):
+    #LU2
+    center,sum=getCluster(det, 12, maskOuter)
+    histos["LU2Center"].Fill(center)
+    histos["LU2Cluster"].Fill(sum)
+    #LU3
+    center,sum=getCluster(det, 11, maskInner)
+    histos["LU3Center"].Fill(center)
+    histos["LU3Cluster"].Fill(sum)
+    return
+
+def doRight(histo,det):
+    #RU2
+    center,sum=getCluster(det, 12, maskOuter)
+    histos["RU2Center"].Fill(center)
+    histos["RU2Cluster"].Fill(sum)
+    #RU3
+    center,sum=getCluster(det, 11, maskInner)
+    histos["RU3Center"].Fill(center)
+    histos["RU3Cluster"].Fill(sum)
+    return
 
 
 def analysis(filename,myWorker):
@@ -70,6 +86,19 @@ def analysis(filename,myWorker):
         histos["hOuterVsCluster"]=ROOT.TH2F("hOuterVsCluster","E_{center} vs #Sigma E",1200,0,300,1200,0,300)
         histos["hOuterVsCluster"].GetXaxis().SetTitle("E_{center} [MeV]")
         histos["hOuterVsCluster"].GetYaxis().SetTitle("#Sigma E [MeV]")
+        
+        
+        histos["LU2Center"]=ROOT.TH1F("hLU2Center","LU2Center",1200,0,300)
+        histos["LU2Cluster"]=ROOT.TH1F("hLU2Cluster","LU2Cluster",1200,0,300)
+        histos["LU3Center"]=ROOT.TH1F("hLU3Center","LU3Center",1200,0,300)
+        histos["LU3Cluster"]=ROOT.TH1F("hLU3Cluster","LU3Cluster",1200,0,300)
+        
+        histos["RU2Center"]=ROOT.TH1F("hRU2Center","RU2Center",1200,0,300)
+        histos["RU2Cluster"]=ROOT.TH1F("hRU2Cluster","RU2Cluster",1200,0,300)
+        histos["RU3Center"]=ROOT.TH1F("hRU3Center","RU3Center",1200,0,300)
+        histos["RU3Cluster"]=ROOT.TH1F("hRU3Cluster","RU3Cluster",1200,0,300)
+        
+        
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
@@ -87,13 +116,16 @@ def analysis(filename,myWorker):
         print "Problem in file:",filename,str(e)
         raise e
     return (filename[:-5])
-    
-if __name__=="__main__":
+ 
+ 
+def main():
     ROOT.gSystem.Load("libAnalysis")
     myAnalysis=exampleAnalysis()
     myAnalysis.Init()
     todo=myAnalysis(function=analysis)
     while len(todo):
         todo=myAnalysis(function=analysis)
-    #infile=ROOT.TFile(myAnalysis.args.output,"UPDATE")
-    
+ 
+   
+if __name__=="__main__":
+    main()
