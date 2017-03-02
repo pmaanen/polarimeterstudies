@@ -1,7 +1,7 @@
 /PolarimeterStudies/detector/scenario isolation
 /run/initialize
 /jedi/elastic/theta_min 4.5 deg
-/jedi/elastic/theta_max 14.5 deg
+/jedi/elastic/theta_max 18.5 deg
 /analysis/Enable
 /PolarimeterStudies/generator/setGenerator beam
 /PolarimeterStudies/beam/form gaus
@@ -9,17 +9,17 @@
 /PolarimeterStudies/beam/spotsize 2.5 3 0 mm
 /PolarimeterStudies/detector/targetSizeXY 50 mm
 /PolarimeterStudies/detector/nx 4
-/PolarimeterStudies/detector/ny3
-/PolarimeterStudies/detector/angle_left 9 deg
-/PolarimeterStudies/detector/angle_left 9 deg
+/PolarimeterStudies/detector/ny 3
 /PolarimeterStudies/detector/angle_left 9.8 deg
+/PolarimeterStudies/detector/angle_right 9 deg
+/PolarimeterStudies/detector/trigger 1
 /PolarimeterStudies/detector/trigger_thick_left 10 mm
 /PolarimeterStudies/detector/trigger_thick_right 5 mm
 /PolarimeterStudies/detector/aperture 38.8 mm
 /control/alias thickness 5
 /PolarimeterStudies/detector/update
-/control/execute scripts/TestBeam2016BIsolation/material.mac
+/control/execute scripts/Testbeam2016bIsolation/material.mac
 
 /control/alias material G4_GRAPHITE
 /control/alias thickness 10
-/control/execute scripts/TestBeam2016BIsolation/energy.mac
+/control/execute scripts/Testbeam2016bIsolation/energy.mac
