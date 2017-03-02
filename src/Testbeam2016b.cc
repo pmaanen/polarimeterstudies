@@ -97,9 +97,8 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 		ComputeParameters();
 	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
 	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial(fWorldMaterialName),"World");
-	auto worldVisAttr=new G4VisAttributes();
-	worldVisAttr->SetForceWireframe(true);
-	fLogicWorld->SetVisAttributes(worldVisAttr);
+	//auto worldVisAttr=new G4VisAttributes();
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	if(fDetectorName=="calibration")
 		fSensitiveDetectors.Update("Air",SDtype::kCalorimeter,logVolVector{fLogicWorld});
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
