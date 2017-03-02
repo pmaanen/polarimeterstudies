@@ -109,7 +109,7 @@ G4HadFinalState* JediDeuteronElastic::ApplyYourself(const G4HadProjectile& aTrac
 	G4int nTryMax=1000;
 	do{
 		nTry++;
-		if(nTry>1000){
+		if(nTry>nTryMax){
 			G4ExceptionDescription ed;
 			ed<<"nTry>nTryMax. Can not satisfy cut conditions!"<<G4endl
 					<<"nTryMax "<<nTryMax<<G4endl

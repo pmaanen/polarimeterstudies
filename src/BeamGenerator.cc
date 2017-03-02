@@ -48,7 +48,7 @@ genvertex_t BeamGenerator::Generate() {
 		direction.rotateY(G4RandGauss::shoot(0,fYPrime));
 
 	genvertex_t res(0,pos.x(),pos.y(),pos.z());
-	auto id=0;
+	auto id=fParticleGun->GetParticleDefinition()->GetPDGEncoding();
 	G4double e=0;
 	G4double mom=0;
 	if(fParticleGun){

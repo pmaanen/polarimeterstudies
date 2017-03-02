@@ -177,8 +177,11 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 	thisGenEvent.eventid=evt->GetEventID();
 	for(const auto iGen: fGenerators){
 		iGen->CopyVerticesToRun(thisGenEvent);
+		iGen->EndOfEvent();
 	}
 	fGenEvents->push_back(thisGenEvent);
+
+
 }
 
 void Analysis::RegisterMe(GenEventProducer* pd) {
