@@ -66,4 +66,17 @@ void JediSensitiveDetector::DefineCommands() {
 	fMessenger->DeclareMethod("Print",&JediSensitiveDetector::Print,"");
 	auto cmd=fMessenger->DeclareMethod("SetType",&JediSensitiveDetector::SetType,"");
 	cmd.SetCandidates("perfect calo tracker");
+
+	fMessenger->DeclareMethod("depth",&JediSensitiveDetector::SetDepth,"");
+}
+
+void JediSensitiveDetector::SetDepth(G4int depth){
+	auto caloSD=dynamic_cast<CaloSensitiveDetector*>(fSD.get());
+	if(caloSD)
+		caloSD->setDepth(depth);
+	else{
+		G4ExceptionDescription ed;
+		ed<<"Detector "<<fName<<" is not a calorimeter detector. Command has no effect.";
+		G4Exception("JediSensitiveDetector::SetDepth","",FatalException,ed);
+	}
 }

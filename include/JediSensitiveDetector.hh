@@ -48,6 +48,7 @@ public:
 	virtual void CopyHitsToRun(simevent_t& anEvent){if(fSD) fSD->CopyHitsToRun(anEvent);}
 private:
 	void SetType_impl(SDtype type);
+	void SetDepth(G4int depth);
 	std::unique_ptr<JediSensitiveDetector_impl> fSD;
 	SDtype fType;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
@@ -56,5 +57,4 @@ private:
 
 	void DefineCommands();
 };
-
 #endif /* INCLUDE_JEDISENSITIVEDETECTOR_HH_ */

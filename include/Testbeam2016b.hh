@@ -21,7 +21,6 @@ public:
 	G4double getTargetSizeY() const;
 	G4double getTargetSizeZ() const;
 	const G4String& getTargetMaterialName() const;
-
 protected:
 
 	virtual G4LogicalVolume* BuildCaloCrystal(G4String detName);

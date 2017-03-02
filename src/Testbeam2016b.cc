@@ -45,7 +45,6 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 	ComputeParameters();
 }
 
-
 void Testbeam2016b::Reset() {
 	fDistance=1*CLHEP::m;
 	fArmWidth=10*CLHEP::cm;

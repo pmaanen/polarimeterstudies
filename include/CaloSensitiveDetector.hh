@@ -27,6 +27,14 @@ public:
 	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const;
 	virtual void CopyHitsToRun(simevent_t& anEvent) const;
 
+	G4int getDepth() const {
+		return fDepth;
+	}
+
+	void setDepth(G4int depth) {
+		fDepth = depth;
+	}
+
 protected:
 
 	G4int GetIndex(G4Step* aStep);
