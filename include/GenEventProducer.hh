@@ -42,7 +42,6 @@ inline void GenEventProducer::CopyVerticesToRun(genevent_t& anEvent) const  {
 	if(gVerbose>3)
 			G4cout<<" GenEventProducer::CopyVerticesToRun: "<<fName<<" "<<fGenVertices->size()<<G4endl;
 	anEvent.generators[fName]=*fGenVertices.get();
-	fGenVertices->clear();
 }
 
 inline void GenEventProducer::EndOfEvent() {
