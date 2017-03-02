@@ -185,3 +185,11 @@ class colors:
 from numpy import asarray
 def asfloatarray(vec):
     return asarray(map(lambda x:float(x),vec))
+
+def getFWHM(histo):
+    maximum=histo.GetMaximum()
+    firstbin=histo.FindFirstBinAbove(.5*maximum)
+    lastbin=histo.FindLastBinAbove(.5*maximum)
+    first=histo.GetXaxis().GetBinCenter(firstbin)
+    last=histo.GetXaxis().GetBinCenter(lastbin)
+    return last-first

@@ -3,6 +3,7 @@
 /jedi/elastic/theta_min 4.5 deg
 /jedi/elastic/theta_max 18.5 deg
 /analysis/Enable
+/gun/particle deuteron
 /PolarimeterStudies/generator/setGenerator beam
 /PolarimeterStudies/beam/form gaus
 /PolarimeterStudies/beam/position 0 0 -75 cm
