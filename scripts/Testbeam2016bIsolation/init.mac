@@ -1,7 +1,8 @@
 /PolarimeterStudies/detector/scenario isolation
 /run/initialize
 /jedi/elastic/theta_min 4 deg
-/jedi/elastic/theta_max 15 deg
+#No small theta_max because it might cause crashes at small energies and we do not lose much efficiency anyway because the xsec is small
+/jedi/elastic/theta_max 25 deg
 /analysis/Enable
 /gun/particle deuteron
 /PolarimeterStudies/generator/setGenerator beam
