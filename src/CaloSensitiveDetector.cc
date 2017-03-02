@@ -22,8 +22,9 @@
 #include <G4UnitsTable.hh>
 #include <JediException.hh>
 #include "G4AutoLock.hh"
-CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name):JediSensitiveDetector_impl(name) {
+CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediSensitiveDetector_impl(name) {
 	fHits=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
+	fDepth=depth;
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
@@ -57,7 +58,9 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 
 	auto preStep = aStep->GetPreStepPoint();
 	auto th = (G4TouchableHistory*)(preStep->GetTouchable());
-	auto index=th->GetReplicaNumber();
+	auto index=GetIndex(aStep);
+
+	th->GetReplicaNumber();
 
 	if(fHitMap.count(index)==0)
 		fHitMap[index]=edep;
@@ -80,8 +83,21 @@ void CaloSensitiveDetector::WriteHitsToFile(TTree& aTree,
 		hitPointer=&evt.calorimeter.at(fName);
 		branch->Fill();
 	}
-	}
+}
 
 void CaloSensitiveDetector::CopyHitsToRun(simevent_t& anEvent) const {
 	anEvent.calorimeter[GetName()]=*fHits.get();
+}
+
+G4int CaloSensitiveDetector::GetIndex(G4Step* aStep) {
+	G4int index=0;
+	auto touchable=aStep->GetPreStepPoint()->GetTouchable();
+	if(touchable)
+		index=touchable->GetCopyNumber(fDepth);
+	else{
+		G4ExceptionDescription ed;
+		ed<<"Could not find touchable for detector "<<GetName();
+		G4Exception(" CaloSensitiveDetector::GetIndex","",FatalException,ed);
+	}
+	return index;
 }

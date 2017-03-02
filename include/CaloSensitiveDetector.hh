@@ -19,7 +19,7 @@ class CaloSensitiveDetector: public JediSensitiveDetector_impl {
 	class JediSensitiveDetector;
 	friend JediSensitiveDetector;
 public:
-	CaloSensitiveDetector(const G4String& name);
+	CaloSensitiveDetector(const G4String& name,G4int depth=0);
 	virtual ~CaloSensitiveDetector()=default;
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 
@@ -27,9 +27,13 @@ public:
 	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const;
 	virtual void CopyHitsToRun(simevent_t& anEvent) const;
 
+protected:
+
+	G4int GetIndex(G4Step* aStep);
 private:
 	std::map<G4int, G4double> fHitMap;
 	std::unique_ptr<std::vector<calorhit_t>> fHits;
+	G4int fDepth;
 };
 
 #endif /* CALOSENSITIVEDETECTOR_HH_ */
