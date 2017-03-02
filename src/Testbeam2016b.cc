@@ -212,26 +212,57 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 
 void Testbeam2016b::MakeEffectiveDetector() {
 
-	MakeSetup();
+	G4double startSizeX=15*CLHEP::mm;
+	G4double startSizeY=20*CLHEP::mm;
+	G4double startSizeZ=2*CLHEP::mm;
+	auto logicStart=BuildVolume<G4Box>("Start",plastic,startSizeX/2,startSizeY/2,startSizeZ);
+	fSensitiveDetectors.Update("Start",SDtype::kCalorimeter,{logicStart});
+	logicStart->SetVisAttributes(new G4VisAttributes(blue));
+	auto startRot=new G4RotationMatrix();
+	startRot->rotateZ(45*CLHEP::deg);
+
+	auto startPos=G4ThreeVector(0,0,-37.5*CLHEP::mm);
 
 	auto rotRight=new G4RotationMatrix;
 	auto rotLeft=new G4RotationMatrix;
 
+	startPos.rotateZ(45*CLHEP::deg);
+
+	new G4PVPlacement(startRot,startPos,logicStart,"Start",fLogicWorld,0,0,0);
+
 	rotRight->rotateY(fAngleRight);
 	rotLeft->rotateY(-fAngleLeft);
 
-	auto logicRight=MakeDetector("Right",vacuum,fNx*fHCalSizeZ,fNy*fHCalSizeZ,1*CLHEP::mm);
-	fSensitiveDetectors.Update("Right",SDtype::kPerfect,logVolVector{logicRight});
+	auto logicRight=MakeScintillatorMatrix("Right");
+	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto trigVisAttr=new G4VisAttributes(cyan);
 
-	auto logicLeft=MakeDetector("Left",vacuum,fNx*fHCalSizeZ,fNy*fHCalSizeZ,1*CLHEP::mm);
-	fSensitiveDetectors.Update("Left",SDtype::kPerfect,logVolVector{logicLeft});
-	if(fRightDetector)
-		new G4PVPlacement(rotRight,G4ThreeVector(0,-3./2.*fArmWidth-fMinDistance+fDetectorHeight+fArmWidth/2+(fArmWidth+fMinDistance),fDistance-fArmWidth/2-fHCalSizeXY/2+.5*CLHEP::mm).rotateY(-fAngleRight),logicRight,"Right",fLogicWorld,0,0,false);
-	if(fLeftDetector)
-		new G4PVPlacement(rotLeft,G4ThreeVector(0,-fArmWidth/2.-fMinDistance+fDetectorHeight+fArmWidth/2+fMinDistance,fDistance-fArmWidth/2-fHCalSizeXY/2+.5*CLHEP::mm).rotateY(fAngleLeft),logicLeft,"Left",fLogicWorld,0,1,false);
+	if(fRightDetector){
+		if(fTrigger){
+			auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+			logicTrigger->SetVisAttributes(trigVisAttr);
+			fSensitiveDetectors.Update("TriggerR",SDtype::kCalorimeter,logVolVector{logicTrigger});
+			new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance-fTriggerSizeLeftZ/2).rotateY(-fAngleRight),logicTrigger,"TriggerRight",fLogicWorld,0,0,false);
+		}
+		auto logicObserver=BuildVolume<G4Box>("ObserverRight",air,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+		fSensitiveDetectors.Update("ObserverR",SDtype::kPerfect,logVolVector{logicObserver});
+		new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance-3*fTriggerSizeLeftZ/2).rotateY(-fAngleRight),logicObserver,"ObserverRight",fLogicWorld,0,0,false);
+		new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(-fAngleRight),logicRight,"Right",fLogicWorld,0,0,false);
+	}
+	if(fLeftDetector){
+		if(fTrigger){
+			auto logicTrigger=MakeDetector("TriggerL",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeRightZ/2);
+			logicTrigger->SetVisAttributes(trigVisAttr);
+			fSensitiveDetectors.Update("TriggerL",SDtype::kCalorimeter,logVolVector{logicTrigger});
+			new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance-fTriggerSizeRightZ/2).rotateY(fAngleLeft),logicTrigger,"TriggerLeft",fLogicWorld,0,0,false);
 
-	//G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Left/SetType perfect");
-	//G4UImanager::GetUIpointer()->ApplyCommand("/PolarimeterStudies/Right/SetType perfect");
+		}
+		auto logicObserver=BuildVolume<G4Box>("ObserverLight",air,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+		fSensitiveDetectors.Update("ObserverL",SDtype::kPerfect,logVolVector{logicObserver});
+		new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance-3*fTriggerSizeRightZ/2).rotateY(fAngleLeft),logicObserver,"ObserverRight",fLogicWorld,0,0,false);
+		new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance+fHCalSizeZ/2).rotateY(fAngleLeft),logicLeft,"Left",fLogicWorld,0,0,false);
+	}
+
 }
 
 void Testbeam2016b::MakeSandwichDetector() {

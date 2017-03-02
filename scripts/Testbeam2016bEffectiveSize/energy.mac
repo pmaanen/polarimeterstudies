@@ -1,0 +1,1 @@
+/control/foreach scripts/Testbeam2016bIsolation/run.mac ekin "100, 150, 200, 135, 270"
