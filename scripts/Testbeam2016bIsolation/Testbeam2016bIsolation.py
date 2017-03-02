@@ -23,6 +23,16 @@ class Gaus:
 class exampleAnalysis(AnalysisBase):
     def Init(self):
         return
+
+
+def getSeed(detector):
+   max=0
+   maxid=-1
+   for hit in detector:
+      if hit.edep>max:
+         max=hit.edep
+         maxid=hit.detid
+   return maxid
     
 def getCluster(detector,id,mask):
     sum=0
@@ -54,37 +64,52 @@ def doDetector(detector,histos):
         histos["hOuterVsCluster"].Fill(center,sum)
 
 
-def doLeft(histos,det):
+def doLeft(det,histos):
     #LU2
-    center,sum=getCluster(det, 12, maskOuter)
-    histos["LU2Center"].Fill(center)
-    histos["LU2Cluster"].Fill(sum)
+   seed=getSeed(det)
+   if seed==12:
+      center,sum=getCluster(det, 12, maskOuter)
+      histos["LU2Center"].Fill(center)
+      histos["LU2Cluster"].Fill(sum)
     #LU3
-    center,sum=getCluster(det, 11, maskInner)
-    histos["LU3Center"].Fill(center)
-    histos["LU3Cluster"].Fill(sum)
-    return
+   if seed==11:
+      center,sum=getCluster(det, 11, maskInner)
+      histos["LU3Center"].Fill(center)
+      histos["LU3Cluster"].Fill(sum)
+   for hit in det:
+      y=int(hit.detid/10)
+      x=hit.detid % 10
+      histos["Left"].Fill(x,y)
+   return
 
-def doRight(histo,det):
+def doRight(det,histos):
     #RU2
-    center,sum=getCluster(det, 12, maskOuter)
-    histos["RU2Center"].Fill(center)
-    histos["RU2Cluster"].Fill(sum)
+   seed=getSeed(det)
+   if seed==12:
+      center,sum=getCluster(det, 12, maskOuter)
+      histos["RU2Center"].Fill(center)
+      histos["RU2Cluster"].Fill(sum)
     #RU3
-    center,sum=getCluster(det, 11, maskInner)
-    histos["RU3Center"].Fill(center)
-    histos["RU3Cluster"].Fill(sum)
-    return
+   if seed==11:
+      center,sum=getCluster(det, 11, maskInner)
+      histos["RU3Center"].Fill(center)
+      histos["RU3Cluster"].Fill(sum)
+       
+   for hit in det:
+      y=int(hit.detid/10)
+      x=hit.detid % 10
+      histos["Right"].Fill(x,y)
+   return
 
 
 def analysis(filename,myWorker):
     try:
         histos={}
-        histos["hInnerVsCluster"]=ROOT.TH2F("hInnerVsCluster","E_{center} vs #Sigma E",1200,0,300,1200,0,300)
-        histos["hInnerVsCluster"].GetXaxis().SetTitle("E_{center} [MeV]")
+        histos["hInnerVsCluster"]=ROOT.TH2F("hInnerVsCluster","E_{0} vs #Sigma E",1200,0,300,1200,0,300)
+        histos["hInnerVsCluster"].GetXaxis().SetTitle("E_{0} [MeV]")
         histos["hInnerVsCluster"].GetYaxis().SetTitle("#Sigma E [MeV]")
-        histos["hOuterVsCluster"]=ROOT.TH2F("hOuterVsCluster","E_{center} vs #Sigma E",1200,0,300,1200,0,300)
-        histos["hOuterVsCluster"].GetXaxis().SetTitle("E_{center} [MeV]")
+        histos["hOuterVsCluster"]=ROOT.TH2F("hOuterVsCluster","E_{0} vs #Sigma E",1200,0,300,1200,0,300)
+        histos["hOuterVsCluster"].GetXaxis().SetTitle("E_{0} [MeV]")
         histos["hOuterVsCluster"].GetYaxis().SetTitle("#Sigma E [MeV]")
         
         
@@ -98,6 +123,8 @@ def analysis(filename,myWorker):
         histos["RU3Center"]=ROOT.TH1F("hRU3Center","RU3Center",1200,0,300)
         histos["RU3Cluster"]=ROOT.TH1F("hRU3Cluster","RU3Cluster",1200,0,300)
         
+        histos["Left"]=ROOT.TH2F("hLeft","Left",4,-0.5,3.5,4,-0.5,3.5)
+        histos["Right"]=ROOT.TH2F("hRight","Right",4,-0.5,3.5,4,-0.5,3.5)
         
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
@@ -106,10 +133,12 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            doDetector(event.Right,histos)
-            doDetector(event.Left,histos)
+           #doDetector(event.Right,histos)
+           #doDetector(event.Left,histos)
+           doRight(event.Right,histos)
+           doLeft(event.Left,histos)
         for h in histos.itervalues():
-            h.Write()
+           h.Write()
         outfile.Write()
         outfile.Close()
     except Exception as e:
