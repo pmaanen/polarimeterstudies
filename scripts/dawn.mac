@@ -29,19 +29,6 @@
 /vis/filtering/trajectories/particleFilter-0/add neutron
 /vis/filtering/trajectories/particleFilter-0/invert true
 ################################
-/gun/particle deuteron
-/gun/energy 270 MeV
-/gun/direction 0 0 1
-/gun/position 0 0 -5 cm
-/PolarimeterStudies/detector/absorberlength 0 mm
-/PolarimeterStudies/detector/calolength 8 cm
-/PolarimeterStudies/detector/update
-/PolarimeterStudies/generator/setGenerator dcelastic
-/PolarimeterStudies/dcelastic/beamposition 0 0 -5 cm
-/PolarimeterStudies/dcelastic/spotsize .25 .25 0 cm
-/PolarimeterStudies/beam/xp 5 deg
-/PolarimeterStudies/beam/yp 5 deg
-################################
 /tracking/storeTrajectory 1
 /vis/scene/endOfEventAction accumulate 10
 /run/beamOn 10

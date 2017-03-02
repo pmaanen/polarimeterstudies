@@ -1,32 +1,9 @@
 /run/initialize
 /analysis/Enable
-
-/PolarimeterStudies/detector/armangle 22.5 deg
-/PolarimeterStudies/detector/armlength 30 cm
-/PolarimeterStudies/detector/collimator 1
-/PolarimeterStudies/detector/trigger 1
-/PolarimeterStudies/detector/aperture 10 mm
-/PolarimeterStudies/detector/targetSizeXY 50 mm
-/PolarimeterStudies/detector/nx 4
-/PolarimeterStudies/detector/ny 3
-
-/jedi/elastic/theta_min 3 deg
-/jedi/elastic/theta_max 15 deg
-/PolarimeterStudies/detector/update
-/run/physicsModified
-
-/gun/position 0 0 -100 cm
+/gun/position 0 0 -10 cm
 /gun/direction 0 0 1
-/gun/polarization 0 .5 0
 /gun/particle deuteron
 /gun/energy 270 MeV
-/analysis/setFileName up.root
-/run/beamOn 1000
-/gun/polarization 0 -.5 0
-/analysis/setFileName down.root
-/run/beamOn 1000
-
-/gun/polarization 0 0 0
-/analysis/setFileName unp.root
+/analysis/setFileName gun.root
 /run/beamOn 1000
 

@@ -1,7 +1,9 @@
+/run/initialize
 /analysis/Enable
 /PolarimeterStudies/generator/setGenerator dcelastic
-/PolarimeterStudies/dcelastic/energy 270 MeV
 /PolarimeterStudies/dcelastic/beamposition 0 0 -3 cm
-/PolarimeterStudies/dcelastic/beamsize 5 5 5 mm
+/PolarimeterStudies/dcelastic/beamsize .5 .5 0 cm
+/PolarimeterStudies/dcelastic/energy 270 MeV
 /PolarimeterStudies/dcelastic/thetamin 3 deg
-/run/beamOn 10000
+/analysis/setFileName dcelastic.root
+/run/beamOn 1000
