@@ -5,7 +5,6 @@
  *      Author: pmaanen
  */
 
-#include "global.hh"
 #include <G4Deuteron.hh>
 #include "G4ParticleDefinition.hh"
 #include <G4Event.hh>
@@ -16,6 +15,7 @@
 #include <TMath.h>
 #include "JediScatteringHelperFunctions.hh"
 #include <G4NucleiProperties.hh>
+#include <JediCommon.hh>
 #include <JediDeuteronElastic.hh>
 #include <TROOT.h>
 #include <TMath.h>

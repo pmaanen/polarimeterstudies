@@ -32,7 +32,6 @@
 #include "JediRun.hh"
 #include "Analysis.hh"
 #include "EventAction.hh"
-#include "global.hh"
 #include <G4HCofThisEvent.hh>
 #include <G4Step.hh>
 #include <G4ThreeVector.hh>
@@ -44,6 +43,7 @@
 #include <Randomize.hh>
 
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <JediCommon.hh>
 
 
 

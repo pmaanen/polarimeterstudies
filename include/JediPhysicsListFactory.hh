@@ -7,7 +7,6 @@
 
 #ifndef INCLUDE_JEDIPHYSICSLISTFACTORY_HH_
 #define INCLUDE_JEDIPHYSICSLISTFACTORY_HH_
-#include "global.hh"
 #include "JediHadronicPhysics.hh"
 //Physics Lists
 #include <G4VModularPhysicsList.hh>
@@ -18,6 +17,7 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <G4StepLimiterPhysics.hh>
 #include <G4HadronicProcessStore.hh>
+#include <JediCommon.hh>
 
 class  JediPhysicsListFactory
 {

@@ -20,9 +20,8 @@
 #include "JediSandwichCalorimeter.hh"
 #include "SingleSandwichModule.hh"
 #include "EddaDetectorConstruction.hh"
-#include "global.hh"
-
 #include <G4GenericMessenger.hh>
+#include <JediCommon.hh>
 #include <Testbeam2016a.hh>
 #include <Testbeam2016b.hh>
 #include <map>

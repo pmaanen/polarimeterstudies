@@ -8,9 +8,9 @@
 #include <JediRun.hh>
 #include "Analysis.hh"
 #include <G4Threading.hh>
+#include <JediCommon.hh>
 #include <memory>
 
-#include "global.hh"
 JediRun::JediRun():G4Run() {}
 
 void JediRun::RecordEvent(const G4Event* evt) {

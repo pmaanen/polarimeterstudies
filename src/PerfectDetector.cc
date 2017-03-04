@@ -21,7 +21,7 @@ class SensitiveDetectorMessenger;
 #include <vector>
 #include "hit.hh"
 #include "Analysis.hh"
-#include "global.hh"
+#include <JediCommon.hh>
 #include <G4VProcess.hh>
 #include <algorithm>
 PerfectDetector::PerfectDetector(const G4String& name):TrackerSensitiveDetector(name) {

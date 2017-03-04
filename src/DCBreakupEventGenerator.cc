@@ -6,8 +6,7 @@
  */
 
 #include <DCBreakupEventGenerator.hh>
-
-#include "global.hh"
+#include <JediCommon.hh>
 
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"

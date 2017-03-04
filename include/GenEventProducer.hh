@@ -11,8 +11,8 @@
 #define GENEVENTPRODUCER_HH_
 #include <G4String.hh>
 #include <G4ios.hh>
+#include <JediCommon.hh>
 #include "hit.hh"
-#include "global.hh"
 class GenEventProducer {
 public:
 	GenEventProducer(G4String name);

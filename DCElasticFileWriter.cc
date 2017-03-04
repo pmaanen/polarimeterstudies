@@ -1,7 +1,7 @@
 
 #define FILEWRITER
 #define MAIN
-#include "global.hh"
+#include <JediCommon.hh>
 #include <DetectorConstructionFactory.hh>
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"

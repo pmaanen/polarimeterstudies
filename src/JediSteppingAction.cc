@@ -10,7 +10,7 @@
 #include "JediTrackInfo.hh"
 #include "JediPhysicsManager.hh"
 #include <G4RunManager.hh>
-#include "global.hh"
+#include <JediCommon.hh>
 #include "SingleCrystal.hh"
 JediSteppingAction::JediSteppingAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager) {}
 

@@ -8,13 +8,13 @@
 #ifndef INCLUDE_JEDICUBICPOLARIMETER_HH_
 #define INCLUDE_JEDICUBICPOLARIMETER_HH_
 
+#include <JediCommon.hh>
 #include "JediPolarimeter.hh"
 #include "globals.hh"
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
 #include "G4GDMLParser.hh"
-#include "global.hh"
 class SensitiveDetector;
 class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;

@@ -6,6 +6,7 @@
  */
 
 #include <DCInelasticEventGenerator.hh>
+#include <JediCommon.hh>
 #include "JediScatteringHelperFunctions.hh"
 
 #include "G4Deuteron.hh"
@@ -14,7 +15,6 @@
 #include "G4Electron.hh"
 #include "TMath.h"
 #include "G4ParticleGun.hh"
-#include "global.hh"
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
 #include "TF1.h"

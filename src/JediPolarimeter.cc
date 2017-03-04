@@ -10,8 +10,8 @@
 #include "Colors.hh"
 #include <G4UnionSolid.hh>
 #include <G4AutoLock.hh>
-#include "global.hh"
 #include <G4WorkerRunManager.hh>
+#include <JediCommon.hh>
 #include <fstream>
 #include "Colors.hh"
 

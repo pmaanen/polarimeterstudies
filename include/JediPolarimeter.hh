@@ -56,10 +56,10 @@
 #include "Analysis.hh"
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "global.hh"
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
+#include <JediCommon.hh>
 #include "SensitiveDetectorManager.hh"
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"

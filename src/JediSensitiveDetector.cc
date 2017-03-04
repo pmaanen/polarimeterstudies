@@ -5,13 +5,13 @@
  *  Created on: 19.05.2016
  *      Author: pmaanen
  */
+#include <JediCommon.hh>
 #include <JediSensitiveDetector.hh>
 #include "CaloSensitiveDetector.hh"
 #include "TrackerSensitiveDetector.hh"
 #include "PerfectDetector.hh"
 #include "G4Threading.hh"
 #include <memory>
-#include "global.hh"
 JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype& type):G4VSensitiveDetector(name),fType(type),fName(name){
 	if(gVerbose>2)
 		G4cout<<"JediSensitiveDetector::JediSensitiveDetector("<<name<<","<<int(type)<<")"<<G4endl;
