@@ -25,11 +25,10 @@
 #include "tools/wroot/file"
 #include <algorithm>
 #include "hit.hh"
-#include "global.hh"
-//
 #include "JediRun.hh"
 #include <G4Threading.hh>
 #include <G4MTRunManager.hh>
+#include <JediCommon.hh>
 #include "TrackerSensitiveDetector.hh"
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"

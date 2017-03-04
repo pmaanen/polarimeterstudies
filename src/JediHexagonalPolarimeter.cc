@@ -52,9 +52,9 @@
 #include "Analysis.hh"
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "global.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
+#include <JediCommon.hh>
 
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white

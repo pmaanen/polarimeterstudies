@@ -11,7 +11,6 @@
 #include "Analysis.hh"
 #include <G4Event.hh>
 #include "TNtuple.h"
-#include "global.hh"
 #include "G4EventManager.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
@@ -20,6 +19,7 @@
 #include <G4Transform3D.hh>
 #include <G4VisManager.hh>
 #include <G4UnitsTable.hh>
+#include <JediCommon.hh>
 #include <JediException.hh>
 #include "G4AutoLock.hh"
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediSensitiveDetector_impl(name) {

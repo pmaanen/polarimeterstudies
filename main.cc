@@ -2,7 +2,7 @@
 #define MAIN
 
 //global configuration
-#include "global.hh"
+#include <JediCommon.hh>
 
 //Geometries
 #include <DetectorConstructionFactory.hh>

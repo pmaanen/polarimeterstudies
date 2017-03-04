@@ -12,6 +12,7 @@
 
 
 
+#include <JediCommon.hh>
 #include "G4Material.hh"
 
 //***** include basic geometry classes
@@ -39,8 +40,6 @@
 #include "G4LogicalBorderSurface.hh"
 #include "G4SDManager.hh"
 #include "EddaDetectorConstruction.hh"
-
-#include "global.hh"
 
 #include "JediSensitiveDetector.hh"
 using namespace CLHEP;

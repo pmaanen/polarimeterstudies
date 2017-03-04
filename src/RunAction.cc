@@ -1,5 +1,5 @@
+#include <JediCommon.hh>
 #include "RunAction.hh"
-#include "global.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"
 #include "G4VVisManager.hh"

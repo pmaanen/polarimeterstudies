@@ -14,9 +14,9 @@
 #include "JediTrackingAction.hh"
 #include <memory>
 #include <G4GenericMessenger.hh>
+#include <JediCommon.hh>
 #include <TROOT.h>
 #include "Rtypes.h"
-#include "global.hh"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
 void UserActionInitialization::Build() const {
 

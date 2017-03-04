@@ -2,7 +2,6 @@
 // Date:	18-Lan-2008 G.Macharashvili Dubna
 
 #include "Analysis.hh"
-#include "global.hh"
 #include "DCInelasticEventGenerator.hh"
 #include "DCElasticEventGenerator.hh"
 #include "DCBreakupEventGenerator.hh"
@@ -35,6 +34,7 @@
 #include <G4Proton.hh>
 #include <G4Deuteron.hh>
 #include <G4ChargedGeantino.hh>
+#include <JediCommon.hh>
 #include <PrimaryGeneratorAction.hh>
 #include <Randomize.hh>
 //Root headers

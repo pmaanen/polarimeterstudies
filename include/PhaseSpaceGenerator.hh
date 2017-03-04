@@ -21,11 +21,11 @@
 #include "TF2.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "globals.hh"
-#include "global.hh"
 #include <TMath.h>
 #include <utility>
 #include <vector>
 #include <G4UnitsTable.hh>
+#include <JediCommon.hh>
 
 #include "EventGenerator.hh"
 class G4ParticleDefinition;

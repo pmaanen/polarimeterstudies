@@ -10,7 +10,7 @@
 #include <limits>
 #include <G4Track.hh>
 #include <G4Deuteron.hh>
-#include "global.hh"
+#include <JediCommon.hh>
 JediStudiedProcess::JediStudiedProcess():G4WrapperProcess("dcelastic-faststim", fUserDefined) {}
 
 G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(

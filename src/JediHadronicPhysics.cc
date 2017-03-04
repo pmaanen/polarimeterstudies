@@ -12,9 +12,9 @@
 #include <JediElasticCrossSectionData.hh>
 #include <JediBreakupCrossSectionData.hh>
 #include <G4IonTable.hh>
+#include <JediCommon.hh>
 #include <JediDeuteronElasticProcess.hh>
 #include "JediStudiedProcess.hh"
-#include "global.hh"
 JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false) {
 
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/PolarimeterStudies/hadronic/"));
