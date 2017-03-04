@@ -24,10 +24,10 @@
 #include "Math/Vector3D.h"
 #include "tools/wroot/file"
 #include <algorithm>
-#include "hit.hh"
 #include "JediRun.hh"
 #include <G4Threading.hh>
 #include <G4MTRunManager.hh>
+#include <JediClasses.hh>
 #include <JediCommon.hh>
 #include "TrackerSensitiveDetector.hh"
 #include "CaloSensitiveDetector.hh"
@@ -169,7 +169,7 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 	simevent_t thisSimEvent;
 	thisSimEvent.eventid=evt->GetEventID();
 	for(const auto iSD : fSD){
-		iSD->CopyHitsToRun(thisSimEvent);
+		iSD->CopyHitsToRun(&thisSimEvent);
 	}
 	fSimEvents->push_back(thisSimEvent);
 	genevent_t thisGenEvent;

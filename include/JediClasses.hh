@@ -10,6 +10,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#define GLOBAL
+#include "JediCommon.hh"
 class calorhit_t: public TObject {
 public:
 	calorhit_t():TObject(),edep(0),detid(0){;};
@@ -39,13 +41,6 @@ class particle_t : public TObject{
 public:
 	particle_t():TObject(),id(0),px(0),py(0),pz(0),E(0){;};
 	particle_t(Int_t iid,Double_t ppx,Double_t ppy,Double_t ppz,Double_t ee):id(iid),px(ppx),py(ppy),pz(ppz),E(ee){;};
-/*
- * id(iid),px(ppx),py(ppy),pz(ppz),E(ee)
-	friend std::ostream& operator<< (std::ostream& stream, const particle_t& particle){
-		stream<<particle.id<<" "<<particle.px/CLHEP::GeV<<" "<<particle.py/CLHEP::GeV<<" "<<particle.pz/CLHEP::GeV<<particle.E/CLHEP::GeV;
-		return stream;
-	};
-*/
 	Int_t id;
 	Double_t px,py,pz,E;
 	ClassDef(particle_t,5)

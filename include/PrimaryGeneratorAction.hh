@@ -21,7 +21,7 @@ class G4ParticleGun;
 class G4GeneralParticleSource;
 #include "GenEventProducer.hh"
 #include "FileReader.hh"
-#include "hit.hh"
+#include <JediClasses.hh>
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction,GenEventProducer {
 public:
 	virtual ~PrimaryGeneratorAction()=default;

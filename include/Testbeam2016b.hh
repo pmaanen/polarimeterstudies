@@ -21,8 +21,10 @@ public:
 	G4double getTargetSizeY() const;
 	G4double getTargetSizeZ() const;
 	const G4String& getTargetMaterialName() const;
-protected:
 
+	virtual void ConstructSDandField();
+protected:
+	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual G4LogicalVolume* BuildCaloCrystal(G4String detName);
 	virtual void ComputeParameters();
 
@@ -36,15 +38,19 @@ protected:
 	std::unique_ptr<G4GenericMessenger> fTargetMessenger;
 	G4String fTargetMaterialName;
 	G4Material* fTedlar;
+
+
+
+
 private:
 	G4LogicalVolume* BuildCollimator();
 	void BuildSupportElements();
-	void MakeSetup();
-	G4LogicalVolume* MakeScintillatorMatrix(G4String name);
-	void Make2016BDetector();
-	void MakeEffectiveDetector();
-	void MakeSandwichDetector();
-	void MakeTarget();
+	void BuildSetup();
+	G4LogicalVolume* BuildScintillatorMatrix(G4String name);
+	void Build2016BDetector();
+	void BuildEffectiveDetector();
+	void BuildSandwichDetector();
+	void BuildTarget();
 	virtual void DefineCommands();
 	void BuildCalibrationSetup();
 	void BuildIsolationSetup();
@@ -65,6 +71,10 @@ inline G4double Testbeam2016b::getTargetSizeZ() const {
 
 inline const G4String& Testbeam2016b::getTargetMaterialName() const {
 	return fTargetMaterialName;
+}
+
+inline G4LogicalVolume* Testbeam2016b::BuildCaloCrystal(){
+	return BuildCaloCrystal("detector");
 }
 
 #endif /* INCLUDE_TESTBEAM2016B_HH_ */

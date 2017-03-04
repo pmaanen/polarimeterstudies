@@ -11,8 +11,8 @@
 #include "PrimaryGeneratorAction.hh"
 #include "EventGenerator.hh"
 #include "GenEventProducer.hh"
-#include "hit.hh"
 #include <G4ThreeVector.hh>
+#include <JediClasses.hh>
 #include <TF1.h>
 #include <cmath>
 #include <memory>

@@ -56,15 +56,15 @@ file(GLOB scripts RELATIVE ${PROJECT_SOURCE_DIR}/scripts/ ${PROJECT_SOURCE_DIR}/
 #----------------------------------------------------------------------------
 # set everything needed for the root dictonary and create the
 # dictionary
-set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/hit.hh)
+set(Analysis_HEADERS ${PROJECT_SOURCE_DIR}/include/JediClasses.hh  ${PROJECT_SOURCE_DIR}/include/JediCalorimeterHit.hh)
 set(Analysis_LINKDEF ${PROJECT_SOURCE_DIR}/include/AnalysisLinkDef.hh )
-#set(AnalysisDict.. ${PROJECT_SOURCE_DIR}/AnalysisDict)
+
 
 ROOT_GENERATE_DICTIONARY(libAnalysis ${Analysis_HEADERS} LINKDEF ${Analysis_LINKDEF})
-# add the dictionary to the list of source files
-#SET(sources ${sources} ${Analysis_DICT})
-#SET(Analysis_SRCS ${Analysis_DICT})
 
+add_library(Analysis SHARED ${sources} libAnalysis.cxx)
+
+target_link_libraries(Analysis  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
@@ -74,10 +74,6 @@ target_link_libraries(polarimeterstudies ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} $
 add_executable(dceventgenerator DCElasticFileWriter.cc ${sources} ${headers})
 target_link_libraries(dceventgenerator ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES} Analysis)
 
-add_library(Analysis SHARED libAnalysis.cxx)
-target_link_libraries(Analysis ${ROOT_LIBRARIES})
-
-add_dependencies(polarimeterstudies Analysis)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build gammagamma. This is so that we can run the executable directly because it

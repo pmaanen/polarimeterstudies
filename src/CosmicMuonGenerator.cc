@@ -7,6 +7,7 @@
 
 #include <CosmicMuonGenerator.hh>
 #include <G4ParticleTable.hh>
+#include <JediClasses.hh>
 #include  "G4MuonMinus.hh"
 #include  "G4MuonPlus.hh"
 #include "G4ParticleGun.hh"
@@ -15,7 +16,6 @@
 #include "G4Event.hh"
 #include "G4Threading.hh"
 #include "G4GenericMessenger.hh"
-#include "hit.hh"
 #include "TMath.h"
 
 using namespace CLHEP;

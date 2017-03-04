@@ -19,7 +19,7 @@ class SensitiveDetectorMessenger;
 #include <map>
 #include "TTree.h"
 #include <vector>
-#include "hit.hh"
+#include <JediClasses.hh>
 #include "Analysis.hh"
 #include <JediCommon.hh>
 #include <G4VProcess.hh>
