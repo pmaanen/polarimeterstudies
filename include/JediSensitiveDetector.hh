@@ -12,49 +12,43 @@
 #include <SensitiveDetectorManager.hh>
 #include <memory>
 #include "Analysis.hh"
+#include "JediVSensitiveDetector.hh"
 class G4Run;
 
-
-class JediSensitiveDetector_impl{
-public:
-	JediSensitiveDetector_impl(const G4String& name):fName(name){};
-	virtual ~JediSensitiveDetector_impl()=default;
-
-	// methods from base class
-	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history)=0;
-	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection)=0;
-	const G4String& GetName() const {return fName;}
-
-	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const=0;
-	virtual void CopyHitsToRun(simevent_t& anEvent) const=0;
-protected:
-	G4String fName;
-};
-
-class JediSensitiveDetector : public G4VSensitiveDetector {
+class JediSensitiveDetector : public G4VSensitiveDetector
+{
 public:
 	JediSensitiveDetector(const G4String& name, const SDtype& type);
-	virtual ~JediSensitiveDetector(){Analysis::Instance()->UnRegisterMe(this);};
-
-	void Print() {};
+	JediSensitiveDetector(const G4String& name);
+	virtual ~JediSensitiveDetector();
+	void Print(){};
 	void SetType(G4String command);
-	SDtype GetType(){return fType;};
+	SDtype GetType() const;
 
-	void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const {if(fSD) fSD->WriteHitsToFile(aTree,aRun);} ;
+	virtual void Initialize(G4HCofThisEvent*);
+	virtual void EndOfEvent(G4HCofThisEvent* hitCollection);
+	virtual void clear();
+	virtual void DrawAll();
+	virtual void PrintAll();
 
+	void AddSD(JediVSensitiveDetector* sd);
+	void WriteHitsToFile(TTree* aTree, const G4Run* aRun) const;
+	virtual void CopyHitsToRun(simevent_t* anEvent);
+
+protected:
 	// methods from base class
-	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history){if(fSD) return fSD->ProcessHits(step,history); return false;};
-	virtual void   EndOfEvent(G4HCofThisEvent* hitCollection){if(fSD) fSD->EndOfEvent(hitCollection);};
-	virtual void CopyHitsToRun(simevent_t& anEvent){if(fSD) fSD->CopyHitsToRun(anEvent);}
+	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+
 private:
+	JediSensitiveDetector(const JediSensitiveDetector& rhs);
+	JediSensitiveDetector& operator=(const JediSensitiveDetector& rhs);
+
 	void SetType_impl(SDtype type);
-	void SetDepth(G4int depth);
-	std::unique_ptr<JediSensitiveDetector_impl> fSD;
+	std::unique_ptr<JediVSensitiveDetector> fSD;
 	SDtype fType;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String fName;
 	G4String fHitsCollectionName;
-
 	void DefineCommands();
 };
 #endif /* INCLUDE_JEDISENSITIVEDETECTOR_HH_ */

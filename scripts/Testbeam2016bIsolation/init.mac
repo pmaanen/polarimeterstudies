@@ -18,8 +18,6 @@
 /PolarimeterStudies/detector/trigger_thick_left 10 mm
 /PolarimeterStudies/detector/trigger_thick_right 5 mm
 /PolarimeterStudies/detector/aperture 38.8 mm
-/PolarimeterStudies/Right/depth 3
-/PolarimeterStudies/Left/depth 3
 /control/alias thickness 5
 /PolarimeterStudies/detector/update
 /control/execute scripts/Testbeam2016bIsolation/material.mac

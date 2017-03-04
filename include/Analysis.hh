@@ -10,12 +10,12 @@
 #include "TString.h"
 #include <map>
 #include <fstream>
-#include "hit.hh"
 #include "TFile.h"
 #include <sstream>
 #include "G4RootAnalysisManager.hh"
 #include "G4Threading.hh"
 #include <G4GenericMessenger.hh>
+#include <JediClasses.hh>
 #include <JediException.hh>
 #include "G4Cache.hh"
 #include <algorithm>

@@ -20,16 +20,10 @@
 #include <math.h>
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
-static auto vacuum=man->FindOrBuildMaterial("G4_Galactic");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 static auto air=man->FindOrBuildMaterial("G4_Air");
 Testbeam2016b::Testbeam2016b():Testbeam2016a() {
-
-
-
 	Reset();
-
-
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
 	/*
@@ -38,11 +32,27 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 	fTedlar->AddElement(man->FindOrBuildElement("C"),int(2));
 	fTedlar->AddElement(man->FindOrBuildElement("F"),int(1));
 	 */
-
 	man->ConstructNewMaterial("Tedlar",std::vector<G4String>{"H","C","F"},std::vector<G4int>{3,2,1},tedlarDens);
-
 	DefineCommands();
 	ComputeParameters();
+}
+
+void Testbeam2016b::ConstructSDandField() {
+
+	if(gVerbose>2)
+		G4cout<<"Testbeam2016b::ConstructSDandField()"<<G4endl;
+
+	for (const auto & iSD : fSensitiveDetectors.getMap()){
+		if (!fSD[iSD.first].Get()){
+			if(iSD.second.fType==SDtype::kCalorimeter){
+				fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first));
+				fSD[iSD.first].Get()->AddSD(new CaloSensitiveDetector(iSD.first,3));
+				for(auto & iVol: iSD.second.fLogVol){
+					SetSensitiveDetector(iVol,fSD[iSD.first].Get());
+				}
+			}
+		}
+	}
 }
 
 void Testbeam2016b::Reset() {
@@ -103,11 +113,11 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
 
 	if(fDetectorName=="effective")
-		MakeEffectiveDetector();
+		BuildEffectiveDetector();
 	else if(fDetectorName=="default")
-		Make2016BDetector();
+		Build2016BDetector();
 	else if(fDetectorName=="sandwich")
-		MakeSandwichDetector();
+		BuildSandwichDetector();
 	else if(fDetectorName=="calibration")
 		BuildCalibrationSetup();
 	else if(fDetectorName=="isolation")
@@ -120,10 +130,10 @@ G4VPhysicalVolume* Testbeam2016b::Construct() {
 	return fPhysiWorld;
 }
 
-void Testbeam2016b::MakeSetup() {
+void Testbeam2016b::BuildSetup() {
 
 	if(fBuildTarget)
-		MakeTarget();
+		BuildTarget();
 
 	if(fBuildSupport)
 		BuildSupportElements();
@@ -174,14 +184,14 @@ void Testbeam2016b::MakeSetup() {
 
 }
 
-G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
+G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto logicCrystal=BuildCaloCrystal(name);
+	auto logicScintillator=BuildCaloCrystal(name);
+	auto solidCrystal=dynamic_cast<G4Box*>(logicScintillator->GetSolid());
 
-	auto solidCrystal=dynamic_cast<G4Box*>(logicCrystal->GetSolid());
 	if(!solidCrystal)
 		G4Exception("Testbeam2016b::MakeScintillatorMatrix","",FatalException,"solidCrystal==nullptr. Dynamic cast failed!");
 	auto motherSizeX=2*fNx*solidCrystal->GetXHalfLength();
@@ -189,11 +199,7 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 	auto motherSizeZ=2*solidCrystal->GetZHalfLength();
 
 	auto logicMother=BuildVolume<G4Box>("Detector",man->FindOrBuildMaterial("G4_Galactic"),motherSizeX/2,motherSizeY/2,motherSizeZ/2);
-	/*
-	 * Use BuildCaloCrystal for now
-	 * BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);
-	 */
-	logicCrystal->SetVisAttributes(new G4VisAttributes(green));
+
 
 	G4int index=0;
 	for(G4int iX=0;iX<fNx;iX++){
@@ -202,15 +208,16 @@ G4LogicalVolume* Testbeam2016b::MakeScintillatorMatrix(G4String name) {
 			new G4PVPlacement (rot,
 					G4ThreeVector(-motherSizeX/2+(iX+0.5)*2*solidCrystal->GetXHalfLength(),
 							-motherSizeY/2+(iY+0.5)*2*solidCrystal->GetYHalfLength(),0),
-							logicCrystal, "hcalelement", logicMother, false,index , false);
+							logicScintillator, "hcalelement", logicMother, false,index , false);
 		}
 	}
 
+	logicScintillator->SetVisAttributes(new G4VisAttributes(green));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
 	return logicMother;
 }
 
-void Testbeam2016b::MakeEffectiveDetector() {
+void Testbeam2016b::BuildEffectiveDetector() {
 
 	G4double startSizeX=15*CLHEP::mm;
 	G4double startSizeY=20*CLHEP::mm;
@@ -233,8 +240,8 @@ void Testbeam2016b::MakeEffectiveDetector() {
 	rotRight->rotateY(fAngleRight);
 	rotLeft->rotateY(-fAngleLeft);
 
-	auto logicRight=MakeScintillatorMatrix("Right");
-	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto logicRight=BuildScintillatorMatrix("Right");
+	auto logicLeft=BuildScintillatorMatrix("Left");
 	auto trigVisAttr=new G4VisAttributes(cyan);
 
 	if(fRightDetector){
@@ -265,11 +272,11 @@ void Testbeam2016b::MakeEffectiveDetector() {
 
 }
 
-void Testbeam2016b::MakeSandwichDetector() {
+void Testbeam2016b::BuildSandwichDetector() {
 	G4Exception(" Testbeam2016b::MakeSandwichDetector","",FatalException," Testbeam2016b::MakeSandwichDetector is not yet implemented!");
 }
 
-void Testbeam2016b::MakeTarget() {
+void Testbeam2016b::BuildTarget() {
 
 	auto rot=new G4RotationMatrix();
 	auto targetMat=G4NistManager::Instance()->FindOrBuildMaterial(fTargetMaterialName);
@@ -305,9 +312,9 @@ void Testbeam2016b::MakeTarget() {
 	fTarget=logicTarget;
 }
 
-void Testbeam2016b::Make2016BDetector() {
+void Testbeam2016b::Build2016BDetector() {
 
-	MakeSetup();
+	BuildSetup();
 
 	auto rotRight=new G4RotationMatrix;
 	auto rotLeft=new G4RotationMatrix;
@@ -315,8 +322,8 @@ void Testbeam2016b::Make2016BDetector() {
 	rotRight->rotateY(fAngleRight);
 	rotLeft->rotateY(-fAngleLeft);
 
-	auto logicRight=MakeScintillatorMatrix("Right");
-	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto logicRight=BuildScintillatorMatrix("Right");
+	auto logicLeft=BuildScintillatorMatrix("Left");
 	auto trigVisAttr=new G4VisAttributes(cyan);
 
 	if(fRightDetector){
@@ -544,12 +551,12 @@ void Testbeam2016b::BuildCalibrationSetup() {
 	fNx=1;
 	fNy=1;
 
-	MakeSetup();
+	BuildSetup();
 
 	auto rot1=new G4RotationMatrix();
 	rot1->rotateY(fAngle);
 
-	auto logicDet=MakeScintillatorMatrix("Detector");
+	auto logicDet=BuildScintillatorMatrix("Detector");
 	auto trigVisAttr=new G4VisAttributes(cyan);
 
 	if(fTrigger){
@@ -567,7 +574,7 @@ void Testbeam2016b::BuildIsolationSetup(){
 
 
 	fStart=false;
-	MakeSetup();
+	BuildSetup();
 
 	G4double startSizeX=15*CLHEP::mm;
 	G4double startSizeY=20*CLHEP::mm;
@@ -590,8 +597,8 @@ void Testbeam2016b::BuildIsolationSetup(){
 	rotRight->rotateY(fAngleRight);
 	rotLeft->rotateY(-fAngleLeft);
 
-	auto logicRight=MakeScintillatorMatrix("Right");
-	auto logicLeft=MakeScintillatorMatrix("Left");
+	auto logicRight=BuildScintillatorMatrix("Right");
+	auto logicLeft=BuildScintillatorMatrix("Left");
 	auto trigVisAttr=new G4VisAttributes(cyan);
 
 	if(fRightDetector){

@@ -1,8 +1,6 @@
 
-#define MAIN
-
 //global configuration
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 //Geometries
 #include <DetectorConstructionFactory.hh>
@@ -35,12 +33,13 @@
 #include <TROOT.h>
 #include "Rtypes.h"
 
-extern void initializeConfiguration(int,char**);
+#include <memory>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv) {
+	std::unique_ptr<JediConfigurationManager> ConfigurationManager;
 	try{
-		initializeConfiguration(argc,argv);
+		ConfigurationManager.reset(new JediConfigurationManager(argc,argv));
 	}
 	catch(const std::exception& e){
 		std::cout<<"uncaught exception in main: "<<e.what()<<std::endl;

@@ -49,7 +49,7 @@
 #include <utility>
 using namespace CLHEP;
 #include "G4AutoLock.hh"
-#include "hit.hh"
+#include <JediClasses.hh>
 
 namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 

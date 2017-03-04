@@ -9,13 +9,19 @@
 #define CALOSENSITIVEDETECTOR_HH_
 
 #include <G4MultiFunctionalDetector.hh>
+#include <JediClasses.hh>
 #include "JediSensitiveDetector.hh"
 #include "TTree.h"
 #include <vector>
 #include <memory>
-#include "hit.hh"
+
+class G4HCofThisEvent;
+class G4Step;
+
+
+
 class G4Run;
-class CaloSensitiveDetector: public JediSensitiveDetector_impl {
+class CaloSensitiveDetector: public JediVSensitiveDetector {
 	class JediSensitiveDetector;
 	friend JediSensitiveDetector;
 public:
@@ -24,8 +30,8 @@ public:
 	virtual void EndOfEvent(G4HCofThisEvent* HC);
 
 	virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* history);
-	virtual void WriteHitsToFile(TTree& aTree, const G4Run* aRun) const;
-	virtual void CopyHitsToRun(simevent_t& anEvent) const;
+	virtual void WriteHitsToFile(TTree* aTree, const G4Run* aRun) const;
+	virtual void CopyHitsToRun(simevent_t* anEvent) const;
 
 	G4int getDepth() const {
 		return fDepth;

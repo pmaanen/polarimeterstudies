@@ -51,7 +51,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name)
-: JediSensitiveDetector_impl(name)
+: JediVSensitiveDetector(name)
 {
 	fHits=std::unique_ptr<std::vector<trackerhit_t>>(new std::vector<trackerhit_t>);
 }
@@ -118,23 +118,23 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 	fHitBuffer.clear();
 	return;
 }
-void TrackerSensitiveDetector::WriteHitsToFile(TTree& aTree,
+void TrackerSensitiveDetector::WriteHitsToFile(TTree* aTree,
 		const G4Run* aRun) const {
 
 	if(gVerbose>2)
-			G4cout<<"TrackerSensitiveDetector::WriteHitsToFile "<<fName<<G4endl;
+			G4cout<<"TrackerSensitiveDetector::WriteHitsToFile "<<GetName()<<G4endl;
 
 	auto SimEvents=&dynamic_cast<const JediRun*>(aRun)->getSimEvents();
 	const std::vector<trackerhit_t> *hitPointer=nullptr;
-	auto myBranch=aTree.Branch(fName,&hitPointer);
+	auto myBranch=aTree->Branch(GetName(),&hitPointer);
 
 	for(const auto &evt : *SimEvents){
-		hitPointer=&evt.tracker.at(fName);
+		hitPointer=&evt.tracker.at(GetName());
 		myBranch->Fill();
 	}
 	}
 
-void TrackerSensitiveDetector::CopyHitsToRun(simevent_t& anEvent) const {
-	anEvent.tracker[GetName()]=*fHits.get();
+void TrackerSensitiveDetector::CopyHitsToRun(simevent_t* anEvent) const {
+	anEvent->tracker[GetName()]=*fHits.get();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -9,7 +9,7 @@
 #define JEDIRUN_HH_
 
 #include <G4Run.hh>
-#include "hit.hh"
+#include <JediClasses.hh>
 #include <map>
 #include <vector>
 class JediRun: public G4Run {

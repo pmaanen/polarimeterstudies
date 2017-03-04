@@ -22,22 +22,23 @@
 #include <JediCommon.hh>
 #include <JediException.hh>
 #include "G4AutoLock.hh"
-CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediSensitiveDetector_impl(name) {
+CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediVSensitiveDetector(name){
 	fHits=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 	fDepth=depth;
+	collectionName.insert("CalorimeterCollection");
 }
 
 void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	fHits->clear();
 	if(gVerbose>3)
-		G4cout<<fName<<": "<<"CaloSensitiveDetector::EndOfEvent"<<G4endl;
+		G4cout<<GetName()<<": "<<"CaloSensitiveDetector::EndOfEvent"<<G4endl;
 	for(const auto &iHit : fHitMap){
 		calorhit_t hit;
 		hit.edep=iHit.second/CLHEP::MeV;
 		hit.detid=iHit.first;
 		if(gVerbose>3){
 			G4int i=0;
-			G4cout<<fName<<" hit "<<i++<<": "<<G4BestUnit(hit.edep,"Energy")<<" in det no. "<<hit.detid<<G4endl;
+			G4cout<<GetName()<<" hit "<<i++<<": "<<G4BestUnit(hit.edep,"Energy")<<" in det no. "<<hit.detid<<G4endl;
 		}
 		fHits->push_back(hit);
 	}
@@ -47,7 +48,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 		G4TouchableHistory*) {
 	if(gVerbose>4)
-		G4cout<<fName<<": "<<"CaloSensitiveDetector::ProcessHits"<<G4endl;
+		G4cout<<GetName()<<": "<<"CaloSensitiveDetector::ProcessHits"<<G4endl;
 	if(!Analysis::Instance()->isEnabled())
 		return false;
 	// energy deposit
@@ -69,24 +70,24 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 	return true;
 }
 
-void CaloSensitiveDetector::WriteHitsToFile(TTree& aTree,
+void CaloSensitiveDetector::WriteHitsToFile(TTree* aTree,
 		const G4Run* aRun) const {
 
 	if(gVerbose>2)
-		G4cout<<"CaloSensitiveDetector::WriteHitsToFile "<<fName<<G4endl;
+		G4cout<<"CaloSensitiveDetector::WriteHitsToFile "<<GetName()<<G4endl;
 
 	auto SimEvents=dynamic_cast<const JediRun*>(aRun)->getSimEvents();
 	const std::vector<calorhit_t> *hitPointer=nullptr;
-	auto branch=aTree.Branch(fName,&hitPointer);
+	auto branch=aTree->Branch(GetName(),&hitPointer);
 
 	for(const auto &evt : SimEvents){
-		hitPointer=&evt.calorimeter.at(fName);
+		hitPointer=&evt.calorimeter.at(GetName());
 		branch->Fill();
 	}
 }
 
-void CaloSensitiveDetector::CopyHitsToRun(simevent_t& anEvent) const {
-	anEvent.calorimeter[GetName()]=*fHits.get();
+void CaloSensitiveDetector::CopyHitsToRun(simevent_t* anEvent) const {
+	anEvent->calorimeter[GetName()]=*fHits.get();
 }
 
 G4int CaloSensitiveDetector::GetIndex(G4Step* aStep) {

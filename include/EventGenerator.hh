@@ -7,6 +7,7 @@
 
 #ifndef INCLUDE_EVENTGENERATOR_HH_
 #define INCLUDE_EVENTGENERATOR_HH_
+
 class G4ParticleGun;
 class G4Event;
 #include "G4Types.hh"
@@ -14,7 +15,7 @@ class G4Event;
 #include <ostream>
 #include <vector>
 #include <memory>
-#include "hit.hh"
+#include <JediClasses.hh>
 #include "GenEventProducer.hh"
 class G4GenericMessenger;
 
