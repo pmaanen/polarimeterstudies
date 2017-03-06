@@ -13,7 +13,7 @@
 #ifndef polarimeterStudiesDetectorConstruction_h
 #define polarimeterStudiesDetectorConstruction_h 1
 
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
 #include "JediPolarimeter.hh"

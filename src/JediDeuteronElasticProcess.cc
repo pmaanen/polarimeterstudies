@@ -14,7 +14,7 @@
 #include <G4StableIsotopes.hh>
 #include <G4IonTable.hh>
 #include <G4TrackStatus.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <JediDeuteronElastic.hh>
 #include <JediDeuteronElasticProcess.hh>
 #include <TGenPhaseSpace.h>

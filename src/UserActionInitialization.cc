@@ -14,7 +14,7 @@
 #include "JediTrackingAction.hh"
 #include <memory>
 #include <G4GenericMessenger.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <TROOT.h>
 #include "Rtypes.h"
 UserActionInitialization::UserActionInitialization(): G4VUserActionInitialization() {}
@@ -26,7 +26,7 @@ void UserActionInitialization::Build() const {
 	SetUserAction(new RunAction(physicsManager));
 
 	//Needs physicsManager for sampling of interaction length
-	if(gConfig["physics.use_fast_sim"].as<bool>()){
+	if(JediConfigurationManager::Instance()->GetMap()["physics.use_fast_sim"].as<bool>()){
 		SetUserAction(new JediSteppingAction(physicsManager));
 		SetUserAction(new JediTrackingAction(physicsManager));
 	}

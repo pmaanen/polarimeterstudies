@@ -28,7 +28,7 @@
 #include <G4Threading.hh>
 #include <G4MTRunManager.hh>
 #include <JediClasses.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "TrackerSensitiveDetector.hh"
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"
@@ -44,31 +44,33 @@ Analysis::Analysis():fEnabled(false),fFileName("")
 
 	fGenEvents=new std::vector<genevent_t>();
 	fSimEvents=new std::vector<simevent_t>();
+	fNewSimEvents=new std::vector<SimEvent>();
 }
 
 void Analysis::BeginOfRun() {
 	fSimEvents->clear();
+	fNewSimEvents->clear();
 	fGenEvents->clear();
 	for(auto iGen:fGenerators)
 		iGen->BeginOfRun();
 }
 void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		for(const auto idet: fSD)
 			G4cout<<G4Threading::G4GetThreadId()<<" Analysis::EndOfRun "<<idet->GetName()<<G4endl;
 	if(!G4Threading::IsWorkerThread()){
-		if(gVerbose>1)
+		if(JediConfigurationManager::Instance()->GetVerbose()>1)
 			G4cout<<"Creating file and trees..."<<G4endl;
 		G4String fileName("");
 		//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
 		if(fFileName==""){
-			if(gConfig.count("general.output_file"))
-				fileName=gConfig["general.output_file"].as<std::string>();
+			if(JediConfigurationManager::Instance()->GetMap().count("general.output_file"))
+				fileName=JediConfigurationManager::Instance()->GetMap()["general.output_file"].as<std::string>();
 			else{
 				std::stringstream fname;
 				fname<<"run_"<<run->GetRunID()<<".root";
-				if(gVerbose>2)
+				if(JediConfigurationManager::Instance()->GetVerbose()>2)
 					G4cout<<"run_"<<run->GetRunID()<<G4endl;
 				fileName=fname.str().c_str();
 			}
@@ -77,6 +79,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 		}
 		TFile OutFile(fileName,"RECREATE");
 		TTree SimTree("sim","simulated data");
+		TTree TestTree("test","test simulated data");
 		TTree GenTree("gen","generated data");
 		//TTree InfoTree("info","run information");
 		auto myRun=static_cast<const JediRun*> (run);
@@ -86,7 +89,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 
 		for(const auto& iSD:fSD){
-			if(gVerbose>2)
+			if(JediConfigurationManager::Instance()->GetVerbose()>2)
 				G4cout<<"Creating branch for "<<iSD->GetName()<<G4endl;
 			if(iSD->GetType()==SDtype::kCalorimeter){
 				calohitPointer[iSD->GetName()]=nullptr;
@@ -111,18 +114,38 @@ void Analysis::EndOfRun(const G4Run* run) {
 			SimTree.Fill();
 		}
 
+
+		std::map<G4String,const std::vector<JediCalorimeterHit> *> newHitPointer;
+		for(const auto& iSD:fSD){
+			if(JediConfigurationManager::Instance()->GetVerbose()>2)
+				G4cout<<"Creating branch for "<<iSD->GetName()<<G4endl;
+			if(iSD->GetType()==SDtype::kCalorimeter){
+				newHitPointer[iSD->GetName()]=nullptr;
+				TestTree.Branch(G4String(iSD->GetName()+G4String("_new")),&newHitPointer[iSD->GetName()]);
+			}
+		}
+
+		auto NewSimEvent=myRun->getNewSimEvents();
+		for(const auto &evt : NewSimEvent){
+			for(const auto& iSD:fSD){
+				if(iSD->GetType()==SDtype::kCalorimeter){
+					newHitPointer[iSD->GetName()]=&evt.calorimeter.at(iSD->GetName());
+				}
+			}
+			TestTree.Fill();
+		}
 		// Write events from generator to file
 		std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 
 		auto GenEvents=myRun->getGenEvents();
-		if(gVerbose>2){
+		if(JediConfigurationManager::Instance()->GetVerbose()>2){
 			G4cout<<"GenEvents has "<<GenEvents.size()<<" entries. "<<G4endl;
-		if(GenEvents.size()){
-			G4cout<<"The following generators are in the first event: "<<G4endl;
-			for(auto iGen:GenEvents[0].generators)
-				G4cout<<iGen.first<<" ";
-			G4cout<<G4endl;
-		}
+			if(GenEvents.size()){
+				G4cout<<"The following generators are in the first event: "<<G4endl;
+				for(auto iGen:GenEvents[0].generators)
+					G4cout<<iGen.first<<" ";
+				G4cout<<G4endl;
+			}
 		}
 		if(!GenEvents.size())
 			G4Exception("Analysis::EndOfRun","",FatalException,"GenEvents are empty!");
@@ -132,7 +155,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 
 		for(const auto& iGen:generatorNames){
-			if(gVerbose>2)
+			if(JediConfigurationManager::Instance()->GetVerbose()>2)
 				G4cout<<"Creating branch for "<<iGen<<G4endl;
 			genVertexPointer[iGen]=nullptr;
 			GenTree.Branch(iGen,&genVertexPointer[iGen]);
@@ -150,7 +173,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 }
 
 void Analysis::RegisterMe(JediSensitiveDetector* sd) {
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Analysis::RegisterSD: "<<sd->GetName()<<G4endl;
 	if(std::find(fSD.begin(),fSD.end(),sd)==fSD.end())
 		fSD.push_back(sd);
@@ -158,7 +181,7 @@ void Analysis::RegisterMe(JediSensitiveDetector* sd) {
 }
 
 void Analysis::UnRegisterMe(JediSensitiveDetector* sd) {
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Analysis::UnRegisterSD: "<<sd->GetName()<<G4endl;
 	auto pos=std::find(fSD.begin(),fSD.end(),sd);
 	if(pos!=fSD.end())
@@ -181,10 +204,17 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 	fGenEvents->push_back(thisGenEvent);
 
 
+	SimEvent thisNewSimEvent;
+	thisNewSimEvent.eventid=evt->GetEventID();
+	for(const auto iSD : fSD){
+		if(iSD->GetType()==SDtype::kCalorimeter)
+			iSD->CopyHitsToRun(&thisNewSimEvent);
+	}
+	fNewSimEvents->push_back(thisNewSimEvent);
 }
 
 void Analysis::RegisterMe(GenEventProducer* pd) {
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Analysis::RegisterMe: "<<pd->getName()<<G4endl;
 	if(std::find(fGenerators.begin(),fGenerators.end(),pd)==fGenerators.end())
 		fGenerators.push_back(pd);
@@ -192,7 +222,7 @@ void Analysis::RegisterMe(GenEventProducer* pd) {
 }
 
 void Analysis::UnRegisterMe(GenEventProducer*pd) {
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Analysis::UnRegisterMe: "<<pd->getName()<<G4endl;
 	auto pos=std::find(fGenerators.begin(),fGenerators.end(),pd);
 	if(pos!=fGenerators.end())

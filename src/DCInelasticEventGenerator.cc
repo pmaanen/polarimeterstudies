@@ -6,7 +6,7 @@
  */
 
 #include <DCInelasticEventGenerator.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "JediScatteringHelperFunctions.hh"
 
 #include "G4Deuteron.hh"

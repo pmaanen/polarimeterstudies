@@ -25,7 +25,7 @@ public:
 		}
 		fAbsorberMaterial=newMat;
 		fAbsorberMaterialName=absorberMaterialName;
-		if(gVerbose==3)
+		if(JediConfigurationManager::Instance()->GetVerbose()==3)
 			G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
 		return;
 	}

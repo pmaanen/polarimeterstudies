@@ -8,7 +8,7 @@
 #ifndef INCLUDE_JEDICUBICPOLARIMETER_HH_
 #define INCLUDE_JEDICUBICPOLARIMETER_HH_
 
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "JediPolarimeter.hh"
 #include "globals.hh"
 #include <map>

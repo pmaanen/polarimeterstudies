@@ -25,7 +25,11 @@
 #pragma link C++ class genvertex_t +;
 #pragma link C++ class std::vector<genvertex_t> +;
 
+#pragma link C++ class CLHEP::Hep3Vector+;
+//#pragma link C++ class G4VHit+;
 #pragma link C++ class JediCalorimeterHit+;
-#pragma link C++ class std::vector<JediCalorimeterHit*>+;
+#pragma link C++ class std::vector<JediCalorimeterHit>;
+#pragma link C++ class std::map<std::string, std::vector<JediCalorimeterHit> > +;
+
 
 #endif

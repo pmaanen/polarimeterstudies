@@ -24,11 +24,16 @@ public:
 		return fSimEvents;
 	}
 
+	const std::vector<SimEvent>& getNewSimEvents() const {
+			return fNewSimEvents;
+		}
+
 	const std::vector<genevent_t>& getGenEvents() const {
 		return fGenEvents;
 	}
 
 	std::vector<simevent_t> fSimEvents;
+	std::vector<SimEvent> fNewSimEvents;
 	std::vector<genevent_t> fGenEvents;
 
 };

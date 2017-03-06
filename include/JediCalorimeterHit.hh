@@ -29,9 +29,18 @@ public:
 	void Draw();
 	void Print();
 
+	inline void AddEnergy(G4double de) {fEdep += de;};
+	inline void SetId(G4int id) {fDetId = id;};
+	inline void SetPos(G4ThreeVector xyz){ fPos = xyz; }
+
+	inline G4ThreeVector GetPos() { return fPos; };
+	inline G4double GetEdep()     { return fEdep; };
+	inline G4int GetId()          { return fDetId; };
+
 private:
 	G4int fDetId;
 	G4double fEdep;
+	G4ThreeVector fPos;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -54,6 +63,7 @@ inline void* JediCalorimeterHit::operator new(size_t)
 inline JediCalorimeterHit::JediCalorimeterHit(const JediCalorimeterHit& rhs):G4VHit() {
 	fEdep=rhs.fEdep;
 	fDetId=rhs.fDetId;
+	fPos=rhs.fPos;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -63,13 +73,14 @@ inline const JediCalorimeterHit& JediCalorimeterHit::operator =(
 
 	fEdep=rhs.fEdep;
 	fDetId=rhs.fDetId;
+	fPos=rhs.fPos;
 	return *this;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 inline int JediCalorimeterHit::operator ==(const JediCalorimeterHit& rhs) const {
-	return fEdep==rhs.fEdep&&fDetId==rhs.fDetId;
+	return ( this == &rhs ) ? 1 : 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

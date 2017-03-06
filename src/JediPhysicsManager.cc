@@ -67,7 +67,7 @@ void JediPhysicsManager::ResampleTrackLengthInTarget(const G4Track* track,
 void JediPhysicsManager::GeometryHasChanged(const JediPolarimeter* setup) {
 	targetSolid = setup->GetTarget()->GetSolid();
 	targetTransform = setup->GetTargetTransform().Inverse();
-	if(gVerbose>3)
+	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 		G4cout<<"JediPhysicsManager::GeometryHasChanged "
 		<<targetSolid<<" "
 		<<targetSolid->GetName()

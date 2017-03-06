@@ -10,7 +10,7 @@
 #include <limits>
 #include <G4Track.hh>
 #include <G4Deuteron.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 JediStudiedProcess::JediStudiedProcess():G4WrapperProcess("dcelastic-faststim", fUserDefined) {}
 
 G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(
@@ -23,7 +23,7 @@ G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(
 
 	if ( ! theTrackInfo ||
 			*track.GetDefinition()!=*G4Deuteron::Deuteron() ){
-		if(gVerbose>3)
+		if(JediConfigurationManager::Instance()->GetVerbose()>3)
 			G4cout<<"JediStudiedProcess::PostStepGetPhysicalInteractionLength: "
 			<<theTrackInfo<<" "
 			<<track.GetDefinition()->GetParticleName()
@@ -42,7 +42,7 @@ G4double JediStudiedProcess::PostStepGetPhysicalInteractionLength(
 	if(track.GetKineticEnergy()<30*CLHEP::MeV || track.GetKineticEnergy()>300*CLHEP::MeV)
 		return DBL_MAX;
 
-	if(gVerbose>3)
+	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 		G4cout<<"JediStudiedProcess::PostStepGetPhysicalInteractionLength: "
 		<<theTrackInfo->GetFinalTrackLengthInTarget()-theTrackInfo->GetCurrentTrackLengthInTarget()
 		<<G4endl;
@@ -57,7 +57,7 @@ G4VParticleChange* JediStudiedProcess::PostStepDoIt(const G4Track& track,
 
 	auto theTrackInfo=dynamic_cast<JediTrackInfo*>(track.GetUserInformation());
 	theTrackInfo->AllowStudiedProcess(false);
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"JediStudiedProcess::PostStepDoIt "
 		<<track.GetPosition()<<" "
 		<<track.GetMomentumDirection()<<" "

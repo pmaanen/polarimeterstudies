@@ -12,7 +12,7 @@
 
 
 
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "G4Material.hh"
 
 //***** include basic geometry classes
@@ -387,7 +387,7 @@ G4VPhysicalVolume* EddaDetectorConstruction::ConstructSetUp()
 
 	for(int i=0; i<29; i++){
 		//left ring
-		if(gVerbose>3)
+		if(JediConfigurationManager::Instance()->GetVerbose()>3)
 			G4cout<<"Left: "<<"Ring " <<i<<G4endl;
 		G4double startPhi = 90.*deg;
 		G4double deltaPhi = 180.*deg;

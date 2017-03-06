@@ -10,7 +10,7 @@
 #include "JediTrackInfo.hh"
 #include "JediPhysicsManager.hh"
 #include <G4RunManager.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "SingleCrystal.hh"
 JediSteppingAction::JediSteppingAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager) {}
 
@@ -31,7 +31,7 @@ void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 	{
 		if ( ! trackInfo->IsStudiedProcessActivated() )
 		{
-			if(gVerbose>3)
+			if(JediConfigurationManager::Instance()->GetVerbose()>3)
 				G4cout<<"JediSteppingAction::UserSteppingAction "
 				<<"entering "
 				<<volume->GetLogicalVolume()->GetName()
@@ -51,7 +51,7 @@ void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 			}
 			else{
 				trackInfo->AddTrackLengthInTarget( step->GetStepLength() );
-				if(gVerbose>3)
+				if(JediConfigurationManager::Instance()->GetVerbose()>3)
 					G4cout<<"JediSteppingAction::UserSteppingAction "
 					<<"Adding "<< step->GetStepLength()/CLHEP::mm
 					<<" to TrackLengthInTarget"
@@ -67,7 +67,7 @@ void JediSteppingAction::UserSteppingAction(const G4Step* step) {
 	if ( volume && volume->GetLogicalVolume()->GetName() == "Target" )
 	{
 		if ( stepStatus == fGeomBoundary ){
-			if(gVerbose>3)
+			if(JediConfigurationManager::Instance()->GetVerbose()>3)
 				G4cout<<"JediSteppingAction::UserSteppingAction "
 				<<"leaving "
 				<<volume->GetLogicalVolume()->GetName()
