@@ -100,11 +100,11 @@ void JediSensitiveDetector::DefineCommands()
 
 G4bool JediSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory* history)
 {
-	if(JediConfigurationManager::Instance()->GetVerbose()>4)
-		G4cout<<GetName()<<": "<<"JediSensitiveDetector::ProcessHits"<<G4endl;
-	if(fSD)
-		return fSD->Hit(step);
-	return false;
+  if(JediConfigurationManager::Instance()->GetVerbose()>4)
+    G4cout<<GetName()<<": "<<"JediSensitiveDetector::ProcessHits"<<G4endl;
+  if(fSD)
+    return fSD->Hit(step);
+  return false;
 }
 
 void JediSensitiveDetector::EndOfEvent(G4HCofThisEvent* hitCollection)
