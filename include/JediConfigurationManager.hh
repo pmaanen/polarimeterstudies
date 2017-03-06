@@ -12,6 +12,7 @@
 #include <boost/program_options/variables_map.hpp>
 
 #include "globals.hh"
+
 class JediConfigurationManager {
 public:
 	JediConfigurationManager(int argc,char** argv);
@@ -23,7 +24,7 @@ public:
 		return theInstance;
 	}
 
-	const boost::program_options::variables_map& GetMap() const;
+	boost::program_options::variables_map& GetMap();
 	G4int GetVerbose() const;
 private:
 
@@ -33,7 +34,7 @@ private:
 };
 
 
-inline const boost::program_options::variables_map& JediConfigurationManager::GetMap() const {
+inline boost::program_options::variables_map& JediConfigurationManager::GetMap(){
 	return fConfig;
 }
 

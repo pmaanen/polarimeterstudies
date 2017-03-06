@@ -59,7 +59,7 @@
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "SensitiveDetectorManager.hh"
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"

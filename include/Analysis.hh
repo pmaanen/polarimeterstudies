@@ -71,6 +71,7 @@ public:
 	void UnRegisterMe(GenEventProducer*);
 
 	 const std::vector<simevent_t>* getSimEvents() const;
+	 const std::vector<SimEvent>* getNewSimEvents() const;
 	 const std::vector<genevent_t>* getGenEvents() const;
 
 private:
@@ -91,6 +92,7 @@ private:
 	std::vector<GenEventProducer*> fGenerators;
 	std::vector<genevent_t>* fGenEvents;
 	std::vector<simevent_t>* fSimEvents;
+	std::vector<SimEvent>* fNewSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;
 	std::map<G4String, std::vector<trackerhit_t>* > fTrackerHits;
 
@@ -99,6 +101,10 @@ private:
 
 inline const std::vector<simevent_t>* Analysis::getSimEvents() const {
 		return fSimEvents;
+	}
+
+inline const std::vector<SimEvent>* Analysis::getNewSimEvents() const {
+		return fNewSimEvents;
 	}
 
 inline	const std::vector<genevent_t>* Analysis::getGenEvents() const {

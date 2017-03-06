@@ -34,7 +34,7 @@
 #include <G4Proton.hh>
 #include <G4Deuteron.hh>
 #include <G4ChargedGeantino.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <PrimaryGeneratorAction.hh>
 #include <Randomize.hh>
 //Root headers

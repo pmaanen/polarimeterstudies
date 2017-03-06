@@ -12,7 +12,7 @@
 #include <G4String.hh>
 #include <G4ios.hh>
 #include <JediClasses.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 class GenEventProducer {
 public:
 	GenEventProducer(G4String name);
@@ -39,7 +39,7 @@ inline const G4String GenEventProducer::getName() const {
 }
 
 inline void GenEventProducer::CopyVerticesToRun(genevent_t& anEvent) const  {
-	if(gVerbose>3)
+	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 			G4cout<<" GenEventProducer::CopyVerticesToRun: "<<fName<<" "<<fGenVertices->size()<<G4endl;
 	anEvent.generators[fName]=*fGenVertices.get();
 }

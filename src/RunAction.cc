@@ -1,4 +1,4 @@
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include "RunAction.hh"
 #include "G4Run.hh"
 #include "G4UImanager.hh"
@@ -28,13 +28,13 @@ RunAction::RunAction(JediPhysicsManager* physicsManager):fPhysicsManager(physics
 	ROOT::EnableThreadSafety();
 
 	// RANLUX seed
-	if(gConfig.count("random.seed"))
-		fSeed=gConfig["random.seed"].as<int>();
+	if(JediConfigurationManager::Instance()->GetMap().count("random.seed"))
+		fSeed=JediConfigurationManager::Instance()->GetMap()["random.seed"].as<int>();
 	else
 		fSeed = -1;
 
 	fLuxury = 3;     // RANLUX luxury level (3 is default)
-	fSaveRndm = gConfig["random.save_random"].as<bool>();
+	fSaveRndm = JediConfigurationManager::Instance()->GetMap()["random.save_random"].as<bool>();
 	fNEvents=0;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -61,13 +61,13 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 
 	if (!IsMaster()) //it is a slave, do nothing else
 	{
-		if(gVerbose>2)
+		if(JediConfigurationManager::Instance()->GetVerbose()>2)
 			G4cout << "ooo Run " << aRun->GetRunID() << " starts on slave." << G4endl;
 		return;
 	}
 
 	//Master or sequential
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout << "ooo Run " << aRun->GetRunID() << " starts (global)." << G4endl;
 	if (fSeed<0) //not initialized by anybody else
 	{
@@ -94,7 +94,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	if (!IsMaster())
 	{
-		if(gVerbose>2)
+		if(JediConfigurationManager::Instance()->GetVerbose()>2)
 			G4cout << "### Run " << aRun->GetRunID() << " (slave) ended." << G4endl;
 		return;
 	}
@@ -103,7 +103,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 		an->EndOfRun(aRun);
 	}
 	// Complete clean-up
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	return;
 

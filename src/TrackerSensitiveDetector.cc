@@ -43,7 +43,7 @@
 #include <Randomize.hh>
 
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 
 
@@ -54,6 +54,7 @@ TrackerSensitiveDetector::TrackerSensitiveDetector(const G4String& name)
 : JediVSensitiveDetector(name)
 {
 	fHits=std::unique_ptr<std::vector<trackerhit_t>>(new std::vector<trackerhit_t>);
+	fType=SDtype::kTracker;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -121,7 +122,7 @@ void TrackerSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 void TrackerSensitiveDetector::WriteHitsToFile(TTree* aTree,
 		const G4Run* aRun) const {
 
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 			G4cout<<"TrackerSensitiveDetector::WriteHitsToFile "<<GetName()<<G4endl;
 
 	auto SimEvents=&dynamic_cast<const JediRun*>(aRun)->getSimEvents();

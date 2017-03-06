@@ -17,7 +17,7 @@
 #include <G4RadioactiveDecayPhysics.hh>
 #include <G4StepLimiterPhysics.hh>
 #include <G4HadronicProcessStore.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 class  JediPhysicsListFactory
 {
@@ -35,14 +35,14 @@ G4VModularPhysicsList *  JediPhysicsListFactory::Create()
 	G4PhysListFactory theFactory;
 	theFactory.SetVerbose(0);
 	G4HadronicProcessStore::Instance()->SetVerbose(0);
-	auto the_physics=theFactory.GetReferencePhysList(gConfig["general.physics"].as<std::string>());
+	auto the_physics=theFactory.GetReferencePhysList(JediConfigurationManager::Instance()->GetMap()["general.physics"].as<std::string>());
 	if(!the_physics){
-		std::string message=gConfig["general.physics"].as<std::string>()+" is not a known reference physics list.";
+		std::string message=JediConfigurationManager::Instance()->GetMap()["general.physics"].as<std::string>()+" is not a known reference physics list.";
 		G4Exception("JediPhysicsListFactory::Create()","",FatalException,
 				message.c_str());
 	}
 	the_physics->SetVerboseLevel(0);
-	the_physics->RegisterPhysics(new JediHadronicPhysics(gVerbose));
+	the_physics->RegisterPhysics(new JediHadronicPhysics(JediConfigurationManager::Instance()->GetVerbose()));
 	//the_physics->RegisterPhysics(new G4StepLimiterPhysics);
 	/*
 		auto em=G4EmParameters::Instance();

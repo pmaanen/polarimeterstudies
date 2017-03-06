@@ -21,7 +21,7 @@
 #include "SingleSandwichModule.hh"
 #include "EddaDetectorConstruction.hh"
 #include <G4GenericMessenger.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <Testbeam2016a.hh>
 #include <Testbeam2016b.hh>
 #include <map>
@@ -30,7 +30,7 @@ using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 G4VUserDetectorConstruction* DetectorConstructionFactory::Create() {
 
-	auto GeometryName=gConfig["detector.geometry_file"].as<std::string>();
+	auto GeometryName=JediConfigurationManager::Instance()->GetMap()["detector.geometry_file"].as<std::string>();
 	G4VUserDetectorConstruction* Geometry=nullptr;
 
 	auto name=GeometryName.substr(0,GeometryName.find(":"));

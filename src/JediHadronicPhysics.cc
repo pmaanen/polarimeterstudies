@@ -12,7 +12,7 @@
 #include <JediElasticCrossSectionData.hh>
 #include <JediBreakupCrossSectionData.hh>
 #include <G4IonTable.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <JediDeuteronElasticProcess.hh>
 #include "JediStudiedProcess.hh"
 JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false) {
@@ -23,10 +23,10 @@ JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"
 
 	fMessenger->DeclareProperty("verboseLevel",JediHadronicPhysics::verboseLevel,"");
 
-	fUseFastSim=gConfig["physics.use_fast_sim"].as<bool>();
+	fUseFastSim=JediConfigurationManager::Instance()->GetMap()["physics.use_fast_sim"].as<bool>();
 
 
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"JediHadronicPhysics::JediHadronicPhysics()"
 		<<G4endl;
 }
@@ -44,14 +44,14 @@ void JediHadronicPhysics::ConstructProcess() {
 		elasticProcess->AddDataSet(new JediFakeCrossSectionData);
 		wrapperProcess=new JediStudiedProcess;
 		wrapperProcess->RegisterProcess(elasticProcess);
-		if(gVerbose>2)
+		if(JediConfigurationManager::Instance()->GetVerbose()>2)
 			G4cout<<"JediHadronicPhysics::ConstructProcess()"
 			<<" using wrapper process"
 			<<G4endl;
 	}
 	else{
 		elasticProcess->AddDataSet(new JediElasticCrossSectionData(1));
-		if(gVerbose>2)
+		if(JediConfigurationManager::Instance()->GetVerbose()>2)
 			G4cout<<"JediHadronicPhysics::ConstructProcess()"
 			<<" using elastic process"
 			<<G4endl;

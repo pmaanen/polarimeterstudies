@@ -11,12 +11,12 @@
 #include <G4UnionSolid.hh>
 #include <G4AutoLock.hh>
 #include <G4WorkerRunManager.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <fstream>
 #include "Colors.hh"
 
 JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
-	if(gVerbose>3)
+	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 		G4cout<<"JediPolarimeter::JediPolarimeter()"<<G4endl;
 	G4String el[]={"Lu","Y","Si","O","Ce"};
 	std::vector<G4String> elements(el, el + sizeof(el) / sizeof(G4String) );
@@ -42,7 +42,7 @@ JediPolarimeter::JediPolarimeter(std::string _infile):fInfileName(_infile) {
 }
 
 JediPolarimeter::~JediPolarimeter() {
-	if(gVerbose>3)
+	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 		G4cout<<"JediPolarimeter::~JediPolarimeter()"<<G4endl;
 	delete fMessenger;
 }
@@ -50,13 +50,13 @@ JediPolarimeter::~JediPolarimeter() {
 void JediPolarimeter::CopyPropertiesFromConfig() {
 
 	try{
-		fScintillatorMaterialName=gConfig["detector.scintillator_material"].as<std::string>();
-		fThetaMin=gConfig["detector.theta_min"].as<double>()*CLHEP::mm*CLHEP::deg;
-		fThetaMax=gConfig["detector.theta_max"].as<double>()*CLHEP::mm*CLHEP::deg;
-		fBeampipeRadius=gConfig["detector.beampipe_radius"].as<double>()*CLHEP::mm;
-		fBeampipeThickness=gConfig["detector.beampipe_thickness"].as<double>()*CLHEP::mm;
-		fHCalSizeXY=gConfig["detector.hcal_size_xy"].as<double>()*CLHEP::mm;
-		fHCalSizeZ=gConfig["detector.hcal_size_z"].as<double>()*CLHEP::mm;
+		fScintillatorMaterialName=JediConfigurationManager::Instance()->GetMap()["detector.scintillator_material"].as<std::string>();
+		fThetaMin=JediConfigurationManager::Instance()->GetMap()["detector.theta_min"].as<double>()*CLHEP::mm*CLHEP::deg;
+		fThetaMax=JediConfigurationManager::Instance()->GetMap()["detector.theta_max"].as<double>()*CLHEP::mm*CLHEP::deg;
+		fBeampipeRadius=JediConfigurationManager::Instance()->GetMap()["detector.beampipe_radius"].as<double>()*CLHEP::mm;
+		fBeampipeThickness=JediConfigurationManager::Instance()->GetMap()["detector.beampipe_thickness"].as<double>()*CLHEP::mm;
+		fHCalSizeXY=JediConfigurationManager::Instance()->GetMap()["detector.hcal_size_xy"].as<double>()*CLHEP::mm;
+		fHCalSizeZ=JediConfigurationManager::Instance()->GetMap()["detector.hcal_size_z"].as<double>()*CLHEP::mm;
 	}
 	catch(const std::exception& e){
 		std::cout<<"exception in JediPolarimeter::JediPolarimeter: "<<e.what()<<std::endl;
@@ -250,7 +250,7 @@ void JediPolarimeter::WriteWorldToFile(G4String filename) {
 }
 
 void JediPolarimeter::ConstructSDandField() {
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
 
 	for (const auto & iSD : fSensitiveDetectors.getMap()){

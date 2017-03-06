@@ -49,7 +49,7 @@ int main(int argc,char** argv) {
 #ifdef G4MULTITHREADED
 	ROOT::EnableThreadSafety();
 	G4MTRunManager* runManager = new G4MTRunManager();
-	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
+	runManager->SetNumberOfThreads(JediConfigurationManager::Instance()->GetMap()["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager();
 #endif
@@ -77,11 +77,11 @@ int main(int argc,char** argv) {
 
 
 
-	if(!gConfig.count("general.macro_file")){
+	if(!JediConfigurationManager::Instance()->GetMap().count("general.macro_file")){
 #ifdef G4VIS_USE
 		//visualization manager
 		visManager = new G4VisExecutive();
-		visManager->SetVerboseLevel(gVerbose);
+		visManager->SetVerboseLevel(JediConfigurationManager::Instance()->GetVerbose());
 		visManager->Initialize();
 #endif
 #ifdef G4UI_USE
@@ -94,7 +94,7 @@ int main(int argc,char** argv) {
 	}
 	else{
 		G4String command = "/control/execute ";
-		G4String filename = gConfig["general.macro_file"].as<std::string>().c_str();
+		G4String filename = JediConfigurationManager::Instance()->GetMap()["general.macro_file"].as<std::string>().c_str();
 		UImanager->ApplyCommand(command+filename);
 	}
 

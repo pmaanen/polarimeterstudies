@@ -10,20 +10,20 @@
 #include <PhaseSpaceGenerator.hh>
 PhaseSpaceGenerator::PhaseSpaceGenerator(G4String name):EventGenerator(name),fXPrime(0),fYPrime(0),fTiltX(0),fTiltY(0),fBeamposition(0,0,0),fBeamsize(0,0,0),fName(name) {
 
-	if(gConfig.count("generator.beam_energy")){
-		fBeamEnergy=gConfig["generator.beam_energy"].as<double>()*CLHEP::MeV;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.beam_energy")){
+		fBeamEnergy=JediConfigurationManager::Instance()->GetMap()["generator.beam_energy"].as<double>()*CLHEP::MeV;
 	}
 	else
 		fBeamEnergy=270*CLHEP::MeV;
 
-	if(gConfig.count("generator.thetamin")){
-		fThetaMin=gConfig["generator.thetamin"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.thetamin")){
+		fThetaMin=JediConfigurationManager::Instance()->GetMap()["generator.thetamin"].as<double>()*CLHEP::deg;
 	}
 	else
 		fThetaMin=3*CLHEP::deg;
 
-	if(gConfig.count("generator.thetamax")){
-		fThetaMax=gConfig["generator.thetamax"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.thetamax")){
+		fThetaMax=JediConfigurationManager::Instance()->GetMap()["generator.thetamax"].as<double>()*CLHEP::deg;
 	}
 	else
 		fThetaMax=30*CLHEP::deg;

@@ -39,7 +39,7 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 
 void Testbeam2016b::ConstructSDandField() {
 
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Testbeam2016b::ConstructSDandField()"<<G4endl;
 
 	for (const auto & iSD : fSensitiveDetectors.getMap()){
@@ -47,11 +47,10 @@ void Testbeam2016b::ConstructSDandField() {
 			if(iSD.second.fType==SDtype::kCalorimeter){
 				fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first));
 				fSD[iSD.first].Get()->AddSD(new CaloSensitiveDetector(iSD.first,3));
-				for(auto & iVol: iSD.second.fLogVol){
-					SetSensitiveDetector(iVol,fSD[iSD.first].Get());
-				}
 			}
 		}
+		for(auto & iVol: iSD.second.fLogVol)
+			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 	}
 }
 

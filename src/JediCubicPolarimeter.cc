@@ -54,7 +54,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 
 #include <iostream>

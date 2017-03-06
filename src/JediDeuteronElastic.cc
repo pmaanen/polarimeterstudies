@@ -15,7 +15,7 @@
 #include <TMath.h>
 #include "JediScatteringHelperFunctions.hh"
 #include <G4NucleiProperties.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <JediDeuteronElastic.hh>
 #include <TROOT.h>
 #include <TMath.h>
@@ -29,12 +29,12 @@ JediDeuteronElastic::JediDeuteronElastic():G4HadronicInteraction("dcelastic"),fB
 	fQmin=0.04*CLHEP::GeV;
 	fQmax=.4*CLHEP::GeV;
 
-	if(gConfig.count("generator.theta_min"))
-		fThetaMin=gConfig["generator.theta_min"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.theta_min"))
+		fThetaMin=JediConfigurationManager::Instance()->GetMap()["generator.theta_min"].as<double>()*CLHEP::deg;
 	else
 		fThetaMin=3*CLHEP::deg;
-	if(gConfig.count("generator.theta_max"))
-		fThetaMax=gConfig["generator.theta_max"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.theta_max"))
+		fThetaMax=JediConfigurationManager::Instance()->GetMap()["generator.theta_max"].as<double>()*CLHEP::deg;
 	else
 		fThetaMax=20*CLHEP::deg;
 
@@ -59,7 +59,7 @@ JediDeuteronElastic::JediDeuteronElastic():G4HadronicInteraction("dcelastic"),fB
 		G4Exception("JediElasticModel::JediElasticModel","",FatalException,"no deuteron definition found");
 	fIncidentParticleMass=fIncidentParticle->GetPDGMass();
 	fOutParticles.push_back(fIncidentParticle);
-	verboseLevel=gVerbose;
+	verboseLevel=JediConfigurationManager::Instance()->GetVerbose();
 	DefineCommands();
 }
 

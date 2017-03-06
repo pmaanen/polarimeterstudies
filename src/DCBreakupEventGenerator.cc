@@ -6,7 +6,7 @@
  */
 
 #include <DCBreakupEventGenerator.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 #include "VertexGeneratorO.hh"
 #include "VertexGeneratorU.hh"
@@ -21,8 +21,8 @@
 using namespace CLHEP;
 using namespace JediScatteringHelperFunctions::breakup;
 DCBreakupEventGenerator::DCBreakupEventGenerator():PhaseSpaceGenerator("dcbreakup"){
-	if(gConfig.count("generator.beam_polarization")){
-		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.beam_polarization")){
+		fBeamPolarization=JediConfigurationManager::Instance()->GetMap()["generator.beam_polarization"].as<double>()*CLHEP::deg;
 	}
 	else
 		fBeamPolarization=Double_t(2./3.);

@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 #include <G4UnitsTable.hh>
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 
 #include "EventGenerator.hh"
 class G4ParticleDefinition;

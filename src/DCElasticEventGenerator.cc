@@ -30,8 +30,8 @@ using namespace CLHEP;
 using namespace JediScatteringHelperFunctions::elastic;
 DCElasticEventGenerator::DCElasticEventGenerator():PhaseSpaceGenerator("dcelastic"){
 
-	if(gConfig.count("generator.beam_polarization")){
-		fBeamPolarization=gConfig["generator.beam_polarization"].as<double>()*CLHEP::deg;
+	if(JediConfigurationManager::Instance()->GetMap().count("generator.beam_polarization")){
+		fBeamPolarization=JediConfigurationManager::Instance()->GetMap()["generator.beam_polarization"].as<double>()*CLHEP::deg;
 	}
 	else
 		fBeamPolarization=Double_t(0);
@@ -48,7 +48,7 @@ void DCElasticEventGenerator::Initialize() {
 		if(!(*ipart))
 			G4Exception("DCElasticEventGenerator::DCElasticEventGenerator()","DC001",FatalException,"beam particle not found.");
 	}
-	if(gVerbose>2)
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Theta_Min="<<fThetaMin/CLHEP::deg<<" Theta_Max="<<fThetaMax/CLHEP::deg<<G4endl;
 	G4double m_target = fParticles[1]->GetPDGMass();
 	G4double m_beam = fParticles[0]->GetPDGMass();
