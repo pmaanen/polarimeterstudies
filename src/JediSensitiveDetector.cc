@@ -5,7 +5,7 @@
  *  Created on: 19.05.2016
  *      Author: pmaanen
  */
-#include <JediCommon.hh>
+#include <JediConfigurationManager.hh>
 #include <JediSensitiveDetector.hh>
 #include "CaloSensitiveDetector.hh"
 #include "TrackerSensitiveDetector.hh"
