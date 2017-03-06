@@ -13,7 +13,7 @@
 #include "G4Threading.hh"
 #include <memory>
 JediSensitiveDetector::JediSensitiveDetector(const G4String& name)
-:G4VSensitiveDetector(name),
+:G4VSensitiveDetector(G4String("Jedi"+name)),
  fType(SDtype::kUndefined),
  fName(name)
 {
@@ -100,6 +100,8 @@ void JediSensitiveDetector::DefineCommands()
 
 G4bool JediSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory* history)
 {
+	if(JediConfigurationManager::Instance()->GetVerbose()>4)
+		G4cout<<GetName()<<": "<<"JediSensitiveDetector::ProcessHits"<<G4endl;
 	if(fSD)
 		return fSD->Hit(step);
 	return false;
@@ -136,5 +138,6 @@ void JediSensitiveDetector::PrintAll()
 }
 void JediSensitiveDetector::AddSD(JediVSensitiveDetector* sd)
 {
-	fSD=std::unique_ptr<JediVSensitiveDetector>(sd);
+	fSD.reset(sd);
+	fType=sd->GetType();
 }

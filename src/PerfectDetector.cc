@@ -25,6 +25,7 @@ class SensitiveDetectorMessenger;
 #include <G4VProcess.hh>
 #include <algorithm>
 PerfectDetector::PerfectDetector(const G4String& name):TrackerSensitiveDetector(name) {
+	fType=SDtype::kPerfect;
 }
 
 G4bool PerfectDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
