@@ -30,6 +30,7 @@ public:
 	void generateEventFromInput(G4Event* E);
 	void generateEventFromGenerator(G4Event* E);
 	void generateEventFromGun(G4Event* E);
+	void generateEventFromGPS(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
 	void Print(){G4cout<<this<<G4endl;}
@@ -37,6 +38,7 @@ public:
 private:
 	void DefineCommands();
 	std::unique_ptr<G4ParticleGun> fParticleGun ;
+	std::unique_ptr<G4GeneralParticleSource> fGPS;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;

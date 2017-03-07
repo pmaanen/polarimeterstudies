@@ -65,6 +65,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction()
 	fEvtGenerators["dcelastictime"]=std::unique_ptr<DCElasticTimeDependentGenerator>(new DCElasticTimeDependentGenerator());
 	fEvtGenerators["dcinelastic"]=std::unique_ptr<DCInelasticEventGenerator>(new DCInelasticEventGenerator());
 	fEvtGenerators["beam"]=std::unique_ptr<BeamGenerator>(new BeamGenerator(fParticleGun.get()));
+	fGPS=std::unique_ptr<G4GeneralParticleSource>(new G4GeneralParticleSource());
 	fName="gun";
 }
 
@@ -176,6 +177,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* E) {
 	else if(fName=="gun"){
 		generateEventFromGun(E);
 	}
+	else if (fName=="gps")
+		generateEventFromGPS(E);
 	else
 		generateEventFromGenerator(E);
 	return;
@@ -242,6 +245,11 @@ void PrimaryGeneratorAction::generateEventFromGun(G4Event* E) {
 	thisEvent.particles.push_back(aParticle);
 	fGenVertices->push_back(thisEvent);
 	fParticleGun->GeneratePrimaryVertex(E) ;
+}
+
+
+void PrimaryGeneratorAction::generateEventFromGPS(G4Event* E) {
+	fGPS->GeneratePrimaryVertex(E);
 }
 // eof
 

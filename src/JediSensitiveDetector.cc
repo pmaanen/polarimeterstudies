@@ -137,4 +137,5 @@ void JediSensitiveDetector::PrintAll()
 void JediSensitiveDetector::AddSD(JediVSensitiveDetector* sd)
 {
 	fSD=std::unique_ptr<JediVSensitiveDetector>(sd);
+	fType=sd->GetType();
 }

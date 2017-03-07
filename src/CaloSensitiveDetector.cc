@@ -52,7 +52,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	}
 	fHitMap.clear();
 	fHitId.clear();
-
+	/*
 	if ( JediConfigurationManager::Instance()->GetVerbose()>2 ) {
 	     G4int nofHits = CalorimeterCollection->entries();
 	     G4cout << G4endl
@@ -60,6 +60,7 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 	            << " hits in the calorimeter crystal: " << G4endl;
 	     for ( G4int i=0; i<nofHits; i++ ) (*CalorimeterCollection)[i]->Print();
 	  }
+	 */
 }
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
@@ -74,13 +75,13 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 	if (edep==0.)
 		return false;
 
-	auto index=GetIndex(aStep);
+	auto index=0;//GetIndex(aStep);
 
 	if(fHitMap.count(index)==0)
 		fHitMap[index]=edep;
 	else
 		fHitMap[index]+=edep;
-
+	/*
 	if(fHitId.count(index)==0){
 		if(JediConfigurationManager::Instance()->GetVerbose()>4)
 			G4cout<<GetName()<<": "<<"CaloSensitiveDetector::ProcessHits creating new hit."<<G4endl;
@@ -94,7 +95,7 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 	else{
 		(*CalorimeterCollection)[fHitId[index]]->AddEnergy(edep);
 	}
-
+	 */
 	return true;
 }
 
@@ -119,6 +120,7 @@ void CaloSensitiveDetector::CopyHitsToRun(simevent_t* anEvent) const {
 }
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
+	/*
 	if(JediConfigurationManager::Instance()->GetVerbose()>3)
 		G4cout<<GetName()<<": "<<"CaloSensitiveDetector::Initialize"<<G4endl;
 	CalorimeterCollection=new JediCalorimeterHitsCollection(SensitiveDetectorName,collectionName[0]);
@@ -131,9 +133,12 @@ void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
 	G4int HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 
 	HCE->AddHitsCollection(HCID, CalorimeterCollection);
+	 */
 }
 
 void CaloSensitiveDetector::CopyHitsToRun(SimEvent* anEvent) const {
+	return;
+	/*
 	// storing the hits in ROOT file
 	G4int NbHits = CalorimeterCollection->entries();
 	std::vector<JediCalorimeterHit> hitsVector;
@@ -148,6 +153,7 @@ void CaloSensitiveDetector::CopyHitsToRun(SimEvent* anEvent) const {
 		hitsVector.push_back(*(*CalorimeterCollection)[i]);
 
 	anEvent->calorimeter[GetName()]=hitsVector;
+	 */
 }
 
 G4int CaloSensitiveDetector::GetIndex(G4Step* aStep) {
