@@ -33,7 +33,6 @@
 #include "CaloSensitiveDetector.hh"
 #include "G4AutoLock.hh"
 #include "PrimaryGeneratorAction.hh"
-namespace { G4Mutex AnalysisMutex = G4MUTEX_INITIALIZER; }
 G4String Analysis::fGeneratorName=G4String("gen");
 Analysis::Analysis():fEnabled(false),fFileName("")
 {
@@ -49,7 +48,6 @@ Analysis::Analysis():fEnabled(false),fFileName("")
 
 void Analysis::BeginOfRun() {
 	fSimEvents->clear();
-	fNewSimEvents->clear();
 	fGenEvents->clear();
 	for(auto iGen:fGenerators)
 		iGen->BeginOfRun();
@@ -79,9 +77,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 		}
 		TFile OutFile(fileName,"RECREATE");
 		TTree SimTree("sim","simulated data");
-		TTree TestTree("test","test simulated data");
 		TTree GenTree("gen","generated data");
-		//TTree InfoTree("info","run information");
 		auto myRun=static_cast<const JediRun*> (run);
 
 		std::map<G4String,const std::vector<calorhit_t> *> calohitPointer;
@@ -114,26 +110,6 @@ void Analysis::EndOfRun(const G4Run* run) {
 			SimTree.Fill();
 		}
 
-
-		std::map<G4String,const std::vector<JediCalorimeterHit> *> newHitPointer;
-		for(const auto& iSD:fSD){
-			if(JediConfigurationManager::Instance()->GetVerbose()>2)
-				G4cout<<"Creating branch for "<<iSD->GetName()<<G4endl;
-			if(iSD->GetType()==SDtype::kCalorimeter){
-				newHitPointer[iSD->GetName()]=nullptr;
-				TestTree.Branch(G4String(iSD->GetName()+G4String("_new")),&newHitPointer[iSD->GetName()]);
-			}
-		}
-
-		auto NewSimEvent=myRun->getNewSimEvents();
-		for(const auto &evt : NewSimEvent){
-			for(const auto& iSD:fSD){
-				if(iSD->GetType()==SDtype::kCalorimeter){
-					newHitPointer[iSD->GetName()]=&evt.calorimeter.at(iSD->GetName());
-				}
-			}
-			TestTree.Fill();
-		}
 		// Write events from generator to file
 		std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 
@@ -202,15 +178,6 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 		iGen->EndOfEvent();
 	}
 	fGenEvents->push_back(thisGenEvent);
-
-
-	SimEvent thisNewSimEvent;
-	thisNewSimEvent.eventid=evt->GetEventID();
-	for(const auto iSD : fSD){
-		if(iSD->GetType()==SDtype::kCalorimeter)
-			iSD->CopyHitsToRun(&thisNewSimEvent);
-	}
-	fNewSimEvents->push_back(thisNewSimEvent);
 }
 
 void Analysis::RegisterMe(GenEventProducer* pd) {

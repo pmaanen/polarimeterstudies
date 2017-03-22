@@ -38,7 +38,8 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 }
 
 void Testbeam2016b::ConstructSDandField() {
-
+	JediPolarimeter::ConstructSDandField();
+	/*
 	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<"Testbeam2016b::ConstructSDandField()"<<G4endl;
 
@@ -52,6 +53,7 @@ void Testbeam2016b::ConstructSDandField() {
 		for(auto & iVol: iSD.second.fLogVol)
 			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
 	}
+	 */
 }
 
 void Testbeam2016b::Reset() {
@@ -188,7 +190,7 @@ G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 	G4RotationMatrix* rot=new G4RotationMatrix();
 	rot->set(fPhi,fTheta,fPsi);
 
-	auto logicScintillator=BuildCaloCrystal(name);
+	auto logicScintillator=BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);//BuildCaloCrystal(name);
 	auto solidCrystal=dynamic_cast<G4Box*>(logicScintillator->GetSolid());
 
 	if(!solidCrystal)

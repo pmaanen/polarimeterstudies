@@ -23,7 +23,7 @@
 #include <JediException.hh>
 #include "G4AutoLock.hh"
 #include "G4SDManager.hh"
-CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediVSensitiveDetector(name),CalorimeterCollection(nullptr){
+CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediVSensitiveDetector(name){
 	fHits=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 	fDepth=depth;
 	G4String HCname = name + "_HC";
@@ -51,7 +51,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 		fHits->push_back(hit);
 	}
 	fHitMap.clear();
-	fHitId.clear();
 	/*
 	if ( JediConfigurationManager::Instance()->GetVerbose()>2 ) {
 	     G4int nofHits = CalorimeterCollection->entries();
@@ -75,27 +74,12 @@ G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,
 	if (edep==0.)
 		return false;
 
-	auto index=0;//GetIndex(aStep);
+	auto index=GetIndex(aStep);
 
 	if(fHitMap.count(index)==0)
 		fHitMap[index]=edep;
 	else
 		fHitMap[index]+=edep;
-	/*
-	if(fHitId.count(index)==0){
-		if(JediConfigurationManager::Instance()->GetVerbose()>4)
-			G4cout<<GetName()<<": "<<"CaloSensitiveDetector::ProcessHits creating new hit."<<G4endl;
-		auto CalorimeterHit = new JediCalorimeterHit;
-		CalorimeterHit->AddEnergy(edep);
-		CalorimeterHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
-		CalorimeterHit->SetId(index);
-		fHitId[index] =
-				CalorimeterCollection->insert(CalorimeterHit) -1;
-	}
-	else{
-		(*CalorimeterCollection)[fHitId[index]]->AddEnergy(edep);
-	}
-	 */
 	return true;
 }
 
@@ -120,40 +104,7 @@ void CaloSensitiveDetector::CopyHitsToRun(simevent_t* anEvent) const {
 }
 
 void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
-	/*
-	if(JediConfigurationManager::Instance()->GetVerbose()>3)
-		G4cout<<GetName()<<": "<<"CaloSensitiveDetector::Initialize"<<G4endl;
-	CalorimeterCollection=new JediCalorimeterHitsCollection(SensitiveDetectorName,collectionName[0]);
-
-
-
-
-	G4cout << "CalorimeterSD::Initialize:  " << SensitiveDetectorName << "   "
-			<< collectionName[0] << G4endl;
-	G4int HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-
-	HCE->AddHitsCollection(HCID, CalorimeterCollection);
-	 */
-}
-
-void CaloSensitiveDetector::CopyHitsToRun(SimEvent* anEvent) const {
 	return;
-	/*
-	// storing the hits in ROOT file
-	G4int NbHits = CalorimeterCollection->entries();
-	std::vector<JediCalorimeterHit> hitsVector;
-	if(JediConfigurationManager::Instance()->GetVerbose()>3)
-	{
-		G4cout << "\n-------->Storing hits in the ROOT file: in this event there are " << NbHits
-				<< " hits in the calorimeter: " << G4endl;
-		for (G4int i=0;i<NbHits;i++) (*CalorimeterCollection)[i]->Print();
-	}
-
-	for (G4int i=0;i<NbHits;i++)
-		hitsVector.push_back(*(*CalorimeterCollection)[i]);
-
-	anEvent->calorimeter[GetName()]=hitsVector;
-	 */
 }
 
 G4int CaloSensitiveDetector::GetIndex(G4Step* aStep) {

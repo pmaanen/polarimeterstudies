@@ -32,7 +32,6 @@ public:
 	virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* history);
 	virtual void WriteHitsToFile(TTree* aTree, const G4Run* aRun) const;
 	virtual void CopyHitsToRun(simevent_t* anEvent) const;
-	virtual void CopyHitsToRun(SimEvent* anEvent) const;
 
 	G4int getDepth() const {
 		return fDepth;
@@ -47,11 +46,8 @@ protected:
 	G4int GetIndex(G4Step* aStep);
 private:
 
-	JediCalorimeterHitsCollection* CalorimeterCollection;
 	std::map<G4int, G4double> fHitMap;
-	std::map<G4int, G4int> fHitId;
 	std::unique_ptr<std::vector<calorhit_t>> fHits;
-	std::unique_ptr<std::vector<JediCalorimeterHit>> fCaloHits;
 	G4int fDepth;
 
 };
