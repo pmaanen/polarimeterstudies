@@ -1,0 +1,19 @@
+/run/initialize
+/particle/select deuteron
+/jedi/elastic/theta_min 3 deg
+/analysis/Enable
+/PolarimeterStudies/generator/setGenerator beam
+/PolarimeterStudies/beam/position 0 0 -75 cm
+/PolarimeterStudies/beam/spotsize 2.5 3 0 mm
+/PolarimeterStudies/detector/targetSizeXY 50 mm
+/PolarimeterStudies/detector/angle_left 8.44 deg
+/PolarimeterStudies/detector/angle_right 8.44 deg
+/PolarimeterStudies/detector/trigger_thick_left 20 mm
+/PolarimeterStudies/detector/trigger_thick_right 20 mm
+/PolarimeterStudies/detector/nx 4
+/PolarimeterStudies/detector/ny 3
+/PolarimeterStudies/detector/start 1
+/PolarimeterStudies/detector/vetoSizeZ 3 mm
+/control/alias thickness 5
+/PolarimeterStudies/detector/update
+/control/execute scripts/Testbeam2016bDeltaECalibration/material.mac

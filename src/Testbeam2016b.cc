@@ -203,7 +203,7 @@ G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 	G4int index=0;
 	for(G4int iX=0;iX<fNx;iX++){
 		for(G4int iY=0;iY<fNy;iY++){
-			index=iX+10*iY;
+			index=10*iX+iY;
 			new G4PVPlacement (rot,
 					G4ThreeVector(-motherSizeX/2+(iX+0.5)*2*solidCrystal->GetXHalfLength(),
 							-motherSizeY/2+(iY+0.5)*2*solidCrystal->GetYHalfLength(),0),
