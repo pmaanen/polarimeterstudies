@@ -78,7 +78,7 @@ void Testbeam2016b::Reset() {
 	fWorldSizeZ=5*CLHEP::m;
 
 	fVetoSizeXY=5*CLHEP::cm;
-	fVetoSizeZ=5*CLHEP::mm;
+	fVetoSizeZ=3*CLHEP::mm;
 	fHoleSizeXY=2*CLHEP::cm;
 
 	fTargetMaterialName="G4_GRAPHITE";
@@ -192,7 +192,7 @@ G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 
 	auto logicScintillator=BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);//BuildCaloCrystal(name);
 	auto solidCrystal=dynamic_cast<G4Box*>(logicScintillator->GetSolid());
-
+	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{logicScintillator});
 	if(!solidCrystal)
 		G4Exception("Testbeam2016b::MakeScintillatorMatrix","",FatalException,"solidCrystal==nullptr. Dynamic cast failed!");
 	auto motherSizeX=2*fNx*solidCrystal->GetXHalfLength();
@@ -329,7 +329,7 @@ void Testbeam2016b::Build2016BDetector() {
 
 	if(fRightDetector){
 		if(fTrigger){
-			auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+			auto logicTrigger=MakeDetector("TriggerR",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeRightZ/2);
 			logicTrigger->SetVisAttributes(trigVisAttr);
 			fSensitiveDetectors.Update("TriggerR",SDtype::kCalorimeter,logVolVector{logicTrigger});
 			new G4PVPlacement(rotRight,G4ThreeVector(0,0,fDistance-fTriggerSizeZ/2).rotateY(-fAngleRight),logicTrigger,"TriggerRight",fLogicWorld,0,0,false);
@@ -338,7 +338,7 @@ void Testbeam2016b::Build2016BDetector() {
 	}
 	if(fLeftDetector){
 		if(fTrigger){
-			auto logicTrigger=MakeDetector("TriggerL",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeZ/2);
+			auto logicTrigger=MakeDetector("TriggerL",plastic,fNx*fHCalSizeXY/2,fNy*fHCalSizeXY/2,fTriggerSizeLeftZ/2);
 			logicTrigger->SetVisAttributes(trigVisAttr);
 			fSensitiveDetectors.Update("TriggerL",SDtype::kCalorimeter,logVolVector{logicTrigger});
 			new G4PVPlacement(rotLeft,G4ThreeVector(0,0,fDistance-fTriggerSizeZ/2).rotateY(fAngleLeft),logicTrigger,"TriggerLeft",fLogicWorld,0,0,false);

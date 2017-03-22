@@ -26,13 +26,8 @@
 CaloSensitiveDetector::CaloSensitiveDetector(const G4String& name,G4int depth):JediVSensitiveDetector(name){
 	fHits=std::unique_ptr<std::vector<calorhit_t>>(new std::vector<calorhit_t>);
 	fDepth=depth;
-	G4String HCname = name + "_HC";
-	collectionName.insert(HCname);
-	G4cout << collectionName.size() << "   CalorimeterSD name:  " << name << " collection Name: "
-			<< HCname << G4endl;
 	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout<<GetName()<<": "<<"CaloSensitiveDetector::CaloSensitiveDetector"<<G4endl;
-
 	fType=SDtype::kCalorimeter;
 }
 
@@ -51,15 +46,6 @@ void CaloSensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 		fHits->push_back(hit);
 	}
 	fHitMap.clear();
-	/*
-	if ( JediConfigurationManager::Instance()->GetVerbose()>2 ) {
-	     G4int nofHits = CalorimeterCollection->entries();
-	     G4cout << G4endl
-	            << "-------->Hits Collection: in this event they are " << nofHits
-	            << " hits in the calorimeter crystal: " << G4endl;
-	     for ( G4int i=0; i<nofHits; i++ ) (*CalorimeterCollection)[i]->Print();
-	  }
-	 */
 }
 
 G4bool CaloSensitiveDetector::ProcessHits(G4Step* aStep,

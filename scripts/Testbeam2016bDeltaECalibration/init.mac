@@ -13,6 +13,8 @@
 /PolarimeterStudies/detector/nx 4
 /PolarimeterStudies/detector/ny 3
 /PolarimeterStudies/detector/start 1
+/PolarimeterStudies/detector/trigger 1
+/PolarimeterStudies/detector/collimator 1
 /PolarimeterStudies/detector/vetoSizeZ 3 mm
 /control/alias thickness 5
 /PolarimeterStudies/detector/update
