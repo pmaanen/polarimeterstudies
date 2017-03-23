@@ -56,20 +56,20 @@ def doTrigger(trigger,calorimeter):
     E=getSum(calorimeter)
     max=getSeed(calorimeter)
     dE=getSum(trigger)
-    return max,dE
-
-def bookHistos():
-    histosL={}
-    histosR={}
-    for x in [0,1,2,3]:
-        for y in [0,1,2]:
-            histosL{10*x+y}=ROOT.TH1F("hTriggerL"+str(10*x+y),"hTriggerL"+str(10*x+y),100,0,20)
-            histosR{10*x+y}=ROOT.TH1F("hTriggerR"+str(10*x+y),"hTriggerR"+str(10*x+y),100,0,20)
-    return histosL,histosR
+    if(E>5):
+        return max,dE
+    else:
+        return -1,0
 
 def analysis(filename,myWorker):
     try:
-        histosL,histosR=bookHistos()
+        histosL={}
+        histosR={}
+        for x in [0,1,2,3]:
+            for y in [0,1,2]:
+                histosL[10*x+y]=ROOT.TH1F("hTriggerL"+str(x)+"-"+str(y),"hTriggerL"+str(x)+"-"+str(y),100,0,20)
+                histosR[10*x+y]=ROOT.TH1F("hTriggerR"+str(x)+"-"+str(y),"hTriggerR"+str(x)+"-"+str(y),100,0,20)
+        hTrigger=ROOT.TH1F("hTrigger","hTrigger",100,0,20)
         outfile=ROOT.TFile(filename[:-5]+"-histos.root","RECREATE")
         dir=outfile.mkdir(filename[:-5])
         dir.cd()
@@ -77,25 +77,27 @@ def analysis(filename,myWorker):
         data=infile.Get("sim")
         dir.cd()
         for event in data:
-            sumL=doDetector(event.Left)
-            sumR=doDetector(event.Right)
-            detIdL,TrigL=doTrigger(event.TriggerL,event.Right)
-            detIdR,TrigR=doTrigger(event.TriggerR,event.Left)
+            detIdL,TrigL=doTrigger(event.TriggerL,event.Left)
+            detIdR,TrigR=doTrigger(event.TriggerR,event.Right)
+            if TrigL>0.5:
+                print "Left",detIdL,TrigL
+            if TrigR>0.5:
+                print "Right",detIdR,TrigR
             if(TrigL>0.5):
-                histos[detIdL].Fill(TrigL)
-                hDEtot.Fill(TrigL)
+                histosL[detIdL].Fill(TrigL)
+                hTrigger.Fill(TrigL)
             if(TrigR>0.5):
-                histos[detIdR].Fill(TrigR)
-                hDEtot.Fill(TrigR)
+                histosR[detIdR].Fill(TrigR)
+                hTrigger.Fill(TrigR)
         for h in histosL.itervalues():
             h.Write()
         for h in histosR.itervalues():
             h.Write()
-        hDEtot.Write()
+        hTrigger.Write()
         outfile.Write()
         outfile.Close()
     except Exception as e:
-        print "Problem in file:",filename,str(e)
+        print "Problem in file:",filename
         raise e
     return (filename[:-5])
     

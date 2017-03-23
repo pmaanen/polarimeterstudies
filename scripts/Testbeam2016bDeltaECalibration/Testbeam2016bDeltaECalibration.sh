@@ -7,9 +7,9 @@ if [ $# -eq 1 ]
 fi
 DIR=../$NAME-$(date "+%Y-%m-%d")
 mkdir -p $DIR
-nice -n 15 ./polarimeterstudies -g testbeam2016b -m scripts/$NAME/init.mac -n $N 1>out.log 2>err.log
+nice -n 15 ./polarimeterstudies -g testbeam2016b -m scripts/$NAME/init.mac --physics.use_fast_sim -n $N 1>out.log 2>err.log
 mv *.root $DIR/
-mv *log* $/DIR/
+mv *log* $DIR/
 cp 
 cp scripts/AnalysisBase.py $DIR/.
 cp *libAnalysis* $DIR/.
