@@ -15,5 +15,5 @@ cp scripts/AnalysisBase.py $DIR/.
 cp *libAnalysis* $DIR/.
 cp scripts/$NAME/* $DIR/.
 cd $DIR
-./$NAME.py -o $NAME.root -n $N *root
+./$NAME.py -o $NAME.root -n $N G4*root
 mail -s "$NAME finished at $(date)" maanen@physik.rwth-aachen.de </dev/null

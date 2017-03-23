@@ -1,5 +1,4 @@
 /run/initialize
-/particle/select deuteron
 /jedi/elastic/theta_min 3 deg
 /analysis/Enable
 /PolarimeterStudies/generator/setGenerator beam

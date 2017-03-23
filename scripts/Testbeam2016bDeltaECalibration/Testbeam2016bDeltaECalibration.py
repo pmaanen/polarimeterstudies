@@ -79,10 +79,6 @@ def analysis(filename,myWorker):
         for event in data:
             detIdL,TrigL=doTrigger(event.TriggerL,event.Left)
             detIdR,TrigR=doTrigger(event.TriggerR,event.Right)
-            if TrigL>0.5:
-                print "Left",detIdL,TrigL
-            if TrigR>0.5:
-                print "Right",detIdR,TrigR
             if(TrigL>0.5):
                 histosL[detIdL].Fill(TrigL)
                 hTrigger.Fill(TrigL)
