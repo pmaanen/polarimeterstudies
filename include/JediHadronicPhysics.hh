@@ -37,7 +37,6 @@ protected:
 	std::unique_ptr<JediBreakupModel> fBreakup;
 
 private:
-	G4bool                  wasActivated;
 	G4bool fUseFastSim;
 	std::unique_ptr<G4GenericMessenger> fMessenger;
 };

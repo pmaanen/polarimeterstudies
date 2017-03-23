@@ -38,7 +38,7 @@ public:
 
 protected:
 	// methods from base class
-	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+	virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory*);
 
 private:
 	JediSensitiveDetector(const JediSensitiveDetector& rhs);

@@ -9,7 +9,7 @@
 
 G4ThreadLocal G4Allocator<JediCalorimeterHit> *JediCalorimeterHitAllocator = 0;
 
-JediCalorimeterHit::JediCalorimeterHit():G4VHit(),fEdep(0),fDetId(0),fPos(G4ThreeVector()) {
+JediCalorimeterHit::JediCalorimeterHit():G4VHit(),fDetId(0),fEdep(0),fPos(G4ThreeVector()) {
 }
 
 void JediCalorimeterHit::Draw() {

@@ -89,7 +89,7 @@ void CaloSensitiveDetector::CopyHitsToRun(simevent_t* anEvent) const {
 	anEvent->calorimeter[GetName()]=*fHits.get();
 }
 
-void CaloSensitiveDetector::Initialize(G4HCofThisEvent* HCE) {
+void CaloSensitiveDetector::Initialize(G4HCofThisEvent*) {
 	return;
 }
 

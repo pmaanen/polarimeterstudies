@@ -9,4 +9,4 @@
 
 JediException::JediException(const char* originOfException,
 		const char* exceptionCode,G4ExceptionSeverity severity,
-		const char* description):fWhat(""),fOriginOfException(originOfException),fExceptionCode(exceptionCode),fSeverity(severity),fDescription(description){}
+		const char* description):fWhat(""),fOriginOfException(originOfException),fExceptionCode(exceptionCode),fDescription(description),fSeverity(severity){}

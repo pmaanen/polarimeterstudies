@@ -10,7 +10,6 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <JediCalorimeterHit.hh>
 class calorhit_t: public TObject {
 public:
 	calorhit_t():TObject(),edep(0),detid(0){;};
@@ -35,16 +34,6 @@ public:
 	std::map<std::string, std::vector<trackerhit_t> > tracker;
 	ClassDef(simevent_t,2)
 };
-
-
-class SimEvent {
-public:
-	SimEvent():eventid(0),time(0){;};
-	Int_t eventid;
-	Int_t time;
-	std::map<std::string,std::vector<JediCalorimeterHit> > calorimeter;
-};
-
 
 class particle_t : public TObject{
 public:

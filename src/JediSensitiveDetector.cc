@@ -97,7 +97,7 @@ void JediSensitiveDetector::DefineCommands()
 	cmd.SetCandidates("perfect calo tracker");
 }
 
-G4bool JediSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory* history)
+G4bool JediSensitiveDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
 	if(fSD)
 		return fSD->Hit(step);

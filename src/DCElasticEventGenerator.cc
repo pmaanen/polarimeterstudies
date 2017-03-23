@@ -53,7 +53,6 @@ void DCElasticEventGenerator::Initialize() {
 	G4double m_target = fParticles[1]->GetPDGMass();
 	G4double m_beam = fParticles[0]->GetPDGMass();
 	fTarget.set(0,0,0,m_target);
-	Double_t masses[2] = {m_beam, m_target} ;
 	fBeam.set(0, 0, sqrt(fBeamEnergy*(fBeamEnergy+2*m_beam)), fBeamEnergy+m_beam);
 	fCms = fBeam + fTarget;
 	G4LorentzVector temp=fBeam;

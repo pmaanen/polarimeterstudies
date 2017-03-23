@@ -15,7 +15,7 @@
 #include <JediConfigurationManager.hh>
 #include <JediDeuteronElasticProcess.hh>
 #include "JediStudiedProcess.hh"
-JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi"),wasActivated(false) {
+JediHadronicPhysics::JediHadronicPhysics(G4int ver):G4VPhysicsConstructor("Jedi") {
 
 	fMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/PolarimeterStudies/hadronic/"));
 

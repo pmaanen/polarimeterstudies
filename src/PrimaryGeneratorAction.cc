@@ -55,7 +55,6 @@ namespace { G4Mutex PrimaryGeneratorMutex = G4MUTEX_INITIALIZER; }
 
 FileReader* PrimaryGeneratorAction::fgFileReader = 0;
 PrimaryGeneratorAction::PrimaryGeneratorAction():G4VUserPrimaryGeneratorAction(),GenEventProducer("gen"),fInfileName(""),fInstream("",std::ifstream::in) {
-	G4int Nparticle = 1 ;
 	fIlluminationAngle=-1;
 	DefineCommands();
 	fParticleGun=std::unique_ptr<G4ParticleGun>(new G4ParticleGun(1));
