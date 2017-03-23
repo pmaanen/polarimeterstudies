@@ -35,7 +35,6 @@ public:
 	void AddSD(JediVSensitiveDetector* sd);
 	void WriteHitsToFile(TTree* aTree, const G4Run* aRun) const;
 	virtual void CopyHitsToRun(simevent_t* anEvent);
-	virtual void CopyHitsToRun(SimEvent* anEvent){fSD->CopyHitsToRun(anEvent);};
 
 protected:
 	// methods from base class

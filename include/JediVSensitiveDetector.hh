@@ -23,7 +23,6 @@ public:
 
 	virtual void WriteHitsToFile(TTree* aTree, const G4Run* aRun) const = 0;
 	virtual void CopyHitsToRun(simevent_t* anEvent) const = 0;
-	virtual void CopyHitsToRun(SimEvent*) const {};
 	SDtype GetType() const {return fType;}
 
 protected:

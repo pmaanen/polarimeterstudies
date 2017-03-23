@@ -43,7 +43,6 @@ Analysis::Analysis():fEnabled(false),fFileName("")
 
 	fGenEvents=new std::vector<genevent_t>();
 	fSimEvents=new std::vector<simevent_t>();
-	fNewSimEvents=new std::vector<SimEvent>();
 }
 
 void Analysis::BeginOfRun() {

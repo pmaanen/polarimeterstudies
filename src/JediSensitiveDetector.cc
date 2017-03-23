@@ -26,7 +26,6 @@ JediSensitiveDetector::JediSensitiveDetector(const G4String& name, const SDtype&
  fType(type),
  fName(name)
 {
-	G4cout<<"JediSensitiveDetector::JediSensitiveDetector("<<name<<","<<int(type)<<")"<<G4endl;
 	if(type==SDtype::kCalorimeter)
 		fSD=std::unique_ptr<CaloSensitiveDetector>(new CaloSensitiveDetector(name));
 	else if(type==SDtype::kTracker)
