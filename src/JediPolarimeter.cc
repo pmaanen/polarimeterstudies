@@ -263,7 +263,7 @@ void JediPolarimeter::ConstructSDandField() {
 }
 
 void JediPolarimeter::setCaloMaterialName(
-		const G4String& scintillatorMaterialName) {
+		 G4String scintillatorMaterialName) {
 	auto oldName=fHCalMaterial->GetName();
 	auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	if(!newMat){

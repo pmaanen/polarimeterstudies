@@ -43,8 +43,8 @@ public:
 	void setThetaMax(G4double thetaMax) {fThetaMax = thetaMax;fInitialized=false;}
 	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin; fInitialized=false;}
 
-	void setBeamposition(const G4ThreeVector& beamspot) {fBeamposition = beamspot; fInitialized=false;}
-	void setBeamsize(const G4ThreeVector& spotsize) {fBeamsize = spotsize; fInitialized=false;}
+	void setBeamposition( G4ThreeVector beamspot) {fBeamposition = beamspot; fInitialized=false;}
+	void setBeamsize( G4ThreeVector spotsize) {fBeamsize = spotsize; fInitialized=false;}
 
 	G4double getTiltX() const {
 		return fTiltX;

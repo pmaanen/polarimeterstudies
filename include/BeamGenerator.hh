@@ -19,12 +19,12 @@ public:
 	virtual genvertex_t Generate();
 	virtual void Initialize() {
 	}
-	void setPosition(const G4ThreeVector& position) {
+	void setPosition(G4ThreeVector position) {
 		fVertexGenerator->setBeamsize(position.x()/CLHEP::mm,position.y()/CLHEP::mm,position.z()/CLHEP::mm);
 		fPosition = position;
 	}
 
-	void setSpotsize(const G4ThreeVector& spotsize) {
+	void setSpotsize(G4ThreeVector spotsize) {
 		fVertexGenerator->setBeamsize(spotsize.x()/CLHEP::mm,spotsize.y()/CLHEP::mm,spotsize.z()/CLHEP::mm);
 		fSpotsize = spotsize;
 	}

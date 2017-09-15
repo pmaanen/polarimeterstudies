@@ -87,10 +87,10 @@ public:
 	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin;GeometryHasChanged();}
 	void setDeltaElength(G4double deltaElength){fDeltaELength = deltaElength;GeometryHasChanged();}
 	void setDeltaEwidth(G4double deltaEwidth){fDeltaEWidth = deltaEwidth;GeometryHasChanged();}
-	void setInfile(const std::string& infile) {fInfileName = infile;}
+	void setInfile(std::string infile) {fInfileName = infile;}
 	void setTargetThickness(G4double targetThickness) {fTargetThickness = targetThickness;GeometryHasChanged();}
 	void setTargetWidth(G4double targetWidth) {fTargetWidth = targetWidth; GeometryHasChanged();}
-	void setCaloMaterialName(const G4String& scintillatorMaterialName);
+	void setCaloMaterialName(G4String scintillatorMaterialName);
 
 	//Getters for properties
 	virtual const G4LogicalVolume* GetTarget() const {
@@ -124,7 +124,7 @@ protected:
 
 	virtual G4LogicalVolume* BuildCaloCrystal()=0;
 	template<typename solid, typename... Params>
-	G4LogicalVolume* BuildVolume(const G4String volName, G4Material* mat, Params... parameters){
+	G4LogicalVolume* BuildVolume(G4String volName, G4Material* mat, Params... parameters){
 		auto solidDet=new solid(volName, parameters...);
 		auto logicDetector = new G4LogicalVolume(solidDet,mat,volName);
 		return logicDetector;

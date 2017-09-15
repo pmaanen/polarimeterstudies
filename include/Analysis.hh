@@ -54,7 +54,7 @@ public:
 		return fFileName;
 	}
 
-	void setFileName(const G4String& fileName) {
+	void setFileName(G4String fileName) {
 		fFileName = fileName;
 	}
 

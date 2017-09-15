@@ -16,7 +16,7 @@ public:
 	virtual ~JediSandwichCalorimeter();
 
 
-	void setAbsorberMaterialName(const G4String& absorberMaterialName) {
+	void setAbsorberMaterialName(G4String absorberMaterialName) {
 		auto oldName=fAbsorberMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(absorberMaterialName);
 		if(!newMat){
