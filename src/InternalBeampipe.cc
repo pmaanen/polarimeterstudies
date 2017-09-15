@@ -68,10 +68,6 @@ InternalBeampipe::InternalBeampipe(G4RotationMatrix *pRot,
 	SetLogicalVolume(logicBeampipe);
 }
 
-InternalBeampipe::~InternalBeampipe() {
-	// TODO Auto-generated destructor stub
-}
-
 void InternalBeampipe::CopyValues() {
 	fRadius = fPolarimeter->getBeampipeRadius();
 	fLength = fPolarimeter->getBeampipeLength();
@@ -82,4 +78,5 @@ void InternalBeampipe::CopyValues() {
 			- 1 * CLHEP::cm;
 	fTargetChamberZ2 = DetectorZ - fPolarimeter->getDeltaELength()
 			- 1 * CLHEP::cm;
+	return;
 }

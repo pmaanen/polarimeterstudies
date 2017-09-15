@@ -16,7 +16,7 @@ public:
 			G4LogicalVolume *pMotherLogical, G4bool pMany, G4int pCopyNo,
 			JediPolarimeter* dc, G4bool BuildVacuumChamber = true);
 
-	virtual ~InternalBeampipe();
+	virtual ~InternalBeampipe()=default;
 
 private:
 
@@ -28,4 +28,3 @@ private:
 	JediPolarimeter* fPolarimeter;
 };
 #endif /* INCLUDE_INTERNALBEAMPIPE_HH_ */
-
