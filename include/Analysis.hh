@@ -70,15 +70,23 @@ public:
 	void RegisterMe(GenEventProducer*);
 	void UnRegisterMe(GenEventProducer*);
 
-	 const std::vector<simevent_t>* getSimEvents() const;
-	 const std::vector<genevent_t>* getGenEvents() const;
+	 const std::vector<simevent_t>* getSimEvents();
+	 const std::vector<genevent_t>* getGenEvents();
 
 private:
 	Analysis();
 
-
 	void enable(){Enable(true);}
 	void disable(){Enable(false);}
+
+
+	void FillSimTree(TTree& aTree,const G4Run* aRun);
+	void FillGenTree(TTree& aTree,const G4Run* aRun);
+
+	//Choose filename from several options
+	//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
+	G4String Filename(const G4Run* run);
+
 
 	std::unique_ptr<G4GenericMessenger> fAnalysisMessenger;
 
@@ -89,20 +97,20 @@ private:
 
 	std::vector<JediSensitiveDetector*> fSD;
 	std::vector<GenEventProducer*> fGenerators;
-	std::vector<genevent_t>* fGenEvents;
-	std::vector<simevent_t>* fSimEvents;
+	std::unique_ptr<std::vector<genevent_t>> fGenEvents;
+	std::unique_ptr<std::vector<simevent_t>> fSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;
 	std::map<G4String, std::vector<trackerhit_t>* > fTrackerHits;
 
 
 };
 
-inline const std::vector<simevent_t>* Analysis::getSimEvents() const {
-		return fSimEvents;
+inline const std::vector<simevent_t>* Analysis::getSimEvents() {
+		return fSimEvents.get();
 	}
 
-inline	const std::vector<genevent_t>* Analysis::getGenEvents() const {
-		return fGenEvents;
-	}
+inline	const std::vector<genevent_t>* Analysis::getGenEvents() {
+		return fGenEvents.get();
+}
 
 #endif /* ANALYSIS_HH_ */
