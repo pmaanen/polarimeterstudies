@@ -2,7 +2,7 @@
 #define FILEWRITER
 #define MAIN
 #include <JediConfigurationManager.hh>
-#include <DetectorConstructionFactory.hh>
+#include <DetectorConstruction.hh>
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else

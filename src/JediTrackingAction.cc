@@ -5,7 +5,7 @@
  *      Author: pmaanen
  */
 
-#include <DetectorConstructionFactory.hh>
+#include <DetectorConstruction.hh>
 #include <JediTrackingAction.hh>
 #include "JediPhysicsManager.hh"
 #include "JediTrackInfo.hh"

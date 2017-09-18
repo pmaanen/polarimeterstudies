@@ -1,11 +1,9 @@
 
 //global configuration
+#include <DetectorConstruction.hh>
 #include <JediConfigurationManager.hh>
 
 //Geometries
-#include <DetectorConstructionFactory.hh>
-
-//User defined actions
 #include "UserActionInitialization.hh"
 
 //Physics
@@ -57,7 +55,7 @@ int main(int argc,char** argv) {
 
 
 	// set mandatory initialization classes
-	G4VUserDetectorConstruction* detector =DetectorConstructionFactory::Create();
+	G4VUserDetectorConstruction* detector =DetectorConstruction::Create();
 	runManager->SetUserInitialization(detector);
 
 	// set physics list

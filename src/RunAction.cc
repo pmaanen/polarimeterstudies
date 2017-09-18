@@ -19,7 +19,7 @@
 #include "JediPhysicsManager.hh"
 #include "G4AutoLock.hh"
 #include <G4EmProcessOptions.hh>
-#include <DetectorConstructionFactory.hh>
+#include <DetectorConstruction.hh>
 #include "SingleCrystal.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 RunAction::RunAction(JediPhysicsManager* physicsManager):fPhysicsManager(physicsManager)
