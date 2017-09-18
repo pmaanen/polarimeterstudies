@@ -33,11 +33,11 @@ class G4MaterialPropertiesTable;
 class G4GenericMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class DetectorConstructionFactory
+class DetectorConstruction
 {
 public:
-	DetectorConstructionFactory()=default;
-	virtual ~DetectorConstructionFactory()=default;
+	DetectorConstruction()=default;
+	virtual ~DetectorConstruction()=default;
 	static G4VUserDetectorConstruction* Create();
 };
 
