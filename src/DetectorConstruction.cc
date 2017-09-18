@@ -12,7 +12,7 @@
 
 
 
-#include <DetectorConstructionFactory.hh>
+#include <DetectorConstruction.hh>
 #include "Testbench.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
@@ -24,11 +24,12 @@
 #include <JediConfigurationManager.hh>
 #include <Testbeam2016a.hh>
 #include <Testbeam2016b.hh>
+#include <GDMLReader.hh>
 #include <map>
 
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-G4VUserDetectorConstruction* DetectorConstructionFactory::Create() {
+G4VUserDetectorConstruction* DetectorConstruction::Create() {
 
 	auto GeometryName=JediConfigurationManager::Instance()->GetMap()["detector.geometry_file"].as<std::string>();
 	G4VUserDetectorConstruction* Geometry=nullptr;
@@ -63,6 +64,13 @@ G4VUserDetectorConstruction* DetectorConstructionFactory::Create() {
 	else if(name=="testbeam2016b")
 	{
 		Geometry= new Testbeam2016b();
+	}
+	else if(name=="gdml")
+	{
+		auto filename=GeometryName.substr(GeometryName.find(":")+1,GeometryName.size());
+		if(filename=="")
+			G4Exception("main","Geom002",FatalException,"GDML geometry chosen but no filename given.");
+		Geometry= new GDMLReader(filename);
 	}
 	if(!Geometry){
 		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
