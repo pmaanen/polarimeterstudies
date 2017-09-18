@@ -18,6 +18,7 @@
 
 
 #include <math.h>
+#include <limits>
 static auto man=G4NistManager::Instance();
 static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
@@ -26,12 +27,6 @@ Testbeam2016b::Testbeam2016b():Testbeam2016a() {
 	Reset();
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
-	/*
-	fTedlar=new G4Material("Tedlar",tedlarDens,3);
-	fTedlar->AddElement(man->FindOrBuildElement("H"),int(3));
-	fTedlar->AddElement(man->FindOrBuildElement("C"),int(2));
-	fTedlar->AddElement(man->FindOrBuildElement("F"),int(1));
-	 */
 	man->ConstructNewMaterial("Tedlar",std::vector<G4String>{"H","C","F"},std::vector<G4int>{3,2,1},tedlarDens);
 	DefineCommands();
 	ComputeParameters();
@@ -60,7 +55,7 @@ void Testbeam2016b::Reset() {
 	fDistance=1*CLHEP::m;
 	fArmWidth=10*CLHEP::cm;
 
-	fAngle=10*CLHEP::deg;
+	fAngle=std::numeric_limits<double>::quiet_NaN();
 	fDetectorHeight=0;
 	fMinDistance=25*CLHEP::cm;
 	fBuildSupport=false;
@@ -84,8 +79,9 @@ void Testbeam2016b::Reset() {
 	fTargetMaterialName="G4_GRAPHITE";
 	fNx=6;
 	fNy=2;
-	fAngleLeft=fAngle;
-	fAngleRight=fAngle;
+
+	fAngleLeft=10*CLHEP::deg;
+	fAngleRight=10*CLHEP::deg;
 
 	fApertureSize=40*CLHEP::mm;
 	fCollimatorPosition=G4ThreeVector(0,0,-25*CLHEP::mm);
@@ -484,6 +480,11 @@ void Testbeam2016b::ComputeParameters() {
 	G4double Zmin=fTargetDistance+fBeampipeLength+10*CLHEP::cm;
 	fWorldSizeZ=2*std::max(Zmin,Zmax);
 	fWorldSizeXY=fDistance+fTriggerSizeZ+fHCalSizeZ+50*CLHEP::cm;
+
+	if(!isnan(fAngle)){
+		fAngleLeft=fAngle;
+		fAngleRight=fAngle;
+	}
 }
 
 void Testbeam2016b::BuildSupportElements() {
