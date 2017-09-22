@@ -36,11 +36,6 @@
 G4String Analysis::fGeneratorName=G4String("gen");
 
 
-void Log(const G4String message, const G4int verboseLevel){
-	if(JediConfigurationManager::Instance()->GetVerbose()>verboseLevel)
-		G4cout<<message<<G4endl;
-}
-
 Analysis::Analysis():fEnabled(false),fFileName("")
 {
 	fAnalysisMessenger=std::unique_ptr<G4GenericMessenger>(new G4GenericMessenger(this,"/analysis/","analysis control"));
@@ -85,11 +80,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 
 	TFile OutFile(Filename(run),"RECREATE");
 
-	TTree SimTree("sim","simulated data");
-	FillSimTree(SimTree,run);
-
-	TTree GenTree("gen","generated data");
-	FillGenTree(GenTree,run);
+	FillSimTree(run);
+	FillGenTree(run);
 
 	OutFile.Write();
 }
@@ -124,7 +116,8 @@ void Analysis::EndOfEvent(const G4Event* evt) {
 }
 
 
-void Analysis::FillSimTree(TTree& aTree, const G4Run* aRun) {
+void Analysis::FillSimTree(const G4Run* aRun) {
+    TTree SimTree("sim","simulated data");
 	auto myRun=static_cast<const JediRun*> (aRun);
 	std::map<G4String,const std::vector<calorhit_t> *> calohitPointer;
 	std::map<G4String,const std::vector<trackerhit_t> *> trackerhitPointer;
@@ -132,11 +125,11 @@ void Analysis::FillSimTree(TTree& aTree, const G4Run* aRun) {
 		Log("Creating branch for "+iSD->GetName(),2);
 		if(iSD->GetType()==SDtype::kCalorimeter){
 			calohitPointer[iSD->GetName()]=nullptr;
-			aTree.Branch(iSD->GetName(),&calohitPointer[iSD->GetName()]);
+			SimTree.Branch(iSD->GetName(),&calohitPointer[iSD->GetName()]);
 		}
 		else if(iSD->GetType()==SDtype::kPerfect or iSD->GetType()==SDtype::kPerfect){
 			trackerhitPointer[iSD->GetName()]=nullptr;
-			aTree.Branch(iSD->GetName(),&trackerhitPointer[iSD->GetName()]);
+			SimTree.Branch(iSD->GetName(),&trackerhitPointer[iSD->GetName()]);
 		}
 	}
 	auto SimEvents=myRun->getSimEvents();
@@ -149,11 +142,12 @@ void Analysis::FillSimTree(TTree& aTree, const G4Run* aRun) {
 				trackerhitPointer[iSD->GetName()]=&evt.tracker.at(iSD->GetName());
 			}
 		}
-		aTree.Fill();
+		SimTree.Fill();
 	}
 }
 
 void Analysis::FillGenTree(TTree& aTree, const G4Run* aRun) {
+    TTree GenTree("gen","generated data");
 	auto myRun=static_cast<const JediRun*> (aRun);
 	std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 	auto GenEvents=myRun->getGenEvents();
@@ -168,14 +162,14 @@ void Analysis::FillGenTree(TTree& aTree, const G4Run* aRun) {
 	for(const auto& iGen:generatorNames){
 		Log("Creating branch for "+iGen,2);
 		genVertexPointer[iGen]=nullptr;
-		aTree.Branch(iGen,&genVertexPointer[iGen]);
+		GenTree.Branch(iGen,&genVertexPointer[iGen]);
 	}
 
 	for(const auto &evt : GenEvents){
 		for(const auto& iGen:generatorNames){
 			genVertexPointer[iGen]=&evt.generators.at(iGen);
 		}
-		aTree.Fill();
+		GenTree.Fill();
 	}
 }
 

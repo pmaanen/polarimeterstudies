@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <memory>
 #include "G4ThreadLocalSingleton.hh"
+#include "utilities.hh"
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
 class JediSensitiveDetector;
@@ -80,8 +81,8 @@ private:
 	void disable(){Enable(false);}
 
 
-	void FillSimTree(TTree& aTree,const G4Run* aRun);
-	void FillGenTree(TTree& aTree,const G4Run* aRun);
+	void FillSimTree(const G4Run* aRun);
+	void FillGenTree(const G4Run* aRun);
 
 	//Choose filename from several options
 	//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
