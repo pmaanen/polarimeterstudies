@@ -21,7 +21,8 @@
 #include <algorithm>
 #include <memory>
 #include "G4ThreadLocalSingleton.hh"
-#include "utilities.hh"
+#include "JediUtilities.hh"
+
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
 class JediSensitiveDetector;
@@ -37,6 +38,12 @@ class GenEventProducer;
 
 class calorhit_t;
 class trackerhit_t;
+
+
+
+
+
+
 class Analysis {
 public:
 	friend class G4ThreadLocalSingleton<Analysis>;

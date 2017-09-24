@@ -62,7 +62,7 @@ G4String Analysis::Filename(const G4Run* run){
 		else{
 			std::stringstream fname;
 			fname<<"run_"<<run->GetRunID()<<".root";
-			Log("run_"+G4String(run->GetRunID()),1);
+			JediLog("run_"+G4String(run->GetRunID()),1);
 			fileName=fname.str().c_str();
 		}
 	}else{
@@ -75,8 +75,8 @@ void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
 	if(G4Threading::IsWorkerThread()) return;
 	for(const auto idet: fSD)
-		Log(G4String(G4Threading::G4GetThreadId())+" Analysis::EndOfRun "+idet->GetName(),2);
-	Log("Creating file and trees...",1);
+		JediLog(G4String(G4Threading::G4GetThreadId())+" Analysis::EndOfRun "+idet->GetName(),2);
+	JediLog("Creating file and trees...",1);
 
 	TFile OutFile(Filename(run),"RECREATE");
 
@@ -87,14 +87,14 @@ void Analysis::EndOfRun(const G4Run* run) {
 }
 
 void Analysis::RegisterMe(JediSensitiveDetector* sd) {
-	Log("Analysis::RegisterSD: "+sd->GetName(),2);
+	JediLog("Analysis::RegisterSD: "+sd->GetName(),2);
 	if(std::find(fSD.begin(),fSD.end(),sd)==fSD.end())
 		fSD.push_back(sd);
 	return;
 }
 
 void Analysis::UnRegisterMe(JediSensitiveDetector* sd) {
-	Log("Analysis::UnRegisterSD: "+sd->GetName(),2);
+	JediLog("Analysis::UnRegisterSD: "+sd->GetName(),2);
 	fSD.erase(std::remove(fSD.begin(),fSD.end(),sd),fSD.end());
 	return;
 }
@@ -122,7 +122,7 @@ void Analysis::FillSimTree(const G4Run* aRun) {
 	std::map<G4String,const std::vector<calorhit_t> *> calohitPointer;
 	std::map<G4String,const std::vector<trackerhit_t> *> trackerhitPointer;
 	for(const auto& iSD:fSD){
-		Log("Creating branch for "+iSD->GetName(),2);
+		JediLog("Creating branch for "+iSD->GetName(),2);
 		if(iSD->GetType()==SDtype::kCalorimeter){
 			calohitPointer[iSD->GetName()]=nullptr;
 			SimTree.Branch(iSD->GetName(),&calohitPointer[iSD->GetName()]);
@@ -146,12 +146,12 @@ void Analysis::FillSimTree(const G4Run* aRun) {
 	}
 }
 
-void Analysis::FillGenTree(TTree& aTree, const G4Run* aRun) {
+void Analysis::FillGenTree(const G4Run* aRun) {
     TTree GenTree("gen","generated data");
 	auto myRun=static_cast<const JediRun*> (aRun);
 	std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 	auto GenEvents=myRun->getGenEvents();
-	Log("GenEvents has "+G4String(GenEvents.size())+" entries. ",2);
+	JediLog("GenEvents has "+G4String(GenEvents.size())+" entries. ",2);
 	if(!GenEvents.size())
 		G4Exception("Analysis::EndOfRun","",FatalException,"GenEvents are empty!");
 	std::vector<G4String> generatorNames;
@@ -160,7 +160,7 @@ void Analysis::FillGenTree(TTree& aTree, const G4Run* aRun) {
 
 
 	for(const auto& iGen:generatorNames){
-		Log("Creating branch for "+iGen,2);
+		JediLog("Creating branch for "+iGen,2);
 		genVertexPointer[iGen]=nullptr;
 		GenTree.Branch(iGen,&genVertexPointer[iGen]);
 	}
@@ -175,14 +175,14 @@ void Analysis::FillGenTree(TTree& aTree, const G4Run* aRun) {
 
 
 void Analysis::RegisterMe(GenEventProducer* pd) {
-	Log("Analysis::RegisterMe: "+pd->getName(),2);
+	JediLog("Analysis::RegisterMe: "+pd->getName(),2);
 	if(std::find(fGenerators.begin(),fGenerators.end(),pd)==fGenerators.end())
 		fGenerators.push_back(pd);
 	return;
 }
 
 void Analysis::UnRegisterMe(GenEventProducer*pd) {
-	Log("Analysis::UnRegisterMe: "+pd->getName(),2);
+	JediLog("Analysis::UnRegisterMe: "+pd->getName(),2);
 	fGenerators.erase(std::remove(fGenerators.begin(),fGenerators.end(),pd),fGenerators.end());
 	return;
 }
