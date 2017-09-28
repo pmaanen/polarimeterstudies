@@ -1,0 +1,10 @@
+/analysis/Enable
+/PolarimeterStudies/target/x 2 cm
+/PolarimeterStudies/detector/armangle 8 deg
+/PolarimeterStudies/detector/triggerthickness 8 mm
+/PolarimeterStudies/TriggerR/SetType calo
+/PolarimeterStudies/TriggerL/SetType calo
+/PolarimeterStudies/detector/update
+/PolarimeterStudies/generator/setGenerator dcelastic
+/control/alias nevents 100
+/control/foreach scripts/E22EnergyResolution/Thickness.mac Ekin "100 150 200 250 270"

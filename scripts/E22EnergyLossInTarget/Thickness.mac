@@ -1,0 +1,1 @@
+/control/foreach scripts/E22EnergyLossInTarget/Material.mac Thickness "5 10"

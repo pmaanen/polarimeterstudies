@@ -1,0 +1,34 @@
+
+# Sets some default verbose
+#
+/control/verbose 0
+/control/saveHistory
+/run/verbose 0
+#
+# create empty scene
+#
+/vis/scene/create
+/vis/open DAWNFILE
+/vis/viewer/set/style s
+/vis/viewer/set/viewpointThetaPhi 135 160
+/vis/drawVolume 
+#/vis/scene/add/axes -1.5 -1.5 0 3 cm
+# global
+#/vis/viewer/set/culling  global  true
+# invisible
+#/vis/viewer/set/culling  invisible  true
+#/vis/heprep/setCullInvisibles true
+/vis/viewer/set/hiddenEdge 1
+/vis/viewer/set/edge 1
+/vis/viewer/set/hiddenMarker 0
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+#############Dont draw photons and neutrons
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/add neutron
+/vis/filtering/trajectories/particleFilter-0/invert true
+################################
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate 10
+/run/beamOn 10

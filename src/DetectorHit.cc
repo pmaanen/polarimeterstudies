@@ -49,7 +49,7 @@ DetectorHit::DetectorHit()
   fEdep(0.),
   fPos(G4ThreeVector()),
   fTof(0),
-  fEtot(0)
+  fEkin(0)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -67,7 +67,8 @@ DetectorHit::DetectorHit(const DetectorHit& right)
 	fPos       = right.fPos;
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
-	fEtot=right.fEtot;
+	fEkin=right.fEkin;
+	fMom=right.fMom;
 
 }
 
@@ -81,8 +82,8 @@ const DetectorHit& DetectorHit::operator=(const DetectorHit& right)
 	fPos       = right.fPos;
 	fTof	   = right.fTof;
 	fParticleId= right.fParticleId;
-	fEtot=right.fEtot;
-
+	fEkin=right.fEkin;
+	fMom=right.fMom;
 	return *this;
 }
 

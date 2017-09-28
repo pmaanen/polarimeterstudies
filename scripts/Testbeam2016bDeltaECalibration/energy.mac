@@ -1,0 +1,1 @@
+/control/foreach scripts/Testbeam2016bDeltaECalibration/run.mac ekin "200 235 250 270 300"

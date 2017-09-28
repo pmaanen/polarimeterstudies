@@ -14,6 +14,9 @@
 #include "globals.hh"
 
 #include <vector>
+#include <memory>
+
+class JediPhysicsManager;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Run;
@@ -22,8 +25,8 @@ class RunAction: public G4UserRunAction
 {
 public:
 
-	RunAction();
-	virtual ~RunAction();
+	RunAction(JediPhysicsManager* physicsManager);
+	virtual ~RunAction()=default;
 	G4int fNEvents;
 
 	void BeginOfRunAction(const G4Run*);
@@ -32,7 +35,8 @@ public:
 	inline G4int GetNEvents() { return fNEvents; };
 
 private:
-	G4int fSaveRndm;
+	JediPhysicsManager* fPhysicsManager;
+	G4bool fSaveRndm;
 	G4int fLuxury;
 	G4int fSeed;
 

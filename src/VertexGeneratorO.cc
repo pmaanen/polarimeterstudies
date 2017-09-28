@@ -6,7 +6,7 @@
 
 G4ThreeVector	VertexGeneratorO::generateVertex() {
 
-	G4double xx,yy,zz;
+	double xx,yy,zz;
 	xx=x;
 	yy=y;
 	zz=z;

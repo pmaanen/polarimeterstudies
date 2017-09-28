@@ -12,84 +12,70 @@
 
 
 
+#include <DetectorConstruction.hh>
 #include "Testbench.hh"
-#include "DetectorConstruction.hh"
 #include "JediCubicPolarimeter.hh"
 #include "JediHexagonalPolarimeter.hh"
 #include "SingleCrystal.hh"
 #include "JediSandwichCalorimeter.hh"
 #include "SingleSandwichModule.hh"
 #include "EddaDetectorConstruction.hh"
-#include "global.hh"
 #include <G4GenericMessenger.hh>
+#include <JediConfigurationManager.hh>
+#include <Testbeam2016a.hh>
+#include <Testbeam2016b.hh>
+#include <GDMLReader.hh>
 #include <map>
+
 using namespace CLHEP;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+G4VUserDetectorConstruction* DetectorConstruction::Create() {
 
-DetectorConstruction::DetectorConstruction():G4VUserDetectorConstruction(),fGeometry(nullptr),fGeometryName(""),fMessenger(nullptr)
-{
+	auto GeometryName=JediConfigurationManager::Instance()->GetMap()["detector.geometry_file"].as<std::string>();
+	G4VUserDetectorConstruction* Geometry=nullptr;
 
-	fGeometryName=gConfig["detector.geometry"].as<std::string>();
+	auto name=GeometryName.substr(0,GeometryName.find(":"));
 
-	InitializeGeometry();
-	/*
-	 * Does not work right now.
-	fMessenger = new G4GenericMessenger(this,
-			"/PolarimeterStudies/geometry/",
-			"geometry control");
-
-	fMessenger->DeclareMethod("setGeometry",&DetectorConstruction::setGeometryName,"");
-	 */
-}
-
-
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-DetectorConstruction::~DetectorConstruction()
-{
-	delete fMessenger;
-	delete fGeometry;
-}
-
-void DetectorConstruction::InitializeGeometry() {
-
-
-	if(fGeometry){
-		delete fGeometry;
-		fGeometry=nullptr;
+	if(name=="cubic"){
+		Geometry=new JediCubicPolarimeter();
 	}
-	std::string cubic("cubic");
-	std::string hexagonal("hexagonal");
-	std::string gdml("gdml");
-	std::string single("single");
-	std::string sandwich("sandwich");
-	std::string testbench("testbench");
-	std::string singlesandwich("singlesandwich");
-	std::string edda("edda");
-	if(fGeometryName==cubic){
-		fGeometry=new JediCubicPolarimeter();
+	else if(name=="hexagonal"){
+		Geometry=new JediHexagonalPolarimeter;
 	}
-	else if(fGeometryName==hexagonal){
-		fGeometry=new JediHexagonalPolarimeter;
+	else if(name=="single"){
+		Geometry= new SingleCrystal();
 	}
-	else if(fGeometryName==single){
-		fGeometry= new SingleCrystal();
+	else if(name=="sandwich"){
+		Geometry= new JediSandwichCalorimeter();
 	}
-	else if(fGeometryName==sandwich){
-		fGeometry= new JediSandwichCalorimeter();
+	else if(name=="testbench"){
+		Geometry= new Testbench();
 	}
-	else if(fGeometryName==testbench){
-		fGeometry= new Testbench();
+	else if(name=="singlesandwich"){
+		Geometry= new SingleSandwichModule();
 	}
-	else if(fGeometryName==singlesandwich){
-		fGeometry= new SingleSandwichModule();
+	else if(name=="edda"){
+		Geometry= new EddaDetectorConstruction();
 	}
-	else if(fGeometryName==edda){
-		fGeometry= new EddaDetectorConstruction();
+	else if(name=="testbeam2016a")
+	{
+		Geometry= new Testbeam2016a();
 	}
-	if(!fGeometry){
+	else if(name=="testbeam2016b")
+	{
+		Geometry= new Testbeam2016b();
+	}
+	else if(name=="gdml")
+	{
+		auto filename=GeometryName.substr(GeometryName.find(":")+1,GeometryName.size());
+		if(filename=="")
+			G4Exception("main","Geom002",FatalException,"GDML geometry chosen but no filename given.");
+		Geometry= new GDMLReader(filename);
+	}
+	if(!Geometry){
 		G4Exception("main","Geom001",JustWarning,"No geometry chosen. Loading default geometry.");
-		fGeometry= new SingleCrystal();
+		Geometry= new SingleCrystal();
 	}
+
+	return Geometry;
 }

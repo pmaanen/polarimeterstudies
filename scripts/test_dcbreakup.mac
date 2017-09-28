@@ -1,0 +1,9 @@
+/run/initialize
+/analysis/Enable
+/PolarimeterStudies/generator/setGenerator dcbreakup
+/PolarimeterStudies/dcbreakup/beamposition 0 0 -3 cm
+/PolarimeterStudies/dcbreakup/beamsize .5 .5 0 cm
+/PolarimeterStudies/dcbreakup/energy 270 MeV
+/PolarimeterStudies/dcbreakup/thetamin 3 deg
+/analysis/setFileName dcbreakup.root
+/run/beamOn 1000

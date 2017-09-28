@@ -11,19 +11,31 @@
 
 #include <EventGenerator.hh>
 #include "G4ThreeVector.hh"
+#include "VVertexGenerator.hh"
 class BeamGenerator: public EventGenerator {
 public:
-	BeamGenerator(G4ParticleGun* gun=0);
-	virtual ~BeamGenerator();
+	BeamGenerator(G4ParticleGun* gun);
+	virtual ~BeamGenerator()=default;
+	virtual genvertex_t Generate();
+	virtual void Initialize() {
+	}
+	void setPosition(G4ThreeVector position) {
+		fVertexGenerator->setBeamsize(position.x()/CLHEP::mm,position.y()/CLHEP::mm,position.z()/CLHEP::mm);
+		fPosition = position;
+	}
 
-	virtual void Generate(G4Event*);
-	virtual genevent_t Generate();
-	virtual void Initialize(){};
+	void setSpotsize(G4ThreeVector spotsize) {
+		fVertexGenerator->setBeamsize(spotsize.x()/CLHEP::mm,spotsize.y()/CLHEP::mm,spotsize.z()/CLHEP::mm);
+		fSpotsize = spotsize;
+	}
 
 private:
+	G4ParticleGun* fParticleGun;
 	G4ThreeVector fPosition, fSpotsize;
-	G4double fXPrime,fYPrime;
-	G4ParticleGun* fGun;
+	G4double fXPrime,fYPrime, fEnergy;
+	VVertexGenerator* fVertexGenerator;
+	void SetVertexGenerator(G4String);
+	void SetEnergy(G4double);
 };
 
 #endif /* INCLUDE_BEAMGENERATOR_HH_ */

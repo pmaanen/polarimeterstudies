@@ -23,7 +23,6 @@
 #include "G4CutTubs.hh"
 #include "G4Torus.hh"
 #include "G4Polyhedra.hh"
-//***** End of include basic geometry classes
 
 #include "G4Polycone.hh"
 #include "G4SubtractionSolid.hh"
@@ -36,8 +35,8 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4SolidStore.hh"
-
-
+#include <G4AffineTransform.hh>
+//***** End of include basic geometry classe
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 #include "G4ios.hh"
@@ -57,13 +56,13 @@
 #include "Analysis.hh"
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "global.hh"
 #include "globals.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
+#include <JediConfigurationManager.hh>
+#include "SensitiveDetectorManager.hh"
 #include "G4RegionStore.hh"
 #include "G4Cache.hh"
-
 #include <map>
 class JediPolarimeter: public G4VUserDetectorConstruction {
 public:
@@ -73,81 +72,90 @@ public:
 
 	//Dump world to gdml file.
 	void WriteWorldToFile(G4String filename="");
+
+	//SD
 	virtual void ConstructSDandField();
+
+	//Trigger geometry check
+	void checkGeometry(){fPhysiWorld->CheckOverlaps(2000);}
+
 	//Setters for properties
-	void setBeampipeRadius(G4double beampipeRadius) {this->fBeampipeRadius = beampipeRadius;	fChangedParameters=true;	}
-	void setCrystalLength(G4double crystalLength) {	this->fCrystalLength = crystalLength;fChangedParameters=true;	}
-	void setCrystalWidth(G4double crystalWidth) {this->fCrystalWidth = crystalWidth;fChangedParameters=true;}
-	void setThetaMax(G4double thetaMax) {this->fThetaMax = thetaMax; fChangedParameters=true;}
-	void setThetaMin(G4double thetaMin) {this->fThetaMin = thetaMin;fChangedParameters=true;}
-	void setDeltaElength(G4double deltaElength){this->fDeltaELength = deltaElength;fChangedParameters=true;}
-	void setDeltaEwidth(G4double deltaEwidth){this->fDeltaEWidth = deltaEwidth;fChangedParameters=true;}
-	virtual void UpdateGeometry();
-	void setCaloMaterialName(const G4String& scintillatorMaterialName) {
-		auto oldName=fScintillatorMaterial->GetName();
-		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
-		if(!newMat){
-			G4Exception("JediPolarimeter::setScintillatorMaterialName","MatNotFound",G4ExceptionSeverity::JustWarning,"Material not found! Material not changed.");
-			return;
-		}
-		fScintillatorMaterial=newMat;
-		fScintillatorMaterialName=scintillatorMaterialName;
-		G4cout<<"Changing Material from "<<oldName<<" to "<<fScintillatorMaterial->GetName()<<G4endl;
-		return;
-	}
+	void setBeampipeRadius(G4double beampipeRadius) {fBeampipeRadius = beampipeRadius;	GeometryHasChanged();	}
+	void setCrystalLength(G4double crystalLength) {	fHCalSizeZ = crystalLength;GeometryHasChanged();	}
+	void setCrystalWidth(G4double crystalWidth) {fHCalSizeXY = crystalWidth;GeometryHasChanged();}
+	void setThetaMax(G4double thetaMax) {fThetaMax = thetaMax; GeometryHasChanged();}
+	void setThetaMin(G4double thetaMin) {fThetaMin = thetaMin;GeometryHasChanged();}
+	void setDeltaElength(G4double deltaElength){fDeltaELength = deltaElength;GeometryHasChanged();}
+	void setDeltaEwidth(G4double deltaEwidth){fDeltaEWidth = deltaEwidth;GeometryHasChanged();}
+	void setInfile(std::string infile) {fInfileName = infile;}
+	void setTargetThickness(G4double targetThickness) {fTargetThickness = targetThickness;GeometryHasChanged();}
+	void setTargetWidth(G4double targetWidth) {fTargetWidth = targetWidth; GeometryHasChanged();}
+	void setCaloMaterial(G4String scintillatorMaterialName);
 
-	void setInfile(const std::string& infile) {this->fInfileName = infile;}
+	//Getters for properties
+	virtual const G4LogicalVolume* GetTarget() const {return fTarget;}
+	virtual const G4AffineTransform GetTargetTransform() const {
+		return fTargetTransform;}
+	G4double getBeampipeRadius() const {return fBeampipeRadius;}
+	G4double getBeampipeThickness() const {	return fBeampipeThickness;}
+	G4double getWorldSizeXy() const {return fWorldSizeXY;}
+	G4double getWorldSizeZ() const {return fWorldSizeZ;}
+	G4double getBeampipeLength() const {return fBeampipeLength;}
+	G4double getThetaMax() const {return fThetaMax;}
+	G4double getThetaMin() const {return fThetaMin;}
+	G4double getSafetyDistance() const {return fSafetyDistance;}
+	G4double getDeltaELength() const {return fDeltaELength;}
+	G4double getHCalSizeXY() const {return fHCalSizeXY;}
+	G4double getHCalSizeZ() const {return fHCalSizeZ;}
+	G4Material* getHCalMaterial() const {return fHCalMaterial;}
 
-	void setTargetThickness(G4double targetThickness) {
-		this->fTargetThickness = targetThickness;
-		fChangedParameters=true;
-	}
+	//Hook for changed geometry
+	virtual void GeometryHasChanged();
 
-	void setTargetWidth(G4double targetWidth) {
-		this->fTargetWidth = targetWidth;
-		fChangedParameters=true;
-	}
-
-	 void checkGeometry(){
-		fPhysiWorld->CheckOverlaps(2000);
-	}
+private:
+	void CopyPropertiesFromConfig();
+	void DefineMaterials();
 
 protected:
-	G4LogicalVolume* MakeBeampipe();
-	G4LogicalVolume*  MakeTargetChamber();
-	virtual G4LogicalVolume* MakeCaloCrystal()=0;
 
-
+	virtual G4LogicalVolume* BuildCaloCrystal()=0;
+	template<typename solid, typename... Params>
+	G4LogicalVolume* BuildVolume(G4String volName, G4Material* mat, Params... parameters){
+		auto solidDet=new solid(volName, parameters...);
+		auto logicDetector = new G4LogicalVolume(solidDet,mat,volName);
+		return logicDetector;
+	}
+	virtual void DefineCommands();
+	virtual void ComputeParameters();
 	G4LogicalVolume* fLogicWorld;
 	G4VPhysicalVolume* fPhysiWorld;
 	G4GenericMessenger* fMessenger;
 
+
+	G4LogicalVolume* fTarget;
+	G4AffineTransform fTargetTransform;
+
 	//Geometry parameters
 	G4double fThetaMin, fThetaMax;
-	G4double fBeampipeRadius, fBeampipeThickness, fCrystalLength, fCrystalWidth,
-	fInnerDetectorRadius, fOuterDetectorRadius,DetectorZ,fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1, fTargetChamberZ2,
-	fWorldSizeXY,fWorldSizeZ,fDeltaELength,fDeltaEWidth,fDeltaEZ,fTargetThickness,fTargetWidth,fSafetyDistance;
-	G4String fScintillatorMaterialName;
-	G4Material* fScintillatorMaterial;
-
-	G4bool fChangedParameters;
+	G4double fBeampipeRadius, fBeampipeThickness, fBeampipeLength, fHCalSizeXY,
+	fHCalSizeZ,	fInnerDetectorRadius, fOuterDetectorRadius,fDetectorZ,
+	fWrappingThickness, fTargetChamberThickness, fTargetChamberZ1,
+	fTargetChamberZ2, fWorldSizeXY, fWorldSizeZ, fDeltaELength,
+	fDeltaEWidth, fDeltaEZ, fTargetThickness, fTargetWidth, fSafetyDistance;
+	G4String fScintillatorMaterialName,fWorldMaterialName;
 	G4int fMinCrystal,fMaxCrystal;
+	G4Material* fHCalMaterial;
 
-	virtual void DefineCommands();
-	virtual void ComputeParameters();
-
+	G4bool fGeometryHasBeenChanged;
+	SensitiveDetectorManager fSensitiveDetectors;
+	std::map<G4String,G4Cache<JediSensitiveDetector*> > fSD;
 	std::vector<std::string> fGeomCache;
-
-	//Sensitive detectors
-	std::map<G4String,G4Cache<CaloSensitiveDetector*> > fCaloSD;
-	std::map<G4String,G4Cache<TrackerSensitiveDetector*> >fTrackerSD;
-	std::map<G4String,G4Cache<PerfectDetector*> >fPerfectSD;
-	std::map<G4String,G4LogicalVolume*> fCaloSDVolumes;
-	std::map<G4String,G4LogicalVolume*> fTrackerSDVolumes;
-	std::map<G4String,G4LogicalVolume*> fPerfectSDVolumes;
 
 	//Input file if constructed from file
 	std::string fInfileName;
+
+
+
 };
 
 #endif /* INCLUDE_JEDIPOLARIMETER_HH_ */

@@ -1,11 +1,7 @@
+/run/initialize
 /analysis/Enable
 /analysis/setFileName muons.root
-/PolarimeterStudies/generator/Mode 3
 /PolarimeterStudies/generator/setGenerator muon
-/gun/position 0 20 5 cm
-/PolarimeterStudies/detector/calowidth 3 cm
-/PolarimeterStudies/detector/calolength 10 cm
-/PolarimeterStudies/detector/update
 /PolarimeterStudies/muon/spotsize 100 100 0 mm
 /PolarimeterStudies/muon/position 0 200 50 mm
-/run/beamOn 100000
+/run/beamOn 1000

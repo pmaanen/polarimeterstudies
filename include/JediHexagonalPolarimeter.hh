@@ -35,7 +35,7 @@ public:
 private:
 
 	void DefineCommands();
-	virtual G4LogicalVolume* MakeCaloCrystal();
+	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual ~JediHexagonalPolarimeter();
 };
 

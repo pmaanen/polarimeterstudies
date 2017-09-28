@@ -1,19 +1,18 @@
 
-#define MAIN
-#include "global.hh"
-#include "Analysis.hh"
-#include "DetectorConstruction.hh"
-#include "PrimaryGeneratorAction.hh"
-#ifdef G4MULTITHREADED
-#include <G4MTRunManager.hh>
-#else
-#include <G4RunManager.hh>
-#endif
+//global configuration
+#include <DetectorConstruction.hh>
+#include <JediConfigurationManager.hh>
 
+//Geometries
+#include "UserActionInitialization.hh"
+
+//Physics
+#include "JediPhysicsListFactory.hh"
+
+//Geant4 stuff
 #include <G4UImanager.hh>
 #include <G4UIterminal.hh>
 #include <G4UItcsh.hh>
-#include <UserActionInitialization.hh>
 
 #ifdef G4VIS_USE
 #include <G4VisExecutive.hh>
@@ -23,107 +22,85 @@
 #include <G4UIExecutive.hh>
 #endif
 
-#include "DetectorConstruction.hh"
-#include "JediCubicPolarimeter.hh"
-#include "JediHexagonalPolarimeter.hh"
-#include "SingleCrystal.hh"
-#include "SingleSandwichModule.hh"
-#include "JediSandwichCalorimeter.hh"
-#include "Testbench.hh"
-#include "EventAction.hh"
-#include <QGSP_INCLXX.hh>
-#include <QGSP_BIC.hh>
-#include <FTFP_BERT.hh>
-#include <G4EmParameters.hh>
-#include "G4OpticalPhysics.hh"
-#include <G4RadioactiveDecayPhysics.hh>
-#include <PrimaryGeneratorAction.hh>
-#include "Analysis.hh"
-#include "G4StateManager.hh"
-#include <G4StepLimiterPhysics.hh>
-#include <G4HadronicProcessStore.hh>
-#include <signal.h>
-#include <ctime>
-namespace CLHEP {}
-using namespace CLHEP; 
+#ifdef G4MULTITHREADED
+#include <G4MTRunManager.hh>
+#else
+#include <G4RunManager.hh>
+#endif
+
+#include <TROOT.h>
+#include "Rtypes.h"
+
+#include <memory>
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv) {
+	std::unique_ptr<JediConfigurationManager> ConfigurationManager;
 	try{
-		initializeConfiguration(argc,argv);
+		ConfigurationManager.reset(new JediConfigurationManager(argc,argv));
 	}
 	catch(const std::exception& e){
 		std::cout<<"uncaught exception in main: "<<e.what()<<std::endl;
 		throw e;
 	}
-	// choose the Random engine
-	RanecuEngine* theEngine=new RanecuEngine;
-	if(gConfig.count("general.seed"))
-		theEngine->setSeed(gConfig["general.seed"].as<int>());
-	else
-		theEngine->setSeed(std::time(0));
 
-	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
+	ROOT::EnableThreadSafety();
 	G4MTRunManager* runManager = new G4MTRunManager();
-	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
+	runManager->SetNumberOfThreads(JediConfigurationManager::Instance()->GetMap()["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager();
 #endif
 	runManager->SetVerboseLevel(0);
-	// set mandatory initialization classes
-	DetectorConstruction* detector = new DetectorConstruction;
-	runManager->SetUserInitialization(detector);
-	// set physics list
-	auto the_physics=new QGSP_BIC(0);
-	the_physics->RegisterPhysics(new G4RadioactiveDecayPhysics(0));
-	G4HadronicProcessStore::Instance()->SetVerbose(0);
-	runManager->SetUserInitialization(the_physics);
-	runManager->SetUserInitialization(new UserActionInitialization);
-#ifdef G4VIS_USE
-	// Visualization manager
-	//
-	G4VisManager* visManager = new G4VisExecutive("quiet");
-	visManager->Initialize();
-#endif
 
-	// Get the pointer to the User Interface manager
-	//
+
+	// set mandatory initialization classes
+	G4VUserDetectorConstruction* detector =DetectorConstruction::Create();
+	runManager->SetUserInitialization(detector);
+
+	// set physics list
+	G4VModularPhysicsList* the_physics=JediPhysicsListFactory::Create();
+	runManager->SetUserInitialization(the_physics);
+
+	// all other user action
+	runManager->SetUserInitialization(new UserActionInitialization);
+
+	// get the pointer to the UI manager and set verbosities
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
 	UImanager->SetVerboseLevel(0);
-	// Initialize G4 kernel
-	//
-	//runManager->Initialize();
 
-	if (!gConfig["general.batch_mode"].as<bool>())   // Define UI session for interactive mode
-	{
-
-#ifdef G4UI_USE
-		G4UIExecutive * ui = new G4UIExecutive(argc,argv);
 #ifdef G4VIS_USE
-		UImanager->ApplyCommand("/run/initialize");
-		std::stringstream o;
-		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
-		UImanager->ApplyCommand(o.str().c_str());
+	G4VisManager* visManager = nullptr;
 #endif
+
+
+
+	if(!JediConfigurationManager::Instance()->GetMap().count("general.macro_file")){
+#ifdef G4VIS_USE
+		//visualization manager
+		visManager = new G4VisExecutive();
+		visManager->SetVerboseLevel(JediConfigurationManager::Instance()->GetVerbose());
+		visManager->Initialize();
+#endif
+#ifdef G4UI_USE
+		G4UIExecutive* ui = new G4UIExecutive(argc, argv);
+
+		UImanager->ApplyCommand("/control/execute scripts/gui.mac");
 		ui->SessionStart();
-		runManager->Initialize();
 		delete ui;
 #endif
 	}
-	else           // Batch mode
-	{
-		UImanager->ApplyCommand("/run/initialize");
-		std::stringstream o;
-		if(gConfig.count("general.macro_file")){
-			o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
-			UImanager->ApplyCommand(o.str().c_str());
-		}
+	else{
+		G4String command = "/control/execute ";
+		G4String filename = JediConfigurationManager::Instance()->GetMap()["general.macro_file"].as<std::string>().c_str();
+		UImanager->ApplyCommand(command+filename);
 	}
 
 #ifdef G4VIS_USE
 	delete visManager;
 #endif
+
+	// job termination
 	delete runManager;
 	return 0;
 }
-

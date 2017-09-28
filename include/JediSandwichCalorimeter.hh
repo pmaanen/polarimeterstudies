@@ -16,7 +16,7 @@ public:
 	virtual ~JediSandwichCalorimeter();
 
 
-	void setAbsorberMaterialName(const G4String& absorberMaterialName) {
+	void setAbsorberMaterialName(G4String absorberMaterialName) {
 		auto oldName=fAbsorberMaterial->GetName();
 		auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(absorberMaterialName);
 		if(!newMat){
@@ -25,13 +25,14 @@ public:
 		}
 		fAbsorberMaterial=newMat;
 		fAbsorberMaterialName=absorberMaterialName;
-		G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
+		if(JediConfigurationManager::Instance()->GetVerbose()==3)
+			G4cout<<"Changing Material from "<<oldName<<" to "<<fAbsorberMaterial->GetName()<<G4endl;
 		return;
 	}
 
 	void setNumLayers(G4double numLayers) {
 		fNumLayers = numLayers;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	G4double getAbsorberLength() const {
@@ -40,7 +41,7 @@ public:
 
 	void setAbsorberLength(G4double absorberLength) {
 		fAbsorberLength = absorberLength;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 

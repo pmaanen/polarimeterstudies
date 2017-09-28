@@ -8,13 +8,10 @@
 #include <JediRun.hh>
 #include "Analysis.hh"
 #include <G4Threading.hh>
-JediRun::JediRun() {
-	G4cout<<"JediRun::JediRun(): "<<fEvents.size()<<" events."<<G4endl;
-}
+#include <JediConfigurationManager.hh>
+#include <memory>
 
-JediRun::~JediRun() {
-
-}
+JediRun::JediRun():G4Run() {}
 
 void JediRun::RecordEvent(const G4Event* evt) {
 	G4Run::RecordEvent(evt);
@@ -22,13 +19,16 @@ void JediRun::RecordEvent(const G4Event* evt) {
 
 void JediRun::Merge(const G4Run* aRun) {
 	auto an=Analysis::Instance();
-	auto events=an->getSimEvents();
-	auto genevents=an->getGenEvents();
-	G4cout<<"Thread "<<G4Threading::G4GetThreadId()<<" has "<<events->size()<<" events.";
-	for(auto iEvent : *events){
-		fEvents.push_back(iEvent);
+	auto simEvents=an->getSimEvents();
+	auto genEvents=an->getGenEvents();
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
+		G4cout<<"JediRun::Merge: Thread "<<G4Threading::G4GetThreadId()<<" has "<<simEvents->size()<<" sim events.";
+	for(auto iEvent : *simEvents){
+		fSimEvents.push_back(iEvent);
 	}
-	for(auto iEvent : *genevents){
+	if(JediConfigurationManager::Instance()->GetVerbose()>2)
+			G4cout<<"JediRun::Merge: Thread "<<G4Threading::G4GetThreadId()<<" has "<<genEvents->size()<<" gen events.";
+	for(auto iEvent : *genEvents){
 		fGenEvents.push_back(iEvent);
 	}
 	G4Run::Merge(aRun);

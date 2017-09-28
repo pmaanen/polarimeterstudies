@@ -10,11 +10,11 @@
 class FileReader_impl{
 public:
 	FileReader_impl():iEvent(0){}
-	virtual genevent_t GetEvent()=0;
+	virtual genvertex_t GetEvent()=0;
 	virtual ~FileReader_impl(){};
 protected:
 	G4int iEvent;
-	std::list<genevent_t> evCache;
+	std::list<genvertex_t> evCache;
 };
 class FileReader_ascii: public FileReader_impl{
 public:
@@ -23,10 +23,10 @@ public:
 	}
 	virtual ~FileReader_ascii(){fInputFile.close();};
 
-	genevent_t GetEvent(){
+	genvertex_t GetEvent(){
 		if( evCache.size() == 0 )
 		{
-			genevent_t thisEvent;
+			genvertex_t thisEvent;
 			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
 			for(auto iev=0;iev<100;++iev){
@@ -54,7 +54,7 @@ public:
 				}
 			}
 		}
-		genevent_t ev = evCache.front();
+		auto ev = evCache.front();
 		evCache.pop_front();
 		return ev;
 	}
@@ -79,19 +79,18 @@ public:
 					" ERROR: Input Tree not found.");
 		fCurEntry=0;
 	}
-	genevent_t GetEvent(){
+	genvertex_t GetEvent(){
 
 #ifdef MYDEBUG
 		G4cout<<"FileReader_root::GetEvent()"<<G4endl;
 #endif
 		if( evCache.size() == 0 )
 		{
-			genevent_t* curEvent=nullptr;
-			fInputTree->SetBranchAddress("gen",&curEvent);
-			genevent_t thisEvent;
+			genvertex_t* curEvent=nullptr;
+			fInputTree->SetBranchAddress("events",&curEvent);
+			genvertex_t thisEvent;
 			particle_t thisParticle(0,0,0,0,0);
 			std::string line;
-			Int_t ev,id;
 			for(auto iev=0;iev<100;++iev){
 					if(fCurEntry>fInputTree->GetEntries())
 						G4Exception("FileReader_root","NoMoreEvents",RunMustBeAborted,"No more events in input file.");
@@ -100,13 +99,15 @@ public:
 
 			}
 		}
-		genevent_t ev = evCache.front();
+		auto ev = evCache.front();
 		evCache.pop_front();
+        /*
 #ifdef MYDEBUG
 		for(auto particle : ev){
 			G4cout<<particle<<G4endl;
 		}
 #endif
+         */
 		return ev;
 	}
 	virtual ~FileReader_root(){
@@ -125,7 +126,7 @@ public:
 	FileReader(G4String fileName):fFileReader(nullptr){
 		OpenFile(fileName);
 	}
-	genevent_t GetEvent(){
+	genvertex_t GetEvent(){
 		return fFileReader->GetEvent();
 	}
 	virtual ~FileReader(){delete fFileReader;};

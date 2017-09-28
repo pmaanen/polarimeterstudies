@@ -1,0 +1,4 @@
+/analysis/setFileName {pname}-lead-{Ekin}.root
+/PolarimeterStudies/detector/material G4_Pb
+/PolarimeterStudies/detector/update
+/control/execute scripts/bragg-singlerun.mac

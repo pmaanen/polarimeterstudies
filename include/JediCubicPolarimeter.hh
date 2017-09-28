@@ -8,13 +8,13 @@
 #ifndef INCLUDE_JEDICUBICPOLARIMETER_HH_
 #define INCLUDE_JEDICUBICPOLARIMETER_HH_
 
+#include <JediConfigurationManager.hh>
 #include "JediPolarimeter.hh"
 #include "globals.hh"
 #include <map>
 #include <string>
 #include "G4ThreeVector.hh"
 #include "G4GDMLParser.hh"
-#include "global.hh"
 class SensitiveDetector;
 class TrackerSensitiveDetector;
 class G4MultiFunctionalDetector;
@@ -34,16 +34,20 @@ public:
 protected:
 
 	void DefineCommands();
-	virtual G4LogicalVolume* MakeCaloCrystal();
-	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double width, G4double height, G4double length);
+	virtual G4LogicalVolume* BuildCaloCrystal();
 	virtual G4LogicalVolume* MakeDeltaECrystal();
-	G4double distanceToEdge(G4double a, G4double b, G4ThreeVector direction);
+	virtual G4LogicalVolume* MakeDetector(G4String name, G4Material* mat,G4double halfSizeX, G4double halfSizeY, G4double halfSizeZ);
+	G4double distanceToEdge(G4double sizeXY, G4ThreeVector direction);
 	virtual ~JediCubicPolarimeter();
 
 	void PlaceCalorimeter(G4LogicalVolume* aDetectorElement);
 	void PlaceHodoscope(G4LogicalVolume* aDetectorElement);
 
 	G4String fHodoscopeShape;
+	G4VSolid* fDetectorSolid;
+
+private:
+	void ReadFromFile();
 };
 
 

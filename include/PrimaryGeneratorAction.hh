@@ -18,46 +18,42 @@
 class G4GenericMessenger;
 class G4Event;
 class G4ParticleGun;
+class G4GeneralParticleSource;
+#include "GenEventProducer.hh"
 #include "FileReader.hh"
-#include "hit.hh"
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
+#include <JediClasses.hh>
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction,GenEventProducer {
 public:
-	~PrimaryGeneratorAction();
+	virtual ~PrimaryGeneratorAction()=default;
 	PrimaryGeneratorAction() ;
 	virtual void GeneratePrimaries(G4Event* E);
 	void generateEventFromInput(G4Event* E);
-	void generateEventFromPhaseSpace(G4Event* E);
+	void generateEventFromGenerator(G4Event* E);
+	void generateEventFromGun(G4Event* E);
+	void generateEventFromGPS(G4Event* E);
 	void illuminateAngle(G4Event* E);
 	void setInfile(G4String);
-	G4ParticleGun* getPGun() const {
-		return fParticleGun;
-	}
-
-	const genevent_t& getGenEvent() const {
-		return fGenEvent;
-	}
-
-	const G4String& getGeneratorName() const {
-		return fGeneratorName;
-	}
-
-	;
+	void Print(){G4cout<<this<<G4endl;}
+	void setGeneratorName(G4String);
 private:
 	void DefineCommands();
-	G4ParticleGun			*fParticleGun ;
-	G4GenericMessenger*		fMessenger;
+	std::unique_ptr<G4ParticleGun> fParticleGun ;
+	std::unique_ptr<G4GeneralParticleSource> fGPS;
+	std::unique_ptr<G4GenericMessenger> fMessenger;
 	G4String 				fInfileName;
 	std::ifstream        fInstream;
-	std::vector<G4int> fTupleId;
 	G4double fIlluminationAngle;
 	static FileReader* fgFileReader;
-	std::map<G4String,EventGenerator*> fEvtGenerators;
-	G4String fGeneratorName;
-	genevent_t fGenEvent;
+	std::map<G4String,std::unique_ptr<EventGenerator>> fEvtGenerators;
 protected:
-	void listModes(){G4cout<<"gun "; G4cout<<"file ";for (auto iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
+	void listModes(){G4cout<<"gun "; G4cout<<"file ";for (const auto& iGen:fEvtGenerators){G4cout<<iGen.first<<" ";}};
 
 } ;
+
+inline void PrimaryGeneratorAction::setGeneratorName(G4String name){
+	this->fName=name;
+
+}
 
 #endif
 

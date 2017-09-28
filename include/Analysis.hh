@@ -10,17 +10,23 @@
 #include "TString.h"
 #include <map>
 #include <fstream>
-#include "hit.hh"
 #include "TFile.h"
 #include <sstream>
-#include "G4Exception.hh"
 #include "G4RootAnalysisManager.hh"
 #include "G4Threading.hh"
 #include <G4GenericMessenger.hh>
+#include <JediClasses.hh>
+#include <JediException.hh>
 #include "G4Cache.hh"
 #include <algorithm>
+#include <memory>
+#include "G4ThreadLocalSingleton.hh"
+#include "JediUtilities.hh"
+
 class TrackerSensitiveDetector;
 class CaloSensitiveDetector;
+class JediSensitiveDetector;
+class GenEventProducer;
 /*
  * \brief Analysis class
  * This class contains the code to collect information from
@@ -32,24 +38,23 @@ class CaloSensitiveDetector;
 
 class calorhit_t;
 class trackerhit_t;
+
+
+
+
+
+
 class Analysis {
 public:
-	//! Singleton
+	friend class G4ThreadLocalSingleton<Analysis>;
 	static Analysis* Instance() {
-		{
-			if ( fgInstance == 0 ) {
-				G4bool isMaster = ! G4Threading::IsWorkerThread();
-				fgInstance = new Analysis(isMaster);
-			}
-
-			return fgInstance;
-		}
+		static G4ThreadLocalSingleton<Analysis> theInstance;
+		return theInstance.Instance();
 	}
-	virtual ~Analysis() {};
-	void setEnabled(bool xenable){fEnabled=xenable;};
+	virtual ~Analysis()=default;
 
-	void enable(){fEnabled=true;};
-	void disable(){fEnabled=false;};
+	void Enable(bool xenable=true){fEnabled=xenable;};
+
 	G4bool isEnabled() const {
 		return fEnabled;
 	}
@@ -57,64 +62,63 @@ public:
 		return fFileName;
 	}
 
-	void setFileName(const G4String& fileName) {
+	void setFileName(G4String fileName) {
 		fFileName = fileName;
 	}
 
-	TTree* getOutTree();
 	void BeginOfRun();
 	void EndOfRun(const G4Run* run);
 
-	void BeginOfEvent();
+	void BeginOfEvent(){};
 	void EndOfEvent(const G4Event* evt);
 
-	void FillTree(){};
-	void RegisterTrackerSD(TrackerSensitiveDetector*);
-	void RegisterCaloSD(CaloSensitiveDetector*);
+	void RegisterMe(JediSensitiveDetector*);
+	void UnRegisterMe(JediSensitiveDetector*);
 
-	const std::vector<simevent_t>* getSimEvents() const {
-		return fSimEvents;
-	}
+	void RegisterMe(GenEventProducer*);
+	void UnRegisterMe(GenEventProducer*);
 
-	const std::vector<genevent_t>* getGenEvents() const {
-		return fGenEvents;
-	}
-
-	const std::map<G4String, std::vector<trackerhit_t> *>& getTrackerHits() const {
-		return fTrackerHits;
-	}
+	 const std::vector<simevent_t>* getSimEvents();
+	 const std::vector<genevent_t>* getGenEvents();
 
 private:
-	//! Private constructor: part of singleton pattern
-	Analysis(G4bool isMaster=true);
-	//! Singleton static instance
-	static Analysis* fgMasterInstance;
-	static G4ThreadLocal Analysis* fgInstance;
+	Analysis();
 
-	G4GenericMessenger* fAnalysisMessenger;
+	void enable(){Enable(true);}
+	void disable(){Enable(false);}
+
+
+	void FillSimTree(const G4Run* aRun);
+	void FillGenTree(const G4Run* aRun);
+
+	//Choose filename from several options
+	//Precedence: 1) Messenger 2) Command line 3) Default (run_i.root)
+	G4String Filename(const G4Run* run);
+
+
+	std::unique_ptr<G4GenericMessenger> fAnalysisMessenger;
 
 	bool fEnabled;
 
 	G4String fFileName;
 	static G4String fGeneratorName;
-	TFile* fOutFile;
-	TTree* fSimTree;
-	TTree* fInfoTree;
-	TTree* fGenTree;
-	std::map<G4String,TBranch*> fOutBranches;
 
-	std::vector<CaloSensitiveDetector*> fCaloSD;
-	std::vector<TrackerSensitiveDetector*> fTrackerSD;
-
-	std::vector<G4String> fCaloSDNames;
-	std::vector<G4String> fTrackerSDNames;
-	std::vector<G4String> fGeneratorNames;
-
-	std::vector<genevent_t>* fGenEvents;
-	std::vector<simevent_t>* fSimEvents;
+	std::vector<JediSensitiveDetector*> fSD;
+	std::vector<GenEventProducer*> fGenerators;
+	std::unique_ptr<std::vector<genevent_t>> fGenEvents;
+	std::unique_ptr<std::vector<simevent_t>> fSimEvents;
 	std::map<G4String, std::vector<calorhit_t>* > fCaloHits;
 	std::map<G4String, std::vector<trackerhit_t>* > fTrackerHits;
 
 
 };
+
+inline const std::vector<simevent_t>* Analysis::getSimEvents() {
+		return fSimEvents.get();
+	}
+
+inline	const std::vector<genevent_t>* Analysis::getGenEvents() {
+		return fGenEvents.get();
+}
+
 #endif /* ANALYSIS_HH_ */

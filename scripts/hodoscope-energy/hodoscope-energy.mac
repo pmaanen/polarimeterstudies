@@ -1,0 +1,23 @@
+/analysis/Enable
+/control/alias nEvents 20000
+/gun/position 0 0 -1 cm
+/gun/direction 0 0 1
+/gun/particle deuteron
+/PolarimeterStudies/detector/material G4_PLASTIC_SC_VINYLTOLUENE
+/PolarimeterStudies/detector/calolength 1 cm
+/PolarimeterStudies/detector/update
+/gun/energy 100.0 MeV
+/analysis/setFileName deuteron-100.root
+/run/beamOn {nEvents}
+/gun/energy 150.0 MeV
+/analysis/setFileName deuteron-150.root
+/run/beamOn {nEvents}
+/gun/energy 200.0 MeV
+/analysis/setFileName deuteron-200.root
+/run/beamOn {nEvents}
+/gun/energy 250.0 MeV
+/analysis/setFileName deuteron-250.root
+/run/beamOn {nEvents}
+/gun/energy 270.0 MeV
+/analysis/setFileName deuteron-270.root
+/run/beamOn {nEvents}

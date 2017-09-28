@@ -13,36 +13,36 @@
 class Testbench: public SingleCrystal {
 public:
 	Testbench();
-	virtual ~Testbench();
+	virtual ~Testbench()=default;
 
 	void setTriggerLength(G4double triggerLength) {
-		this->fTriggerLength = triggerLength;
-		fChangedParameters=true;
+		this->fTriggerHeight = triggerLength;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerThickness(G4double triggerThickness) {
 		this->fTriggerThickness = triggerThickness;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerWidth(G4double triggerWidth) {
 		this->fTriggerWidth = triggerWidth;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetX(G4double triggerOffsetX) {
 		this->fTriggerOffsetX = triggerOffsetX;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetY(G4double triggerOffsetY) {
 		this->fTriggerOffsetY = triggerOffsetY;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 	void setTriggerOffsetZ(G4double triggerOffsetZ) {
 		this->fTriggerOffsetZ = triggerOffsetZ;
-		fChangedParameters=true;
+		fGeometryHasBeenChanged=true;
 	}
 
 protected:
@@ -51,7 +51,7 @@ protected:
 	G4Cache<CaloSensitiveDetector*> fTriggerSD;
 	G4LogicalVolume* fLogicTrigger;
 	std::vector<int> fMyTupleId;
-	G4double fTriggerLength,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
+	G4double fTriggerHeight,fTriggerWidth,fTriggerThickness,fTriggerOffsetX,fTriggerOffsetY,fTriggerOffsetZ;
 	G4bool fTrigger;
 };
 

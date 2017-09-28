@@ -80,11 +80,11 @@ public:
 		return fTof;
 	}
 	G4double GetEtot() const {
-		return fEtot;
+		return fEkin;
 	}
 
-	void SetEtot(G4double etot) {
-		fEtot = etot;
+	void SetEkin(G4double etot) {
+		fEkin = etot;
 	}
 
 	const G4ThreeVector& getMom() const {
@@ -106,7 +106,7 @@ private:
 	G4ThreeVector fTruePos;
 	G4ThreeVector fMom;
 	G4double      fTof;
-	G4double	fEtot;
+	G4double	fEkin;
 
 };
 

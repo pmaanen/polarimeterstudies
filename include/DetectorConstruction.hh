@@ -13,9 +13,9 @@
 #ifndef polarimeterStudiesDetectorConstruction_h
 #define polarimeterStudiesDetectorConstruction_h 1
 
+#include <JediConfigurationManager.hh>
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
-#include "global.hh"
 #include "JediPolarimeter.hh"
 #include <map>
 #include <string>
@@ -33,32 +33,12 @@ class G4MaterialPropertiesTable;
 class G4GenericMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class DetectorConstruction : public G4VUserDetectorConstruction
+class DetectorConstruction
 {
 public:
-	DetectorConstruction();
-	virtual ~DetectorConstruction();
-
-	virtual G4VPhysicalVolume* Construct(){return fGeometry->Construct();};
-	virtual void ConstructSDandField() {
-		fGeometry->ConstructSDandField();
-	}
-	/*
-	void setGeometryName(const std::string& geometryName) {
-		fGeometryName = geometryName;
-		InitializeGeometry();
-		auto geom=dynamic_cast<JediPolarimeter*>(fGeometry);
-		if(geom)
-			geom->UpdateGeometry();
-	}
-	*/
-
-	;
-private:
-	G4VUserDetectorConstruction* fGeometry;
-	std::string fGeometryName;
-	G4GenericMessenger* fMessenger;
-	void InitializeGeometry();
+	DetectorConstruction()=default;
+	virtual ~DetectorConstruction()=default;
+	static G4VUserDetectorConstruction* Create();
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

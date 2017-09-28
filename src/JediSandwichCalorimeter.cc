@@ -18,7 +18,7 @@ magenta (1.0, 0.0, 1.0), // magenta
 yellow  (1.0, 1.0, 0.0); // yellow
 JediSandwichCalorimeter::JediSandwichCalorimeter():JediCubicPolarimeter() {
 	fAbsorberMaterial=G4NistManager::Instance()->FindOrBuildMaterial("G4_Fe");
-	fCrystalLength=10*CLHEP::cm;
+	fHCalSizeXY=10*CLHEP::cm;
 	fAbsorberLength=5*CLHEP::cm;
 	fNumLayers=1;
 	DefineCommands();
@@ -30,19 +30,19 @@ JediSandwichCalorimeter::~JediSandwichCalorimeter() {
 
 G4LogicalVolume* JediSandwichCalorimeter::MakeCaloCrystal() {
 
-	auto motherLength=fCrystalLength;
+	auto motherLength=fHCalSizeXY;
 
-	auto detectorLength=(fCrystalLength-fAbsorberLength)/fNumLayers;
-	auto solidDetector= new G4Box("Scintillator",fCrystalWidth/2,fCrystalWidth/2,detectorLength/2);
-	auto logicDetector = new G4LogicalVolume(solidDetector,fScintillatorMaterial,"Scintillator");
+	auto detectorLength=(fHCalSizeXY-fAbsorberLength)/fNumLayers;
+	auto solidDetector= new G4Box("Scintillator",fHCalSizeZ/2,fHCalSizeZ/2,detectorLength/2);
+	auto logicDetector = new G4LogicalVolume(solidDetector,fHCalMaterial,"Scintillator");
 
-	auto solidMother= new G4Box("Detector",fCrystalWidth/2,fCrystalWidth/2,motherLength/2);
+	auto solidMother= new G4Box("Detector",fHCalSizeZ/2,fHCalSizeZ/2,motherLength/2);
 	auto logicMother=new G4LogicalVolume(solidMother,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"Detector");
 	if(fAbsorberLength>1e-3*CLHEP::mm){
-	  auto solidAbsorber= new G4Box("Absorber",(fCrystalWidth)/2,(fCrystalWidth)/2,fAbsorberLength/fNumLayers/2);
+	  auto solidAbsorber= new G4Box("Absorber",(fHCalSizeZ)/2,(fHCalSizeZ)/2,fAbsorberLength/fNumLayers/2);
 	  auto logicAbsorber = new G4LogicalVolume(solidAbsorber,fAbsorberMaterial,"Absorber");
 	  logicAbsorber->SetVisAttributes(new G4VisAttributes(blue));
-	  this->fCaloSDVolumes["Absorber"]=logicAbsorber;
+	  fSensitiveDetectors.Update("Absorber",SDtype::kCalorimeter,logVolVector{logicAbsorber});
 	  for(G4int iLayer=0;iLayer<fNumLayers;iLayer++)
 	    new G4PVPlacement(0,G4ThreeVector(0,0,-motherLength/2+iLayer*motherLength/fNumLayers+fAbsorberLength/2),logicAbsorber,"Absorber",logicMother,false,iLayer,false);
 	}
@@ -52,7 +52,7 @@ G4LogicalVolume* JediSandwichCalorimeter::MakeCaloCrystal() {
 	logicDetector->SetVisAttributes(new G4VisAttributes(red));
 	logicMother->SetVisAttributes(G4VisAttributes::Invisible);
 
-	this->fCaloSDVolumes["Calorimeter"]=logicDetector;
+	fSensitiveDetectors.Update("Calorimeter",SDtype::kCalorimeter,logVolVector{logicDetector});
 	return logicMother;
 }
 
@@ -74,10 +74,10 @@ G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 		while(std::getline(ifile, line)){
 			if(line[0]=='#') continue;
 			std::istringstream(line)>>copyNo>>name>>matName>>x>>y>>z>>placementX>>placementY>>placementZ;
-			if(!fCaloSDVolumes[name]){
-				fCaloSDVolumes[name]=MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z);;
+			if(fSensitiveDetectors.getMap().count(name)==0){
+				fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{MakeDetector(name,G4NistManager::Instance()->FindOrBuildMaterial(matName),x,y,z)});
 			}
-			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fCaloSDVolumes[name] , name, fLogicWorld, false, copyNo, false);
+			new G4PVPlacement (0, G4ThreeVector(placementX*CLHEP::mm,placementY*CLHEP::mm,placementZ*CLHEP::mm),fSensitiveDetectors.getMap().at(name).fLogVol[0] , name, fLogicWorld, false, copyNo, false);
 		}
 		return fPhysiWorld;
 	}
@@ -87,17 +87,17 @@ G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 	//aCrystal->SetVisAttributes(new G4VisAttributes(green));
 
 	if(fHodoscopeShape=="pizza"){
-		auto placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength/2);
+		auto placement=G4ThreeVector(0,0,fDetectorZ-fDeltaELength/2);
 		auto solidSlice=new G4Tubs("DeltaE",fInnerDetectorRadius,fOuterDetectorRadius,fDeltaELength/4,10*CLHEP::deg,10*CLHEP::deg);
 		auto aDetectorElement=new G4LogicalVolume(solidSlice,G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),"Hodoscope");
-		fCaloSDVolumes["Hodoscope"]=aDetectorElement;
+		fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{aDetectorElement});
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot1=new G4RotationMatrix();
 			rot1->rotateZ(iSlice*10*CLHEP::deg);
 			new G4PVPlacement (rot1, placement, aDetectorElement, "Hodoscope", fLogicWorld, false, iSlice);
 
 		}
-		placement=G4ThreeVector(0,0,DetectorZ-fDeltaELength);
+		placement=G4ThreeVector(0,0,fDetectorZ-fDeltaELength);
 		for(int iSlice=0;iSlice<36;iSlice++){
 			auto rot2=new G4RotationMatrix();
 			rot2->rotateZ(iSlice*10*CLHEP::deg+5*CLHEP::deg);
@@ -108,7 +108,7 @@ G4VPhysicalVolume* JediSandwichCalorimeter::Construct() {
 	else if(fHodoscopeShape=="square"){
 		auto aDeltaETile=MakeDetector("DeltaE",G4NistManager::Instance()->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),fDeltaEWidth,fDeltaEWidth,fDeltaELength);
 		aDeltaETile->SetVisAttributes(new G4VisAttributes(cyan));
-		fCaloSDVolumes["Hodoscope"]=aDeltaETile;
+		fSensitiveDetectors.Update("Hodoscope",SDtype::kCalorimeter,logVolVector{aDeltaETile});
 		PlaceHodoscope(aDeltaETile);
 	}
 	else{

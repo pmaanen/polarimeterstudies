@@ -31,24 +31,21 @@ Todo
 
 ===GENERATOR===
 
-You can set generator mode by /PolarimeterStudies/generator/Mode N
-
-The following modes are available:
-
-1: Particle Gun
-
-2: Read from input file in the format  eventid particleid id px/GeV py/GeV pz/GeV [vx/mm] [vy/mm] [vz/mm] [t/s]
-
-3: Built-In generator
-
 The following generators are available
 
-GENERATE: generate from TGenPhaseSpace
+gun: particle gun
 
-DCELASTIC: dc elastic scattering with the model taken from Ed's note
+infile: read from input file
 
-dcelastictime: dc elastic scattering with the model taken with
-intensity and polarization
+dcelastic: dc elastic scattering with the model taken from Ed's note
 
-DCBREAKUP: dc->pnc from the same note
-MUON: muon gun with model from PDG booklet
+dcelastictime: as above, polarization and intensity time dependent (hardcoded)
+
+breakup: dc->pnc from the same note
+
+muon: muon gun with model from PDG booklet
+
+===KNOWN ISSUES===
+
+Automatic change of sensitive detector type on geometry update does not work. Has to be done manually by command.
+

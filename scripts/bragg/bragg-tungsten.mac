@@ -1,0 +1,4 @@
+/analysis/setFileName {pname}-tungsten-{Ekin}.root
+/PolarimeterStudies/detector/material G4_W
+/PolarimeterStudies/detector/update
+/control/execute scripts/bragg-singlerun.mac

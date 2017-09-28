@@ -1,8 +1,0 @@
-/analysis/Enable
-/PolarimeterStudies/detector/calolength 90 mm
-/PolarimeterStudies/detector/absorberlength 40 mm
-/PolarimeterStudies/detector/update
-/PolarimeterStudies/generator/setGenerator dcelastic
-/PolarimeterStudies/dcelastic/energy 270 MeV
-#/PolarimeterStudies/dcelastic/thetamax 35 deg
-/run/beamOn 10000

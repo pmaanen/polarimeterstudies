@@ -1,8 +1,8 @@
 
 #define FILEWRITER
 #define MAIN
-#include "global.hh"
-#include "DetectorConstruction.hh"
+#include <JediConfigurationManager.hh>
+#include <DetectorConstruction.hh>
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else
@@ -21,13 +21,14 @@
 #endif
 
 #include "SingleCrystal.hh"
-
+#include <JediSensitiveDetector.hh>
 #include <FTFP_BERT.hh>
 
 #include <FileWriterPrimaryGeneratorAction.hh>
 
 #include <signal.h>
 #include <exception>
+#include <TROOT.h>
 namespace CLHEP {}
 using namespace CLHEP;
 
@@ -57,27 +58,15 @@ public:
 };
 
 int main(int argc,char** argv) {
-	namespace po = boost::program_options;
-	po::options_description description("Usage");
-	description.add_options()
-("help,h", "Display this help message")
-("general.config_file,c", po::value<std::string>(), "config file")
-("general.num_threads,t", po::value<int>()->default_value(1), "number of worker threads")
-("generator.generator,g", po::value<std::string>(), "generator name")
-("general.num_events,n", po::value<int>()->default_value(1), "number of events to be generated.")
-("generator.beam_energy,e", po::value<double>()->default_value(270),"energy of beam in MeV")
-("generator.beam_polarization,p", po::value<double>()->default_value(1),"polarization of beam")
-("generator.output_file,o", po::value<std::string>(),"output file"),
-("general.macro_file,m", po::value<std::string>(), "macro file");
 
 
-	std::ifstream cfg;
-	po::store(po::parse_command_line(argc, argv, description), gConfig);
-	notify(gConfig);
-	if(gConfig.count("general.config_file")){
-		cfg.open(gConfig["general.config_file"].as<std::string>().c_str(),std::ifstream::in);
-		po::store(po::parse_config_file(cfg, description), gConfig);
-		notify(gConfig);
+	std::unique_ptr<JediConfigurationManager> ConfigurationManager;
+	try{
+		ConfigurationManager.reset(new JediConfigurationManager(argc,argv));
+	}
+	catch(const std::exception& e){
+		std::cout<<"uncaught exception in main: "<<e.what()<<std::endl;
+		throw e;
 	}
 	// choose the Random engine
 	RanecuEngine* theEngine=new RanecuEngine;
@@ -86,8 +75,9 @@ int main(int argc,char** argv) {
 	}
 	HepRandom::setTheEngine(theEngine);
 #ifdef G4MULTITHREADED
+	ROOT::EnableThreadSafety();
 	G4MTRunManager* runManager = new G4MTRunManager;
-	runManager->SetNumberOfThreads(gConfig["general.num_threads"].as<int>());
+	runManager->SetNumberOfThreads(JediConfigurationManager::Instance()->GetMap()["general.num_threads"].as<int>());
 #else
 	G4RunManager* runManager = new G4RunManager;
 #endif
@@ -101,23 +91,23 @@ int main(int argc,char** argv) {
 	FTFP_BERT* the_physics =new FTFP_BERT(0);
 	runManager->SetUserInitialization(the_physics);
 	//User action initialization
-	if(gConfig.count("generator.output_file"))
+	if(JediConfigurationManager::Instance()->GetMap().count("general.output_file"))
 		runManager->SetUserInitialization(
-				new FileWriterActionInitialization(gConfig["general.num_events"].as<int>(),
-						G4String(gConfig["generator.generator"].as<std::string>()),
-						G4String(gConfig["generator.output_file"].as<std::string>()) )
+				new FileWriterActionInitialization(JediConfigurationManager::Instance()->GetMap()["general.num_events"].as<int>(),
+						G4String(JediConfigurationManager::Instance()->GetMap()["generator.generator"].as<std::string>()),
+						G4String(JediConfigurationManager::Instance()->GetMap()["general.output_file"].as<std::string>()) )
 		);
 	else
-		runManager->SetUserInitialization(new FileWriterActionInitialization(gConfig["general.num_events"].as<int>(),G4String(gConfig["generator.generator"].as<std::string>())));
+		runManager->SetUserInitialization(new FileWriterActionInitialization(JediConfigurationManager::Instance()->GetMap()["general.num_events"].as<int>(),G4String(JediConfigurationManager::Instance()->GetMap()["generator.generator"].as<std::string>())));
 	// Initialize G4 kernel
 	runManager->Initialize();
 	auto UImanager = G4UImanager::GetUIpointer();
 	std::stringstream o;
-	if(gConfig.count("general.macro_file")){
-		o<<"/control/execute "<<gConfig["general.macro_file"].as<std::string>().c_str();
+	if(JediConfigurationManager::Instance()->GetMap().count("general.macro_file")){
+		o<<"/control/execute "<<JediConfigurationManager::Instance()->GetMap()["general.macro_file"].as<std::string>().c_str();
 		UImanager->ApplyCommand(o.str().c_str());
 	}
-	runManager->BeamOn(gConfig["general.num_threads"].as<int>());
+	runManager->BeamOn(JediConfigurationManager::Instance()->GetMap()["general.num_threads"].as<int>());
 
 	// Job termination
 	// Free the store: user actions, physics_list and detector_description are

@@ -12,35 +12,31 @@
 class time_functions;
 class DCElasticTimeDependentGenerator: public DCElasticEventGenerator {
 public:
-	DCElasticTimeDependentGenerator(G4ParticleGun* pgun=0);
-	virtual ~DCElasticTimeDependentGenerator();
+	DCElasticTimeDependentGenerator();
+	virtual ~DCElasticTimeDependentGenerator()=default;
 
 
-	virtual genevent_t Generate();
-	virtual void Generate(G4Event* E);
+	virtual genvertex_t Generate();
 	virtual void DefineCommands();
 
 	void setMax(G4double max) {
 		fTmax = max;
-		fInitialized=false;
+		fRunInitialized=false;
 	}
 
 	void setMin(G4double min) {
 		fTmin = min;
-		fInitialized=false;
+		fRunInitialized=false;
 	}
 
 	void setTau(G4double tau) {
 		this->fTau = tau;
-		fInitialized=false;
+		fRunInitialized=false;
 	}
 
 private:
-	TF1* fPolarizationTimeDependence;
-	TF1* fIntensityTimeDependence;
 
-	time_functions* fTimeFunctions;
-	G4double fTmin,fTmax,fTau,fTCur;
+	G4double fTmin,fTmax,fTau,fTCur,fM;
 	void Initialize();
 
 
@@ -48,13 +44,11 @@ private:
 
 class time_functions{
 public:
-	//max,min,t
-	time_functions(Double_t, Double_t ,Double_t ){};
-	Double_t polarization_time_dependence(Double_t *x,Double_t *par){
-		return x[0]/(par[0])*2/3;
+	static G4double polarization_time_dependence(G4double t,G4double m){
+		return m*t*2./3.;
 	}
-	Double_t intensity_time_dependence(Double_t* x,Double_t *par){
-		return exp(-x[0]/par[0]);
+	static G4double intensity_time_dependence(G4double t,G4double tau){
+		return exp(-t/tau);
 	}
 };
 

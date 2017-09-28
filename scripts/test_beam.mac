@@ -1,0 +1,10 @@
+/run/initialize
+/analysis/Enable
+/gun/particle deuteron
+/PolarimeterStudies/generator/setGenerator beam
+/PolarimeterStudies/beam/position 0 0 -10 cm
+/PolarimeterStudies/beam/spotsize .425 .425 0 cm
+/PolarimeterStudies/beam/energy 270 MeV
+/gun/energy 270 MeV
+/analysis/setFileName beam.root
+/run/beamOn 1000

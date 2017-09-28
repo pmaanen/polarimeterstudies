@@ -6,7 +6,7 @@
  */
 
 #include "JediHexagonalPolarimeter.hh"
-
+#include "InternalBeampipe.hh"
 //***** include basic geometry classes
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -52,9 +52,9 @@
 #include "Analysis.hh"
 #include "G4GenericMessenger.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "global.hh"
 #include "G4ios.hh"
 #include <G4UnitsTable.hh>
+#include <JediConfigurationManager.hh>
 
 static G4Colour
 white   (1.0, 1.0, 1.0),  // white
@@ -71,9 +71,9 @@ using namespace CLHEP;
 JediHexagonalPolarimeter::JediHexagonalPolarimeter(std::string infile):JediPolarimeter(infile) {
 	DefineCommands();
 }
-G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
-	G4double rOuter[]={0,fCrystalWidth/sqrt(3),fCrystalWidth/sqrt(3),0};
-	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,fCrystalLength,fCrystalLength};
+G4LogicalVolume* JediHexagonalPolarimeter::BuildCaloCrystal() {
+	G4double rOuter[]={0,fHCalSizeZ/sqrt(3),fHCalSizeZ/sqrt(3),0};
+	G4double z[]={0*CLHEP::mm,0*CLHEP::mm,fHCalSizeXY,fHCalSizeXY};
 	G4Polyhedra* solidDetector= new G4Polyhedra("Detector", 0*CLHEP::deg, 360*CLHEP::deg, 6, 4, rOuter, z);
 	G4LogicalVolume* logicDetector = new G4LogicalVolume(solidDetector,G4NistManager::Instance()->FindOrBuildMaterial("G4_PbWO4"),"Detector");
 	G4VisAttributes* detectorVisAttr=new G4VisAttributes(green);
@@ -82,18 +82,45 @@ G4LogicalVolume* JediHexagonalPolarimeter::MakeCaloCrystal() {
 }
 
 G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
-	JediPolarimeter::Construct();
+
+
+
+	G4Box* solidWorld=new G4Box("World",fWorldSizeXY/2,fWorldSizeXY/2,fWorldSizeZ/2);
+	fLogicWorld = new G4LogicalVolume(solidWorld,G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic"),"World");
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	fPhysiWorld=new G4PVPlacement(0,G4ThreeVector(0,0,0),fLogicWorld,"World",0,0,0,0);
+
+	new InternalBeampipe(0,G4ThreeVector(0,0,fBeampipeLength/2),fLogicWorld,false,0,this);
+	G4cout<<"Beampipe Length="<<G4BestUnit(fBeampipeLength,"Length")<<G4endl;
+	G4cout<<"Detector Z="<<G4BestUnit(fDetectorZ,"Length")<<G4endl;
+	G4cout<<"Calo Length="<<G4BestUnit(fHCalSizeXY,"Length")<<G4endl;
+	fLogicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+
+/*
+	//TODO: Extract into class
+	auto carbon=G4NistManager::Instance()->FindOrBuildMaterial("G4_C");
+	auto solidTarget=new G4Box("Target",fTargetWidth/2,fTargetWidth/2,fTargetThickness/2);
+	auto logicTarget=new G4LogicalVolume(solidTarget,carbon,"CarbonTarget");
+	new G4PVPlacement(0,G4ThreeVector(0,0,targetThickness/2),logicTarget,"Target",logicWorld,0,false,0);
+*/
+
+
+
+
+
+
+
 	int ii=0;
-	G4LogicalVolume* aCrystal=MakeCaloCrystal();
+	G4LogicalVolume* aCrystal=BuildCaloCrystal();
 	G4cout<<"Geometry START"<<G4endl;
 	for(int iCrystalX=-fMaxCrystal-20; iCrystalX<fMaxCrystal+20;iCrystalX++){
 		for(int iCrystalY=-fMaxCrystal-20; iCrystalY<fMaxCrystal+20;iCrystalY++){
 			G4ThreeVector placement;
 			if(iCrystalX % 2 == 0)
-				placement=G4ThreeVector(iCrystalX*fCrystalWidth*sqrt(3)/2.,iCrystalY*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
+				placement=G4ThreeVector(iCrystalX*fHCalSizeZ*sqrt(3)/2.,iCrystalY*fHCalSizeZ,fDetectorZ+0.5*fHCalSizeXY);
 			else
-				placement=G4ThreeVector(iCrystalX*fCrystalWidth*sqrt(3)/2.,(iCrystalY+0.5)*fCrystalWidth,DetectorZ+0.5*fCrystalLength);
-			if((placement.perp()-fCrystalWidth/CLHEP::mm/2)<fInnerDetectorRadius or (placement.perp()-fCrystalWidth/CLHEP::mm/2)>fOuterDetectorRadius)
+				placement=G4ThreeVector(iCrystalX*fHCalSizeZ*sqrt(3)/2.,(iCrystalY+0.5)*fHCalSizeZ,fDetectorZ+0.5*fHCalSizeXY);
+			if((placement.perp()-fHCalSizeZ/CLHEP::mm/2)<fInnerDetectorRadius or (placement.perp()-fHCalSizeZ/CLHEP::mm/2)>fOuterDetectorRadius)
 				continue;
 			G4double phi=placement.phi();
 			if(phi<0)
@@ -102,19 +129,19 @@ G4VPhysicalVolume* JediHexagonalPolarimeter::Construct() {
 			new G4PVPlacement (0, placement, aCrystal, "Crystal", fLogicWorld, false, ++ii, false);
 		}
 	}
-
+	/*
 	G4cout<<"Geometry END"<<G4endl;
 	G4cout<<"----------------"<<G4endl;
 	G4cout<<"number of crystals: "<<ii<<G4endl;
 	G4cout<<"----------------"<<G4endl;
+	 */
 	return fPhysiWorld;
 }
 
 void JediHexagonalPolarimeter::DefineCommands() {
-G4GenericMessenger::Command& updateCmd
-= fMessenger->DeclareMethod("update",
-		&JediHexagonalPolarimeter::UpdateGeometry,
-		"update geometry");
+	fMessenger->DeclareMethod("update",
+			&JediHexagonalPolarimeter::GeometryHasChanged,
+			"update geometry");
 }
 
 JediHexagonalPolarimeter::~JediHexagonalPolarimeter() {

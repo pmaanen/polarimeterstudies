@@ -1,3 +1,0 @@
-/analysis/setFileName sim/sandwich-calib/{Ekin}.root
-/gun/energy {Ekin} MeV
-/run/beamOn 10000

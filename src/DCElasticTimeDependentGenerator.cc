@@ -10,57 +10,38 @@
 #include "G4ParticleGun.hh"
 #include "TF1.h"
 #include "Analysis.hh"
-DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator(G4ParticleGun* pgun):DCElasticEventGenerator(pgun) {
+DCElasticTimeDependentGenerator::DCElasticTimeDependentGenerator():DCElasticEventGenerator() {
 	fTmin=0;
 	fTmax=100;
 	fTau=25;
 	fTCur=0;
-	fTimeFunctions=new time_functions(fTmax,fTmin,fTau);
-	fPolarizationTimeDependence=new TF1("polarization_time_dependence",fTimeFunctions,&time_functions::polarization_time_dependence,fTmin,fTmax,1,"time_functions","polarization_time_dependence");
-	fIntensityTimeDependence=new TF1("intensity_time_dependence",fTimeFunctions,&time_functions::intensity_time_dependence,fTmin,fTmax,1,"time_functions","intensity_time_dependence");
 	DefineCommands();
 	fInitialized=false;
 }
 
-DCElasticTimeDependentGenerator::~DCElasticTimeDependentGenerator() {
-	delete fPolarizationTimeDependence;
-	delete fIntensityTimeDependence;
-}
-
-genevent_t DCElasticTimeDependentGenerator::Generate() {
-	if(!fInitialized)
+genvertex_t DCElasticTimeDependentGenerator::Generate() {
+	if(!fRunInitialized)
 		Initialize();
 
 	while(true){
 		//delta_t=t_cur+(t_max-t_cur)*G4UniformRand();
 		fTCur=(fTmax-fTmin)*G4UniformRand();
-		G4double acc=G4UniformRand()*fIntensityTimeDependence->GetMaximum(fTmin,fTmax);
+		//TODO
+		G4double acc=G4UniformRand()*time_functions::intensity_time_dependence(fTmin,fTau);
 		//G4cout<<"t_cur="<<t_cur<<" intensity_time_dependence->Eval(t_cur)="<<intensity_time_dependence->Eval(t_cur/CLHEP::s)<<" acc="<<acc<<G4endl;
-		if(fIntensityTimeDependence->Eval(fTCur/CLHEP::s)>acc)
+		if(time_functions::intensity_time_dependence(fTCur,fTau)>acc)
 			break;
 	}
 	//t_cur+=delta_t;
-	setBeamPolarization(fPolarizationTimeDependence->Eval(fTCur));
-	auto event=genevent_t(DCElasticEventGenerator::Generate());
+	//TODO
+	setBeamPolarization(time_functions::polarization_time_dependence(fTCur,fM));
+	auto event=DCElasticEventGenerator::Generate();
 	event.time=fTCur;
+
 	return event;
 }
 
-void DCElasticTimeDependentGenerator::Generate(G4Event* E) {
-	auto event=genevent_t(Generate());
-	fParticleGun->SetParticleTime(event.time*CLHEP::s);
-	for(auto iPart=event.particles.begin();iPart!=event.particles.end();++iPart){
-		fParticleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->FindParticle(iPart->id));
-		fParticleGun->SetParticleMomentum(G4ThreeVector(iPart->px,iPart->py,iPart->pz));
-		fParticleGun->GeneratePrimaryVertex(E);
-		Analysis* an=Analysis::Instance();
-	}
-	return;
-}
-
 void DCElasticTimeDependentGenerator::DefineCommands() {
-
-	fMessenger=new G4GenericMessenger(this, "/PolarimeterStudies/dCtime/", "time dependent event generator control");
 
 	fMessenger->DeclareMethod("polarization", &DCElasticTimeDependentGenerator::setBeamPolarization, "beam polarization");
 
@@ -78,8 +59,6 @@ void DCElasticTimeDependentGenerator::DefineCommands() {
 
 void DCElasticTimeDependentGenerator::Initialize() {
 	DCElasticEventGenerator::Initialize();
-	fIntensityTimeDependence->SetParameter(0,fTau/CLHEP::s);
-	fPolarizationTimeDependence->SetParameter(0,fTmax);
-	fInitialized=true;
+	fRunInitialized=true;
 	return;
 }

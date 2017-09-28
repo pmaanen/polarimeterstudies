@@ -14,8 +14,8 @@
 #include "RunAction.hh"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
-
-
+#include <memory>
+class JediPhysicsManager;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -23,12 +23,14 @@ class EventAction : public G4UserEventAction
 {
 	public:
 		virtual ~EventAction();
-		EventAction();
+		EventAction(JediPhysicsManager* physicsManager);
 		virtual void   BeginOfEventAction(const G4Event*);
 		virtual void   EndOfEventAction(const G4Event* evt);
 
 		G4int GetEventno();
 	private:
+
+		JediPhysicsManager* fPhysicsManager;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
