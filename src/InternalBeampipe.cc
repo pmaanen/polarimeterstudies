@@ -17,7 +17,7 @@ InternalBeampipe::InternalBeampipe(G4RotationMatrix *pRot,
 		G4bool BuildVacuumChamber) :
 		G4PVPlacement(pRot, tlate,
 				new G4LogicalVolume(new G4Tubs("temp", 0, 1, 1, 1, 1.),
-						G4Material::GetMaterial("G4_Galactic"), "temp", 0, 0, 0),
+						nullptr, "temp", 0, 0, 0),
 				"Beampipe", pMotherLogical, pMany, pCopyNo), fBuildVacuumChamber(
 				BuildVacuumChamber),fPolarimeter(dc) {
 
