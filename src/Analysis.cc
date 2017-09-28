@@ -75,7 +75,7 @@ void Analysis::EndOfRun(const G4Run* run) {
 	if(!fEnabled) return;
 	if(G4Threading::IsWorkerThread()) return;
 	for(const auto idet: fSD)
-		JediLog(G4String(G4Threading::G4GetThreadId())+" Analysis::EndOfRun "+idet->GetName(),2);
+		JediLog("Analysis::EndOfRun "+idet->GetName(),2);
 	JediLog("Creating file and trees...",1);
 
 	TFile OutFile(Filename(run),"RECREATE");
@@ -144,6 +144,7 @@ void Analysis::FillSimTree(const G4Run* aRun) {
 		}
 		SimTree.Fill();
 	}
+	SimTree.Write();
 }
 
 void Analysis::FillGenTree(const G4Run* aRun) {
@@ -151,7 +152,6 @@ void Analysis::FillGenTree(const G4Run* aRun) {
 	auto myRun=static_cast<const JediRun*> (aRun);
 	std::map<G4String,const std::vector<genvertex_t> *> genVertexPointer;
 	auto GenEvents=myRun->getGenEvents();
-	JediLog("GenEvents has "+G4String(GenEvents.size())+" entries. ",2);
 	if(!GenEvents.size())
 		G4Exception("Analysis::EndOfRun","",FatalException,"GenEvents are empty!");
 	std::vector<G4String> generatorNames;
@@ -171,6 +171,7 @@ void Analysis::FillGenTree(const G4Run* aRun) {
 		}
 		GenTree.Fill();
 	}
+	GenTree.Write();
 }
 
 
