@@ -38,6 +38,9 @@ void JediPhysicsManager::ResampleTrackLengthInTarget(const G4Track* track,
 	if ( ! trackInfo )
 		return;
 
+	if(!targetSolid)
+		return;
+
 	G4ThreeVector  position;
 	G4ThreeVector  direction;
 
@@ -65,6 +68,12 @@ void JediPhysicsManager::ResampleTrackLengthInTarget(const G4Track* track,
 }
 
 void JediPhysicsManager::GeometryHasChanged(const JediPolarimeter* setup) {
+	if(!setup->GetTarget()){
+		G4Exception("JediPhysicsManager::GeometryHasChanged","",JustWarning,"Target solid not found. Setting interaction length to infinite.");
+		proposedMaxIL=DBL_MAX;
+		basicMaxIL=DBL_MAX;
+		return;
+	}
 	targetSolid = setup->GetTarget()->GetSolid();
 	targetTransform = setup->GetTargetTransform().Inverse();
 	if(JediConfigurationManager::Instance()->GetVerbose()>3)

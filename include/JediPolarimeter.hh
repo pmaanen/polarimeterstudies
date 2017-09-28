@@ -90,14 +90,10 @@ public:
 	void setInfile(std::string infile) {fInfileName = infile;}
 	void setTargetThickness(G4double targetThickness) {fTargetThickness = targetThickness;GeometryHasChanged();}
 	void setTargetWidth(G4double targetWidth) {fTargetWidth = targetWidth; GeometryHasChanged();}
-	void setCaloMaterialName(G4String scintillatorMaterialName);
+	void setCaloMaterial(G4String scintillatorMaterialName);
 
 	//Getters for properties
-	virtual const G4LogicalVolume* GetTarget() const {
-		if(!fTarget)
-			G4Exception(" JediPolarimeter::GetTarget","",FatalException,
-					"Target ptr is null! Will probably crash now.");
-		return fTarget;};
+	virtual const G4LogicalVolume* GetTarget() const {return fTarget;}
 	virtual const G4AffineTransform GetTargetTransform() const {
 		return fTargetTransform;}
 	G4double getBeampipeRadius() const {return fBeampipeRadius;}
