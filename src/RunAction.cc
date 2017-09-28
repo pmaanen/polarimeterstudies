@@ -102,7 +102,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	if (an->isEnabled()){
 		an->EndOfRun(aRun);
 	}
-	// Complete clean-up
+
 	if(JediConfigurationManager::Instance()->GetVerbose()>2)
 		G4cout << "### Run " << aRun->GetRunID() << " (global) ended." << G4endl;
 	return;

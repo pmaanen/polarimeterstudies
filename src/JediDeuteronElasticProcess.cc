@@ -62,7 +62,7 @@ G4VParticleChange* JediDeuteronElasticProcess::PostStepDoIt(const G4Track& track
 	G4HadFinalState* result = 0;
 
 	CalculateTargetNucleus( track.GetMaterial() );
-	if(verboseLevel>1) {
+	if(verboseLevel>3) {
 		G4cout << "JediElasticProcess::PostStepDoIt for "
 				<< part->GetParticleName()
 				<<" scattered of Z "
