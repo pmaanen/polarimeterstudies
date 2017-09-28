@@ -71,7 +71,6 @@ void JediPolarimeter::DefineMaterials() {
 	G4double we[]={71.43*CLHEP::perCent,4.03*CLHEP::perCent,6.37*CLHEP::perCent,18.14*CLHEP::perCent,0.02*CLHEP::perCent};
 	std::vector<G4double> weights(we, we + sizeof(we) / sizeof(G4double) );
 	G4NistManager::Instance()->ConstructNewMaterial("LYSO",elements,weights,7.1*CLHEP::g/CLHEP::cm3);
-
 	return;
 }
 
@@ -155,8 +154,7 @@ void JediPolarimeter::DefineCommands() {
 
 	G4GenericMessenger::Command& matCmd
 	= fMessenger->DeclareMethod("material",
-			&JediPolarimeter::setCaloMaterialName,
-			"scintillator material");
+				    &JediPolarimeter::setCaloMaterial,"scintillator material");
 
 	fMessenger->DeclareMethodWithUnit("dEwidth","mm",
 			&JediPolarimeter::setDeltaEwidth,
@@ -254,16 +252,17 @@ void JediPolarimeter::ConstructSDandField() {
 		G4cout<<"JediPolarimeter::ConstructSDandField()"<<G4endl;
 
 	for (const auto & iSD : fSensitiveDetectors.getMap()){
-		if (!fSD[iSD.first].Get())
+	  if (!fSD[iSD.first].Get()){
 			fSD[iSD.first].Put(new JediSensitiveDetector(iSD.first,iSD.second.fType));
-		for(auto & iVol: iSD.second.fLogVol){
-			SetSensitiveDetector(iVol,fSD[iSD.first].Get());
-		}
+			G4SDManager::GetSDMpointer()->AddNewDetector(fSD[iSD.first].Get());
+	  }
+	  for(auto & iVol: iSD.second.fLogVol){
+	    iVol->SetSensitiveDetector(fSD[iSD.first].Get());
+	  }
 	}
 }
 
-void JediPolarimeter::setCaloMaterialName(
-		 G4String scintillatorMaterialName) {
+void JediPolarimeter::setCaloMaterial(G4String scintillatorMaterialName) {
 	auto oldName=fHCalMaterial->GetName();
 	auto newMat=G4NistManager::Instance()->FindOrBuildMaterial(scintillatorMaterialName);
 	if(!newMat){
