@@ -41,11 +41,14 @@ find_package(Boost 1.36 COMPONENTS program_options REQUIRED)
 # Setup Root include directories and compile definitions
 #
 find_package(ROOT REQUIRED)
+include(${ROOT_USE_FILE})
 
 include_directories(${PROJECT_SOURCE_DIR}/include  
                     ${Geant4_INCLUDE_DIR}
                     ${ROOT_INCLUDE_DIR}
-                    ${Boost_INCLUDE_DIR})
+                    ${Boost_INCLUDE_DIR}
+		    /opt/local/libexec/root6/include
+	)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
