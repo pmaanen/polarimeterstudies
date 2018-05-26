@@ -24,6 +24,7 @@ static auto al=man->FindOrBuildMaterial("G4_Al");
 static auto plastic=man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 static auto air=man->FindOrBuildMaterial("G4_Air");
 Testbeam2016b::Testbeam2016b():Testbeam2016a() {
+	fPhysicalBeampipe=nullptr;
 	Reset();
 	//Tedlar= Brand name for DuPont® polyvinyl fluoride
 	auto tedlarDens=1.76*CLHEP::g/CLHEP::cm3;
@@ -140,9 +141,12 @@ void Testbeam2016b::BuildSetup() {
 		new G4PVPlacement(0,G4ThreeVector(0,fArmWidth-fMinDistance+fDetectorHeight-fNy*fHCalSizeZ/2+2*CLHEP::cm,fDistance/2),logicMonitor,"Monitor",fLogicWorld,0,0,0);
 	}
 	if(fBeampipe){
+		if(!fPhysicalBeampipe){
 		auto bp=new ExternalBeampipe(0,G4ThreeVector(0,0,-fBeampipeLength/2-fTargetDistance),fLogicWorld,0,0,this);
+		fBeampipe=bp;
 		if(fDetectorName=="calibration")
 			fSensitiveDetectors.Update("ExitWindow",SDtype::kCalorimeter,logVolVector{bp->getExitWindow()});
+		}
 	}
 	if(fCollimator){
 		auto logicColl=BuildCollimator();
@@ -183,9 +187,6 @@ void Testbeam2016b::BuildSetup() {
 
 G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 
-	G4RotationMatrix* rot=new G4RotationMatrix();
-	rot->set(fPhi,fTheta,fPsi);
-
 	auto logicScintillator=BuildVolume<G4Box>("Crystal",fHCalMaterial,fHCalSizeXY/2,fHCalSizeXY/2,fHCalSizeZ/2);//BuildCaloCrystal(name);
 	auto solidCrystal=dynamic_cast<G4Box*>(logicScintillator->GetSolid());
 	fSensitiveDetectors.Update(name,SDtype::kCalorimeter,logVolVector{logicScintillator});
@@ -202,7 +203,7 @@ G4LogicalVolume* Testbeam2016b::BuildScintillatorMatrix(G4String name) {
 	for(G4int iX=0;iX<fNx;iX++){
 		for(G4int iY=0;iY<fNy;iY++){
 			index=10*iX+iY;
-			new G4PVPlacement (rot,
+			new G4PVPlacement (nullptr,
 					G4ThreeVector(-motherSizeX/2+(iX+0.5)*2*solidCrystal->GetXHalfLength(),
 							-motherSizeY/2+(iY+0.5)*2*solidCrystal->GetYHalfLength(),0),
 							logicScintillator, "hcalelement", logicMother, false,index , false);
@@ -351,7 +352,7 @@ void Testbeam2016b::DefineCommands() {
 
 	fMessenger->DeclareProperty("scenario",Testbeam2016b::fDetectorName,"");
 
-	fMessenger->DeclarePropertyWithUnit("armlength","mm",Testbeam2016b::fDistance,"");
+	fMessenger->DeclarePropertyWithUnit("distance","mm",Testbeam2016b::fDistance,"");
 
 	fMessenger->DeclarePropertyWithUnit("height","mm",Testbeam2016b::fDetectorHeight,"");
 

@@ -108,7 +108,7 @@ public:
 	G4double getHCalSizeXY() const {return fHCalSizeXY;}
 	G4double getHCalSizeZ() const {return fHCalSizeZ;}
 	G4Material* getHCalMaterial() const {return fHCalMaterial;}
-
+	G4GenericMessenger* getMessenger() {return fMessenger;}
 	//Hook for changed geometry
 	virtual void GeometryHasChanged();
 

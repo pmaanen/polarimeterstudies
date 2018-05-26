@@ -21,6 +21,7 @@ public:
 	G4LogicalVolume* getLateral();
 private:
 
+	G4double fRadius;
 	JediPolarimeter* fPolarimeter;
 	G4LogicalVolume *fExitWindow,*fLateral;
 	void CopyValues();

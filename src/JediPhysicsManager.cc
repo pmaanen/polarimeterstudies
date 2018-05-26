@@ -38,9 +38,10 @@ void JediPhysicsManager::ResampleTrackLengthInTarget(const G4Track* track,
 	if ( ! trackInfo )
 		return;
 
-	if(!targetSolid)
+	if(!targetSolid){
+		trackInfo->ActivateStudiedProcess(false);
 		return;
-
+	}
 	G4ThreeVector  position;
 	G4ThreeVector  direction;
 

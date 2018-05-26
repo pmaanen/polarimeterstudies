@@ -39,19 +39,20 @@ protected:
 	G4String fTargetMaterialName;
 	G4Material* fTedlar;
 
+	G4PVPlacement* fPhysicalBeampipe;
 
-
-
+	virtual G4LogicalVolume* BuildCollimator();
+	virtual G4LogicalVolume* BuildScintillatorMatrix(G4String name);
+	virtual void BuildSetup();
+	virtual void BuildTarget();
+	virtual void DefineCommands();
 private:
-	G4LogicalVolume* BuildCollimator();
+
 	void BuildSupportElements();
-	void BuildSetup();
-	G4LogicalVolume* BuildScintillatorMatrix(G4String name);
+
 	void Build2016BDetector();
 	void BuildEffectiveDetector();
 	void BuildSandwichDetector();
-	void BuildTarget();
-	virtual void DefineCommands();
 	void BuildCalibrationSetup();
 	void BuildIsolationSetup();
 	void Reset();

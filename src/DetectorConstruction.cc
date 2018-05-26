@@ -24,6 +24,7 @@
 #include <JediConfigurationManager.hh>
 #include <Testbeam2016a.hh>
 #include <Testbeam2016b.hh>
+#include <Testbeam2017a.hh>
 #include <GDMLReader.hh>
 #include <map>
 
@@ -65,6 +66,10 @@ G4VUserDetectorConstruction* DetectorConstruction::Create() {
 	{
 		Geometry= new Testbeam2016b();
 	}
+	else if(name=="testbeam2017a")
+		{
+			Geometry= new Testbeam2017a();
+		}
 	else if(name=="gdml")
 	{
 		auto filename=GeometryName.substr(GeometryName.find(":")+1,GeometryName.size());

@@ -19,6 +19,11 @@ ExternalBeampipe::ExternalBeampipe(G4RotationMatrix *pRot, const G4ThreeVector &
 						"Beampipe", pMotherLogical, pMany, pCopyNo), fPolarimeter(dc) {
 
 
+	fRadius=5*CLHEP::cm;
+
+
+	dc->getMessenger()->DeclarePropertyWithUnit("radius","cm",ExternalBeampipe::fRadius,"");
+
 	auto al = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
 	auto uhv = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 	auto steel = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
